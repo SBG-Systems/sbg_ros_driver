@@ -101,7 +101,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   # INCLUDE_DIRS sbgECom
-  # LIBRARIES sbgECom
+  # LIBRARIES ${PROJECT_NAME} 
 #  CATKIN_DEPENDS roscpp sensor_msgs std_msgs
   # DEPENDS sbgECom
 )
@@ -119,9 +119,9 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/sbgECom/src
 )
 
-file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/sbgECom/src/*.c)
-file(GLOB_RECURSE COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/*.c)
-list(REMOVE_ITEM COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/interfaces/sbgInterfaceSerialWin.c)
+# file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/sbgECom/src/*.c)
+# file(GLOB_RECURSE COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/*.c)
+# list(REMOVE_ITEM COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/interfaces/sbgInterfaceSerialWin.c)
 
 # MESSAGE( STATUS ${COMMON_SRC})
 
@@ -146,9 +146,10 @@ target_compile_options(ellipse PRIVATE -fpermissive)
 # add_dependencies(ellipse sbgECom)
 
 ## Specify libraries to link a library or executable target against
+add_subdirectory(sbgECom)
 target_link_libraries(ellipse
-   # ${CMAKE_SOURCE_DIR}/sbgECom/bin/libsbgECom.a
    ${catkin_LIBRARIES}
+   sbgECom
 )
 
 #############
