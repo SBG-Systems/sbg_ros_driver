@@ -10,8 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-add_subdirectory(sbgECom)
-
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -102,10 +100,10 @@ add_subdirectory(sbgECom)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES sbgECom
+  # INCLUDE_DIRS sbgECom
+  # LIBRARIES sbgECom
 #  CATKIN_DEPENDS roscpp sensor_msgs std_msgs
-#  DEPENDS system_lib
+  # DEPENDS sbgECom
 )
 
 ###########
@@ -117,9 +115,15 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  sbgECom/common
-  sbgECom/src
+  ${PROJECT_SOURCE_DIR}/sbgECom/common
+  ${PROJECT_SOURCE_DIR}/sbgECom/src
 )
+
+file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/sbgECom/src/*.c)
+file(GLOB_RECURSE COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/*.c)
+list(REMOVE_ITEM COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/interfaces/sbgInterfaceSerialWin.c)
+
+# MESSAGE( STATUS ${COMMON_SRC})
 
 ## Declare a C++ library
 # add_library(sbg
@@ -132,20 +136,18 @@ include_directories(
 # add_dependencies(sbg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(ellipse src/ellipse.cpp)
+add_executable(ellipse src/ellipse.cpp ${SRC} ${COMMON_SRC})
 
 target_compile_options(ellipse PRIVATE -fpermissive)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(sbg_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-add_dependencies(ellipse sbgECom)
+# add_dependencies(ellipse sbgECom)
 
 ## Specify libraries to link a library or executable target against
-
 target_link_libraries(ellipse
-   ${CMAKE_SOURCE_DIR}/sbgECom/bin/libsbgECom.a
+   # ${CMAKE_SOURCE_DIR}/sbgECom/bin/libsbgECom.a
    ${catkin_LIBRARIES}
 )
 

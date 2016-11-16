@@ -2,6 +2,7 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/NavSatFix.h"
 #include <sbgEComLib.h>
+#include <sbgEComIds.h>
 
 sensor_msgs::Imu imu_msg;
 sensor_msgs::NavSatFix nav_msg;
@@ -26,7 +27,7 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const Sb
       nav_msg.altitude  = pLogData->ekfNavData.position[2];
       new_nav_msg = true;
       break;
-    case SBG_ECOM_LOG_SHIP_MOTION_0:
+    case SBG_ECOM_LOG_SHIP_MOTION:
       imu_msg.linear_acceleration.x = pLogData->shipMotionData.shipVel[0];
       imu_msg.linear_acceleration.y = pLogData->shipMotionData.shipVel[1];
       imu_msg.linear_acceleration.z = pLogData->shipMotionData.shipVel[2];
@@ -58,9 +59,10 @@ int main(int argc, char **argv)
   ros::Publisher gps_pub = n.advertise<sensor_msgs::NavSatFix>("fix", 10);
 
   std::string uart_port;
+  int uart_baud_rate;
 
-  n.param("uart_port", uart_port, "/dev/ttyUSB0");
-  n.param("uart_baud_rate", uart_baud_rate, 115200);
+  n.param<std::string>("uart_port", uart_port, "/dev/ttyUSB0");
+  n.param<int>("uart_baud_rate", uart_baud_rate, 115200);
 
     // ********************* Initialize the SBG  *********************
   SbgEComHandle       comHandle;
@@ -87,7 +89,7 @@ int main(int argc, char **argv)
   errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV, SBG_ECOM_OUTPUT_MODE_DIV_8);
   if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
 
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION_0, SBG_ECOM_OUTPUT_MODE_DIV_8);
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, SBG_ECOM_OUTPUT_MODE_DIV_8);
   if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
 
   // SAVE AND REBOOT
