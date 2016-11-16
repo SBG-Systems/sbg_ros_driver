@@ -1,2 +1,2 @@
 # sbg_ros_driver
-Driver for SBG System Ellipse IMU
+ROS driver for SBG System Ellipse IMU
