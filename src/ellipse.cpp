@@ -1,0 +1,134 @@
+#include "ros/ros.h"
+#include "sensor_msgs/Imu.h"
+#include "sensor_msgs/NavSatFix.h"
+#include <sbgEComLib.h>
+
+sensor_msgs::Imu imu_msg;
+sensor_msgs::NavSatFix nav_msg;
+bool new_imu_msg;
+bool new_nav_msg;
+bool new_twist_msg;
+
+SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const SbgBinaryLogData *pLogData, void *pUserArg)
+{
+  // float time_of_week;
+  switch (logCmd){
+    case SBG_ECOM_LOG_EKF_QUAT:
+      imu_msg.orientation.x = pLogData->ekfEulerData.euler[1];
+      imu_msg.orientation.y = pLogData->ekfEulerData.euler[2];
+      imu_msg.orientation.z = pLogData->ekfEulerData.euler[3];
+      imu_msg.orientation.w = pLogData->ekfEulerData.euler[0];
+      new_imu_msg = true;
+      break;
+    case SBG_ECOM_LOG_EKF_NAV:
+      nav_msg.latitude  = pLogData->ekfNavData.position[0];
+      nav_msg.longitude = pLogData->ekfNavData.position[1];
+      nav_msg.altitude  = pLogData->ekfNavData.position[2];
+      new_nav_msg = true;
+      break;
+    case SBG_ECOM_LOG_SHIP_MOTION_0:
+      imu_msg.linear_acceleration.x = pLogData->shipMotionData.shipVel[0];
+      imu_msg.linear_acceleration.y = pLogData->shipMotionData.shipVel[1];
+      imu_msg.linear_acceleration.z = pLogData->shipMotionData.shipVel[2];
+      new_imu_msg = true;
+      break;
+    // case SBG_ECOM_LOG_UTC_TIME:
+    //   pInsSBG->new_time = true;
+    //   pInsSBG->year          = pLogData->utcData.year;
+    //   pInsSBG->month         = pLogData->utcData.month;
+    //   pInsSBG->day           = pLogData->utcData.day;
+    //   pInsSBG->hour          = pLogData->utcData.hour;
+    //   pInsSBG->minute        = pLogData->utcData.minute;
+    //   pInsSBG->second        = pLogData->utcData.second;
+    //   pInsSBG->nanoSecond    = pLogData->utcData.nanoSecond;
+    //   pInsSBG->gpsTimeOfWeek = pLogData->utcData.gpsTimeOfWeek;
+      // break;
+    default:
+      break;
+  }
+  return SBG_NO_ERROR;
+}
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "sbg_ellipse");
+
+  ros::NodeHandle n;
+  ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu", 10);
+  ros::Publisher gps_pub = n.advertise<sensor_msgs::NavSatFix>("fix", 10);
+
+  std::string uart_port;
+
+  n.param("uart_port", uart_port, "/dev/ttyUSB0");
+  n.param("uart_baud_rate", uart_baud_rate, 115200);
+
+    // ********************* Initialize the SBG  *********************
+  SbgEComHandle       comHandle;
+  SbgInterface        sbgInterface;
+  SbgEComDeviceInfo   deviceInfo;
+  SbgErrorCode        errorCode;
+
+  errorCode = sbgInterfaceSerialCreate(&sbgInterface, uart_port.c_str(), uart_baud_rate);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgInterfaceSerialCreate Error");}
+
+  errorCode = sbgEComInit(&comHandle, &sbgInterface); // Init the SBG
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComInit Error");}
+
+  errorCode = sbgEComCmdGetInfo(&comHandle, &deviceInfo); // Get device info
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdGetInfo Error");}
+
+  ROS_INFO("CONNEXTION SET-UP");
+
+  // ****************************** SBG Config ******************************
+
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT, SBG_ECOM_OUTPUT_MODE_DIV_8);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
+
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV, SBG_ECOM_OUTPUT_MODE_DIV_8);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
+
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION_0, SBG_ECOM_OUTPUT_MODE_DIV_8);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
+
+  // SAVE AND REBOOT
+  errorCode = sbgEComCmdSettingsAction(&comHandle, SBG_ECOM_SAVE_SETTINGS);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdSettingsAction Error");}
+
+  ROS_INFO("CONFIGURATION DONE");
+
+  // ************************** SBG Callback for data ************************
+  bool test = false;
+  errorCode = sbgEComSetReceiveCallback(&comHandle, onLogReceived, NULL);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComSetReceiveCallback Error");}
+
+  ROS_INFO("START RECEIVING DATA");
+
+  imu_msg.header.frame_id = "map";
+  nav_msg.header.frame_id = "map";
+
+  ros::Rate loop_rate(25);
+  while (ros::ok())
+  {
+    /**
+     * This is a message object. You stuff it with data, and then publish it.
+     */
+    int errorCode = sbgEComHandle(&comHandle);
+
+    if(new_nav_msg){
+      nav_msg.header.stamp = ros::Time::now();
+      gps_pub.publish(nav_msg);  
+      new_nav_msg = false;
+    }
+
+    if(new_imu_msg){
+      imu_msg.header.stamp = ros::Time::now();
+      imu_pub.publish(imu_msg);
+      new_imu_msg = false;
+    }
+
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+
+  return 0;
+}
