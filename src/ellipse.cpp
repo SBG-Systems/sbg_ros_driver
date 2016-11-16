@@ -10,10 +10,19 @@ bool new_imu_msg;
 bool new_nav_msg;
 bool new_twist_msg;
 
-SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComCmdId logCmd, const SbgBinaryLogData *pLogData, void *pUserArg)
+/*!
+ *  Callback definition called each time a new log is received.
+ *  \param[in]  pHandle                 Valid handle on the sbgECom instance that has called this callback.
+ *  \param[in]  msgClass                Class of the message we have received
+ *  \param[in]  msg                   Message ID of the log received.
+ *  \param[in]  pLogData                Contains the received log data as an union.
+ *  \param[in]  pUserArg                Optional user supplied argument.
+ *  \return                       SBG_NO_ERROR if the received log has been used successfully.
+ */
+SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg)
 {
   // float time_of_week;
-  switch (logCmd){
+  switch (msg){
     case SBG_ECOM_LOG_EKF_QUAT:
       imu_msg.orientation.x = pLogData->ekfEulerData.euler[1];
       imu_msg.orientation.y = pLogData->ekfEulerData.euler[2];
@@ -82,6 +91,7 @@ int main(int argc, char **argv)
   ROS_INFO("CONNEXTION SET-UP");
 
   // ****************************** SBG Config ******************************
+  // ToDo: improve configuration capabilities
 
   errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT, SBG_ECOM_OUTPUT_MODE_DIV_8);
   if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
@@ -100,8 +110,7 @@ int main(int argc, char **argv)
 
   // ************************** SBG Callback for data ************************
   bool test = false;
-  errorCode = sbgEComSetReceiveCallback(&comHandle, onLogReceived, NULL);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComSetReceiveCallback Error");}
+  sbgEComSetReceiveLogCallback(&comHandle, onLogReceived, NULL);
 
   ROS_INFO("START RECEIVING DATA");
 
@@ -111,9 +120,6 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(25);
   while (ros::ok())
   {
-    /**
-     * This is a message object. You stuff it with data, and then publish it.
-     */
     int errorCode = sbgEComHandle(&comHandle);
 
     if(new_nav_msg){
