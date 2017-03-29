@@ -1,11 +1,13 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/NavSatFix.h"
+#include "geometry_msgs/PoseStamped.h"
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
 
 sensor_msgs::Imu imu_msg;
 sensor_msgs::NavSatFix nav_msg;
+geometry_msgs::PoseStamped pose_msg;
 bool new_imu_msg;
 bool new_nav_msg;
 bool new_twist_msg;
@@ -28,6 +30,12 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
       imu_msg.orientation.y = pLogData->ekfEulerData.euler[2];
       imu_msg.orientation.z = pLogData->ekfEulerData.euler[3];
       imu_msg.orientation.w = pLogData->ekfEulerData.euler[0];
+
+      pose_msg.pose.orientation.x = pLogData->ekfEulerData.euler[1];
+      pose_msg.pose.orientation.y = pLogData->ekfEulerData.euler[2];
+      pose_msg.pose.orientation.z = pLogData->ekfEulerData.euler[3];
+      pose_msg.pose.orientation.w = pLogData->ekfEulerData.euler[0];
+
       new_imu_msg = true;
       break;
     case SBG_ECOM_LOG_EKF_NAV:
@@ -37,9 +45,20 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
       new_nav_msg = true;
       break;
     case SBG_ECOM_LOG_SHIP_MOTION:
-      imu_msg.linear_acceleration.x = pLogData->shipMotionData.shipVel[0];
-      imu_msg.linear_acceleration.y = pLogData->shipMotionData.shipVel[1];
-      imu_msg.linear_acceleration.z = pLogData->shipMotionData.shipVel[2];
+      // imu_msg.linear_acceleration.x = pLogData->shipMotionData.shipVel[0];
+      // imu_msg.linear_acceleration.y = pLogData->shipMotionData.shipVel[1];
+      // imu_msg.linear_acceleration.z = pLogData->shipMotionData.shipVel[2];
+      // new_imu_msg = true;
+      break;
+
+    case SBG_ECOM_LOG_IMU_DATA:
+      imu_msg.linear_acceleration.x = pLogData->imuData.accelerometers[0];
+      imu_msg.linear_acceleration.y = pLogData->imuData.accelerometers[1];
+      imu_msg.linear_acceleration.z = pLogData->imuData.accelerometers[2];
+
+      imu_msg.angular_velocity.x = pLogData->imuData.gyroscopes[0];
+      imu_msg.angular_velocity.y = pLogData->imuData.gyroscopes[1];
+      imu_msg.angular_velocity.z = pLogData->imuData.gyroscopes[2];
       new_imu_msg = true;
       break;
     // case SBG_ECOM_LOG_UTC_TIME:
@@ -66,6 +85,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu", 10);
   ros::Publisher gps_pub = n.advertise<sensor_msgs::NavSatFix>("fix", 10);
+  ros::Publisher pose_pub = n.advertise<geometry_msgs::PoseStamped>("imu_pose", 10);
 
   std::string uart_port;
   int uart_baud_rate;
@@ -94,13 +114,16 @@ int main(int argc, char **argv)
   // ToDo: improve configuration capabilities
 
   errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_EKF_QUAT Error");}
 
   errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_EKF_NAV Error");}
+
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA, SBG_ECOM_OUTPUT_MODE_DIV_8);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_IMU_DATA Error");}
 
   errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf EKF Error");}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_SHIP_MOTION Error");}
 
   // SAVE AND REBOOT
   errorCode = sbgEComCmdSettingsAction(&comHandle, SBG_ECOM_SAVE_SETTINGS);
@@ -116,6 +139,7 @@ int main(int argc, char **argv)
 
   imu_msg.header.frame_id = "map";
   nav_msg.header.frame_id = "map";
+  pose_msg.header.frame_id = "map";
 
   ros::Rate loop_rate(25);
   while (ros::ok())
@@ -131,6 +155,9 @@ int main(int argc, char **argv)
     if(new_imu_msg){
       imu_msg.header.stamp = ros::Time::now();
       imu_pub.publish(imu_msg);
+      pose_msg.header.stamp = ros::Time::now();
+      pose_pub.publish(pose_msg);
+
       new_imu_msg = false;
     }
 
