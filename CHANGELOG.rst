@@ -2,8 +2,8 @@
 Changelog for package sbg_ros_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.6 (2017-03-31)
+------------------
 * Add launch example
 * Improve message type & data provided
 * Contributors: Thomas Le Mézo
