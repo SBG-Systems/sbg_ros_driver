@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "sbg_ellipse");
 
-  ros::NodeHandle n;
+  ros::NodeHandle n("~");
   ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu", 10);
   ros::Publisher gps_pub = n.advertise<sensor_msgs::NavSatFix>("fix", 10);
   ros::Publisher pose_pub = n.advertise<geometry_msgs::PoseStamped>("imu_pose", 10);
