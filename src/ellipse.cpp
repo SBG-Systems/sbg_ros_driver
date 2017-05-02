@@ -93,6 +93,8 @@ int main(int argc, char **argv)
   n.param<std::string>("uart_port", uart_port, "/dev/ttyUSB0");
   n.param<int>("uart_baud_rate", uart_baud_rate, 115200);
 
+  ROS_DEBUG_STREAM("starting sbg_ellipse node");
+
     // ********************* Initialize the SBG  *********************
   SbgEComHandle       comHandle;
   SbgInterface        sbgInterface;
@@ -100,15 +102,28 @@ int main(int argc, char **argv)
   SbgErrorCode        errorCode;
 
   errorCode = sbgInterfaceSerialCreate(&sbgInterface, uart_port.c_str(), uart_baud_rate);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgInterfaceSerialCreate Error");}
+  if (errorCode != SBG_NO_ERROR)
+  {
+    ROS_FATAL_STREAM("sbgInterfaceSerialCreate Error: " << errorCode);
+    return -1;
+  }
 
   errorCode = sbgEComInit(&comHandle, &sbgInterface); // Init the SBG
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComInit Error");}
+  if (errorCode != SBG_NO_ERROR)
+  {
+    ROS_FATAL_STREAM("sbgEComInit Error: " << errorCode);
+    return -1;
+  }
 
+  ROS_DEBUG_STREAM("connecting to " << uart_port << ":" << uart_baud_rate);
   errorCode = sbgEComCmdGetInfo(&comHandle, &deviceInfo); // Get device info
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdGetInfo Error");}
+  if (errorCode != SBG_NO_ERROR)
+  {
+    ROS_FATAL_STREAM("sbgEComCmdGetInfo Error: " << errorCode);
+    return -1;
+  }
 
-  ROS_INFO("CONNEXTION SET-UP");
+  ROS_INFO_STREAM("connected to " << deviceInfo.productCode << " serial no. " << deviceInfo.serialNumber);
 
   // ****************************** SBG Config ******************************
   // ToDo: improve configuration capabilities
@@ -129,7 +144,7 @@ int main(int argc, char **argv)
   errorCode = sbgEComCmdSettingsAction(&comHandle, SBG_ECOM_SAVE_SETTINGS);
   if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdSettingsAction Error");}
 
-  ROS_INFO("CONFIGURATION DONE");
+  ROS_DEBUG("CONFIGURATION DONE");
 
   // ************************** SBG Callback for data ************************
   bool test = false;
