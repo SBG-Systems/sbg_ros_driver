@@ -1,7 +1,10 @@
+#include <cmath>
+
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/NavSatFix.h"
 #include "geometry_msgs/PoseStamped.h"
+
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
 
@@ -38,18 +41,42 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
 
       new_imu_msg = true;
       break;
+/*
     case SBG_ECOM_LOG_EKF_NAV:
       nav_msg.latitude  = pLogData->ekfNavData.position[0];
       nav_msg.longitude = pLogData->ekfNavData.position[1];
       nav_msg.altitude  = pLogData->ekfNavData.position[2];
       new_nav_msg = true;
       break;
+*/
+    case SBG_ECOM_LOG_GPS1_POS:
+      // GPS status
+      nav_msg.status.status = 0;
+      nav_msg.status.service = 0;
+      if (pLogData->gpsPosData.status & 0b111111) nav_msg.status.status = -1; // GPS error
+      if ((pLogData->gpsPosData.status & 0b111111) == 0) nav_msg.status.status = -1;
+      if (pLogData->gpsPosData.status & (0b111 << 12)) nav_msg.status.service |= 1; // using GPS
+      if (pLogData->gpsPosData.status & (0b11 << 15)) nav_msg.status.service |= 2; // using GLONASS
+
+      nav_msg.latitude = pLogData->gpsPosData.latitude;
+      nav_msg.longitude = pLogData->gpsPosData.longitude;
+      nav_msg.altitude = pLogData->gpsPosData.altitude + (double)pLogData->gpsPosData.undulation;
+
+      // GPS position errors
+      nav_msg.position_covariance[0] = pow(pLogData->gpsPosData.longitudeAccuracy,2);
+      nav_msg.position_covariance[3] = pow(pLogData->gpsPosData.latitudeAccuracy,2);
+      nav_msg.position_covariance[6] = pow(pLogData->gpsPosData.altitudeAccuracy,2);
+
+      new_nav_msg = true;
+      break;
+/*
     case SBG_ECOM_LOG_SHIP_MOTION:
       // imu_msg.linear_acceleration.x = pLogData->shipMotionData.shipVel[0];
       // imu_msg.linear_acceleration.y = pLogData->shipMotionData.shipVel[1];
       // imu_msg.linear_acceleration.z = pLogData->shipMotionData.shipVel[2];
       // new_imu_msg = true;
       break;
+*/
 
     case SBG_ECOM_LOG_IMU_DATA:
       imu_msg.linear_acceleration.x = pLogData->imuData.accelerometers[0];
@@ -137,8 +164,16 @@ int main(int argc, char **argv)
   errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA, SBG_ECOM_OUTPUT_MODE_DIV_8);
   if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_IMU_DATA Error");}
 
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_SHIP_MOTION Error");}
+  //errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, SBG_ECOM_OUTPUT_MODE_DIV_8);
+  //if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_SHIP_MOTION Error");}
+
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_POS, SBG_ECOM_OUTPUT_MODE_NEW_DATA);
+  if (errorCode != SBG_NO_ERROR)
+  {
+    char errorMsg[256];
+    sbgEComErrorToString(errorCode, errorMsg);
+    ROS_ERROR_STREAM("sbgEComCmdOutputSetConf SBG_ECOM_LOG_GPS1_POS Error: " << errorMsg);
+  }
 
   // SAVE AND REBOOT
   errorCode = sbgEComCmdSettingsAction(&comHandle, SBG_ECOM_SAVE_SETTINGS);
