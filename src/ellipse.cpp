@@ -1,19 +1,14 @@
+#include "sbg_driver/ellipse.h"
+
 #include <cmath>
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 
-#include "ros/ros.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/NavSatFix.h"
-#include "geometry_msgs/PoseStamped.h"
+#include <diagnostic_updater/diagnostic_updater.h>
 
-#include <sbgEComLib.h>
-#include <sbgEComIds.h>
+using namespace sbg_driver;
 
-sensor_msgs::Imu imu_msg;
-sensor_msgs::NavSatFix nav_msg;
-geometry_msgs::PoseStamped pose_msg;
-bool new_imu_msg;
-bool new_nav_msg;
-bool new_twist_msg;
+using namespace boost::posix_time;
+using namespace boost::gregorian;
 
 /*!
  *  Callback definition called each time a new log is received.
@@ -24,11 +19,23 @@ bool new_twist_msg;
  *  \param[in]  pUserArg                Optional user supplied argument.
  *  \return                       SBG_NO_ERROR if the received log has been used successfully.
  */
-SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg)
+SbgErrorCode sbg_driver::onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg)
 {
+  SbgDriver* node = static_cast<SbgDriver*>(pUserArg);
+  ROS_DEBUG_NAMED("sbgECom", "received log data id: %d", msg);
+
   // float time_of_week;
   switch (msg){
     case SBG_ECOM_LOG_EKF_QUAT:
+    {
+      sensor_msgs::Imu imu_msg;
+      geometry_msgs::PoseStamped pose_msg;
+
+      imu_msg.header.stamp = ros::Time::now();
+      imu_msg.header.frame_id = "map";
+      pose_msg.header.stamp = ros::Time::now();
+      pose_msg.header.frame_id = "map";
+
       imu_msg.orientation.x = pLogData->ekfEulerData.euler[1];
       imu_msg.orientation.y = pLogData->ekfEulerData.euler[2];
       imu_msg.orientation.z = pLogData->ekfEulerData.euler[3];
@@ -39,24 +46,28 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
       pose_msg.pose.orientation.z = pLogData->ekfEulerData.euler[3];
       pose_msg.pose.orientation.w = pLogData->ekfEulerData.euler[0];
 
-      new_imu_msg = true;
+      node->imu_pub.publish(imu_msg);
+      node->pose_pub.publish(pose_msg);
       break;
-/*
-    case SBG_ECOM_LOG_EKF_NAV:
-      nav_msg.latitude  = pLogData->ekfNavData.position[0];
-      nav_msg.longitude = pLogData->ekfNavData.position[1];
-      nav_msg.altitude  = pLogData->ekfNavData.position[2];
-      new_nav_msg = true;
-      break;
-*/
+    }
+
     case SBG_ECOM_LOG_GPS1_POS:
+    {
+      sensor_msgs::NavSatFix nav_msg;
+      nav_msg.header.stamp = ros::Time::now();
+      nav_msg.header.frame_id = "map";
+
       // GPS status
       nav_msg.status.status = 0;
       nav_msg.status.service = 0;
-      if (pLogData->gpsPosData.status & 0b111111) nav_msg.status.status = -1; // GPS error
-      if ((pLogData->gpsPosData.status & 0b111111) == 0) nav_msg.status.status = -1;
-      if (pLogData->gpsPosData.status & (0b111 << 12)) nav_msg.status.service |= 1; // using GPS
-      if (pLogData->gpsPosData.status & (0b11 << 15)) nav_msg.status.service |= 2; // using GLONASS
+      if ((pLogData->gpsPosData.status & (SBG_ECOM_GPS_POS_STATUS_MASK << SBG_ECOM_GPS_POS_STATUS_SHIFT)) != SBG_ECOM_POS_SOL_COMPUTED)
+        nav_msg.status.status = -1;
+      if ((pLogData->gpsPosData.status & (SBG_ECOM_GPS_POS_TYPE_MASK << SBG_ECOM_GPS_POS_TYPE_SHIFT)) == SBG_ECOM_POS_NO_SOLUTION)
+        nav_msg.status.status = -1;
+      if (pLogData->gpsPosData.status & (0b111 << 12)) // using GPS
+        nav_msg.status.service |= 1;
+      if (pLogData->gpsPosData.status & (0b11 << 15)) // using GLONASS
+        nav_msg.status.service |= 2;
 
       nav_msg.latitude = pLogData->gpsPosData.latitude;
       nav_msg.longitude = pLogData->gpsPosData.longitude;
@@ -67,18 +78,16 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
       nav_msg.position_covariance[3] = pow(pLogData->gpsPosData.latitudeAccuracy,2);
       nav_msg.position_covariance[6] = pow(pLogData->gpsPosData.altitudeAccuracy,2);
 
-      new_nav_msg = true;
+      node->gps_pub.publish(nav_msg);
       break;
-/*
-    case SBG_ECOM_LOG_SHIP_MOTION:
-      // imu_msg.linear_acceleration.x = pLogData->shipMotionData.shipVel[0];
-      // imu_msg.linear_acceleration.y = pLogData->shipMotionData.shipVel[1];
-      // imu_msg.linear_acceleration.z = pLogData->shipMotionData.shipVel[2];
-      // new_imu_msg = true;
-      break;
-*/
+    }
 
     case SBG_ECOM_LOG_IMU_DATA:
+    {
+      sensor_msgs::Imu imu_msg;
+      imu_msg.header.stamp = ros::Time::now();
+      imu_msg.header.frame_id = "map";
+
       imu_msg.linear_acceleration.x = pLogData->imuData.accelerometers[0];
       imu_msg.linear_acceleration.y = pLogData->imuData.accelerometers[1];
       imu_msg.linear_acceleration.z = pLogData->imuData.accelerometers[2];
@@ -86,71 +95,70 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
       imu_msg.angular_velocity.x = pLogData->imuData.gyroscopes[0];
       imu_msg.angular_velocity.y = pLogData->imuData.gyroscopes[1];
       imu_msg.angular_velocity.z = pLogData->imuData.gyroscopes[2];
-      new_imu_msg = true;
+
+      node->imu_pub.publish(imu_msg);
       break;
-    // case SBG_ECOM_LOG_UTC_TIME:
-    //   pInsSBG->new_time = true;
-    //   pInsSBG->year          = pLogData->utcData.year;
-    //   pInsSBG->month         = pLogData->utcData.month;
-    //   pInsSBG->day           = pLogData->utcData.day;
-    //   pInsSBG->hour          = pLogData->utcData.hour;
-    //   pInsSBG->minute        = pLogData->utcData.minute;
-    //   pInsSBG->second        = pLogData->utcData.second;
-    //   pInsSBG->nanoSecond    = pLogData->utcData.nanoSecond;
-    //   pInsSBG->gpsTimeOfWeek = pLogData->utcData.gpsTimeOfWeek;
-      // break;
+    }
+
+    case SBG_ECOM_LOG_UTC_TIME:
+    {
+      sensor_msgs::TimeReference time_msg;
+      time_msg.header.stamp = ros::Time::now();
+      ptime gps_time(date(pLogData->utcData.year, pLogData->utcData.month, pLogData->utcData.day),
+                     time_duration(pLogData->utcData.hour, pLogData->utcData.minute, pLogData->utcData.second)); // + nanoseconds(pLogData->utcData.nanoSecond));
+      time_msg.time_ref = ros::Time::fromBoost(gps_time);
+      if (pLogData->utcData.status & SBG_ECOM_CLOCK_UTC_SYNC)
+        time_msg.source = "gps";
+      else
+        time_msg.source = "internal";
+      node->time_pub.publish(time_msg);
+      break;
+    }
+
     default:
       break;
   }
   return SBG_NO_ERROR;
 }
 
-int main(int argc, char **argv)
+SbgDriver::SbgDriver(ros::NodeHandle nh)
+  : nh(nh)
+  , imu_pub(nh.advertise<sensor_msgs::Imu>("imu/data", 10))
+  , gps_pub(nh.advertise<sensor_msgs::NavSatFix>("navsat/fix", 10))
+  , time_pub(nh.advertise<sensor_msgs::TimeReference>("navsat/time_reference", 10))
+  , pose_pub(nh.advertise<geometry_msgs::PoseStamped>("imu/pose", 10))
 {
-  ros::init(argc, argv, "sbg_ellipse");
-
-  ros::NodeHandle n("~");
-  ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu", 10);
-  ros::Publisher gps_pub = n.advertise<sensor_msgs::NavSatFix>("fix", 10);
-  ros::Publisher pose_pub = n.advertise<geometry_msgs::PoseStamped>("imu_pose", 10);
+  diagnostic_updater::Updater updater;
 
   std::string uart_port;
   int uart_baud_rate;
 
-  n.param<std::string>("uart_port", uart_port, "/dev/ttyUSB0");
-  n.param<int>("uart_baud_rate", uart_baud_rate, 115200);
-
-  ROS_DEBUG_STREAM("starting sbg_ellipse node");
-
-    // ********************* Initialize the SBG  *********************
-  SbgEComHandle       comHandle;
-  SbgInterface        sbgInterface;
-  SbgEComDeviceInfo   deviceInfo;
-  SbgErrorCode        errorCode;
+  nh.param<std::string>("uart_port", uart_port, "/dev/ttyUSB0");
+  nh.param<int>("uart_baud_rate", uart_baud_rate, 115200);
 
   errorCode = sbgInterfaceSerialCreate(&sbgInterface, uart_port.c_str(), uart_baud_rate);
   if (errorCode != SBG_NO_ERROR)
   {
     ROS_FATAL_STREAM("sbgInterfaceSerialCreate Error: " << errorCode);
-    return -1;
   }
 
   errorCode = sbgEComInit(&comHandle, &sbgInterface); // Init the SBG
   if (errorCode != SBG_NO_ERROR)
   {
     ROS_FATAL_STREAM("sbgEComInit Error: " << errorCode);
-    return -1;
   }
 
-  ROS_DEBUG_STREAM("connecting to " << uart_port << ":" << uart_baud_rate);
+  ROS_INFO_STREAM("connecting to " << uart_port << ":" << uart_baud_rate);
+
   errorCode = sbgEComCmdGetInfo(&comHandle, &deviceInfo); // Get device info
   if (errorCode != SBG_NO_ERROR)
   {
     ROS_FATAL_STREAM("sbgEComCmdGetInfo Error: " << errorCode);
-    return -1;
   }
 
   ROS_INFO_STREAM("connected to " << deviceInfo.productCode << " serial no. " << deviceInfo.serialNumber);
+
+  updater.setHardwareID(deviceInfo.serialNumber);
 
   // ****************************** SBG Config ******************************
   // ToDo: improve configuration capabilities
@@ -183,37 +191,30 @@ int main(int argc, char **argv)
 
   // ************************** SBG Callback for data ************************
   bool test = false;
-  sbgEComSetReceiveLogCallback(&comHandle, onLogReceived, NULL);
+  sbgEComSetReceiveLogCallback(&comHandle, onLogReceived, this);
+}
 
+void SbgDriver::run()
+{
   ROS_INFO("START RECEIVING DATA");
-
-  imu_msg.header.frame_id = "map";
-  nav_msg.header.frame_id = "map";
-  pose_msg.header.frame_id = "map";
 
   ros::Rate loop_rate(25);
   while (ros::ok())
   {
     int errorCode = sbgEComHandle(&comHandle);
 
-    if(new_nav_msg){
-      nav_msg.header.stamp = ros::Time::now();
-      gps_pub.publish(nav_msg);  
-      new_nav_msg = false;
-    }
-
-    if(new_imu_msg){
-      imu_msg.header.stamp = ros::Time::now();
-      imu_pub.publish(imu_msg);
-      pose_msg.header.stamp = ros::Time::now();
-      pose_pub.publish(pose_msg);
-
-      new_imu_msg = false;
-    }
-
     ros::spinOnce();
     loop_rate.sleep();
   }
+}
 
-  return 0;
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "sbg_ellipse");
+  ros::NodeHandle priv("~");
+  SbgDriver sbg(priv);
+
+  ROS_DEBUG_STREAM("starting sbg_ellipse node");
+
+  sbg.run();
 }

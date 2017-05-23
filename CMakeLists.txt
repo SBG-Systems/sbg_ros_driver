@@ -114,6 +114,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/sbgECom/common
   ${PROJECT_SOURCE_DIR}/sbgECom/src
