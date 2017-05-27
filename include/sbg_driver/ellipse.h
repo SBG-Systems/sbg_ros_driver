@@ -24,6 +24,7 @@ public:
   ros::Publisher pose_pub;
 
   void run();
+  void handleCmdErr(std::string method, SbgErrorCode error);
 
 private:
   ros::NodeHandle nh;
@@ -35,5 +36,6 @@ private:
 };
 
  SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
+
 
 }

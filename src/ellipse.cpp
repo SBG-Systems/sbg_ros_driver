@@ -121,6 +121,12 @@ SbgErrorCode sbg_driver::onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgC
   return SBG_NO_ERROR;
 }
 
+void SbgDriver::handleCmdErr(std::string method, SbgErrorCode errorCode) {
+    char errorMsg[256];
+    sbgEComErrorToString(errorCode, errorMsg);
+    ROS_ERROR_STREAM("Error in method = " << method << "\n" << errorMsg);
+}
+
 SbgDriver::SbgDriver(ros::NodeHandle nh)
   : nh(nh)
   , imu_pub(nh.advertise<sensor_msgs::Imu>("imu/data", 10))
@@ -163,14 +169,17 @@ SbgDriver::SbgDriver(ros::NodeHandle nh)
   // ****************************** SBG Config ******************************
   // ToDo: improve configuration capabilities
 
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_EKF_QUAT Error");}
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT, SBG_ECOM_OUTPUT_MODE_MAIN_LOOP);
+  if (errorCode != SBG_NO_ERROR)
+      handleCmdErr("SBG_ECOM_LOG_EKF_QUAT", errorCode);
 
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_EKF_NAV Error");}
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV, SBG_ECOM_OUTPUT_MODE_MAIN_LOOP);
+  if (errorCode != SBG_NO_ERROR)
+      handleCmdErr("SBG_ECOM_LOG_EKF_NAV", errorCode);
 
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_IMU_DATA Error");}
+  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA, SBG_ECOM_OUTPUT_MODE_MAIN_LOOP);
+  if (errorCode != SBG_NO_ERROR)
+      handleCmdErr("SBG_ECOM_LOG_IMU_DATA", errorCode);
 
   //errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, SBG_ECOM_OUTPUT_MODE_DIV_8);
   //if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_SHIP_MOTION Error");}
