@@ -158,7 +158,7 @@ SbgDriver::SbgDriver(ros::NodeHandle nh)
 
   ROS_INFO_STREAM("connected to " << deviceInfo.productCode << " serial no. " << deviceInfo.serialNumber);
 
-  updater.setHardwareID(deviceInfo.serialNumber);
+  updater.setHardwareID(boost::lexical_cast<std::string>(deviceInfo.serialNumber));
 
   // ****************************** SBG Config ******************************
   // ToDo: improve configuration capabilities

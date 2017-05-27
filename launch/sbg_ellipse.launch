@@ -1,5 +1,5 @@
 <launch>
-  <arg name="uart_port" />
+  <arg name="uart_port" default="/dev/ttyUSB0" />
   <arg name="uart_baud_rate" default="115200" />
 
   <node name="sbg_ellipse" pkg="sbg_driver" type="ellipse" output="screen">
