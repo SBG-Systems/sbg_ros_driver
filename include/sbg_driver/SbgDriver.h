@@ -21,7 +21,7 @@ namespace sbg_driver
     public:
 
         // Constructors
-        SbgDriver(ros::NodeHandle nh, SbgEComReceiveLogFunc callbackFunction);
+        SbgDriver(ros::NodeHandle nh);
         ~SbgDriver();
 
         // Our publishers
@@ -37,6 +37,10 @@ namespace sbg_driver
         // Methods
         void run();
         void handleCmdErr(std::string method, SbgErrorCode error);
+
+        // Global function for log callbacks
+        // Does this really need to be a global function?
+        static SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
 
     private:
         ros::NodeHandle nh;
