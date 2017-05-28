@@ -7,6 +7,7 @@
 #include "sensor_msgs/TimeReference.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/QuaternionStamped.h"
+#include "geometry_msgs/Vector3Stamped.h"
 #include "geometry_msgs/TwistWithCovarianceStamped.h"
 #include <diagnostic_updater/diagnostic_updater.h>
 
@@ -97,8 +98,11 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
             // GPS status
             nav_msg.status.status = 0;
             nav_msg.status.service = 0;
-            if ((pLogData->gpsPosData.status & (SBG_ECOM_GPS_POS_STATUS_MASK << SBG_ECOM_GPS_POS_STATUS_SHIFT)) != SBG_ECOM_POS_SOL_COMPUTED)
+            // TODO: Handle the different status better
+            if ((pLogData->gpsPosData.status & (SBG_ECOM_GPS_POS_STATUS_MASK << SBG_ECOM_GPS_POS_STATUS_SHIFT)) != SBG_ECOM_POS_SOL_COMPUTED) {
                 nav_msg.status.status = -1;
+                break;
+            }
             if ((pLogData->gpsPosData.status & (SBG_ECOM_GPS_POS_TYPE_MASK << SBG_ECOM_GPS_POS_TYPE_SHIFT)) == SBG_ECOM_POS_NO_SOLUTION)
                 nav_msg.status.status = -1;
             if (pLogData->gpsPosData.status & (0b111 << 12)) // using GPS
@@ -134,6 +138,34 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
             node->gps_vel_pub.publish(msg);
             break;
         }
+
+        case SBG_ECOM_LOG_GPS1_HDT:
+        {
+            geometry_msgs::Vector3Stamped msg;
+            msg.header.stamp = ros::Time::now();
+            msg.header.frame_id = "map";
+
+            // Check the status here
+            if (pLogData->gpsHdtData.status & (SBG_ECOM_GPS_HDT_STATUS_MASK << SBG_ECOM_GPS_HDT_STATUS_SHIFT) == SBG_ECOM_HDT_INSUFFICIENT_OBS) {
+                ROS_WARN_THROTTLE(120, "GPS HDT HEADING INSUFFICIENT OBSERVATIONS");
+                break;
+            }
+            if (pLogData->gpsHdtData.status & (SBG_ECOM_GPS_HDT_STATUS_MASK << SBG_ECOM_GPS_HDT_STATUS_SHIFT) == SBG_ECOM_HDT_INTERNAL_ERROR) {
+                ROS_ERROR_THROTTLE(120, "GPS HDT HEADING INTERNAL OBSERVATIONS");
+                break;
+            }
+            if (pLogData->gpsHdtData.status & (SBG_ECOM_GPS_HDT_STATUS_MASK << SBG_ECOM_GPS_HDT_STATUS_SHIFT) == SBG_ECOM_HDT_HEIGHT_LIMIT) {
+                ROS_WARN_THROTTLE(120, "GPS HDT HEADING HEIGHT LIMIT REACHED");
+                break;
+            }
+            // GPS true heading in degrees.
+            msg.vector.y = pLogData->gpsHdtData.pitch;
+            msg.vector.z = pLogData->gpsHdtData.heading;
+            node->gps_head_pub.publish(msg);
+            break;
+        }
+
+
 
 
         case SBG_ECOM_LOG_IMU_DATA:

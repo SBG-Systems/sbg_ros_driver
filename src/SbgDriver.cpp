@@ -14,6 +14,7 @@ SbgDriver::SbgDriver(ros::NodeHandle nh, SbgEComReceiveLogFunc callbackFunction)
           imu_raw_pub(nh.advertise<sensor_msgs::Imu>("imu/data", 10)),
           gps_pos_pub(nh.advertise<sensor_msgs::NavSatFix>("navsat/fix", 10)),
           gps_vel_pub(nh.advertise<geometry_msgs::TwistWithCovarianceStamped>("navsat/vel", 10)),
+          gps_head_pub(nh.advertise<geometry_msgs::Vector3Stamped>("navsat/heading", 10)),
           time_pub(nh.advertise<sensor_msgs::TimeReference>("navsat/time_reference", 10)),
           ekf_pose_pub(nh.advertise<nav_msgs::Odometry>("ekf/pose", 10)),
           ekf_quat_pub(nh.advertise<geometry_msgs::QuaternionStamped>("ekf/quat", 10))
@@ -77,8 +78,8 @@ SbgDriver::SbgDriver(ros::NodeHandle nh, SbgEComReceiveLogFunc callbackFunction)
     if (errorCode != SBG_NO_ERROR) handleCmdErr("SBG_ECOM_LOG_IMU_DATA", errorCode);
 
     // Enable getting magnetometer data
-    errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG, SBG_ECOM_OUTPUT_MODE_DIV_4);
-    if (errorCode != SBG_NO_ERROR) handleCmdErr("SBG_ECOM_LOG_MAG", errorCode);
+    //errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG, SBG_ECOM_OUTPUT_MODE_DIV_4);
+    //if (errorCode != SBG_NO_ERROR) handleCmdErr("SBG_ECOM_LOG_MAG", errorCode);
 
     // Enable getting GPS position
     errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_POS, SBG_ECOM_OUTPUT_MODE_NEW_DATA);
@@ -87,6 +88,11 @@ SbgDriver::SbgDriver(ros::NodeHandle nh, SbgEComReceiveLogFunc callbackFunction)
     // Enable getting GPS velocity
     errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_VEL, SBG_ECOM_OUTPUT_MODE_NEW_DATA);
     if (errorCode != SBG_NO_ERROR) handleCmdErr("SBG_ECOM_LOG_GPS1_VEL", errorCode);
+
+    // Enable getting GPS heading for a dual antenna system
+    errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_HDT, SBG_ECOM_OUTPUT_MODE_NEW_DATA);
+    if (errorCode != SBG_NO_ERROR) handleCmdErr("SBG_ECOM_LOG_GPS1_HDT", errorCode);
+
 
 
     // ****************************** SBG Saving ******************************
@@ -112,6 +118,14 @@ SbgDriver::SbgDriver(ros::NodeHandle nh, SbgEComReceiveLogFunc callbackFunction)
         ROS_ERROR_STREAM("sbgEComSetReceiveLogCallback Error" << errorMsg);
     }
 }
+
+/**
+ * Deconstructor
+ * Will shutdown the serial interface with the device
+ */
+SbgDriver::~SbgDriver() {
+    sbgInterfaceSerialDestroy(&sbgInterface);
+};
 
 
 /**
