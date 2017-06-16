@@ -72,7 +72,8 @@ typedef enum _SbgEComMotionProfileStdIds
 	SBG_ECOM_MOTION_PROFILE_AUTOMOTIVE			= 2,		/*!< Dedicated to car applications */
 	SBG_ECOM_MOTION_PROFILE_MARINE				= 3,		/*!< Used in marine and underwater applications */
 	SBG_ECOM_MOTION_PROFILE_AIRPLANE			= 4,		/*!< For fixed wings aircraft */
-	SBG_ECOM_MOTION_PROFILE_HELICOPTER			= 5			/*!< For rotary wing aircraft */
+	SBG_ECOM_MOTION_PROFILE_HELICOPTER			= 5,		/*!< For rotary wing aircraft */
+	SBG_ECOM_MOTION_PROFILE_UAV_ROTARY_WING		= 7			/*!< For rotary wing UAVs that have low dynamics */
 } SbgEComMotionProfileStdIds;
 
 //----------------------------------------------------------------------//
