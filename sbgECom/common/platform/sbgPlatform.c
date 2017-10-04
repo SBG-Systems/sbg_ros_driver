@@ -7,8 +7,6 @@
 //----------------------------------------------------------------------//
 #ifdef WIN32
 	#include <windows.h>
-#elif defined(__APPLE__)
-	#include <mach/mach_time.h>
 #else
 	#include <unistd.h>
 #endif
@@ -23,28 +21,10 @@
  */
 uint32 sbgGetTime(void)
 {
-#ifdef WIN32
 	//
 	// Return the current time in ms
 	//
 	return clock() / (CLOCKS_PER_SEC / 1000);
-#elif defined(__APPLE__)
-	mach_timebase_info_data_t	timeInfo;
-	mach_timebase_info(&timeInfo);
-
-	//
-	// Return the current time in ms
-	//
-	return (mach_absolute_time() * timeInfo.numer / timeInfo.denom) / 1000000.0;
-#else
-	struct timespec now;
-	clock_gettime(CLOCK_REALTIME, &now);
-
-	//
-	// Return the current time in ms
-	//
-	return now.tv_sec * 1000 + now.tv_nsec / 1000000;
-#endif
 }
 
 /*!
@@ -79,9 +59,8 @@ void sbgSleep(uint32 ms)
  */
 void sbgPlatformDebugLogMsg(const char *pFileName, const char *pFunctionName, uint32 line, SbgDebugLogType logType, SbgErrorCode errorCode, const char *pFormat, ...)
 {
-	char errorMsg[1024];
+	char errorMsg[256];
 	va_list args;
-	//const char *pFileNameTmp;
 
 	//
 	// Initialize the list of variable arguments on the latest function argument
@@ -98,6 +77,8 @@ void sbgPlatformDebugLogMsg(const char *pFileName, const char *pFunctionName, ui
 	//
 	va_end(args);
 
+	
+
 	//
 	// Log the correct message according to the log type
 	//
@@ -107,30 +88,30 @@ void sbgPlatformDebugLogMsg(const char *pFileName, const char *pFunctionName, ui
 		//
 		// Write the complete error messages
 		//
-		fprintf(stderr, "* ERROR * [%s]%s: %s\n\r", sbgErrorCodeToString(errorCode), pFunctionName, errorMsg);
+		fprintf(stderr, "*** ERROR ***\t[%s] File: %s Func: %s(%u): %s\n\r", sbgErrorCodeToString(errorCode), pFileName, pFunctionName, line, errorMsg);
 		break;
 	case SBG_DEBUG_LOG_TYPE_WARNING:
 		//
 		// Write the complete warning messages
 		//
-		fprintf(stderr, "*WARNING* [%s]%s: %s\n\r", sbgErrorCodeToString(errorCode), pFunctionName, errorMsg);
+		fprintf(stderr, "*** WARNING ***\t[%s] File: %s Func: %s(%u): %s\n\r", sbgErrorCodeToString(errorCode), pFileName, pFunctionName, line, errorMsg);
 		break;
 	case SBG_DEBUG_LOG_TYPE_INFO:
 		//
 		// Write the complete information messages
 		//
-		fprintf(stderr, "*  INFO * %s\n\r", errorMsg);
+		fprintf(stderr, "*** INFO ***\tFile: %s Func: %s(%u): %s\n\r", pFileName, pFunctionName, line, errorMsg);
 		break;
 	case SBG_DEBUG_LOG_TYPE_VERBOSE:
 		//
 		// Write the complete verbose messages
 		//
-		fprintf(stderr, "*VERBOSE* %s\n\r", errorMsg);
+		fprintf(stderr, "*** VERBOSE ***\tFile: %s Func: %s(%u): %s\n\r", pFileName, pFunctionName, line, errorMsg);
 		break;
 	default:
 		//
 		// Write the complete unknown type messages
 		//
-		fprintf(stderr, "*UNKNOWN*\t[%s]%s(%u): %s\n\r", sbgErrorCodeToString(errorCode), pFunctionName, line, errorMsg);
+		fprintf(stderr, "*** UNKNOWN ***\t[%s] File: %s Func: %s(%u): %s\n\r", sbgErrorCodeToString(errorCode), pFileName, pFunctionName, line, errorMsg);
 	}
 }

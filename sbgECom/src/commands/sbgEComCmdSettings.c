@@ -30,14 +30,14 @@ SbgErrorCode sbgEComCmdSettingsAction(SbgEComHandle *pHandle, SbgEComSettingsAct
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{	
 			//
 			// Send the command and the action as a 1-byte payload
 			//
 			sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
 			sbgStreamBufferWriteUint8(&outputStream, action);
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -47,7 +47,7 @@ SbgErrorCode sbgEComCmdSettingsAction(SbgEComHandle *pHandle, SbgEComSettingsAct
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK
@@ -88,7 +88,7 @@ SbgErrorCode sbgEComCmdSettingsAction(SbgEComHandle *pHandle, SbgEComSettingsAct
  *	\param[in]	size						Size of the buffer.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdImportSettings(SbgEComHandle *pHandle, const void *pBuffer, size_t size)
+SbgErrorCode sbgEComCmdImportSettings(SbgEComHandle *pHandle, const void *pBuffer, uint32 size)
 {
 	//
 	// Call function that handle data transfer
@@ -104,7 +104,7 @@ SbgErrorCode sbgEComCmdImportSettings(SbgEComHandle *pHandle, const void *pBuffe
  *	\param[in]	maxSize						The maximum buffer size in bytes that can be stored into pBuffer.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdExportSettings(SbgEComHandle *pHandle, void *pBuffer, size_t *pSize, size_t maxSize)
+SbgErrorCode sbgEComCmdExportSettings(SbgEComHandle *pHandle, void *pBuffer, uint32 *pSize, uint32 maxSize)
 {
 	//
 	// Call function that handle data transfer

@@ -120,9 +120,8 @@ typedef struct _SbgLogStatusData
 	uint16	reserved1;												/*!< Reserved status field for future use */
 	uint32	comStatus;												/*!< Communication status bitmask and enums. */
 	uint32	aidingStatus;											/*!< Aiding equipments status bitmask and enums. */
-	uint32	reserved2;												/*!< Reserved status field for future use. */
-	uint16	reserved3;												/*!< Reserved status field for future use. */
-	uint32	uptime;													/*!< System uptime in seconds. */
+	uint32	reserved2;												/*!< Reserved status field for future use */
+	uint16	reserved3;												/*!< Reserved status field for future use */
 } SbgLogStatusData;
 
 //----------------------------------------------------------------------//

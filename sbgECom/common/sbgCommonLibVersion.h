@@ -1,6 +1,6 @@
 /*!
  *	\file		sbgCommonLibVersion.h
- *	\author		SBG Systems (Rémi Burtin)
+ *	\author		SBG Systems (R�mi Burtin)
  *	\date		28/09/2015
  *
  *	\brief		Header file that contains all versions related information.
@@ -27,8 +27,8 @@
 //----------------------------------------------------------------------//
 
 #define SBG_COMMON_LIB_VERSION_MAJOR			1
-#define SBG_COMMON_LIB_VERSION_MINOR			1
-#define SBG_COMMON_LIB_VERSION_BUILD			174
+#define SBG_COMMON_LIB_VERSION_MINOR			0
+#define SBG_COMMON_LIB_VERSION_BUILD			66
 #define SBG_COMMON_LIB_VERSION_QUALIFIER		SBG_VERSION_QUALIFIER_ALPHA
 
 #define SBG_COMMON_LIB_VERSION					SBG_VERSION_SOFTWARE(SBG_COMMON_LIB_VERSION_MAJOR,SBG_COMMON_LIB_VERSION_MINOR,SBG_COMMON_LIB_VERSION_BUILD,SBG_COMMON_LIB_VERSION_QUALIFIER)

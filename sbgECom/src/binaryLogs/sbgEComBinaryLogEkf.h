@@ -44,9 +44,11 @@
 #define SBG_ECOM_SOL_MAG_REF_USED			(0x00000001u << 9)		/*!< Set to 1 if magnetometer is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_GPS1_VEL_USED			(0x00000001u << 10)		/*!< Set to 1 if GPS1 velocity is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_GPS1_POS_USED			(0x00000001u << 11)		/*!< Set to 1 if GPS1 Position is used in solution (data used and valid since 3s). */
+#define SBG_ECOM_SOL_GPS1_COURSE_USED		(0x00000001u << 12)		/*!< Set to 1 if GPS1 Course is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_GPS1_HDT_USED			(0x00000001u << 13)		/*!< Set to 1 if GPS1 True Heading is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_GPS2_VEL_USED			(0x00000001u << 14)		/*!< Set to 1 if GPS2 velocity is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_GPS2_POS_USED			(0x00000001u << 15)		/*!< Set to 1 if GPS2 Position is used in solution (data used and valid since 3s). */
+#define SBG_ECOM_SOL_GPS2_COURSE_USED		(0x00000001u << 16)		/*!< Set to 1 if GPS2 Course is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_GPS2_HDT_USED			(0x00000001u << 17)		/*!< Set to 1 if GPS2 True Heading is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_ODO_USED				(0x00000001u << 18)		/*!< Set to 1 if Odometer is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_DVL_BT_USED			(0x00000001u << 19)		/*!< Set to 1 if DVL Bottom Tracking is used in solution (data used and valid since 3s). */

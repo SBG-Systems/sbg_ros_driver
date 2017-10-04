@@ -72,6 +72,7 @@ typedef enum _SbgEComSyncOutFunction
 	SBG_ECOM_SYNC_OUT_MODE_DIV_40		= 40,		/*!< Output is generated at 5Hz. */
 	SBG_ECOM_SYNC_OUT_MODE_DIV_200		= 200,		/*!< Output is generated at 1Hz. */
 	SBG_ECOM_SYNC_OUT_MODE_PPS			= 10000,	/*!< Pulse Per Second. Same mode as above. */
+	SBG_ECOM_SYNC_OUT_MODE_VIRTUAL_ODO	= 10002,	/*!< Output is generated when a new virtual odometer event occurs. */
 	SBG_ECOM_SYNC_OUT_MODE_EVENT_IN_A	= 10003,	/*!< Output is generated on a Sync In A event. */
 	SBG_ECOM_SYNC_OUT_MODE_EVENT_IN_B	= 10004,	/*!< Output is generated on a Sync In B event. */
 	SBG_ECOM_SYNC_OUT_MODE_EVENT_IN_C	= 10005,	/*!< Output is generated on a Sync In C event. */
@@ -155,5 +156,21 @@ SbgErrorCode sbgEComCmdSyncOutGetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
 SbgErrorCode sbgEComCmdSyncOutSetConf(SbgEComHandle *pHandle, SbgEComSyncOutId syncOutId, const SbgEComSyncOutConf *pConf);
+
+/*!
+ *	Retrieve the configuration of the virtual odometer.
+ *	\param[in]	pHandle						A valid sbgECom handle.
+ *	\param[out]	pDistance					The distance between two pulses.
+ *	\return									SBG_NO_ERROR if the command has been executed successfully.
+ */
+SbgErrorCode sbgEComCmdVirtualOdometerGetConf(SbgEComHandle *pHandle, float *pDistance);
+
+/*!
+ *	Set the configuration of the virtual odometer.
+ *	\param[in]	pHandle						A valid sbgECom handle.
+ *	\param[in]	distance					The distance between two pulses.
+ *	\return									SBG_NO_ERROR if the command has been executed successfully.
+ */
+SbgErrorCode sbgEComCmdVirtualOdometerSetConf(SbgEComHandle *pHandle, float distance);
 
 #endif

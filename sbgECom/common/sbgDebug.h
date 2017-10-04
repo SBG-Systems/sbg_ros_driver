@@ -51,7 +51,7 @@ typedef enum _SbgDebugLogType
 #if SBG_CONFIG_ENABLE_ASSERT == SBG_ENABLE
 	#define SBG_ASSERT(expression)				SBG_PLATFORM_ASSERT(expression)
 #else
-	#define SBG_ASSERT(expression)				((void)(expression))
+	#define SBG_ASSERT(expression)				((void)0)
 #endif
 
 /*!

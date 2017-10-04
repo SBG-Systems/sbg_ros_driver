@@ -1,9 +1,6 @@
 <launch>
-  <arg name="uart_port" default="/dev/ttyUSB0" />
-  <arg name="uart_baud_rate" default="115200" />
-
-  <node name="sbg_ellipse" pkg="sbg_driver" type="ellipse" output="screen">
-  	<param name="uart_port" value="$(arg uart_port)" />
-  	<param name="uart_baud_rate" value="$(arg uart_baud_rate)" type="int" />
+  <node name="sbg_ellipse" pkg="sbg_driver" type="ellipse">
+  	<param name="uart_port" value="/dev/ttyUSB0" />
+  	<param name="uart_baud_rate" value="115200" />
   </node>
 </launch>

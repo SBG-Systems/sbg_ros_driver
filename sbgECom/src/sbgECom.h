@@ -83,8 +83,6 @@ struct _SbgEComHandle
 	SbgEComReceiveFunc			 pReceiveCallback;			/*!< DEPRECATED. Pointer on the method called each time a new binary log is received. */
 	SbgEComReceiveLogFunc		 pReceiveLogCallback;		/*!< Pointer on the method called each time a new binary log is received. */
 	void						*pUserArg;					/*!< Optional user supplied argument for callbacks. */
-	uint32						 numTrials;					/*!< Number of trials when a command is sent (default is 3). */
-	uint32						 cmdDefaultTimeOut;			/*!< Default time out in ms to get an answer from the device (default 500 ms). */
 };
 
 //----------------------------------------------------------------------//
@@ -139,14 +137,6 @@ SBG_DEPRECATED(SbgErrorCode sbgEComSetReceiveCallback(SbgEComHandle *pHandle, Sb
 SbgErrorCode sbgEComSetReceiveLogCallback(SbgEComHandle *pHandle, SbgEComReceiveLogFunc pReceiveLogCallback, void *pUserArg);
 
 /*!
- * Define the default number of trials that should be done when a command is send to the device as well as the time out.
- * \param[in]	pHandle							A valid sbgECom handle.
- * \parma[in]	numTrials						Number of trials when a command is sent (starting at 1).
- * \param[in]	cmdDefaultTimeOut				Default time out in milliseconds to wait to receive an answer from the device.
- */
-void sbgEComSetCmdTrialsAndTimeOut(SbgEComHandle *pHandle, uint32 numTrials, uint32 cmdDefaultTimeOut);
-
-/*!
  *	Returns an integer representing the version of the sbgCom library.
  *	\return										An integer representing the version of the sbgCom library.<br>
  *												Use #SBG_VERSION_GET_MAJOR, #SBG_VERSION_GET_MINOR, #SBG_VERSION_GET_REV and #SBG_VERSION_GET_BUILD.
@@ -174,4 +164,3 @@ void sbgEComErrorToString(SbgErrorCode errorCode, char errorMsg[256]);
 #endif
 
 #endif	/* __SBG_ECOM_H__ */
-

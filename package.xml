@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>sbg_driver</name>
-  <version>1.0.7</version>
+  <version>1.0.6</version>
   <description>The SBG ROS Driver package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
@@ -43,11 +43,9 @@
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>nav_msgs</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>nav_msgs</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

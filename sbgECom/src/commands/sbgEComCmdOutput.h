@@ -72,6 +72,7 @@ typedef enum _SbgEComOutputMode
 	SBG_ECOM_OUTPUT_MODE_DIV_200 		= 200,		/*!< Output the message every 200 main loops (ie 1 Hz). */
 	SBG_ECOM_OUTPUT_MODE_PPS 			= 10000,	/*!< Output the message on a Pulse Per Second event. */
 	SBG_ECOM_OUTPUT_MODE_NEW_DATA 		= 10001,	/*!< Output sent when a new data is available. */
+	SBG_ECOM_OUTPUT_MODE_VIRTUAL_ODO	= 10002,	/*!< Output is generated when a new virtual odometer event occurs. */
 	SBG_ECOM_OUTPUT_MODE_EVENT_IN_A		= 10003,	/*!< Output the message when a Sync A is received. */
 	SBG_ECOM_OUTPUT_MODE_EVENT_IN_B		= 10004,	/*!< Output the message when a Sync B is received. */
 	SBG_ECOM_OUTPUT_MODE_EVENT_IN_C		= 10005,	/*!< Output the message when a Sync C is received. */
