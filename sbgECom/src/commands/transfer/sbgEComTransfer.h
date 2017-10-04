@@ -58,7 +58,7 @@ typedef enum _SbgEComTransferCmd
  * \param[in]	size					The size of the buffer.
  * \return								SBG_NO_ERROR in case of a successful upload.
  */
-SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, size_t size);
+SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, uint32 size);
 
 /*!
  * Specific method to handle a large receive from the device.
@@ -70,6 +70,6 @@ SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 m
  * \param[in]	size					The size of the buffer.
  * \return								SBG_NO_ERROR in case of a successful download.
  */
-SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, size_t *pActualSize, size_t bufferSize);
+SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, uint32 *pActualSize, uint32 bufferSize);
 
 #endif

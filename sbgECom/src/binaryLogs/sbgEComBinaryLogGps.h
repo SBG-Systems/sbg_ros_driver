@@ -311,7 +311,7 @@ typedef struct _SbgLogGpsHdt
 typedef struct _SbgLogGpsRaw
 {
 	uint8			rawBuffer[SBG_ECOM_GPS_RAW_MAX_BUFFER_SIZE];	/*!< Buffer that contains raw GPS data. */
-	size_t			bufferSize;										/*!< Raw buffer size in bytes. */
+	uint32			bufferSize;										/*!< Raw buffer size in bytes. */
 } SbgLogGpsRaw;
 
 //----------------------------------------------------------------------//

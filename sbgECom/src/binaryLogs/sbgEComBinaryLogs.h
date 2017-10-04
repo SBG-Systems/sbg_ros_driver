@@ -79,6 +79,6 @@ typedef union _SbgBinaryLogData
  *	\param[in]	payloadSize					Payload size in bytes.
  *	\param[out]	pOutputData					Pointer on the output union that stores parsed data.
  */
-SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, const void *pPayload, size_t payloadSize, SbgBinaryLogData *pOutputData);
+SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, const void *pPayload, uint32 payloadSize, SbgBinaryLogData *pOutputData);
 
 #endif

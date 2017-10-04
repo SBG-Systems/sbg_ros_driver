@@ -45,17 +45,15 @@
  */
 typedef enum _SbgEComClass
 {
-	SBG_ECOM_CLASS_LOG_ECOM_0			= 0x00,			/*!< Class that contains sbgECom protocol input/output log messages. */
+	SBG_ECOM_CLASS_LOG_ECOM_0			= 0x00,		/*!< Class that contains sbgECom protocol input/output log messages. */
 
-	SBG_ECOM_CLASS_LOG_ECOM_1			= 0x01,			/*!< Class that contains special sbgECom output messages that handle high frequency output */
+	SBG_ECOM_CLASS_LOG_ECOM_1			= 0x01,		/*!< Class that contains special sbgECom output messages that handle high frequency output */
 
-	SBG_ECOM_CLASS_LOG_NMEA_0			= 0x02,			/*!< Class that contains NMEA (and NMEA like) output logs. <br>
-															 Note: This class is only used for identification purpose and does not contain any sbgECom message. */
-	SBG_ECOM_CLASS_LOG_NMEA_1			= 0x03,			/*!< Class that contains proprietary NMEA (and NMEA like) output logs. <br>
-															 Note: This class is only used for identification purpose and does not contain any sbgECom message. */
-	SBG_ECOM_CLASS_LOG_THIRD_PARTY_0	= 0x04,			/*!< Class that contains third party output logs.
-															Note: This class is only used for identification purpose and does not contain any sbgECom message. */
-	SBG_ECOM_CLASS_LOG_CMD_0			= 0x10			/*!< Class that contains sbgECom protocol commands */
+	SBG_ECOM_CLASS_LOG_NMEA_0			= 0x02,		/*!< Class that contains NMEA (and NMEA like) output logs. <br>
+														 Note: This class is only used for identification purpose and does not contain any sbgECom message. */
+	SBG_ECOM_CLASS_LOG_THIRD_PARTY_0	= 0x04,		/*!< Class that contains third party output logs.
+														 Note: This class is only used for identification purpose and does not contain any sbgECom message. */
+	SBG_ECOM_CLASS_LOG_CMD_0			= 0x10		/*!< Class that contains sbgECom protocol commands */
 } SbgEComClass;
 
 //----------------------------------------------------------------------//
@@ -67,51 +65,51 @@ typedef enum _SbgEComClass
  */
 typedef enum _SbgEComLog
 {
-	SBG_ECOM_LOG_STATUS 					= 1,		/*!< Status general, clock, com aiding, solution, heave */
+	SBG_ECOM_LOG_STATUS 			= 1,			/*!< Status general, clock, com aiding, solution, heave */
 
-	SBG_ECOM_LOG_UTC_TIME 					= 2,		/*!< Provides UTC time reference */
+	SBG_ECOM_LOG_UTC_TIME 			= 2,			/*!< Provides UTC time reference */
 
-	SBG_ECOM_LOG_IMU_DATA 					= 3,		/*!< Includes IMU status, acc., gyro, temp delta speeds and delta angles values */
+	SBG_ECOM_LOG_IMU_DATA 			= 3,			/*!< Includes IMU status, acc., gyro, temp delta speeds and delta angles values */
 
-	SBG_ECOM_LOG_MAG 						= 4,		/*!< Magnetic data with associated accelerometer on each axis */
-	SBG_ECOM_LOG_MAG_CALIB 					= 5,		/*!< Magnetometer calibration data (raw buffer) */
+	SBG_ECOM_LOG_MAG 				= 4,			/*!< Magnetic data with associated accelerometer on each axis */
+	SBG_ECOM_LOG_MAG_CALIB 			= 5,			/*!< Magnetometer calibration data (raw buffer) */
 
-	SBG_ECOM_LOG_EKF_EULER 					= 6,		/*!< Includes roll, pitch, yaw and their accuracies on each axis */
-	SBG_ECOM_LOG_EKF_QUAT 					= 7,		/*!< Includes the 4 quaternions values */
-	SBG_ECOM_LOG_EKF_NAV 					= 8,		/*!< Position and velocities in NED coordinates with the accuracies on each axis */
+	SBG_ECOM_LOG_EKF_EULER 			= 6,			/*!< Includes roll, pitch, yaw and their accuracies on each axis */
+	SBG_ECOM_LOG_EKF_QUAT 			= 7,			/*!< Includes the 4 quaternions values */
+	SBG_ECOM_LOG_EKF_NAV 			= 8,			/*!< Position and velocities in NED coordinates with the accuracies on each axis */
 
-	SBG_ECOM_LOG_SHIP_MOTION				= 9,		/*!< Heave, surge and sway and accelerations on each axis. */
+	SBG_ECOM_LOG_SHIP_MOTION		= 9,			/*!< Heave, surge and sway and accelerations on each axis. */
 
-	SBG_ECOM_LOG_GPS1_VEL 					= 13,		/*!< GPS velocities from primary or secondary GPS receiver */
-	SBG_ECOM_LOG_GPS1_POS 					= 14,		/*!< GPS positions from primary or secondary GPS receiver */
-	SBG_ECOM_LOG_GPS1_HDT 					= 15,		/*!< GPS true heading from dual antenna system */
-	SBG_ECOM_LOG_GPS1_RAW					= 31,		/*!< GPS 1 raw data for post processing. */
+	SBG_ECOM_LOG_GPS1_VEL 			= 13,			/*!< GPS velocities from primary or secondary GPS receiver */
+	SBG_ECOM_LOG_GPS1_POS 			= 14,			/*!< GPS positions from primary or secondary GPS receiver */
+	SBG_ECOM_LOG_GPS1_HDT 			= 15,			/*!< GPS true heading from dual antenna system */
+	SBG_ECOM_LOG_GPS1_RAW			= 31,			/*!< GPS 1 raw data for post processing. */
 
-	SBG_ECOM_LOG_GPS2_VEL					= 16,		/*!< GPS 2 velocity log data. */
-	SBG_ECOM_LOG_GPS2_POS					= 17,		/*!< GPS 2 position log data. */
-	SBG_ECOM_LOG_GPS2_HDT					= 18,		/*!< GPS 2 true heading log data. */
-	SBG_ECOM_LOG_GPS2_RAW					= 38,		/*!< GPS 2 raw data for post processing. */
+	SBG_ECOM_LOG_GPS2_VEL			= 16,			/*!< GPS 2 velocity log data. */
+	SBG_ECOM_LOG_GPS2_POS			= 17,			/*!< GPS 2 position log data. */
+	SBG_ECOM_LOG_GPS2_HDT			= 18,			/*!< GPS 2 true heading log data. */
+	SBG_ECOM_LOG_GPS2_RAW			= 38,			/*!< GPS 2 raw data for post processing. */
 
-	SBG_ECOM_LOG_ODO_VEL 					= 19,		/*!< Provides odometer velocity */
+	SBG_ECOM_LOG_ODO_VEL 			= 19,			/*!< Provides odometer velocity */
 
-	SBG_ECOM_LOG_EVENT_A 					= 24,		/*!< Event markers sent when events are detected on sync in A pin */
-	SBG_ECOM_LOG_EVENT_B 					= 25,		/*!< Event markers sent when events are detected on sync in B pin */
-	SBG_ECOM_LOG_EVENT_C					= 26,		/*!< Event markers sent when events are detected on sync in C pin */
-	SBG_ECOM_LOG_EVENT_D 					= 27,		/*!< Event markers sent when events are detected on sync in D pin */
-	SBG_ECOM_LOG_EVENT_E					= 28,		/*!< Event markers sent when events are detected on sync in E pin */
+	SBG_ECOM_LOG_EVENT_A 			= 24,			/*!< Event markers sent when events are detected on sync in A pin */
+	SBG_ECOM_LOG_EVENT_B 			= 25,			/*!< Event markers sent when events are detected on sync in B pin */
+	SBG_ECOM_LOG_EVENT_C			= 26,			/*!< Event markers sent when events are detected on sync in C pin */
+	SBG_ECOM_LOG_EVENT_D 			= 27,			/*!< Event markers sent when events are detected on sync in D pin */
+	SBG_ECOM_LOG_EVENT_E			= 28,			/*!< Event markers sent when events are detected on sync in E pin */
 
-	SBG_ECOM_LOG_DVL_BOTTOM_TRACK			= 29,		/*!< Doppler Velocity Log for bottom tracking data. */
-	SBG_ECOM_LOG_DVL_WATER_TRACK			= 30,		/*!< Doppler Velocity log for water layer data. */
+	SBG_ECOM_LOG_DVL_BOTTOM_TRACK	= 29,			/*!< Doppler Velocity Log for bottom tracking data. */
+	SBG_ECOM_LOG_DVL_WATER_TRACK	= 30,			/*!< Doppler Velocity log for water layer data. */
 
-	SBG_ECOM_LOG_SHIP_MOTION_HP				= 32,		/*!< Return delayed ship motion such as surge, sway, heave. */
+	SBG_ECOM_LOG_SHIP_MOTION_HP		= 32,			/*!< Return delayed ship motion such as surge, sway, heave. */
 	
-	SBG_ECOM_LOG_PRESSURE					= 36,		/*!< Pressure sensor such as depth sensor or altimeter. */
+	SBG_ECOM_LOG_PRESSURE			= 36,			/*!< Pressure sensor such as depth sensor or altimeter. */
 
-	SBG_ECOM_LOG_USBL						= 37,		/*!< Raw USBL position data for subsea navigation. */
+	SBG_ECOM_LOG_USBL				= 37,			/*!< Raw USBL position data for subsea navigation. */
 
-	SBG_ECOM_LOG_DEBUG_0					= 39,		/*!< Debug Log. */
+	SBG_ECOM_LOG_DEBUG_0			= 39,			/*!< Debug Log. */
 
-	SBG_ECOM_LOG_ECOM_NUM_MESSAGES						/*!< Helper definition to know the number of ECom messages */
+	SBG_ECOM_LOG_ECOM_NUM_MESSAGES					/*!< Helper definition to know the number of ECom messages */
 } SbgEComLog;
 
 /*!
@@ -119,8 +117,8 @@ typedef enum _SbgEComLog
  */
 typedef enum _SbgEComLog1MsgId
 {
-	SBG_ECOM_LOG_FAST_IMU_DATA 				= 0,		/*!< Provides accelerometers, gyroscopes, time and status at 1KHz rate. */
-	SBG_ECOM_LOG_ECOM_1_NUM_MESSAGES					/*!< Helper definition to know the number of ECom messages */
+	SBG_ECOM_LOG_FAST_IMU_DATA 		= 0,			/*!< Provides accelerometers, gyroscopes, time and status at 1KHz rate. */
+	SBG_ECOM_LOG_ECOM_1_NUM_MESSAGES				/*!< Helper definition to know the number of ECom messages */
 } SbgEComLog1;
 
 /*!
@@ -128,34 +126,19 @@ typedef enum _SbgEComLog1MsgId
  */
 typedef enum _SbgEComNmeaLog
 {
-	SBG_ECOM_LOG_NMEA_GGA 					= 0,		/*!< Latitude, Longitude, Altitude, Quality indicator. */
-	SBG_ECOM_LOG_NMEA_RMC 					= 1,		/*!< Latitude, Longitude, velocity, course over ground. */
-	SBG_ECOM_LOG_NMEA_ZDA 					= 2,		/*!< UTC Time. */
-	SBG_ECOM_LOG_NMEA_HDT 					= 3,		/*!< Heading (True). */
-	SBG_ECOM_LOG_NMEA_GST					= 4,		/*!< GPS Pseudorange Noise Statistics. */
-	SBG_ECOM_LOG_NMEA_VBW					= 5,		/*!< Water referenced and ground referenced speed data. */
-	SBG_ECOM_LOG_NMEA_DPT					= 7,		/*!< Depth sensor output. */
-	SBG_ECOM_LOG_NMEA_VTG					= 8,		/*!< Track an Speed over the ground. */
-	SBG_ECOM_LOG_NMEA_NUM_MESSAGES						/*!< Helper definition to know the number of NMEA messages */
+	SBG_ECOM_LOG_NMEA_GGA 			= 0,			/*!< Latitude, Longitude, Altitude, Quality indicator. */
+	SBG_ECOM_LOG_NMEA_RMC 			= 1,			/*!< Latitude, Longitude, velocity, course over ground. */
+	SBG_ECOM_LOG_NMEA_ZDA 			= 2,			/*!< UTC Time. */
+	SBG_ECOM_LOG_NMEA_HDT 			= 3,			/*!< Heading (True). */
+	SBG_ECOM_LOG_NMEA_GST			= 4,			/*!< GPS Pseudorange Noise Statistics. */
+	SBG_ECOM_LOG_NMEA_VBW			= 5,			/*!< Water referenced and ground referenced speed data. */
+	SBG_ECOM_LOG_NMEA_PRDID			= 6,			/*!< RDI proprietary sentence. Pitch, Roll, Heading */
+	SBG_ECOM_LOG_NMEA_DPT			= 7,			/*!< Depth sensor output. */
+	SBG_ECOM_LOG_NMEA_VTG			= 8,			/*!< Track an Speed over the ground. */
+	SBG_ECOM_LOG_NMEA_PSBGI			= 9,			/*!< SBG proprietary sentence. Rotation rates, accelerations. */
+	SBG_ECOM_LOG_NMEA_PASHR			= 10,			/*!< OXTS proprietary sentence. Roll, Pitch, Heading, Heave. */
+	SBG_ECOM_LOG_NMEA_NUM_MESSAGES					/*!< Helper definition to know the number of NMEA messages */
 } SbgEComNmeaLog;
-
-/*!
-* Enum that defines all the available Proprietary Nmea output logs from the sbgECom library.
-*/
-typedef enum _SbgEComIdNmea1Log
-{
-	SBG_ECOM_LOG_NMEA_1_PRDID				= 0,		/*!< RDI proprietary sentence. Pitch, Roll, Heading */
-	SBG_ECOM_LOG_NMEA_1_PSBGI				= 1,		/*!< SBG Systems proprietary sentence. Rotation rates, accelerations. */
-	SBG_ECOM_LOG_NMEA_1_PASHR				= 2,		/*!< proprietary sentence. Roll, Pitch, Heading, Heave. */
-	SBG_ECOM_LOG_NMEA_1_PSBGB				= 3,		/*!< SBG Systems proprietary sentence. Attitude, heading, heave, angular rates, velocity. */
-
-	SBG_ECOM_THIRD_PARTY_IXBLUE_PHINF		= 5,		/*!< Ixblue NMEA like log used to output Status information. */
-	SBG_ECOM_THIRD_PARTY_IXBLUE_PHTRO		= 6,		/*!< Ixblue NMEA like log used to output Roll and Pitch. */
-	SBG_ECOM_THIRD_PARTY_IXBLUE_PHLIN		= 7,		/*!< Ixblue NMEA like log used to output Surge, Sway and Heave. */
-	SBG_ECOM_THIRD_PARTY_IXBLUE_PHOCT		= 8,		/*!< Ixblue NMEA like log used to output attitude and ship motion. */
-
-	SBG_ECOM_LOG_NMEA_1_NUM_MESSAGES					/*!< Helper definition to know the number of NMEA messages */
-} SbgEComIdNmea1Log;
 
 /*!
  * Enum that defines all the available Proprietary output logs from the sbgECom library.
@@ -168,8 +151,11 @@ typedef enum _SbgEComIdThirdParty
 	SBG_ECOM_THIRD_PARTY_PD0				= 2,		/*!< Teledyne PD0 DVL proprietary frame. */
 	SBG_ECOM_THIRD_PARTY_SIMRAD_1000		= 3,		/*!< Konsberg SimRad 1000 proprietary frame that outputs Roll, Pitch and Heading.  */
 	SBG_ECOM_THIRD_PARTY_SIMRAD_3000		= 4,		/*!< Konsberg SimRad 3000 proprietary frame that outputs Roll, Pitch and Heading. */
-		
-	SBG_ECOM_THIRD_PARTY_SEAPATH_B26		= 5,		/*!< Konsberg Seapth Binary Log 26 used for MBES FM mode. */
+
+	SBG_ECOM_THIRD_PARTY_IXBLUE_PHINF		= 5,		/*!< Ixblue NMEA like log used to output Status information. */
+	SBG_ECOM_THIRD_PARTY_IXBLUE_PHTRO		= 6,		/*!< Ixblue NMEA like log used to output Roll and Pitch. */
+	SBG_ECOM_THIRD_PARTY_IXBLUE_PHLIN		= 7,		/*!< Ixblue NMEA like log used to output Surge, Sway and Heave. */
+	SBG_ECOM_THIRD_PARTY_IXBLUE_PHOCT		= 8,		/*!< Ixblue NMEA like log used to output attitude and ship motion. */
 
 	SBG_ECOM_LOG_THIRD_PARTY_NUM_MESSAGES				/*!< Helper definition to know the number of third party messages */
 } SbgEComIdThirdParty;
@@ -180,76 +166,73 @@ typedef enum _SbgEComIdThirdParty
 typedef enum _SbgEComCmd
 {
 	/* Acknowledge */
-	SBG_ECOM_CMD_ACK			 			= 0,		/*!< Acknowledge */
+	SBG_ECOM_CMD_ACK			 			= 0,			/*!< Acknowledge */
 
 	/* Special settings commands */
-	SBG_ECOM_CMD_SETTINGS_ACTION 			= 1,		/*!< Performs various settings actions */
-	SBG_ECOM_CMD_IMPORT_SETTINGS 			= 2,		/*!< Imports a new settings structure to the sensor */
-	SBG_ECOM_CMD_EXPORT_SETTINGS 			= 3,		/*!< Export the whole configuration from the sensor */
+	SBG_ECOM_CMD_SETTINGS_ACTION 			= 1,			/*!< Performs various settings actions */
+	SBG_ECOM_CMD_IMPORT_SETTINGS 			= 2,			/*!< Imports a new settings structure to the sensor */
+	SBG_ECOM_CMD_EXPORT_SETTINGS 			= 3,			/*!< Export the whole configuration from the sensor */
 
 	/* Device info */
-	SBG_ECOM_CMD_INFO 						= 4,		/*!< Get basic device information */
+	SBG_ECOM_CMD_INFO 						= 4,			/*!< Get basic device information */
 
 	/* Sensor parameters */
-	SBG_ECOM_CMD_INIT_PARAMETERS 			= 5,		/*!< Initial configuration */
-	SBG_ECOM_CMD_SET_MOTION_PROFILE 		= 6,		/*!< Set a new motion profile */
-	SBG_ECOM_CMD_MOTION_PROFILE_ID	 		= 7,		/*!< Get motion profile information */
-	SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM	= 8,		/*!< Sensor alignment and lever arm on vehicle configuration */
-	SBG_ECOM_CMD_AIDING_ASSIGNMENT 			= 9,		/*!< Aiding assignments such as RTCM / GPS / Odometer configuration */
+	SBG_ECOM_CMD_INIT_PARAMETERS 			= 5,			/*!< Initial configuration */
+	SBG_ECOM_CMD_SET_MOTION_PROFILE 		= 6,			/*!< Set a new motion profile */
+	SBG_ECOM_CMD_MOTION_PROFILE_ID	 		= 7,			/*!< Get motion profile information */
+	SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM	= 8,			/*!< Sensor alignment and lever arm on vehicle configuration */
+	SBG_ECOM_CMD_AIDING_ASSIGNMENT 			= 9,			/*!< Aiding assignments such as RTCM / GPS / Odometer configuration */
 
 	/* Magnetometer configuration */
-	SBG_ECOM_CMD_MAGNETOMETER_SET_MODEL 	= 10,		/*!< Set a new magnetometer error model */
-	SBG_ECOM_CMD_MAGNETOMETER_MODEL_ID	 	= 11,		/*!< Get magnetometer error model information */
-	SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE 	= 12,		/*!< Magnetometer aiding rejection mode */
-	SBG_ECOM_CMD_SET_MAG_CALIB 				= 13,		/*!< Set magnetic soft and hard Iron calibration data */
+	SBG_ECOM_CMD_MAGNETOMETER_SET_MODEL 	= 10,			/*!< Set a new magnetometer error model */
+	SBG_ECOM_CMD_MAGNETOMETER_MODEL_ID	 	= 11,			/*!< Get magnetometer error model information */
+	SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE 	= 12,			/*!< Magnetometer aiding rejection mode */
+	SBG_ECOM_CMD_SET_MAG_CALIB 				= 13,			/*!< Set magnetic soft and hard Iron calibration data */
 
 	/* Magnetometer onboard calibration */
-	SBG_ECOM_CMD_START_MAG_CALIB			= 14,		/*!< Start / reset internal magnetic field logging for calibration. */
-	SBG_ECOM_CMD_COMPUTE_MAG_CALIB			= 15,		/*!< Compute a magnetic calibration based on previously logged data. */
+	SBG_ECOM_CMD_START_MAG_CALIB			= 14,			/*!< Start / reset internal magnetic field logging for calibration. */
+	SBG_ECOM_CMD_COMPUTE_MAG_CALIB			= 15,			/*!< Compute a magnetic calibration based on previously logged data. */
 
 	/* GNSS configuration */
-	SBG_ECOM_CMD_GNSS_1_SET_MODEL 			= 16,		/*!< Set a new GNSS model */
-	SBG_ECOM_CMD_GNSS_1_MODEL_ID 			= 17,		/*!< Get GNSS model information */
-	SBG_ECOM_CMD_GNSS_1_LEVER_ARM_ALIGNMENT = 18,		/*!< GNSS installation configuration (lever arm, antenna alignments) */
-	SBG_ECOM_CMD_GNSS_1_REJECT_MODES 		= 19,		/*!< GNSS aiding rejection modes configuration. */
+	SBG_ECOM_CMD_GNSS_1_SET_MODEL 			= 16,			/*!< Set a new GNSS model */
+	SBG_ECOM_CMD_GNSS_1_MODEL_ID 			= 17,			/*!< Get GNSS model information */
+	SBG_ECOM_CMD_GNSS_1_LEVER_ARM_ALIGNMENT = 18,			/*!< GNSS installation configuration (lever arm, antenna alignments) */
+	SBG_ECOM_CMD_GNSS_1_REJECT_MODES 		= 19,			/*!< GNSS aiding rejection modes configuration. */
 
 	/* Odometer configuration */
-	SBG_ECOM_CMD_ODO_CONF 					= 20,		/*!< Odometer gain, direction configuration */
-	SBG_ECOM_CMD_ODO_LEVER_ARM 				= 21,		/*!< Odometer installation configuration (lever arm) */
-	SBG_ECOM_CMD_ODO_REJECT_MODE 			= 22,		/*!< Odometer aiding rejection mode configuration. */
+	SBG_ECOM_CMD_ODO_CONF 					= 20,			/*!< Odometer gain, direction configuration */
+	SBG_ECOM_CMD_ODO_LEVER_ARM 				= 21,			/*!< Odometer installation configuration (lever arm) */
+	SBG_ECOM_CMD_ODO_REJECT_MODE 			= 22,			/*!< Odometer aiding rejection mode configuration. */
 
 	/* Interfaces configuration */
-	SBG_ECOM_CMD_UART_CONF 					= 23,		/*!< UART interfaces configuration */
-	SBG_ECOM_CMD_CAN_BUS_CONF 				= 24,		/*!< CAN bus interface configuration */
-	SBG_ECOM_CMD_CAN_OUTPUT_CONF			= 25,		/*!< CAN identifiers configuration */
-		
+	SBG_ECOM_CMD_UART_CONF 					= 23,			/*!< UART interfaces configuration */
+	SBG_ECOM_CMD_CAN_BUS_CONF 				= 24,			/*!< CAN bus interface configuration */
+	SBG_ECOM_CMD_CAN_OUTPUT_CONF			= 25,			/*!< CAN identifiers configuration */
+
 	/* Events configuration */
-	SBG_ECOM_CMD_SYNC_IN_CONF 				= 26,		/*!< Synchronization inputs configuration */
-	SBG_ECOM_CMD_SYNC_OUT_CONF 				= 27,		/*!< Synchronization outputs configuration */
+	SBG_ECOM_CMD_SYNC_IN_CONF 				= 26,			/*!< Synchronization inputs configuration */
+	SBG_ECOM_CMD_SYNC_OUT_CONF 				= 27,			/*!< Synchronization outputs configuration */
+	SBG_ECOM_CMD_VIRTUAL_ODOMETER_CONF 		= 28,			/*!< Virtual Odometer distance configuration */
 
 	/* Output configuration */
-	SBG_ECOM_CMD_NMEA_TALKER_ID 			= 29,		/*!< NMEA talker ID configuration */
-	SBG_ECOM_CMD_OUTPUT_CONF 				= 30,		/*!< Output configuration */
-	SBG_ECOM_CMD_LEGACY_CONT_OUTPUT_CONF 	= 31,		/*!< Legacy serial output mode configuration */
+	SBG_ECOM_CMD_NMEA_TALKER_ID 			= 29,			/*!< NMEA talker ID configuration */
+	SBG_ECOM_CMD_OUTPUT_CONF 				= 30,			/*!< Output configuration */
+	SBG_ECOM_CMD_LEGACY_CONT_OUTPUT_CONF 	= 31,			/*!< Legacy serial output mode configuration */
 
 	/* Avanced configuration */
-	SBG_ECOM_CMD_ADVANCED_CONF 				= 32,		/*!< Advanced settings configuration */
+	SBG_ECOM_CMD_ADVANCED_CONF 				= 32,			/*!< Advanced settings configuration */
 
 	/* Features related commands */
-	SBG_ECOM_CMD_FEATURES					= 33,		/*!< Retrieve device features */
+	SBG_ECOM_CMD_FEATURES					= 33,			/*!< Retrieve device features */
 
 	/* Licenses related commands */
-	SBG_ECOM_CMD_LICENSE_APPLY				= 34,		/*!< Upload and apply a new license */
+	SBG_ECOM_CMD_LICENSE_APPLY				= 34,			/*!< Upload and apply a new license */
 		
 	/* Message class output switch */
-	SBG_ECOM_CMD_OUTPUT_CLASS_ENABLE		= 35,		/*!< Enable/disable the output of an entire class */
-
-	/* Ethernet configuration */
-	SBG_ECOM_CMD_ETHERNET_CONF				= 36,		/*!< Set/get Ethernet configuration such as DHCP mode and IP address. */
-	SBG_ECOM_CMD_ETHERNET_INFO				= 37,		/*!< Return the current IP used by the device. */
+	SBG_ECOM_CMD_OUTPUT_CLASS_ENABLE		= 35,			/*!< Enable/disable the output of an entire class */
 
 	/* Misc. */
-	SBG_ECOM_LOG_ECOM_NUM_CMDS							/*!< Helper definition to know the number of commands */
+	SBG_ECOM_LOG_ECOM_NUM_CMDS								/*!< Helper definition to know the number of commands */
 } SbgEComCmd;
 
 /*!
@@ -257,12 +240,11 @@ typedef enum _SbgEComCmd
  */
 typedef union _SbgEComUnifiedId
 {
-	SbgEComLog				eComLog;					/*!< ECom 0 message ids */
-	SbgEComLog1				eCom1Log;					/*!< ECom 1 message ids */
-	SbgEComNmeaLog			nmeaId;						/*!< NMEA message ids */
-	SbgEComIdNmea1Log		nmea1Id;					/*!< NMEA Proprietary messages ids */
-	SbgEComIdThirdParty		thirdPartyId;				/*!< Third party message ids */
-	SbgEComCmd				eComCmd;					/*!< ECom command ids */
+	SbgEComLog				eComLog;		/*!< ECom 0 message ids */
+	SbgEComLog1				eCom1Log;		/*!< ECom 1 message ids */
+	SbgEComNmeaLog			nmeaId;			/*!< NMEA message ids */
+	SbgEComIdThirdParty		thirdPartyId;	/*!< Proprietary message ids */
+	SbgEComCmd				eComCmd;		/*!< ECom command ids */
 } SbgEComUnifiedId;
 
 /*!

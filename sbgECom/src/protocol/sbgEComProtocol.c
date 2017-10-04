@@ -63,7 +63,7 @@ SbgErrorCode sbgEComProtocolClose(SbgEComProtocol *pHandle)
  * \param[in]	size					Size in bytes of the data payload (less than 4086).
  * \return								SBG_NO_ERROR if the frame has been sent.
  */
-SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, size_t size)
+SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, uint32 size)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
@@ -149,19 +149,19 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
  *										SBG_NULL_POINTER if an input parameter is NULL.<br>
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  */
-SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize)
+SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, uint32 *pSize, uint32 maxSize)
 {
 	SbgErrorCode		errorCode = SBG_NOT_READY;
 	SbgStreamBuffer		inputStream;
 	bool				syncFound;
-	size_t				payloadSize = 0;
+	uint32				payloadSize = 0;
 	uint16				frameCrc;
 	uint16				computedCrc;
-	size_t				i;
+	uint32				i;
 	size_t				numBytesRead;
 	uint8				receivedMsgClass;
 	uint8				receivedMsg;
-	size_t				payloadOffset;
+	uint32				payloadOffset;
 
 	//
 	// Check input arguments
@@ -189,7 +189,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
 			//
 			// No error during reading so increment the number of bytes stored in the rx buffer
 			//
-			pHandle->rxBufferSize += numBytesRead;
+			pHandle->rxBufferSize += (uint32)numBytesRead;
 		}
 	}
 
@@ -296,7 +296,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
 				//
 				// We should have the whole frame so for now, skip the payload part but before store the current cursor
 				//
-				payloadOffset = sbgStreamBufferTell(&inputStream);
+				payloadOffset = (uint32)sbgStreamBufferTell(&inputStream);
 				sbgStreamBufferSeek(&inputStream, payloadSize, SB_SEEK_CUR_INC);
 
 				//

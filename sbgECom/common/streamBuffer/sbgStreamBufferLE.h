@@ -570,45 +570,6 @@ SBG_INLINE uint64 sbgStreamBufferReadUint64LE(SbgStreamBuffer *pHandle)
 }
 
 /*!
- * Read a size_t from a stream buffer that has been stored in a uint32 (Little endian version).
- * \param[in]	pHandle				Valid stream buffer handle that supports read operations.
- * \return							The read value or 0 if we have an error.
- */
-SBG_INLINE size_t sbgStreamBufferReadSizeT32LE(SbgStreamBuffer *pHandle)
-{
-	//
-	// Just call the read method for uint32
-	// We assume that a size_t is at least 32 bits on all platforms
-	//
-	return (size_t)sbgStreamBufferReadUint32LE(pHandle);
-}
-
-/*!
- * Read a size_t from a stream buffer that has been stored in a uint64 (Little endian version).
- * \param[in]	pHandle				Valid stream buffer handle that supports read operations.
- * \return							The read value or 0 if we have an error.
- */
-SBG_INLINE size_t sbgStreamBufferReadSizeT64LE(SbgStreamBuffer *pHandle)
-{
-	uint64	size;
-
-	//
-	// Just call the read method for uint64
-	//
-	size = sbgStreamBufferReadUint64LE(pHandle);
-
-	//
-	// Make sure the read size can fit in the size_t in size_t is 32 bits
-	//
-	SBG_ASSERT((sizeof(size_t) == 8) || ((sizeof(size_t) == 4) && (size <= SBG_MAX_UINT_32)));
-
-	//
-	// Return the read value
-	//
-	return (size_t)size;
-}
-
-/*!
  * Read an float from a stream buffer (Little endian version).
  * \param[in]	pHandle				Valid stream buffer handle that supports read operations.
  * \return							The read value or 0 if we have an error.
@@ -737,7 +698,7 @@ SBG_INLINE SbgErrorCode sbgStreamBufferWriteInt16LE(SbgStreamBuffer *pHandle, in
 			// Test if the platform supports un-aligned access and if the endianness is the same
 			//
 			#if (SBG_CONFIG_UNALIGNED_ACCESS_AUTH == 1) && (SBG_CONFIG_BIG_ENDIAN == 0)
-				//
+								//
 				//	Write the value
 				//
 				*((int16*)(pHandle->pCurrentPtr)) = value;
@@ -1229,49 +1190,6 @@ SBG_INLINE SbgErrorCode sbgStreamBufferWriteUint64LE(SbgStreamBuffer *pHandle, u
 	}
 
 	return pHandle->errorCode;
-}
-
-/*!
- * Write an size_t into a stream buffer as a uint32 (Little Endian Version).
- * \param[in]	pHandle				Valid stream buffer handle that supports write operations.
- * \param[in]	value				The value to write.
- * \return							SBG_NO_ERROR if the value has been successfully written.
- */
-SBG_INLINE SbgErrorCode sbgStreamBufferWriteSizeT32LE(SbgStreamBuffer *pHandle, size_t value)
-{
-	//
-	// Check input parameters
-	//
-	SBG_ASSERT(pHandle);
-
-	//
-	// Make sure the provided size_t value doesn't exceed a uint32 storage
-	//
-	SBG_ASSERT(value <= SBG_MAX_UINT_32);
-
-	//
-	// Call the write method to store a uint32
-	//
-	return sbgStreamBufferWriteUint32LE(pHandle, (uint32)value);
-}
-
-/*!
- * Write an size_t into a stream buffer as a uint64 (Little Endian Version).
- * \param[in]	pHandle				Valid stream buffer handle that supports write operations.
- * \param[in]	value				The value to write.
- * \return							SBG_NO_ERROR if the value has been successfully written.
- */
-SBG_INLINE SbgErrorCode sbgStreamBufferWriteSizeT64LE(SbgStreamBuffer *pHandle, size_t value)
-{
-	//
-	// Check input parameters
-	//
-	SBG_ASSERT(pHandle);
-
-	//
-	// Call the write method to store a uint64
-	//
-	return sbgStreamBufferWriteUint64LE(pHandle, (uint64)value);
 }
 
 /*!

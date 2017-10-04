@@ -15,7 +15,7 @@
  * \param[in] size						Total size of the upload.
  * \return								SBG_NO_ERROR when the transfer was initiated successfully.
  */
-SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t size)
+SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, uint32 size)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		streamBuffer;
@@ -36,7 +36,7 @@ SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uin
 	// Build transfer payload (a SBG_ECOM_TRANSFER_START command and the total size of the upload)
 	//
 	sbgStreamBufferWriteUint16LE(&streamBuffer, SBG_ECOM_TRANSFER_START);
-	sbgStreamBufferWriteSizeT32LE(&streamBuffer, size);
+	sbgStreamBufferWriteUint32LE(&streamBuffer, size);
 
 	//
 	// Send command (multiple times in case of failures)
@@ -46,14 +46,14 @@ SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uin
 		//
 		// Send transfer payload encapsulated in ECom protocol
 		//
-		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&streamBuffer), sbgStreamBufferGetLength(&streamBuffer));
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&streamBuffer), (uint32)sbgStreamBufferGetLength(&streamBuffer));
 		
 		if (errorCode == SBG_NO_ERROR)
 		{
 			//
 			// If the device accepts the transfer, it returns an ack, wait for the answer.
 			//
-			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, pHandle->cmdDefaultTimeOut);
+			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 			//
 			// Test if the response is positive from device
@@ -81,7 +81,7 @@ SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uin
  * \param[in] packetSize				The size of this packet.
  * \return								SBG_NO_ERROR if the packet was sent and acknowledged by the device.
  */
-SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, size_t offset, size_t packetSize)
+SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, uint32 offset, uint32 packetSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		streamBuffer;
@@ -104,7 +104,7 @@ SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uin
 	// Build payload: a SBG_ECOM_TRANSFER_DATA command, the offset from the start of the transfer, and the data
 	//
 	sbgStreamBufferWriteUint16LE(&streamBuffer, SBG_ECOM_TRANSFER_DATA);
-	sbgStreamBufferWriteSizeT32LE(&streamBuffer, offset);
+	sbgStreamBufferWriteUint32LE(&streamBuffer, offset);
 	sbgStreamBufferWriteBuffer(&streamBuffer, pBuffer, packetSize);
 
 	//
@@ -115,14 +115,14 @@ SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uin
 		//
 		// Send transfer payload encapsulated in a ECom protocol frame
 		//
-		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&streamBuffer), sbgStreamBufferGetLength(&streamBuffer));
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&streamBuffer), (uint32)sbgStreamBufferGetLength(&streamBuffer));
 		
 		if (errorCode == SBG_NO_ERROR)
 		{
 			//
 			// If the device receives the frame successfully received, it responds with an ACK, wait for the answer
 			//
-			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, pHandle->cmdDefaultTimeOut);
+			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 			//
 			// Test if the response is positive from device
@@ -177,14 +177,14 @@ SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClass, uint
 		//
 		// Send upload end payload encapsulated in a ECom protocol frame
 		//
-		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), sbgStreamBufferGetLength(&outStreamBuffer));
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), (uint32)sbgStreamBufferGetLength(&outStreamBuffer));
 
 		if (errorCode == SBG_NO_ERROR)
 		{
 			//
 			// If the device finishes the sequence successfully, it responds with an ACK, wait for answer
 			//
-			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, pHandle->cmdDefaultTimeOut);
+			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 			//
 			// Test if the response is positive from device
@@ -210,7 +210,7 @@ SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClass, uint
  * \param[out] pSize					Size of the transfer initiated, returned from the device.
  * \return								SBG_NO_ERROR when the transfer initiated successfully.
  */
-SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t *pSize)
+SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, uint32 *pSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
@@ -220,8 +220,8 @@ SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, 
 	uint8				receivedMsgClass;
 	uint8				receivedMsg;
 	uint16				transferCmd;
-	size_t				inputSize;
-	size_t				transferSize;
+	uint32				inputSize;
+	uint32				transferSize;
 	uint32				i;
 
 	//
@@ -247,7 +247,7 @@ SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, 
 		//
 		// Send transfer payload encapsulated in an ECom protocol frame
 		//
-		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), sbgStreamBufferGetLength(&outStreamBuffer));
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), (uint32)sbgStreamBufferGetLength(&outStreamBuffer));
 		
 		if (errorCode == SBG_NO_ERROR)
 		{
@@ -255,7 +255,7 @@ SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, 
 			// Wait for reponse, the device should respond with a ECOM_TRANSFER_START command and the transfer size
 			// If it can not initiate the transfer, it will respond with a NACK
 			//
-			errorCode = sbgEComReceiveAnyCmd(pHandle, &receivedMsgClass, &receivedMsg, inputBuffer, &inputSize, SBG_ECOM_MAX_PAYLOAD_SIZE, pHandle->cmdDefaultTimeOut);
+			errorCode = sbgEComReceiveAnyCmd(pHandle, &receivedMsgClass, &receivedMsg, inputBuffer, &inputSize, SBG_ECOM_MAX_PAYLOAD_SIZE, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 			
 			if (errorCode == SBG_NO_ERROR)
 			{
@@ -273,8 +273,8 @@ SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, 
 					// Retrieve parameters, the first one is the transfer command
 					// The second one is the total transfer size
 					//
-					transferCmd = sbgStreamBufferReadUint16LE(&inStreamBuffer);
-					transferSize = sbgStreamBufferReadSizeT32LE(&inStreamBuffer);
+					transferCmd = sbgStreamBufferReadUint16(&inStreamBuffer);
+					transferSize = sbgStreamBufferReadUint32(&inStreamBuffer);
 
 					//
 					// The device should have answered with SBG_ECOM_TRANSFER_START transfer command
@@ -323,7 +323,7 @@ SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, 
  * \param[in] packetSize				The size of the data asked to the device.
  * \return								SBG_NO_ERROR if the packet was successfully received.
  */
-SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, size_t offset, size_t packetSize)
+SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, uint32 offset, uint32 packetSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
@@ -333,8 +333,8 @@ SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, 
 	uint16				transferCmd;
 	uint8				receivedMsgClass;
 	uint8				receivedMsg;
-	size_t				rcvdOffset;
-	size_t				inputSize;
+	uint32				rcvdOffset;
+	uint32				inputSize;
 	uint32				i;
 
 	//
@@ -353,8 +353,8 @@ SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, 
 	// Build payload: an SBG_ECOM_TRANSFER_DATA transfer command, the offset from the start of the transfer, the size of the packet the device must send
 	//
 	sbgStreamBufferWriteUint16LE(&outStreamBuffer, SBG_ECOM_TRANSFER_DATA);
-	sbgStreamBufferWriteSizeT32LE(&outStreamBuffer, offset);
-	sbgStreamBufferWriteSizeT32LE(&outStreamBuffer, packetSize);
+	sbgStreamBufferWriteUint32LE(&outStreamBuffer, offset);
+	sbgStreamBufferWriteUint32LE(&outStreamBuffer, packetSize);
 
 	//
 	// Send command (multiple times in case of failures)
@@ -364,7 +364,7 @@ SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, 
 		//
 		// Send transfer payload encapsulated in an ECom protocol frame
 		//
-		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), sbgStreamBufferGetLength(&outStreamBuffer));
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), (uint32)sbgStreamBufferGetLength(&outStreamBuffer));
 
 		if (errorCode == SBG_NO_ERROR)
 		{
@@ -372,7 +372,7 @@ SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, 
 			// Wait for reponse, the device should respond with a ECOM_TRANSFER_DATA, the offset from the start of the transfer and the data payload
 			// If it can not provide the data, it will respond with a NACK
 			//
-			errorCode = sbgEComReceiveAnyCmd(pHandle, &receivedMsgClass, &receivedMsg, inputBuffer, &inputSize, SBG_ECOM_MAX_PAYLOAD_SIZE, pHandle->cmdDefaultTimeOut);
+			errorCode = sbgEComReceiveAnyCmd(pHandle, &receivedMsgClass, &receivedMsg, inputBuffer, &inputSize, SBG_ECOM_MAX_PAYLOAD_SIZE, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 			if (errorCode == SBG_NO_ERROR)
 			{
@@ -389,8 +389,8 @@ SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, 
 					//
 					// Read response fields, first is the transfer command, second is the offset
 					//
-					transferCmd = sbgStreamBufferReadUint16LE(&inStreamBuffer);
-					rcvdOffset = sbgStreamBufferReadSizeT32LE(&inStreamBuffer);
+					transferCmd = sbgStreamBufferReadUint16(&inStreamBuffer);
+					rcvdOffset = sbgStreamBufferReadUint32(&inStreamBuffer);
 
 					//
 					// Test that it's a SBG_ECOM_TRANSFER_DATA command
@@ -461,14 +461,14 @@ SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8 msgClass, u
 		//
 		// Send upload end payload encapsulated in a ECom protocol frame
 		//
-		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), sbgStreamBufferGetLength(&outStreamBuffer));
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outStreamBuffer), (uint32)sbgStreamBufferGetLength(&outStreamBuffer));
 
 		if (errorCode == SBG_NO_ERROR)
 		{
 			//
 			// If the device is able to finish transfer sequence, it responds with an ACK
 			//
-			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, pHandle->cmdDefaultTimeOut);
+			errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 			//
 			// Test if the response is positive from device
@@ -499,11 +499,11 @@ SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8 msgClass, u
  * \param[in]	size					The size of the buffer.
  * \return								SBG_NO_ERROR in case of a successful upload.
  */
-SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, size_t size)
+SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, uint32 size)
 {
 	SbgErrorCode	errorCode = SBG_NO_ERROR;
 	SbgSplitBuffer	splitBuffer;
-	size_t			i;
+	uint32			i;
 
 	//
 	// Check input parameters
@@ -540,7 +540,7 @@ SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 m
 				//
 				// Send a sub buffer
 				//
-				errorCode = sbgEComTransferSendData(pHandle, msgClass, msg, sbgSplitBufferGetSubBuffer(&splitBuffer, i), sbgSplitBufferGetSubBufferOffset(&splitBuffer, i), sbgSplitBufferGetSubBufferSize(&splitBuffer, i));
+				errorCode = sbgEComTransferSendData(pHandle, msgClass, msg, sbgSplitBufferGetSubBuffer(&splitBuffer, i), (uint32)sbgSplitBufferGetSubBufferOffset(&splitBuffer, i), (uint32)sbgSplitBufferGetSubBufferSize(&splitBuffer, i));
 
 				//
 				// Test if the sub buffer has been sent
@@ -587,12 +587,12 @@ SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 m
  * \param[in]	size					The size of the buffer.
  * \return								SBG_NO_ERROR in case of a successful download.
  */
-SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, size_t *pActualSize, size_t bufferSize)
+SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, uint32 *pActualSize, uint32 bufferSize)
 {
 	SbgErrorCode	errorCode = SBG_NO_ERROR;
 	SbgSplitBuffer	splitBuffer;
-	size_t			transferSize;
-	size_t			i;
+	uint32			transferSize;
+	uint32			i;
 
 	//
 	// Check input parameters
@@ -630,7 +630,7 @@ SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8 msgClass, uint
 				//
 				// Receive a sub buffer
 				//																									  
-				errorCode = sbgEComTransferReceiveData(pHandle, msgClass, msg, sbgSplitBufferGetSubBuffer(&splitBuffer, i), sbgSplitBufferGetSubBufferOffset(&splitBuffer, i), sbgSplitBufferGetSubBufferSize(&splitBuffer, i));
+				errorCode = sbgEComTransferReceiveData(pHandle, msgClass, msg, sbgSplitBufferGetSubBuffer(&splitBuffer, i), (uint32)sbgSplitBufferGetSubBufferOffset(&splitBuffer, i), (uint32)sbgSplitBufferGetSubBufferSize(&splitBuffer, i));
 
 				//
 				// Make sure that the sub buffer has been correctly received

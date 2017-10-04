@@ -1,7 +1,6 @@
 #include "sbgECom.h"
 #include "sbgEComVersion.h"
 #include <streamBuffer/sbgStreamBuffer.h>
-#include "commands/sbgEComCmdCommon.h"
 
 //----------------------------------------------------------------------//
 //- Private methods declarations                                       -//
@@ -29,15 +28,9 @@ SbgErrorCode sbgEComInit(SbgEComHandle *pHandle, SbgInterface *pInterface)
 		//
 		// Initialize the sbgECom handle
 		//
-		pHandle->pReceiveCallback		= NULL;
-		pHandle->pReceiveLogCallback	= NULL;
-		pHandle->pUserArg				= NULL;
-
-		//
-		// Initialize the default number of trials and time out
-		//
-		pHandle->numTrials			= 3;
-		pHandle->cmdDefaultTimeOut	= SBG_ECOM_DEFAULT_CMD_TIME_OUT;
+		pHandle->pReceiveCallback = NULL;
+		pHandle->pReceiveLogCallback = NULL;
+		pHandle->pUserArg = NULL;
 
 		//
 		// Initialize the protocol 
@@ -91,7 +84,7 @@ SbgErrorCode sbgEComHandleOneLog(SbgEComHandle *pHandle)
 	uint8				receivedMsg;
 	uint8				receivedMsgClass;
 	uint16				receivedCmd;
-	size_t				payloadSize;
+	uint32				payloadSize;
 	uint8				payloadData[SBG_ECOM_MAX_PAYLOAD_SIZE];
 
 	//
@@ -254,28 +247,6 @@ SbgErrorCode sbgEComSetReceiveLogCallback(SbgEComHandle *pHandle, SbgEComReceive
 	}
 
 	return errorCode;
-}
-
-/*!
- * Define the default number of trials that should be done when a command is send to the device as well as the time out.
- * \param[in]	pHandle							A valid sbgECom handle.
- * \parma[in]	numTrials						Number of trials when a command is sent (starting at 1).
- * \param[in]	cmdDefaultTimeOut				Default time out in milliseconds to wait to receive an answer from the device.
- */
-void sbgEComSetCmdTrialsAndTimeOut(SbgEComHandle *pHandle, uint32 numTrials, uint32 cmdDefaultTimeOut)
-{
-	//
-	// Check input arguments
-	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(numTrials > 0);
-	SBG_ASSERT(cmdDefaultTimeOut > 0);
-
-	//
-	// Define the new settings
-	//
-	pHandle->numTrials			= numTrials;
-	pHandle->cmdDefaultTimeOut	= cmdDefaultTimeOut;
 }
 
 /*!

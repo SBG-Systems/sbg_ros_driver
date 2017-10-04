@@ -34,16 +34,9 @@
 //----------------------------------------------------------------------//
 
 // We would like to use the standard C library
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
 
 // We need the standard assert header as we use it to implement the SBG_ASSERT macro
 #include <assert.h>

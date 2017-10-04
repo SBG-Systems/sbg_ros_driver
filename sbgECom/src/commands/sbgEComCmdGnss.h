@@ -64,6 +64,7 @@ typedef struct _SbgEComGnssRejectionConf
 {
 	SbgEComRejectionMode	position;		/*!< Rejection mode for position. */
 	SbgEComRejectionMode	velocity;		/*!< Rejection mode for velocity. */
+	SbgEComRejectionMode	course;			/*!< Rejection mode for course over ground. */
 	SbgEComRejectionMode	hdt;			/*!< Rejection mode for true heading. */
 } SbgEComGnssRejectionConf;
 

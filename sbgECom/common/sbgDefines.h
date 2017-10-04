@@ -32,11 +32,11 @@
 #endif
 
 #ifndef FALSE
-    #define FALSE        (0)
+	#define FALSE		(0)
 #endif
 
 #ifndef TRUE
-    #define TRUE        (1)
+	#define TRUE		(1)
 #endif
 
 #ifndef NULL
@@ -53,10 +53,6 @@
 
 #ifndef SBG_UNDEFINED
 	#define SBG_UNDEFINED		(0xFFFFFFFFu)
-#endif
-
-#ifndef SBG_ARRAY_SIZE
-	#define SBG_ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
 #endif
 
 /*!
@@ -88,7 +84,7 @@
  *	Macro used to abstract the compiler specific inline keyword.
  */
 #ifndef SBG_INLINE
-	#if defined(_WIN32) || defined(WIN32)
+	#ifdef WIN32
 		#define SBG_INLINE			__inline
 	#else
 		#define SBG_INLINE          static inline
@@ -99,45 +95,7 @@
  *	Macro used to avoid compiler warning when a variable is not used.
  */
 #ifndef SBG_UNUSED_PARAMETER
-	#define SBG_UNUSED_PARAMETER(x)		(void)(x)
-#endif
-
-//----------------------------------------------------------------------//
-//- Macro used to defined packed structures                            -//
-//----------------------------------------------------------------------//
-
-/*!
- * This macro is used to define a new section of packed structures.
- * All structures defined after this macro will be packed.
- */
-#ifdef __GNUC__
-	#define SBG_BEGIN_PACKED()
-#elif defined(_MSC_VER)
-	#define SBG_BEGIN_PACKED()	__pragma(pack(push, 1))
-#else
-	#error you must byte-align these structures with the appropriate compiler directives
-#endif
-
-/*!
- * This macro is used to specify that a structure is packed.
- */
-#ifdef __GNUC__
-	#define SBG_PACKED			__attribute__((packed))
-#elif defined(_MSC_VER)
-	#define SBG_PACKED
-#else
-	#error you must byte-align these structures with the appropriate compiler directives
-#endif
-
-/*!
- * This macro is used to close the section of packed structures and return to the default packing.
- */
-#ifdef __GNUC__
-	#define SBG_END_PACKED()
-#elif defined(_MSC_VER)
-	#define SBG_END_PACKED()		__pragma(pack(pop))
-#else
-	#error you must byte-align these structures with the appropriate compiler directives
+	#define SBG_UNUSED_PARAMETER(x)		(void)x
 #endif
 
 //----------------------------------------------------------------------//
@@ -197,17 +155,6 @@
  */
 #ifndef sbgMin
 	#define sbgMin(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
-/*!
- * Clamp a value between minValue and maxValue ie minValue <= value <= maxValue
- * \param[in]	value				First operand.
- * \param[in]	minValue			First operand.
- * \param[in]	maxValue			Second operand.
- * \return							The clamped value.
- */
-#ifndef sbgClamp
-	#define sbgClamp(value, minValue, maxValue)            (((value) < (minValue))?(minValue): ((value) > (maxValue)?maxValue:value))
 #endif
 
 /*!

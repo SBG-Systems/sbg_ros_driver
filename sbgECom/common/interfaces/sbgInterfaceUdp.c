@@ -3,7 +3,6 @@
 #ifdef WIN32
 	#include <winsock2.h>
 	#include <WS2tcpip.h>
-	#include <stdint.h>
 #else
 	#include <arpa/inet.h>
     #include <netinet/in.h>
@@ -86,7 +85,7 @@ SbgErrorCode sbgInterfaceUpdateCloseSockets(void)
 /*!
  *	Define if a socket should block or not on receive and send calls.
  *	\param[in]	socketHandle					The socket handle to change.
- *	\param[in]	blocking						Set to true for a blocking socket or false for a non blocking socket.
+ *	\param[in]	blocking						Set to TRUE for a blocking socket or FALSE for a non blocking socket.
  *	\return										SBG_NO_ERROR if the blocking status has been changed.
  */
 SbgErrorCode sbgInterfaceUdpSetSocketBlocking(SOCKET socketHandle, bool blocking)
@@ -150,20 +149,21 @@ SbgErrorCode sbgInterfaceUdpSetSocketBlocking(SOCKET socketHandle, bool blocking
  *	An UDP interface can send some data to an output ip address and port and read all received
  *	data on a input port.
  *	\param[in]	pHandle							Pointer on an allocated interface instance to initialize.
- *	\param[in]	remoteAddr						IP address to send data to.
- *	\param[in]	remotePort						Ethernet port to send data to.
- *	\param[in]	localPort						Ehternet port on which the interface is listening.
+ *	\param[in]	outAdress						IP address to send data to.
+ *	\param[in]	outPort							Ethernet port to send data to.
+ *	\param[in]	inPort							Ehternet port to read data from.
  *	\return										SBG_NO_ERROR if the interface has been created.
  */
-SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress remoteAddr, uint32 remotePort, uint32 localPort)
+SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress outAddress, uint32 outPort, uint32 inPort)
 {
 	SbgErrorCode		 errorCode = SBG_NO_ERROR;
 	SbgInterfaceUdp		*pNewUdpHandle;
 	SOCKADDR_IN			 bindAddress;
-	SOCKET				 newUdpSocket;
-	
+	SOCKET				 newUdpRecvSocket;
+	SOCKET				 newUdpSendSocket;
+
 	//
-	// Test input arguments
+	//	Test input arguments
 	//
 	SBG_ASSERT(pHandle);
 
@@ -185,65 +185,104 @@ SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress remoteAdd
 			//
 			// Fill the UDP handle
 			//
-			pNewUdpHandle->remoteAddr	= remoteAddr;
-			pNewUdpHandle->remotePort	= remotePort;
-			pNewUdpHandle->localPort	= localPort;
+			pNewUdpHandle->outAddress = outAddress;
+			pNewUdpHandle->outPort = outPort;
+			pNewUdpHandle->inPort = inPort;
 
 			//
 			// Allocate a socket for windows we do this because we don't know the socket type and we would like
 			// a base and common interface for both windows or Unix platforms.
 			//
-			pNewUdpHandle->pUdpSocket = (SOCKET*)malloc(sizeof(SOCKET));
-			
+			pNewUdpHandle->pUdpRecvSocket = (SOCKET*)malloc(sizeof(SOCKET));
+			pNewUdpHandle->pUdpSendSocket = (SOCKET*)malloc(sizeof(SOCKET));
+
 			//
 			// Make sure that the socket has been created
 			//
-			if (pNewUdpHandle->pUdpSocket)
+			if ( (pNewUdpHandle->pUdpRecvSocket) && (pNewUdpHandle->pUdpSendSocket) )
 			{
 				//
-				// Create a socket to send and/or receive UDP data for IPv4 addresses
+				// Create a socket to receive UDP data for IPv4 addresses
 				//
-				newUdpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+				newUdpRecvSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 				//
 				// Test that the socket has been created
 				//
-				if (newUdpSocket != INVALID_SOCKET)
+				if (newUdpRecvSocket != INVALID_SOCKET)
 				{
 					//
 					// Define the socket as non blocking
 					//
-					if (sbgInterfaceUdpSetSocketBlocking(newUdpSocket, false) == NO_ERROR)
+					if (sbgInterfaceUdpSetSocketBlocking(newUdpRecvSocket, FALSE) == NO_ERROR)
 					{
 						//
 						// The bind should accept a connection on any ip address but only on the input port
 						//
 						bindAddress.sin_family = AF_INET;
-						bindAddress.sin_addr.s_addr = INADDR_ANY;
-						bindAddress.sin_port = htons((uint16_t)localPort);
+						bindAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+						bindAddress.sin_port = htons((u_short)inPort);
 
 						//
 						// Bind this socket to all ip addresses on the input port
 						//
-						if (bind(newUdpSocket, (SOCKADDR*) &bindAddress, sizeof(bindAddress)) != SOCKET_ERROR)
+						if (bind(newUdpRecvSocket, (SOCKADDR*) &bindAddress, sizeof(bindAddress)) != SOCKET_ERROR)
 						{
 							//
-							// Fill the created UDP socket
+							// Create a socket to send UDP data for IPv4 addresses
 							//
-							*((SOCKET*)pNewUdpHandle->pUdpSocket) = newUdpSocket;
-									
-							//
-							// The UDP interface is ready so fill the generic interface
-							//
-							pHandle->handle = pNewUdpHandle;
-							pHandle->type = SBG_IF_TYPE_ETH_UDP;
-							pHandle->pReadFunc = sbgInterfaceUdpRead;
-							pHandle->pWriteFunc = sbgInterfaceUdpWrite;
+							newUdpSendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 							//
-							// Return without any error
+							// Test that the socket has been created
 							//
-							return SBG_NO_ERROR;							
+							if (newUdpSendSocket != INVALID_SOCKET)
+							{
+								//
+								// Define the socket as non blocking
+								//
+								if (sbgInterfaceUdpSetSocketBlocking(newUdpSendSocket, FALSE) == NO_ERROR)
+								{
+									//
+									// Fill both the UDP receive and send sockets
+									//
+									*((SOCKET*)pNewUdpHandle->pUdpRecvSocket) = newUdpRecvSocket;
+									*((SOCKET*)pNewUdpHandle->pUdpSendSocket) = newUdpSendSocket;
+
+									//
+									// The UDP interface is ready so fill the generic interface
+									//
+									pHandle->handle = pNewUdpHandle;
+									pHandle->type = SBG_IF_TYPE_ETH_UDP;
+									pHandle->pReadFunc = sbgInterfaceUdpRead;
+									pHandle->pWriteFunc = sbgInterfaceUdpWrite;
+
+									//
+									// Return without any error
+									//
+									return SBG_NO_ERROR;
+								}
+								else
+								{
+									//
+									// Unable to define the non blocking mode
+									//
+									errorCode = SBG_ERROR;
+								}
+
+								//
+								// Close the UDP send socket
+								//
+								shutdown(newUdpSendSocket, SD_BOTH);
+								closesocket(newUdpSendSocket);
+							}
+							else
+							{
+								//
+								// Unable to create the socket
+								//
+								errorCode = SBG_ERROR;
+							}								
 						}
 						else
 						{
@@ -262,10 +301,10 @@ SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress remoteAdd
 					}
 
 					//
-					// Close the UDP socket
+					// Close the UDP receive socket
 					//
-					shutdown(newUdpSocket, SD_BOTH);
-					closesocket(newUdpSocket);
+					shutdown(newUdpRecvSocket, SD_BOTH);
+					closesocket(newUdpRecvSocket);
 				}
 				else
 				{
@@ -274,11 +313,6 @@ SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress remoteAdd
 					//
 					errorCode = SBG_ERROR;
 				}
-
-				//
-				// If needed, free the created socket
-				//
-				SBG_FREE(pNewUdpHandle->pUdpSocket);
 			}
 			else
 			{
@@ -287,6 +321,12 @@ SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress remoteAdd
 				//
 				errorCode = SBG_MALLOC_FAILED;
 			}
+
+			//
+			// If needed, free both the receive and send UDP sockets
+			//
+			SBG_FREE(pNewUdpHandle->pUdpRecvSocket);
+			SBG_FREE(pNewUdpHandle->pUdpSendSocket);
 
 			//
 			// Free the UDP handle
@@ -333,14 +373,14 @@ SbgErrorCode sbgInterfaceUdpDestroy(SbgInterface *pHandle)
 	pUdpHandle = (SbgInterfaceUdp*)pHandle->handle;
 
 	//
-	// Test if we have to close the UDP socket
+	// Test if we have to close the UDP receive socket
 	//
-	if (pUdpHandle->pUdpSocket)
+	if (pUdpHandle->pUdpRecvSocket)
 	{
 		//
 		// Get the UDP receive socket
 		//
-		udpSocket = *((SOCKET*)pUdpHandle->pUdpSocket);
+		udpSocket = *((SOCKET*)pUdpHandle->pUdpRecvSocket);
 
 		//
 		// Close the UDP receive socket
@@ -351,7 +391,29 @@ SbgErrorCode sbgInterfaceUdpDestroy(SbgInterface *pHandle)
 		//
 		// Release the UDP receive socket
 		//
-		SBG_FREE(pUdpHandle->pUdpSocket);
+		SBG_FREE(pUdpHandle->pUdpRecvSocket);
+	}
+
+	//
+	// Test if we have to close the UDP send socket
+	//
+	if (pUdpHandle->pUdpSendSocket)
+	{
+		//
+		// Get the UDP send socket
+		//
+		udpSocket = *((SOCKET*)pUdpHandle->pUdpSendSocket);
+
+		//
+		// Close the UDP send socket
+		//
+		shutdown(udpSocket, SD_BOTH);
+		closesocket(udpSocket);
+
+		//
+		// Release the UDP send socket
+		//
+		SBG_FREE(pUdpHandle->pUdpSendSocket);
 	}
 		
 	//
@@ -370,7 +432,7 @@ SbgErrorCode sbgInterfaceUdpDestroy(SbgInterface *pHandle)
 /*!
  *	Define if a socket can send broadcasted packets.
  *	\param[in]	pInterface						Pointer on a valid UDP interface created using sbgInterfaceUdpCreate.
- *	\param[in]	allowBroadcast					Set to true to allow this socket to send broadcasted UDP packets.
+ *	\param[in]	allowBroadcast					Set to TRUE to allow this socket to send broadcasted UDP packets.
  *	\return										SBG_NO_ERROR if the allow broadcast status has been changed.
  */
 SbgErrorCode sbgInterfaceUdpAllowBroadcast(SbgInterface *pHandle, bool allowBroadcast)
@@ -394,17 +456,17 @@ SbgErrorCode sbgInterfaceUdpAllowBroadcast(SbgInterface *pHandle, bool allowBroa
 	//
 	// Test that we have a valid UDP send socket
 	//
-	if (pUdpHandle->pUdpSocket)
+	if (pUdpHandle->pUdpSendSocket)
 	{
 		//
 		// Get the UDP send socket
 		//
-		udpSocket = *((SOCKET*)pUdpHandle->pUdpSocket);
+		udpSocket = *((SOCKET*)pUdpHandle->pUdpSendSocket);
 
 		//
 		// Define if we would like to enable UDP broadcast (0 No, 1 Yes)
 		//
-		broadcastMode = (allowBroadcast?true:false);
+		broadcastMode = (allowBroadcast?TRUE:FALSE);
 
 		//
 		// Define if the socket can send broadcasted packets
@@ -463,14 +525,14 @@ SbgErrorCode sbgInterfaceUdpWrite(SbgInterface *pHandle, const void *pBuffer, si
 	//
 	// Get the UDP socket
 	//
-	udpSocket = *((SOCKET*)pUdpHandle->pUdpSocket);
+	udpSocket = *((SOCKET*)pUdpHandle->pUdpSendSocket);
 
 	//
 	// Define the receiver address and port
 	//
 	outAddr.sin_family = AF_INET;
-	outAddr.sin_addr.s_addr = pUdpHandle->remoteAddr;				// Warning: the sbgIpAddress value is always stored in network endianness (ie big endian)
-	outAddr.sin_port = htons((uint16_t)pUdpHandle->remotePort);
+	outAddr.sin_addr.s_addr = htonl(pUdpHandle->outAddress);
+	outAddr.sin_port = htons((u_short)pUdpHandle->outPort);
 
 	//
 	// Send packets until no more to send
@@ -561,7 +623,7 @@ SbgErrorCode sbgInterfaceUdpRead(SbgInterface *pHandle, void *pBuffer, size_t *p
 	//
 	// Get the UDP socket
 	//
-	udpSocket = *((SOCKET*)pUdpHandle->pUdpSocket);
+	udpSocket = *((SOCKET*)pUdpHandle->pUdpRecvSocket);
 
 	//
 	// Send the datagram to the receiver
