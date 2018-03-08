@@ -50,6 +50,7 @@ add_message_files(FILES
   SbgEvent.msg
   SbgImuStatus.msg
   SbgImuData.msg
+  SbgShipMotionStatus.msg
   SbgShipMotion.msg
   SbgUtcTime.msg
   SbgGpsHdt.msg

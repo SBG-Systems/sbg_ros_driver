@@ -151,7 +151,22 @@ void read_ecom_log_ekf_nav(sbg_driver::SbgEkfNav &msg, const SbgBinaryLogData *p
 
 void read_ecom_log_ship_motion(sbg_driver::SbgShipMotion &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	msg.heave_period = pLogData->shipMotionData.mainHeavePeriod;
+	msg.ship_motion.x = pLogData->shipMotionData.shipMotion[0];
+	msg.ship_motion.y = pLogData->shipMotionData.shipMotion[1];
+	msg.ship_motion.z = pLogData->shipMotionData.shipMotion[2];
+	msg.acceleration.x = pLogData->shipMotionData.shipAccel[0];
+	msg.acceleration.y = pLogData->shipMotionData.shipAccel[1];
+	msg.acceleration.z = pLogData->shipMotionData.shipAccel[2];
+	msg.velocity.x = pLogData->shipMotionData.shipVel[0];
+	msg.velocity.y = pLogData->shipMotionData.shipVel[1];
+	msg.velocity.z = pLogData->shipMotionData.shipVel[2];
 
+	msg.status.heave_valid = (pLogData->shipMotionData.status & (1 << 0)) >> 0;
+	msg.status.heave_vel_aided = (pLogData->shipMotionData.status & (1 << 1)) >> 1;
+	msg.status.period_available = (pLogData->shipMotionData.status & (1 << 2)) >> 2;
+	msg.status.period_valid = (pLogData->shipMotionData.status & (1 << 3)) >> 3;
 }
 
 void read_ecom_log_mag(sbg_driver::SbgMag &msg, const SbgBinaryLogData *pLogData){
