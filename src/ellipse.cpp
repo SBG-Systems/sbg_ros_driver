@@ -5,12 +5,48 @@
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
 
-sensor_msgs::Imu imu_msg;
-sensor_msgs::NavSatFix nav_msg;
-geometry_msgs::PoseStamped pose_msg;
-bool new_imu_msg;
-bool new_nav_msg;
-bool new_twist_msg;
+#include "ellipse_msg.h"
+
+sbg_driver::SbgStatus sbgStatus_msg;
+sbg_driver::SbgUtcTime sbgUtcTime_msg;
+sbg_driver::SbgImuData sbgImuData_msg;
+sbg_driver::SbgEkfEuler sbgEkfEuler_msg;
+sbg_driver::SbgEkfQuat sbgEkfQuat_msg;
+sbg_driver::SbgEkfNav sbgEkfNav_msg;
+sbg_driver::SbgShipMotion sbgShipMotion_msg;
+sbg_driver::SbgMag sbgMag_msg;
+sbg_driver::SbgMagCalib sbgMagCalib_msg;
+sbg_driver::SbgGpsVel sbgGpsVel_msg;
+sbg_driver::SbgGpsPos sbgGpsPos_msg;
+sbg_driver::SbgGpsHdt sbgGpsHdt_msg;
+sbg_driver::SbgGpsRaw sbgGpsRaw_msg;
+sbg_driver::SbgOdoVel sbgOdoVel_msg;
+sbg_driver::SbgEvent sbgEvent_msg;
+sbg_driver::SbgPressure sbgPressure_msg;
+
+// sensor_msgs::Imu imu_msg;
+// sensor_msgs::NavSatFix nav_msg;
+// geometry_msgs::PoseStamped pose_msg;
+// bool new_imu_msg;
+// bool new_nav_msg;
+// bool new_twist_msg;
+
+bool new_sbgStatus;
+bool new_sbgUtcTime;
+bool new_sbgImuData;
+bool new_sbgEkfEuler;
+bool new_sbgEkfQuat;
+bool new_sbgEkfNav;
+bool new_sbgShipMotion;
+bool new_sbgMag;
+bool new_sbgMagCalib;
+bool new_sbgGpsVel;
+bool new_sbgGpsPos;
+bool new_sbgGpsHdt;
+bool new_sbgGpsRaw;
+bool new_sbgOdoVel;
+bool new_sbgEvent;
+bool new_sbgPressure;
 
 /*!
  *  Callback definition called each time a new log is received.
@@ -25,53 +61,86 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
 {
   // float time_of_week;
   switch (msg){
-    case SBG_ECOM_LOG_EKF_QUAT:
-      imu_msg.orientation.x = pLogData->ekfEulerData.euler[1];
-      imu_msg.orientation.y = pLogData->ekfEulerData.euler[2];
-      imu_msg.orientation.z = pLogData->ekfEulerData.euler[3];
-      imu_msg.orientation.w = pLogData->ekfEulerData.euler[0];
-
-      pose_msg.pose.orientation.x = pLogData->ekfEulerData.euler[1];
-      pose_msg.pose.orientation.y = pLogData->ekfEulerData.euler[2];
-      pose_msg.pose.orientation.z = pLogData->ekfEulerData.euler[3];
-      pose_msg.pose.orientation.w = pLogData->ekfEulerData.euler[0];
-
-      new_imu_msg = true;
+    case SBG_ECOM_LOG_STATUS:
+      read_ecom_log_status(sbgStatus_msg, pLogData);
+      new_sbgStatus = true;
       break;
-    case SBG_ECOM_LOG_EKF_NAV:
-      nav_msg.latitude  = pLogData->ekfNavData.position[0];
-      nav_msg.longitude = pLogData->ekfNavData.position[1];
-      nav_msg.altitude  = pLogData->ekfNavData.position[2];
-      new_nav_msg = true;
-      break;
-    case SBG_ECOM_LOG_SHIP_MOTION:
-      // imu_msg.linear_acceleration.x = pLogData->shipMotionData.shipVel[0];
-      // imu_msg.linear_acceleration.y = pLogData->shipMotionData.shipVel[1];
-      // imu_msg.linear_acceleration.z = pLogData->shipMotionData.shipVel[2];
-      // new_imu_msg = true;
+
+    case SBG_ECOM_LOG_UTC_TIME:
+      read_ecom_log_utc_time(sbgUtcTime_msg, pLogData);
+      new_sbgUtcTime = true;
       break;
 
     case SBG_ECOM_LOG_IMU_DATA:
-      imu_msg.linear_acceleration.x = pLogData->imuData.accelerometers[0];
-      imu_msg.linear_acceleration.y = pLogData->imuData.accelerometers[1];
-      imu_msg.linear_acceleration.z = pLogData->imuData.accelerometers[2];
-
-      imu_msg.angular_velocity.x = pLogData->imuData.gyroscopes[0];
-      imu_msg.angular_velocity.y = pLogData->imuData.gyroscopes[1];
-      imu_msg.angular_velocity.z = pLogData->imuData.gyroscopes[2];
-      new_imu_msg = true;
+      read_ecom_log_imu_data(sbgImuData_msg, pLogData);
+      new_sbgImuData = true;
       break;
-    // case SBG_ECOM_LOG_UTC_TIME:
-    //   pInsSBG->new_time = true;
-    //   pInsSBG->year          = pLogData->utcData.year;
-    //   pInsSBG->month         = pLogData->utcData.month;
-    //   pInsSBG->day           = pLogData->utcData.day;
-    //   pInsSBG->hour          = pLogData->utcData.hour;
-    //   pInsSBG->minute        = pLogData->utcData.minute;
-    //   pInsSBG->second        = pLogData->utcData.second;
-    //   pInsSBG->nanoSecond    = pLogData->utcData.nanoSecond;
-    //   pInsSBG->gpsTimeOfWeek = pLogData->utcData.gpsTimeOfWeek;
-      // break;
+
+    case SBG_ECOM_LOG_EKF_EULER:
+      read_ecom_log_ekf_euler(sbgEkfEuler_msg, pLogData);
+      new_sbgEkfEuler = true;
+      break;
+
+    case SBG_ECOM_LOG_EKF_QUAT:
+      read_ecom_log_ekf_quat(sbgEkfQuat_msg, pLogData);
+      new_sbgEkfQuat = true;
+      break;
+
+    case SBG_ECOM_LOG_EKF_NAV:
+      read_ecom_log_ekf_nav(sbgEkfNav_msg, pLogData);
+      new_sbgEkfNav = true;
+      break;
+
+    case SBG_ECOM_LOG_SHIP_MOTION:
+      read_ecom_log_ship_motion(sbgShipMotion_msg, pLogData);
+      new_sbgShipMotion = true;
+      break;
+
+    case SBG_ECOM_LOG_MAG:
+      read_ecom_log_mag(sbgMag_msg, pLogData);
+      new_sbgMag = true;
+      break;
+
+    case SBG_ECOM_LOG_MAG_CALIB:
+      read_ecom_log_mag_calib(sbgMagCalib_msg, pLogData);
+      new_sbgMagCalib = true;
+      break;
+
+    case SBG_ECOM_LOG_GPS1_VEL:
+      read_ecom_log_gps_vel(sbgGpsVel_msg, pLogData);
+      new_sbgGpsVel = true;
+      break;
+
+    case SBG_ECOM_LOG_GPS1_POS:
+      read_ecom_log_gps_pos(sbgGpsPos_msg, pLogData);
+      new_sbgGpsPos = true;
+      break;
+
+    case SBG_ECOM_LOG_GPS1_HDT:
+      read_ecom_log_gps_hdt(sbgGpsHdt_msg, pLogData);
+      new_sbgGpsHdt = true;
+      break;
+
+    case SBG_ECOM_LOG_GPS1_RAW:
+      read_ecom_log_gps_raw(sbgGpsRaw_msg, pLogData);
+      new_sbgGpsRaw = true;
+      break;
+
+    case SBG_ECOM_LOG_ODO_VEL:
+      read_ecom_log_odo_vel(sbgOdoVel_msg, pLogData);
+      new_sbgOdoVel = true;
+      break;
+
+    case SBG_ECOM_LOG_EVENT_A:
+      read_ecom_log_event(sbgEvent_msg, pLogData);
+      new_sbgEvent = true;
+      break;
+
+    case SBG_ECOM_LOG_PRESSURE:
+      read_ecom_log_pressure(sbgPressure_msg, pLogData);
+      new_sbgPressure = true;
+      break;
+
     default:
       break;
   }
@@ -137,29 +206,29 @@ int main(int argc, char **argv)
 
   ROS_INFO("START RECEIVING DATA");
 
-  imu_msg.header.frame_id = "map";
-  nav_msg.header.frame_id = "map";
-  pose_msg.header.frame_id = "map";
+  // imu_msg.header.frame_id = "map";
+  // nav_msg.header.frame_id = "map";
+  // pose_msg.header.frame_id = "map";
 
   ros::Rate loop_rate(25);
   while (ros::ok())
   {
     int errorCode = sbgEComHandle(&comHandle);
 
-    if(new_nav_msg){
-      nav_msg.header.stamp = ros::Time::now();
-      gps_pub.publish(nav_msg);  
-      new_nav_msg = false;
-    }
+    // if(new_nav_msg){
+    //   nav_msg.header.stamp = ros::Time::now();
+    //   gps_pub.publish(nav_msg);  
+    //   new_nav_msg = false;
+    // }
 
-    if(new_imu_msg){
-      imu_msg.header.stamp = ros::Time::now();
-      imu_pub.publish(imu_msg);
-      pose_msg.header.stamp = ros::Time::now();
-      pose_pub.publish(pose_msg);
+    // if(new_imu_msg){
+    //   imu_msg.header.stamp = ros::Time::now();
+    //   imu_pub.publish(imu_msg);
+    //   pose_msg.header.stamp = ros::Time::now();
+    //   pose_pub.publish(pose_msg);
 
-      new_imu_msg = false;
-    }
+    //   new_imu_msg = false;
+    // }
 
     ros::spinOnce();
     loop_rate.sleep();
