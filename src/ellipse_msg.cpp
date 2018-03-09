@@ -171,45 +171,63 @@ void read_ecom_log_ship_motion(sbg_driver::SbgShipMotion &msg, const SbgBinaryLo
 
 void read_ecom_log_mag(sbg_driver::SbgMag &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_mag_calib(sbg_driver::SbgMagCalib &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_gps_vel(sbg_driver::SbgGpsVel &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_gps_pos(sbg_driver::SbgGpsPos &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_gps_hdt(sbg_driver::SbgGpsHdt &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_gps_raw(sbg_driver::SbgGpsRaw &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_odo_vel(sbg_driver::SbgOdoVel &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_event(sbg_driver::SbgEvent &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
 
 void read_ecom_log_pressure(sbg_driver::SbgPressure &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
+	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	
 
 }
