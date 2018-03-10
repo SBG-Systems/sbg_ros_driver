@@ -15,11 +15,11 @@ void Ellipse::connect(){
 
   // Set the parameters of the Interface (port, baud_rate)
   errorCode = sbgInterfaceSerialCreate(&m_sbgInterface, m_uartPortName.c_str(), m_uartBaudRate);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgInterfaceSerialCreate Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgInterfaceSerialCreate Error : %s", sbgErrorCodeToString(errorCode));}
 
   // Init the SBG
   errorCode = sbgEComInit(&m_comHandle, &m_sbgInterface);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComInit Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComInit Error : %s", sbgErrorCodeToString(errorCode));}
 
   // Get Infos
   read_GetInfo(&m_comHandle);
@@ -27,7 +27,7 @@ void Ellipse::connect(){
 
 void Ellipse::init_callback(){
   SbgErrorCode errorCode = sbgEComSetReceiveLogCallback(&m_comHandle, onLogReceived, this);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComSetReceiveLogCallback Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComSetReceiveLogCallback Error : %s", sbgErrorCodeToString(errorCode));}
 }
 
 void Ellipse::init_publishers(){
@@ -45,7 +45,10 @@ void Ellipse::init_publishers(){
   m_sbgGpsHdt_pub = m_node->advertise<sbg_driver::SbgGpsHdt>("gps_hdt",10);
   m_sbgGpsRaw_pub = m_node->advertise<sbg_driver::SbgGpsRaw>("gps_raw",10);
   m_sbgOdoVel_pub = m_node->advertise<sbg_driver::SbgOdoVel>("odo_vel",10);
-  m_sbgEvent_pub = m_node->advertise<sbg_driver::SbgEvent>("event",10);
+  m_sbgEventA_pub = m_node->advertise<sbg_driver::SbgEvent>("eventA",10);
+  m_sbgEventB_pub = m_node->advertise<sbg_driver::SbgEvent>("eventB",10);
+  m_sbgEventC_pub = m_node->advertise<sbg_driver::SbgEvent>("eventC",10);
+  m_sbgEventD_pub = m_node->advertise<sbg_driver::SbgEvent>("eventD",10);
   m_sbgPressure_pub = m_node->advertise<sbg_driver::SbgPressure>("pressure",10);
 }
 
@@ -67,12 +70,12 @@ void Ellipse::configure(){
 
   if(change){
     // // SAVE AND REBOOT
-    ROS_INFO("The configuration of the Ellipse was updated according to the configuration file");
+    ROS_INFO("SBG DRIVER - The configuration of the Ellipse was updated according to the configuration file");
     SbgErrorCode errorCode = sbgEComCmdSettingsAction(&m_comHandle, SBG_ECOM_SAVE_SETTINGS);
     if (errorCode != SBG_NO_ERROR)
-      ROS_WARN("sbgEComCmdSettingsAction (Saving) Error : %s", sbgErrorCodeToString(errorCode));
+      ROS_WARN("SBG DRIVER - sbgEComCmdSettingsAction (Saving) Error : %s", sbgErrorCodeToString(errorCode));
     else
-      ROS_INFO("SAVED & REBOOT");
+      ROS_INFO("SBG DRIVER - SAVED & REBOOT");
   }
 }
 
@@ -187,7 +190,7 @@ void Ellipse::load_param(){
 
 void Ellipse::publish(){
   SbgErrorCode errorCode = sbgEComHandle(&m_comHandle);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComHandle Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComHandle Error : %s", sbgErrorCodeToString(errorCode));}
 
   if(m_new_sbgStatus){
     m_new_sbgStatus = false;
@@ -259,9 +262,24 @@ void Ellipse::publish(){
     m_sbgOdoVel_pub.publish(m_sbgOdoVel_msg);
   }
 
-  if(m_new_sbgEvent){
-    m_new_sbgEvent = false;
-    m_sbgEvent_pub.publish(m_sbgEvent_msg);
+  if(m_new_sbgEventA){
+    m_new_sbgEventA = false;
+    m_sbgEventA_pub.publish(m_sbgEventA_msg);
+  }
+
+  if(m_new_sbgEventB){
+    m_new_sbgEventB = false;
+    m_sbgEventB_pub.publish(m_sbgEventB_msg);
+  }
+
+  if(m_new_sbgEventC){
+    m_new_sbgEventC = false;
+    m_sbgEventC_pub.publish(m_sbgEventC_msg);
+  }
+
+  if(m_new_sbgEventD){
+    m_new_sbgEventD = false;
+    m_sbgEventD_pub.publish(m_sbgEventD_msg);
   }
 
   if(m_new_sbgPressure){
@@ -345,8 +363,23 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
     break;
 
   case SBG_ECOM_LOG_EVENT_A:
-    read_ecom_log_event(e->m_sbgEvent_msg, pLogData);
-    e->m_new_sbgEvent = true;
+    read_ecom_log_event(e->m_sbgEventA_msg, pLogData);
+    e->m_new_sbgEventA = true;
+    break;
+
+  case SBG_ECOM_LOG_EVENT_B:
+    read_ecom_log_event(e->m_sbgEventB_msg, pLogData);
+    e->m_new_sbgEventB = true;
+    break;
+
+  case SBG_ECOM_LOG_EVENT_C:
+    read_ecom_log_event(e->m_sbgEventC_msg, pLogData);
+    e->m_new_sbgEventC = true;
+    break;
+
+  case SBG_ECOM_LOG_EVENT_D:
+    read_ecom_log_event(e->m_sbgEventD_msg, pLogData);
+    e->m_new_sbgEventD = true;
     break;
 
   case SBG_ECOM_LOG_PRESSURE:

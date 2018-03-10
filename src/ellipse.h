@@ -60,7 +60,10 @@ class Ellipse
     sbg_driver::SbgGpsHdt m_sbgGpsHdt_msg;
     sbg_driver::SbgGpsRaw m_sbgGpsRaw_msg;
     sbg_driver::SbgOdoVel m_sbgOdoVel_msg;
-    sbg_driver::SbgEvent m_sbgEvent_msg;
+    sbg_driver::SbgEvent m_sbgEventA_msg;
+    sbg_driver::SbgEvent m_sbgEventB_msg;
+    sbg_driver::SbgEvent m_sbgEventC_msg;
+    sbg_driver::SbgEvent m_sbgEventD_msg;
     sbg_driver::SbgPressure m_sbgPressure_msg;
 
   public:
@@ -78,7 +81,10 @@ class Ellipse
     bool m_new_sbgGpsHdt;
     bool m_new_sbgGpsRaw;
     bool m_new_sbgOdoVel;
-    bool m_new_sbgEvent;
+    bool m_new_sbgEventA;
+    bool m_new_sbgEventB;
+    bool m_new_sbgEventC;
+    bool m_new_sbgEventD;
     bool m_new_sbgPressure;
 
     int m_rate_frequency;
@@ -98,7 +104,10 @@ class Ellipse
     ros::Publisher m_sbgGpsHdt_pub;
     ros::Publisher m_sbgGpsRaw_pub;
     ros::Publisher m_sbgOdoVel_pub;
-    ros::Publisher m_sbgEvent_pub;
+    ros::Publisher m_sbgEventA_pub;
+    ros::Publisher m_sbgEventB_pub;
+    ros::Publisher m_sbgEventC_pub;
+    ros::Publisher m_sbgEventD_pub;
     ros::Publisher m_sbgPressure_pub;
 
     // *************** SBG TOOLS *************** //

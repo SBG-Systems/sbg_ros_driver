@@ -197,7 +197,7 @@ void read_ecom_log_mag(sbg_driver::SbgMag &msg, const SbgBinaryLogData *pLogData
 
 void read_ecom_log_mag_calib(sbg_driver::SbgMagCalib &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	ROS_INFO("SbgMagCalib message not implemented");
+  ROS_INFO("SBG DRIVER - SbgMagCalib message not implemented");
 }
 
 void read_gps_vel_status(sbg_driver::SbgGpsVelStatus &msg, const uint32 &val){
@@ -305,14 +305,14 @@ void read_ecom_log_pressure(sbg_driver::SbgPressure &msg, const SbgBinaryLogData
 void read_GetInfo(SbgEComHandle *comHandle){
 	SbgEComDeviceInfo *pInfo;
 	SbgErrorCode errorCode = sbgEComCmdGetInfo(comHandle, pInfo);
-	if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdGetInfo Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdGetInfo Error : %s", sbgErrorCodeToString(errorCode));}
 
-  ROS_INFO("SBG productCode = %s", pInfo->productCode);
-	ROS_INFO("SBG serialNumber = %i", pInfo->serialNumber);
-	ROS_INFO("SBG calibationRev = %i", pInfo->calibationRev);
-	ROS_INFO("SBG calibrationYear = %i", pInfo->calibrationYear);
-	ROS_INFO("SBG calibrationMonth = %i", pInfo->calibrationMonth);
-	ROS_INFO("SBG calibrationDay = %i", pInfo->calibrationDay);
-	ROS_INFO("SBG hardwareRev = %i", pInfo->hardwareRev);
-	ROS_INFO("SBG firmwareRev = %i", pInfo->firmwareRev);
+  ROS_INFO("SBG DRIVER - productCode = %s", pInfo->productCode);
+  ROS_INFO("SBG DRIVER - serialNumber = %i", pInfo->serialNumber);
+  ROS_INFO("SBG DRIVER - calibationRev = %i", pInfo->calibationRev);
+  ROS_INFO("SBG DRIVER - calibrationYear = %i", pInfo->calibrationYear);
+  ROS_INFO("SBG DRIVER - calibrationMonth = %i", pInfo->calibrationMonth);
+  ROS_INFO("SBG DRIVER - calibrationDay = %i", pInfo->calibrationDay);
+  ROS_INFO("SBG DRIVER - hardwareRev = %i", pInfo->hardwareRev);
+  ROS_INFO("SBG DRIVER - firmwareRev = %i", pInfo->firmwareRev);
 }
