@@ -35,9 +35,14 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 add_message_files(FILES
+  SbgGpsVelStatus.msg
+  SbgGpsPosStatus.msg
+  SbgMagStatus.msg
+  SbgShipMotionStatus.msg
+  SbgUtcTimeStatus.msg
+
   SbgEkfEuler.msg
   SbgGpsPos.msg
-  SbgMagStatus.msg
   SbgMag.msg
   SbgStatusCom.msg
   SbgEkfNav.msg
@@ -51,13 +56,11 @@ add_message_files(FILES
   SbgEvent.msg
   SbgImuStatus.msg
   SbgImuData.msg
-  SbgShipMotionStatus.msg
   SbgShipMotion.msg
   SbgUtcTime.msg
   SbgGpsHdt.msg
   SbgMagCalib.msg
   SbgStatusAiding.msg
-  SbgUtcTimeStatus.msg
   SbgEkfStatus.msg
 )
 

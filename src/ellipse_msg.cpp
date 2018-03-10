@@ -169,65 +169,135 @@ void read_ecom_log_ship_motion(sbg_driver::SbgShipMotion &msg, const SbgBinaryLo
 	msg.status.period_valid = (pLogData->shipMotionData.status & (1 << 3)) >> 3;
 }
 
+void read_mag_status(sbg_driver::SbgMagStatus &msg, const uint16 &val){
+	msg.mag_x = (val & (1 << 0)) >> 0;
+	msg.mag_y = (val & (1 << 1)) >> 1;
+	msg.mag_z = (val & (1 << 2)) >> 2;
+	msg.accel_x = (val & (1 << 3)) >> 3;
+	msg.accel_y = (val & (1 << 4)) >> 4;
+	msg.accel_z = (val & (1 << 5)) >> 5;
+	msg.mags_in_range = (val & (1 << 6)) >> 6;
+	msg.accels_in_range = (val & (1 << 7)) >> 7;
+	msg.calibration = (val & (1 << 8)) >> 8;
+}
+
 void read_ecom_log_mag(sbg_driver::SbgMag &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	msg.time_stamp = pLogData->magData.timeStamp;
 	
-
+	msg.mag.x = pLogData->magData.magnetometers[0];
+	msg.mag.y = pLogData->magData.magnetometers[1];
+	msg.mag.z = pLogData->magData.magnetometers[2];
+	msg.accel.x = pLogData->magData.accelerometers[0];
+	msg.accel.y = pLogData->magData.accelerometers[1];
+	msg.accel.z = pLogData->magData.accelerometers[2];
+	
+	read_mag_status(msg.status, pLogData->magData.status);
 }
 
 void read_ecom_log_mag_calib(sbg_driver::SbgMagCalib &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
-	
+	ROS_INFO("SbgMagCalib message not implemented");
+}
 
+void read_gps_vel_status(sbg_driver::SbgGpsVelStatus &msg, const uint32 &val){
+	msg.vel_status = (val & (0b111111 << 0)) >> 0;
+	msg.vel_type = (val & (0b111111 << 6)) >> 6;
 }
 
 void read_ecom_log_gps_vel(sbg_driver::SbgGpsVel &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
-	
+	msg.time_stamp = pLogData->gpsVelData.timeStamp;
 
+	msg.gps_tow = pLogData->gpsVelData.timeOfWeek;
+	msg.vel.x = pLogData->gpsVelData.velocity[0];
+	msg.vel.y = pLogData->gpsVelData.velocity[1];
+	msg.vel.z = pLogData->gpsVelData.velocity[2];
+	msg.vel_acc.x = pLogData->gpsVelData.velocityAcc[0];
+	msg.vel_acc.y = pLogData->gpsVelData.velocityAcc[1];
+	msg.vel_acc.z = pLogData->gpsVelData.velocityAcc[2];
+	msg.course = pLogData->gpsVelData.course;
+	msg.course_acc = pLogData->gpsVelData.courseAcc;
+
+	read_gps_vel_status(msg.status, pLogData->gpsVelData.status);
+}
+
+void read_gps_pos_status(sbg_driver::SbgGpsPosStatus &msg, const uint32 &val){
+	msg.status = (val & (0b111111 << 0)) >> 6;
+	msg.type = (val & (0b111111 << 6)) >> 6;
+	msg.gps_l1_used = (val & (1 << 12)) >> 12;
+	msg.gps_l2_used = (val & (1 << 13)) >> 13;
+	msg.gps_l5_used = (val & (1 << 14)) >> 14;
+	msg.glo_l1_used = (val & (1 << 15)) >> 15;
+	msg.glo_l2_used = (val & (1 << 16)) >> 16;
 }
 
 void read_ecom_log_gps_pos(sbg_driver::SbgGpsPos &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	msg.time_stamp = pLogData->gpsPosData.timeStamp;
 	
+	msg.gps_tow = pLogData->gpsPosData.timeOfWeek;
+	msg.position.x = pLogData->gpsPosData.latitude;
+	msg.position.y = pLogData->gpsPosData.longitude;
+	msg.position.z = pLogData->gpsPosData.altitude;
+	msg.undulation = pLogData->gpsPosData.undulation;
+	msg.position_accuracy.x = pLogData->gpsPosData.latitudeAccuracy;
+	msg.position_accuracy.y = pLogData->gpsPosData.longitudeAccuracy;
+	msg.position_accuracy.z = pLogData->gpsPosData.altitudeAccuracy;
+	msg.num_sv_used = pLogData->gpsPosData.numSvUsed;
+	msg.base_station_id = pLogData->gpsPosData.baseStationId;
+	msg.diff_age = pLogData->gpsPosData.differentialAge;
+
+	read_gps_pos_status(msg.status, pLogData->gpsPosData.status);
 
 }
 
 void read_ecom_log_gps_hdt(sbg_driver::SbgGpsHdt &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
-	
+	msg.time_stamp = pLogData->gpsHdtData.timeStamp;
 
+	msg.status = pLogData->gpsHdtData.status & 0b111111;
+	msg.tow = pLogData->gpsHdtData.timeOfWeek;
+	msg.true_heading = pLogData->gpsHdtData.heading;
+	msg.true_heading_acc = pLogData->gpsHdtData.headingAccuracy;
+	msg.pitch = pLogData->gpsHdtData.pitch;
+	msg.pitch_acc = pLogData->gpsHdtData.pitchAccuracy;
 }
 
 void read_ecom_log_gps_raw(sbg_driver::SbgGpsRaw &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
-	
-
+	msg.data.assign(pLogData->gpsRawData.rawBuffer, pLogData->gpsRawData.rawBuffer + pLogData->gpsRawData.bufferSize);
 }
 
 void read_ecom_log_odo_vel(sbg_driver::SbgOdoVel &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
-	
-
+	msg.time_stamp = pLogData->odometerData.timeStamp;
+	msg.status = pLogData->odometerData.status & 1;
+	msg.vel = pLogData->odometerData.velocity;
 }
 
 void read_ecom_log_event(sbg_driver::SbgEvent &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
-	
+	msg.time_stamp = pLogData->eventMarker.timeStamp;
 
+	msg.overflow = (pLogData->eventMarker.status & (1 << 0)) >> 0;
+	msg.offset_0_valid = (pLogData->eventMarker.status & (1 << 1)) >> 1;
+	msg.offset_1_valid = (pLogData->eventMarker.status & (1 << 2)) >> 2;
+	msg.offset_2_valid = (pLogData->eventMarker.status & (1 << 3)) >> 3;
+	msg.offset_3_valid = (pLogData->eventMarker.status & (1 << 4)) >> 4;
+
+	msg.time_offset_0 = pLogData->eventMarker.timeOffset0;
+	msg.time_offset_1 = pLogData->eventMarker.timeOffset1;
+	msg.time_offset_2 = pLogData->eventMarker.timeOffset2;
+	msg.time_offset_3 = pLogData->eventMarker.timeOffset3;
 }
 
 void read_ecom_log_pressure(sbg_driver::SbgPressure &msg, const SbgBinaryLogData *pLogData){
 	msg.header.stamp = ros::Time::now();
-	msg.time_stamp = pLogData->shipMotionData.timeStamp;
+	msg.time_stamp = pLogData->pressureData.timeStamp;
 	
-
+	msg.valid_pressure = (pLogData->pressureData.status & (1 << 0)) >> 0;
+	msg.valid_altitude = (pLogData->pressureData.status & (1 << 1)) >> 1;
+	msg.pressure = pLogData->pressureData.pressure;
+	msg.altitude = pLogData->pressureData.height;
 }

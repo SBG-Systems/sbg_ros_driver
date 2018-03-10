@@ -1,6 +1,8 @@
 #ifndef ELLIPSEMSG_HEADER
 #define ELLIPSEMSG_HEADER
 
+#include "ros/ros.h"
+
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
 
@@ -71,5 +73,14 @@ void read_ecom_log_pressure(sbg_driver::SbgPressure &msg, const SbgBinaryLogData
 
 // Fill the SbgEkfStatus with val
 void read_ekf_solution_status(sbg_driver::SbgEkfStatus &msg, const uint32 &val);
+
+// Fill the SbgMagStatus with val
+void read_mag_status(sbg_driver::SbgMagStatus &msg, const uint16 &val);
+
+// Fill the SbgGpsVelStatus with val
+void read_gps_vel_status(sbg_driver::SbgGpsVelStatus &msg, const uint32 &val);
+
+// Fill the SbgGpsPosStatus with val
+void read_gps_pos_status(sbg_driver::SbgGpsPosStatus &msg, const uint32 &val);
 
 #endif
