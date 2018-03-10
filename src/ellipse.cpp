@@ -1,144 +1,222 @@
-#include "ros/ros.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/NavSatFix.h"
-#include "geometry_msgs/PoseStamped.h"
-#include <sbgEComLib.h>
-#include <sbgEComIds.h>
-
+#include "ellipse.h"
 #include "ellipse_msg.h"
 
-sbg_driver::SbgStatus sbgStatus_msg;
-sbg_driver::SbgUtcTime sbgUtcTime_msg;
-sbg_driver::SbgImuData sbgImuData_msg;
-sbg_driver::SbgEkfEuler sbgEkfEuler_msg;
-sbg_driver::SbgEkfQuat sbgEkfQuat_msg;
-sbg_driver::SbgEkfNav sbgEkfNav_msg;
-sbg_driver::SbgShipMotion sbgShipMotion_msg;
-sbg_driver::SbgMag sbgMag_msg;
-sbg_driver::SbgMagCalib sbgMagCalib_msg;
-sbg_driver::SbgGpsVel sbgGpsVel_msg;
-sbg_driver::SbgGpsPos sbgGpsPos_msg;
-sbg_driver::SbgGpsHdt sbgGpsHdt_msg;
-sbg_driver::SbgGpsRaw sbgGpsRaw_msg;
-sbg_driver::SbgOdoVel sbgOdoVel_msg;
-sbg_driver::SbgEvent sbgEvent_msg;
-sbg_driver::SbgPressure sbgPressure_msg;
+Ellipse::Ellipse(ros::NodeHandle *n){
+  m_node = n;
+  m_uart_port = "/dev/ttyUSB0";
+  m_uart_baud_rate = 115200;
+}
 
-// sensor_msgs::Imu imu_msg;
-// sensor_msgs::NavSatFix nav_msg;
-// geometry_msgs::PoseStamped pose_msg;
-// bool new_imu_msg;
-// bool new_nav_msg;
-// bool new_twist_msg;
+Ellipse::~Ellipse(){
 
-bool new_sbgStatus;
-bool new_sbgUtcTime;
-bool new_sbgImuData;
-bool new_sbgEkfEuler;
-bool new_sbgEkfQuat;
-bool new_sbgEkfNav;
-bool new_sbgShipMotion;
-bool new_sbgMag;
-bool new_sbgMagCalib;
-bool new_sbgGpsVel;
-bool new_sbgGpsPos;
-bool new_sbgGpsHdt;
-bool new_sbgGpsRaw;
-bool new_sbgOdoVel;
-bool new_sbgEvent;
-bool new_sbgPressure;
+}
 
-/*!
- *  Callback definition called each time a new log is received.
- *  \param[in]  pHandle                 Valid handle on the sbgECom instance that has called this callback.
- *  \param[in]  msgClass                Class of the message we have received
- *  \param[in]  msg                   Message ID of the log received.
- *  \param[in]  pLogData                Contains the received log data as an union.
- *  \param[in]  pUserArg                Optional user supplied argument.
- *  \return                       SBG_NO_ERROR if the received log has been used successfully.
- */
-SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg)
-{
-  // float time_of_week;
+void Ellipse::connect(){
+  SbgErrorCode errorCode;
+
+  // Set the parameters of the Interface (port, baud_rate)
+  errorCode = sbgInterfaceSerialCreate(&m_sbgInterface, m_uart_port.c_str(), m_uart_baud_rate);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgInterfaceSerialCreate Error : %s", sbgErrorCodeToString(errorCode));}
+
+  // Init the SBG
+  errorCode = sbgEComInit(&m_comHandle, &m_sbgInterface);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComInit Error : %s", sbgErrorCodeToString(errorCode));}
+
+  // Get Infos
+  read_GetInfo(&m_comHandle);
+}
+
+void Ellipse::init_callback(){
+  SbgErrorCode errorCode = sbgEComSetReceiveLogCallback(&m_comHandle, onLogReceived, this);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComSetReceiveLogCallback Error : %s", sbgErrorCodeToString(errorCode));}
+}
+
+void Ellipse::init_publishers(){
+  m_sbgStatus_pub = m_node->advertise<sbg_driver::SbgStatus>("status",10);
+  m_sbgUtcTime_pub = m_node->advertise<sbg_driver::SbgUtcTime>("utc_time",10);
+  m_sbgImuData_pub = m_node->advertise<sbg_driver::SbgImuData>("imu_data",10);
+  m_sbgEkfEuler_pub = m_node->advertise<sbg_driver::SbgEkfEuler>("ekf_euler",10);
+  m_sbgEkfQuat_pub = m_node->advertise<sbg_driver::SbgEkfQuat>("ekf_quat",10);
+  m_sbgEkfNav_pub = m_node->advertise<sbg_driver::SbgEkfNav>("ekf_nav",10);
+  m_sbgShipMotion_pub = m_node->advertise<sbg_driver::SbgShipMotion>("ship_motion",10);
+  m_sbgMag_pub = m_node->advertise<sbg_driver::SbgMag>("mag",10);
+  m_sbgMagCalib_pub = m_node->advertise<sbg_driver::SbgMagCalib>("mag_calib",10);
+  m_sbgGpsVel_pub = m_node->advertise<sbg_driver::SbgGpsVel>("gps_vel",10);
+  m_sbgGpsPos_pub = m_node->advertise<sbg_driver::SbgGpsPos>("gps_pos",10);
+  m_sbgGpsHdt_pub = m_node->advertise<sbg_driver::SbgGpsHdt>("gps_hdt",10);
+  m_sbgGpsRaw_pub = m_node->advertise<sbg_driver::SbgGpsRaw>("gps_raw",10);
+  m_sbgOdoVel_pub = m_node->advertise<sbg_driver::SbgOdoVel>("odo_vel",10);
+  m_sbgEvent_pub = m_node->advertise<sbg_driver::SbgEvent>("event",10);
+  m_sbgPressure_pub = m_node->advertise<sbg_driver::SbgPressure>("pressure",10);
+}
+
+void Ellipse::publish(){
+      SbgErrorCode errorCode = sbgEComHandle(&m_comHandle);
+      if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComHandle Error : %s", sbgErrorCodeToString(errorCode));}
+
+      if(m_new_sbgStatus){
+        m_new_sbgStatus = false;
+        m_sbgStatus_pub.publish(m_sbgStatus_msg);
+      }
+
+      if(m_new_sbgUtcTime){
+        m_new_sbgUtcTime = false;
+        m_sbgUtcTime_pub.publish(m_sbgUtcTime_msg);
+      }
+
+      if(m_new_sbgImuData){
+        m_new_sbgImuData = false;
+        m_sbgImuData_pub.publish(m_sbgImuData_msg);
+      }
+
+      if(m_new_sbgEkfEuler){
+        m_new_sbgEkfEuler = false;
+        m_sbgEkfEuler_pub.publish(m_sbgEkfEuler_msg);
+      }
+
+      if(m_new_sbgEkfQuat){
+        m_new_sbgEkfQuat = false;
+        m_sbgEkfQuat_pub.publish(m_sbgEkfQuat_msg);
+      }
+
+      if(m_new_sbgEkfNav){
+        m_new_sbgEkfNav = false;
+        m_sbgEkfNav_pub.publish(m_sbgEkfNav_msg);
+      }
+
+      if(m_new_sbgShipMotion){
+        m_new_sbgShipMotion = false;
+        m_sbgShipMotion_pub.publish(m_sbgShipMotion_msg);
+      }
+
+      if(m_new_sbgMag){
+        m_new_sbgMag = false;
+        m_sbgMag_pub.publish(m_sbgMag_msg);
+      }
+
+      if(m_new_sbgMagCalib){
+        m_new_sbgMagCalib = false;
+        m_sbgMagCalib_pub.publish(m_sbgMagCalib_msg);
+      }
+
+      if(m_new_sbgGpsVel){
+        m_new_sbgGpsVel = false;
+        m_sbgGpsVel_pub.publish(m_sbgGpsVel_msg);
+      }
+
+      if(m_new_sbgGpsPos){
+        m_new_sbgGpsPos = false;
+        m_sbgGpsPos_pub.publish(m_sbgGpsPos_msg);
+      }
+
+      if(m_new_sbgGpsHdt){
+        m_new_sbgGpsHdt = false;
+        m_sbgGpsHdt_pub.publish(m_sbgGpsHdt_msg);
+      }
+
+      if(m_new_sbgGpsRaw){
+        m_new_sbgGpsRaw = false;
+        m_sbgGpsRaw_pub.publish(m_sbgGpsRaw_msg);
+      }
+
+      if(m_new_sbgOdoVel){
+        m_new_sbgOdoVel = false;
+        m_sbgOdoVel_pub.publish(m_sbgOdoVel_msg);
+      }
+
+      if(m_new_sbgEvent){
+        m_new_sbgEvent = false;
+        m_sbgEvent_pub.publish(m_sbgEvent_msg);
+      }
+
+      if(m_new_sbgPressure){
+        m_new_sbgPressure = false;
+        m_sbgPressure_pub.publish(m_sbgPressure_msg);
+      }
+}
+
+
+SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg){
+  Ellipse *e = (Ellipse*)pUserArg;
   switch (msg){
     case SBG_ECOM_LOG_STATUS:
-      read_ecom_log_status(sbgStatus_msg, pLogData);
-      new_sbgStatus = true;
+      read_ecom_log_status(e->m_sbgStatus_msg, pLogData);
+      e->m_new_sbgStatus = true;
       break;
 
     case SBG_ECOM_LOG_UTC_TIME:
-      read_ecom_log_utc_time(sbgUtcTime_msg, pLogData);
-      new_sbgUtcTime = true;
+      read_ecom_log_utc_time(e->m_sbgUtcTime_msg, pLogData);
+      e->m_new_sbgUtcTime = true;
       break;
 
     case SBG_ECOM_LOG_IMU_DATA:
-      read_ecom_log_imu_data(sbgImuData_msg, pLogData);
-      new_sbgImuData = true;
+      read_ecom_log_imu_data(e->m_sbgImuData_msg, pLogData);
+      e->m_new_sbgImuData = true;
       break;
 
     case SBG_ECOM_LOG_EKF_EULER:
-      read_ecom_log_ekf_euler(sbgEkfEuler_msg, pLogData);
-      new_sbgEkfEuler = true;
+      read_ecom_log_ekf_euler(e->m_sbgEkfEuler_msg, pLogData);
+      e->m_new_sbgEkfEuler = true;
       break;
 
     case SBG_ECOM_LOG_EKF_QUAT:
-      read_ecom_log_ekf_quat(sbgEkfQuat_msg, pLogData);
-      new_sbgEkfQuat = true;
+      read_ecom_log_ekf_quat(e->m_sbgEkfQuat_msg, pLogData);
+      e->m_new_sbgEkfQuat = true;
       break;
 
     case SBG_ECOM_LOG_EKF_NAV:
-      read_ecom_log_ekf_nav(sbgEkfNav_msg, pLogData);
-      new_sbgEkfNav = true;
+      read_ecom_log_ekf_nav(e->m_sbgEkfNav_msg, pLogData);
+      e->m_new_sbgEkfNav = true;
       break;
 
     case SBG_ECOM_LOG_SHIP_MOTION:
-      read_ecom_log_ship_motion(sbgShipMotion_msg, pLogData);
-      new_sbgShipMotion = true;
+      read_ecom_log_ship_motion(e->m_sbgShipMotion_msg, pLogData);
+      e->m_new_sbgShipMotion = true;
       break;
 
     case SBG_ECOM_LOG_MAG:
-      read_ecom_log_mag(sbgMag_msg, pLogData);
-      new_sbgMag = true;
+      read_ecom_log_mag(e->m_sbgMag_msg, pLogData);
+      e->m_new_sbgMag = true;
       break;
 
     case SBG_ECOM_LOG_MAG_CALIB:
-      read_ecom_log_mag_calib(sbgMagCalib_msg, pLogData);
-      new_sbgMagCalib = true;
+      read_ecom_log_mag_calib(e->m_sbgMagCalib_msg, pLogData);
+      e->m_new_sbgMagCalib = true;
       break;
 
     case SBG_ECOM_LOG_GPS1_VEL:
-      read_ecom_log_gps_vel(sbgGpsVel_msg, pLogData);
-      new_sbgGpsVel = true;
+      read_ecom_log_gps_vel(e->m_sbgGpsVel_msg, pLogData);
+      e->m_new_sbgGpsVel = true;
       break;
 
     case SBG_ECOM_LOG_GPS1_POS:
-      read_ecom_log_gps_pos(sbgGpsPos_msg, pLogData);
-      new_sbgGpsPos = true;
+      read_ecom_log_gps_pos(e->m_sbgGpsPos_msg, pLogData);
+      e->m_new_sbgGpsPos = true;
       break;
 
     case SBG_ECOM_LOG_GPS1_HDT:
-      read_ecom_log_gps_hdt(sbgGpsHdt_msg, pLogData);
-      new_sbgGpsHdt = true;
+      read_ecom_log_gps_hdt(e->m_sbgGpsHdt_msg, pLogData);
+      e->m_new_sbgGpsHdt = true;
       break;
 
     case SBG_ECOM_LOG_GPS1_RAW:
-      read_ecom_log_gps_raw(sbgGpsRaw_msg, pLogData);
-      new_sbgGpsRaw = true;
+      read_ecom_log_gps_raw(e->m_sbgGpsRaw_msg, pLogData);
+      e->m_new_sbgGpsRaw = true;
       break;
 
     case SBG_ECOM_LOG_ODO_VEL:
-      read_ecom_log_odo_vel(sbgOdoVel_msg, pLogData);
-      new_sbgOdoVel = true;
+      read_ecom_log_odo_vel(e->m_sbgOdoVel_msg, pLogData);
+      e->m_new_sbgOdoVel = true;
       break;
 
     case SBG_ECOM_LOG_EVENT_A:
-      read_ecom_log_event(sbgEvent_msg, pLogData);
-      new_sbgEvent = true;
+      read_ecom_log_event(e->m_sbgEvent_msg, pLogData);
+      e->m_new_sbgEvent = true;
       break;
 
     case SBG_ECOM_LOG_PRESSURE:
-      read_ecom_log_pressure(sbgPressure_msg, pLogData);
-      new_sbgPressure = true;
+      read_ecom_log_pressure(e->m_sbgPressure_msg, pLogData);
+      e->m_new_sbgPressure = true;
       break;
 
     default:
@@ -147,92 +225,3 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
   return SBG_NO_ERROR;
 }
 
-int main(int argc, char **argv)
-{
-  ros::init(argc, argv, "sbg_ellipse");
-
-  ros::NodeHandle n;
-  ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu", 10);
-  ros::Publisher gps_pub = n.advertise<sensor_msgs::NavSatFix>("fix", 10);
-  ros::Publisher pose_pub = n.advertise<geometry_msgs::PoseStamped>("imu_pose", 10);
-
-  std::string uart_port;
-  int uart_baud_rate;
-
-  n.param<std::string>("uart_port", uart_port, "/dev/ttyUSB0");
-  n.param<int>("uart_baud_rate", uart_baud_rate, 115200);
-
-    // ********************* Initialize the SBG  *********************
-  SbgEComHandle       comHandle;
-  SbgInterface        sbgInterface;
-  SbgEComDeviceInfo   deviceInfo;
-  SbgErrorCode        errorCode;
-
-  errorCode = sbgInterfaceSerialCreate(&sbgInterface, uart_port.c_str(), uart_baud_rate);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgInterfaceSerialCreate Error");}
-
-  errorCode = sbgEComInit(&comHandle, &sbgInterface); // Init the SBG
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComInit Error");}
-
-  errorCode = sbgEComCmdGetInfo(&comHandle, &deviceInfo); // Get device info
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdGetInfo Error");}
-
-  ROS_INFO("CONNEXTION SET-UP");
-
-  // ****************************** SBG Config ******************************
-  // ToDo: improve configuration capabilities
-
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_EKF_QUAT Error");}
-
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_EKF_NAV Error");}
-
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_IMU_DATA Error");}
-
-  errorCode = sbgEComCmdOutputSetConf(&comHandle, SBG_ECOM_OUTPUT_PORT_A, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, SBG_ECOM_OUTPUT_MODE_DIV_8);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdOutputSetConf SBG_ECOM_LOG_SHIP_MOTION Error");}
-
-  // SAVE AND REBOOT
-  errorCode = sbgEComCmdSettingsAction(&comHandle, SBG_ECOM_SAVE_SETTINGS);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdSettingsAction Error");}
-
-  ROS_INFO("CONFIGURATION DONE");
-
-  // ************************** SBG Callback for data ************************
-  bool test = false;
-  sbgEComSetReceiveLogCallback(&comHandle, onLogReceived, NULL);
-
-  ROS_INFO("START RECEIVING DATA");
-
-  // imu_msg.header.frame_id = "map";
-  // nav_msg.header.frame_id = "map";
-  // pose_msg.header.frame_id = "map";
-
-  ros::Rate loop_rate(25);
-  while (ros::ok())
-  {
-    int errorCode = sbgEComHandle(&comHandle);
-
-    // if(new_nav_msg){
-    //   nav_msg.header.stamp = ros::Time::now();
-    //   gps_pub.publish(nav_msg);  
-    //   new_nav_msg = false;
-    // }
-
-    // if(new_imu_msg){
-    //   imu_msg.header.stamp = ros::Time::now();
-    //   imu_pub.publish(imu_msg);
-    //   pose_msg.header.stamp = ros::Time::now();
-    //   pose_pub.publish(pose_msg);
-
-    //   new_imu_msg = false;
-    // }
-
-    ros::spinOnce();
-    loop_rate.sleep();
-  }
-
-  return 0;
-}

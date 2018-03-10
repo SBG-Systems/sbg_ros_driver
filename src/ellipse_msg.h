@@ -5,6 +5,7 @@
 
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
+#include <sbgErrorCodes.h>
 
 #include "sbg_driver/SbgStatus.h"
 #include "sbg_driver/SbgUtcTime.h"

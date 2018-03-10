@@ -301,3 +301,19 @@ void read_ecom_log_pressure(sbg_driver::SbgPressure &msg, const SbgBinaryLogData
 	msg.pressure = pLogData->pressureData.pressure;
 	msg.altitude = pLogData->pressureData.height;
 }
+
+void read_GetInfo(SbgEComHandle *pHandle){
+	SbgEComDeviceInfo *pInfo;
+	SbgErrorCode errorCode = sbgEComCmdGetInfo(pHandle, pInfo);
+	if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdGetInfo Error : %s", sbgErrorCodeToString(errorCode));}
+
+	ROS_INFO("SBG productCode = %c", pInfo->productCode);
+	ROS_INFO("SBG serialNumber = %i", pInfo->serialNumber);
+	ROS_INFO("SBG calibationRev = %i", pInfo->calibationRev);
+	ROS_INFO("SBG calibrationYear = %i", pInfo->calibrationYear);
+	ROS_INFO("SBG calibrationMonth = %i", pInfo->calibrationMonth);
+	ROS_INFO("SBG calibrationDay = %i", pInfo->calibrationDay);
+	ROS_INFO("SBG hardwareRev = %i", pInfo->hardwareRev);
+	ROS_INFO("SBG firmwareRev = %i", pInfo->firmwareRev);
+}
+
