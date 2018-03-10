@@ -22,7 +22,23 @@ class Ellipse
     void publish();
 
     void connect();
-    
+
+    void configure();
+
+    bool set_cmd_init_parameters();
+    bool set_cmd_motion_profile();
+    bool set_cmd_imu_lever_arm();
+    bool set_cmd_aiding_assignement();
+    bool set_cmd_mag_model();
+    bool set_cmd_mag_reject_mode();
+    bool set_cmd_gnss_model();
+    bool set_cmd_gnss_lever_arm();
+    bool set_cmd_gnss_reject_mode();
+    bool set_cmd_odom_conf();
+    bool set_cmd_odom_lever_arm();
+    bool set_cmd_odom_reject_mode();
+    bool set_cmd_output();
+
   private:
 
     ros::NodeHandle *m_node;
@@ -64,6 +80,8 @@ class Ellipse
     bool m_new_sbgEvent;
     bool m_new_sbgPressure;
 
+    int m_rate_frequency;
+
   private:
     ros::Publisher m_sbgStatus_pub;
     ros::Publisher m_sbgUtcTime_pub;
@@ -88,8 +106,76 @@ class Ellipse
 
     // *************** SBG Params *************** //
     // connection param
-    std::string m_uart_port;
-    int m_uart_baud_rate;
+    std::string m_uartPortName;
+    uint32 m_uartBaudRate;
+    SbgEComOutputPort m_portOutput;
+
+    double m_initLat;
+    double m_initLong;
+    double m_initAlt;
+    uint16 m_initYear;
+    uint8 m_initMonth;
+    uint8 m_initDay;
+    uint32 m_motionProfileId;
+
+    int m_imuAxisDirectionX;
+    int m_imuAxisDirectionY;
+    float m_imuMisRoll;
+    float m_imuMisPitch;
+    float m_imuMisYaw;
+    float m_imuLeverArm[3];
+
+    int m_gnss1ModulePortAssignment;
+    int m_gnss1ModuleSyncAssignment;
+    int m_rtcmPortAssignment;
+    int m_odometerPinAssignment;
+
+    uint32 m_magModelId;
+    int m_magRejectMode;
+    float m_magOffset[3];
+    float m_magMatrix[3][3];
+
+    uint32 m_gnssModelId;
+
+    float m_gnss1LeverArmX;
+    float m_gnss1LeverArmY;
+    float m_gnss1LeverArmZ;
+    float m_gnss1PitchOffset;
+    float m_gnss1YawOffset;
+    float m_gnss1AntennaDistance;
+
+    int m_gnss1PosRejectMode;
+    int m_gnss1VelRejectMode;
+    int m_gnss1CourseRejectMode;
+    int m_gnss1HdtRejectMode;
+
+    float m_odomGain;
+    uint8 m_odomGainError;
+    bool m_odomDirection;
+    float m_odomLever[3];
+    int m_odomRejectMode;
+
+    uint8 m_timeReference;
+
+    int m_log_status;
+    int m_log_imu_data;
+    int m_log_ekf_euler;
+    int m_log_ekf_quat;
+    int m_log_ekf_nav;
+    int m_log_ship_motion;
+    int m_log_utc_time;
+    int m_log_mag;
+    int m_log_mag_calib;
+    int m_log_gps1_vel;
+    int m_log_gps1_pos;
+    int m_log_gps1_hdt;
+    int m_log_gps1_raw;
+    int m_log_odo_vel;
+    int m_log_event_a;
+    int m_log_event_b;
+    int m_log_event_c;
+    int m_log_event_d;
+    int m_log_pressure;
 };
 
 /*!

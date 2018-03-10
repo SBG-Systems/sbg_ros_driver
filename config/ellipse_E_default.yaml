@@ -8,20 +8,6 @@ uartConf:
   # Baude rate (4800 ,9600 ,19200 ,38400 ,115200 [default],230400 ,460800 ,921600)
   baudRate: 115200
 
-  # Port ID
-  # 0 Main communication interface. Full duplex.
-  # 1 Auxiliary input interface for RTCM
-  # 2 Auxiliary communication interface. Full duplex.
-  # 3 Auxiliary input interface
-  # 4 Auxiliary input/output interface
-  portID: 0
-
-  # Uart Port Mode
-  # 0 This interface is turned OFF.
-  # 1 This interface is using RS-232 communications
-  # 2 This interface is using RS-422 communications
-  uartMode: 1
-
 # Sensor Parameters
 sensorParameters:
   # Initial latitude (°)
@@ -210,35 +196,38 @@ output:
   timeReference: 0
 
   # Status general, clock, com aiding, solution, heave
-  log_status: [true, 8]
+  log_status: 8
   # Includes IMU status, acc., gyro, temp delta speeds and delta angles values
-  log_imu_data: [true, 8]
+  log_imu_data: 8
   # Includes roll, pitch, yaw and their accuracies on each axis
-  log_ekf_euler: [true, 8]
+  log_ekf_euler: 8
   # Includes the 4 quaternions values
-  log_ekf_quat: [false, 8]
+  log_ekf_quat: 0
   # Position and velocities in NED coordinates with the accuracies on each axis
-  log_ekf_nav: [true, 8]
+  log_ekf_nav: 8
   # Heave, surge and sway and accelerations on each axis for up to 4 points
-  log_ship_motion: [true, 8]
+  log_ship_motion: 8
   # Provides UTC time reference
-  log_utc_time: [true, 8]
+  log_utc_time: 8
   # Magnetic data with associated accelerometer on each axis
-  log_mag: [true, 8]
+  log_mag: 8
   # Magnetometer calibration data (raw buffer)
-  log_mag_calib: [false, 8]
+  log_mag_calib: 0
   # GPS velocities from primary or secondary GPS receiver
-  log_gps1_vel: [true, 10001]
+  log_gps1_vel: 10001
   # GPS positions from primary or secondary GPS receiver
-  log_gps1_pos: [true, 10001]
+  log_gps1_pos: 10001
   # GPS true heading from dual antenna system
-  log_gps1_hdt: [true, 10001]
+  log_gps1_hdt: 10001
   # GPS 1 raw data for post processing.
-  log_gps1_raw: [true, 10001]
+  log_gps1_raw: 10001
   # Provides odometer velocity
-  log_odo_vel: [false, 8]
+  log_odo_vel: 0
   # Event A/B/C/D (24, 25, 26, 27) Event markers sent when events are detected on a sync in pin
-  log_event: [false, 10001]
+  log_event_a: 0
+  log_event_b: 0
+  log_event_c: 0
+  log_event_d: 0
   # Barometric altimeter output
-  log_pressure: [true, 8]
+  log_pressure: 8
 
