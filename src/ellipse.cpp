@@ -3,9 +3,7 @@
 
 Ellipse::Ellipse(ros::NodeHandle *n){
   m_node = n;
-  m_uartPortName = "/dev/ttyUSB0";
-  m_uartBaudRate = 115200;
-  m_rate_frequency = 25;
+  load_param();
 }
 
 Ellipse::~Ellipse(){
@@ -69,8 +67,121 @@ void Ellipse::configure(){
 
   if(change){
     // // SAVE AND REBOOT
+    ROS_INFO("The configuration of the Ellipse was updated according to the configuration file");
     SbgErrorCode errorCode = sbgEComCmdSettingsAction(&m_comHandle, SBG_ECOM_SAVE_SETTINGS);
-    if (errorCode != SBG_NO_ERROR){ROS_WARN("sbgEComCmdSettingsAction (Saving) Error : %s", sbgErrorCodeToString(errorCode));}
+    if (errorCode != SBG_NO_ERROR)
+      ROS_WARN("sbgEComCmdSettingsAction (Saving) Error : %s", sbgErrorCodeToString(errorCode));
+    else
+      ROS_INFO("SAVED & REBOOT");
+  }
+}
+
+void Ellipse::load_param(){
+  ros::NodeHandle n_private("~");
+  m_uartPortName = n_private.param<std::string>("uartConf/portName", "/dev/ttyUSB0");
+  m_uartBaudRate = (uint32) n_private.param<int>("uartConf/baudRate", 115200);
+  m_portOutput = (SbgEComOutputPort) n_private.param<int>("uartConf/portID", 0);
+
+  m_initLat = (double) n_private.param<double>("sensorParameters/initLat", 48.419727);
+  m_initLong = (double) n_private.param<double>("sensorParameters/initLong", -4.472119);
+  m_initAlt = (double) n_private.param<double>("sensorParameters/initAlt", 100);
+  m_initYear = (uint16) n_private.param<int>("sensorParameters/year", 2018);
+  m_initMonth = (uint8) n_private.param<int>("sensorParameters/month", 03);
+  m_initDay = (uint8) n_private.param<int>("sensorParameters/day", 10);
+  m_motionProfileId = (uint32) n_private.param<int>("sensorParameters/motionProfie", 1);
+
+  m_imuAxisDirectionX = n_private.param<int>("imuAlignementLeverArm/axisDirectionX",0);
+  m_imuAxisDirectionY = n_private.param<int>("imuAlignementLeverArm/axisDirectionY",0);
+  m_imuMisRoll = n_private.param<float>("imuAlignementLeverArm/misRoll",0);
+  m_imuMisPitch = n_private.param<float>("imuAlignementLeverArm/misPitch",0);
+  m_imuMisYaw = n_private.param<float>("imuAlignementLeverArm/misYaw",0);
+  m_imuLeverArm[0] = n_private.param<float>("imuAlignementLeverArm/leverArmX",0);
+  m_imuLeverArm[1] = n_private.param<float>("imuAlignementLeverArm/leverArmY",0);
+  m_imuLeverArm[2] = n_private.param<float>("imuAlignementLeverArm/leverArmZ",0);
+
+  m_gnss1ModulePortAssignment = n_private.param<int>("aidingAssignment/gnss1ModulePortAssignment", 1);
+  m_gnss1ModuleSyncAssignment = n_private.param<int>("aidingAssignment/gnss1ModuleSyncAssignment", 0);
+  m_rtcmPortAssignment = n_private.param<int>("aidingAssignment/rtcmPortAssignment", 255);
+  m_odometerPinAssignment = n_private.param<int>("aidingAssignment/odometerPinAssignment", 0);
+
+  m_magModelId = (uint32) n_private.param<int>("magnetometer/magnetometerModel", 201);
+  m_magRejectMode = n_private.param<int>("magnetometer/magnetometerRejectMode", 1);
+
+  m_gnssModelId = (uint32) n_private.param<int>("gnss/gnss_model_id", 102);
+  m_gnss1LeverArmX = n_private.param<float>("gnss/leverArmX", 0);
+  m_gnss1LeverArmY = n_private.param<float>("gnss/leverArmY", 0);
+  m_gnss1LeverArmZ = n_private.param<float>("gnss/leverArmZ", 0);
+  m_gnss1PitchOffset = n_private.param<float>("gnss/pitchOffset", 0);
+  m_gnss1YawOffset = n_private.param<float>("gnss/yawOffset", 0);
+  m_gnss1AntennaDistance = n_private.param<float>("gnss/antennaDistance", 0);
+  m_gnss1PosRejectMode = n_private.param<int>("gnss/posRejectMode", 1);
+  m_gnss1VelRejectMode = n_private.param<int>("gnss/velRejectMode", 1);
+  m_gnss1CourseRejectMode = n_private.param<int>("gnss/courseRejectMode", 1);
+  m_gnss1HdtRejectMode = n_private.param<int>("gnss/hdtRejectMode", 1);
+
+  m_odomGain = n_private.param<float>("odom/gain", 4800);
+  m_odomGainError = (uint8) n_private.param<int>("odom/gain_error", 0.1);
+  m_odomDirection = n_private.param<bool>("odom/direction", 0);
+  m_odomLever[0] = n_private.param<float>("odom/leverArmX", 0);
+  m_odomLever[1] = n_private.param<float>("odom/leverArmY", 0);
+  m_odomLever[2] = n_private.param<float>("odom/leverArmZ", 0);
+  m_odomRejectMode = n_private.param<int>("odom/rejectMode", 1);
+
+  m_timeReference = (uint8)n_private.param<int>("output/timeReference",0);
+
+  m_log_status = n_private.param<int>("output/log_status", 8);
+  m_log_imu_data = n_private.param<int>("output/log_imu_data", 8);
+  m_log_ekf_euler = n_private.param<int>("output/log_ekf_euler", 8);
+  m_log_ekf_quat = n_private.param<int>("output/log_ekf_quat", 0);
+  m_log_ekf_nav = n_private.param<int>("output/log_ekf_nav", 8);
+  m_log_ship_motion = n_private.param<int>("output/log_ship_motion", 8);
+  m_log_utc_time = n_private.param<int>("output/log_utc_time", 8);
+  m_log_mag = n_private.param<int>("output/log_mag", 8);
+  m_log_mag_calib = n_private.param<int>("output/log_mag_calib", 0);
+  m_log_gps1_vel = n_private.param<int>("output/log_gps1_vel", 10001);
+  m_log_gps1_pos = n_private.param<int>("output/log_gps1_pos", 10001);
+  m_log_gps1_hdt = n_private.param<int>("output/log_gps1_hdt", 10001);
+  m_log_gps1_raw = n_private.param<int>("output/log_gps1_raw", 10001);
+  m_log_odo_vel = n_private.param<int>("output/log_odo_vel", 0);
+  m_log_event_a = n_private.param<int>("output/log_event_a", 0);
+  m_log_event_b = n_private.param<int>("output/log_event_b", 0);
+  m_log_event_c = n_private.param<int>("output/log_event_c", 0);
+  m_log_event_d = n_private.param<int>("output/log_event_d", 0);
+  m_log_pressure = n_private.param<int>("output/log_pressure", 8);
+  m_rate_frequency = n_private.param<int>("output/frequency",0);
+
+  std::vector<int> mod_div;
+  mod_div.push_back(m_log_status);
+  mod_div.push_back(m_log_imu_data);
+  mod_div.push_back(m_log_ekf_euler);
+  mod_div.push_back(m_log_ekf_quat);
+  mod_div.push_back(m_log_ekf_nav);
+  mod_div.push_back(m_log_ship_motion);
+  mod_div.push_back(m_log_utc_time);
+  mod_div.push_back(m_log_mag);
+  mod_div.push_back(m_log_mag_calib);
+  mod_div.push_back(m_log_gps1_vel);
+  mod_div.push_back(m_log_gps1_pos);
+  mod_div.push_back(m_log_gps1_hdt);
+  mod_div.push_back(m_log_gps1_raw);
+  mod_div.push_back(m_log_odo_vel);
+  mod_div.push_back(m_log_event_a);
+  mod_div.push_back(m_log_event_b);
+  mod_div.push_back(m_log_event_c);
+  mod_div.push_back(m_log_event_d);
+  mod_div.push_back(m_log_pressure);
+
+  if(m_rate_frequency==0){
+    int mod_div_min = 3e5;
+    for(int i=0; i<mod_div.size(); i++){
+      if(mod_div[i]<mod_div_min && mod_div[i]!=0)
+        mod_div_min = mod_div[i];
+    }
+
+    if(mod_div_min>=10000) // Case Event
+      mod_div_min = 8;
+
+    m_rate_frequency = MODE_DIV_2_FREQ[mod_div_min];
   }
 }
 

@@ -7,6 +7,10 @@
 #include <sbgEComIds.h>
 #include <sbgErrorCodes.h>
 
+#include <iostream>
+#include <map>
+#include <string>
+
 class Ellipse
 {
   public:
@@ -16,13 +20,10 @@ class Ellipse
     ~Ellipse();
 
     void init_publishers();
-
     void init_callback();
-
     void publish();
-
     void connect();
-
+    void load_param();
     void configure();
 
     bool set_cmd_init_parameters();
@@ -188,5 +189,7 @@ class Ellipse
      *  \return                       SBG_NO_ERROR if the received log has been used successfully.
      */
     SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
+
+    static std::map<int, int> MODE_DIV_2_FREQ = {{0,0},{1,200},{2,100},{4,50},{5,40},{8,25},{10,20},{20,10},{40,5},{200,1}};
 
 #endif

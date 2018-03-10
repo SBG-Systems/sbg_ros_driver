@@ -8,6 +8,14 @@ uartConf:
   # Baude rate (4800 ,9600 ,19200 ,38400 ,115200 [default],230400 ,460800 ,921600)
   baudRate: 115200
 
+  # Port Id
+  # 0 (SBG_ECOM_PORT_A) Main communication interface. Full duplex.
+  # 1 (SBG_ECOM_PORT_B) Auxiliary input interface for RTCM
+  # 2 (SBG_ECOM_PORT_C) Auxiliary communication interface. Full duplex.
+  # 3 (SBG_ECOM_PORT_D) Auxiliary input interface
+  # 4 (SBG_ECOM_PORT_E) Auxiliary input/output interface
+  portID: 0
+
 # Sensor Parameters
 sensorParameters:
   # Initial latitude (°)
@@ -15,7 +23,7 @@ sensorParameters:
   # Initial longitude (°)
   initLong: -4.472119
   # Initial altitude (above WGS84 ellipsoid) (m)
-  initAlt: 100
+  initAlt: 100.0
   # Year at startup
   year: 2018
   # month in year at startup
@@ -56,11 +64,11 @@ imuAlignementLeverArm:
   # Residual yaw error after axis alignment rad
   misYaw: 0
   # X Primary lever arm in IMU X axis (once IMU alignment is applied) m
-  leverArm: 0
+  leverArmX: 0
   # Y Primary lever arm in IMU Y axis (once IMU alignment is applied) m
-  leverArm: 0
+  leverArmY: 0
   # Z Primary lever arm in IMU Z axis (once IMU alignment is applied) m
-  leverArm: 0
+  leverArmZ: 0
 
 # AIDING_ASSIGNMENT
 # Note: GNSS1 module configuration can only be set to an external port on Ellipse-E version.
@@ -141,7 +149,7 @@ gnss:
   # Rejection mode for velocity (see posRejectMode values)
   velRejectMode: 1
   # Rejection mode for course over ground (see posRejectMode values)
-  CourseRejectMode: 1
+  courseRejectMode: 1
   # Rejection mode for true heading (see posRejectMode values)
   hdtRejectMode: 1
 
@@ -154,7 +162,7 @@ odom:
   # Odometer's direction
   # 0: positive
   # 1: negative
-  DIRECTION: 0
+  direction: 0
 
   # Odometer lever arm in IMU X axis (m)
   leverArmX: 0
@@ -230,4 +238,7 @@ output:
   log_event_d: 0
   # Barometric altimeter output
   log_pressure: 8
+
+  # Node frequency (if set to 0, the node will decide the most appropriate frequency to run)
+  frequency: 0
 
