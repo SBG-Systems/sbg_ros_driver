@@ -131,7 +131,6 @@ catkin_package(
 ## Your package locations should be listed before other locations
 add_subdirectory(sbgECom)
 include_directories(
-  include
   ${catkin_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/src
   ${PROJECT_SOURCE_DIR}/sbgECom/common
