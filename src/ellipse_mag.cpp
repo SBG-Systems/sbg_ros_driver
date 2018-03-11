@@ -10,14 +10,12 @@ bool one_calibration_done = false;
 bool calibration_process(std_srvs::Trigger::Request  &req,
                        std_srvs::Trigger::Response &res){
   if(start_calibration){
-    e_ref->start_mag_calibration();
-    res.success = true;
+    res.success = e_ref->start_mag_calibration();;
     res.message = "Start Calibration process";
     start_calibration = false;
   }
   else{
-    e_ref->end_mag_calibration();
-    res.success = true;
+    res.success = e_ref->end_mag_calibration();;
     res.message = "End Calibration process";
     one_calibration_done = true;
   }
@@ -27,8 +25,7 @@ bool calibration_process(std_srvs::Trigger::Request  &req,
 bool calibration_save(std_srvs::Trigger::Request  &req,
                       std_srvs::Trigger::Response &res){
   if(one_calibration_done){
-    e_ref->save_mag_calibration();
-    res.success = true;
+    res.success = e_ref->save_mag_calibration();
     res.message = "Calibration saved";
   }
   else{

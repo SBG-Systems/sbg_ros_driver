@@ -734,14 +734,22 @@ bool Ellipse::set_cmd_output(){
 }
 
 
-void Ellipse::start_mag_calibration(){
+bool Ellipse::start_mag_calibration(){
   SbgErrorCode errorCode = sbgEComCmdMagStartCalib(&m_comHandle, (SbgEComMagCalibMode)m_magnetic_calibration_mode, (SbgEComMagCalibBandwidth)m_magnetic_calibration_bandwidth);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){
+    ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));
+    return false;
+  }else{
+    return true;
+  }
 }
 
-void Ellipse::end_mag_calibration(){
+bool Ellipse::end_mag_calibration(){
   SbgErrorCode errorCode = sbgEComCmdMagComputeCalib(&m_comHandle, &m_magCalibResults);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){
+    ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));
+    return false;
+  }
 
   ROS_INFO("SBG DRIVER - MAG CALIBRATION - %s", MAG_CALIB_QUAL[m_magCalibResults.quality].c_str());
   ROS_INFO("SBG DRIVER - MAG CALIBRATION - %s", MAG_CALIB_CONF[m_magCalibResults.confidence].c_str());
@@ -796,9 +804,17 @@ void Ellipse::end_mag_calibration(){
   save_file << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;
   save_file << m_magCalibResults.matrix[6] << "\t" << m_magCalibResults.matrix[7] << "\t" << m_magCalibResults.matrix[8] << endl;
   save_file.close();
+
+  return true;
 }
 
-void Ellipse::save_mag_calibration(){
+bool Ellipse::save_mag_calibration(){
   SbgErrorCode errorCode = sbgEComCmdMagSetCalibData(&m_comHandle, m_magCalibResults.offset, m_magCalibResults.matrix);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdMagSetCalibData Error : %s", sbgErrorCodeToString(errorCode));}
+  if (errorCode != SBG_NO_ERROR){
+    ROS_WARN("SBG DRIVER - sbgEComCmdMagSetCalibData Error : %s", sbgErrorCodeToString(errorCode));
+    return false;
+  }
+  else{
+    return true;
+  }
 }

@@ -26,9 +26,9 @@ class Ellipse
     void load_param();
     void configure();
 
-    void start_mag_calibration();
-    void end_mag_calibration();
-    void save_mag_calibration();
+    bool start_mag_calibration();
+    bool end_mag_calibration();
+    bool save_mag_calibration();
 
     bool set_cmd_init_parameters();
     bool set_cmd_motion_profile();

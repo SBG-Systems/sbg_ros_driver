@@ -1,6 +1,11 @@
 # Configuration file for SBG Ellipse
 # YAML
 
+# Ellipse-A - Magnetic-based
+# Ellipse-E - External GNSS
+# Ellipse-N - GNSS-based
+# Ellipse-D - Dual-antenna GNSS
+
 uartConf:
   # Port Name
   portName: "/dev/ttyUSB0"
@@ -9,11 +14,11 @@ uartConf:
   baudRate: 115200
 
   # Port Id
-  # 0 (SBG_ECOM_PORT_A) Main communication interface. Full duplex.
-  # 1 (SBG_ECOM_PORT_B) Auxiliary input interface for RTCM
-  # 2 (SBG_ECOM_PORT_C) Auxiliary communication interface. Full duplex.
-  # 3 (SBG_ECOM_PORT_D) Auxiliary input interface
-  # 4 (SBG_ECOM_PORT_E) Auxiliary input/output interface
+  # 0 PORT_A: Main communication interface. Full duplex.
+  # 1 PORT_B: Auxiliary input interface for RTCM
+  # 2 PORT_C: Auxiliary communication interface. Full duplex.
+  # 3 PORT_D: Auxiliary input interface
+  # 4 PORT_E: Auxiliary input/output interface
   portID: 0
 
 # Sensor Parameters
@@ -119,7 +124,7 @@ magnetometer:
     #     This calibration mode is only designed to be used when roll and pitch motions are less than ± 5°. 
     #     To work correctly, the device should be rotated through at least a full circle.
     # 2 3D Tell the device to start a full 3D magnetic calibration procedure. The 3D magnetic calibration offers the best accuracy
-    mode: 1
+    mode: 2
 
     # 0 LOW_BW Use this parameter in case of strong magnetic noise during calibration. 
     #     Motion during calibration is then limited to slow rotations.
@@ -193,7 +198,7 @@ odom:
 
 # ToDo: event & CAN configuration
 
-# Output configuration
+############################### Output configuration ###############################
 # 0 Output is disabled
 # 1 Output is generated at 200Hz
 # 2 Output is generated at 100Hz
@@ -245,7 +250,7 @@ output:
   log_gps1_raw: 10001
   # Provides odometer velocity
   log_odo_vel: 0
-  # Event A/B/C/D (24, 25, 26, 27) Event markers sent when events are detected on a sync in pin
+  # Event A/B/C/D Event markers sent when events are detected on a sync in pin
   log_event_a: 0
   log_event_b: 0
   log_event_c: 0
@@ -253,6 +258,6 @@ output:
   # Barometric altimeter output
   log_pressure: 8
 
-  # Node frequency (if set to 0, the node will decide the most appropriate frequency to run)
+  # Node frequency (Hz) (if set to 0, the node will decide the most appropriate frequency to run)
   frequency: 0
 
