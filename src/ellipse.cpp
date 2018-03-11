@@ -1,6 +1,12 @@
 #include "ellipse.h"
 #include "ellipse_msg.h"
 
+#include <iostream>
+#include <fstream>
+#include <ctime>
+
+using namespace std;
+
 Ellipse::Ellipse(ros::NodeHandle *n){
   m_node = n;
   load_param();
@@ -152,6 +158,9 @@ void Ellipse::load_param(){
   m_log_event_d = n_private.param<int>("output/log_event_d", 0);
   m_log_pressure = n_private.param<int>("output/log_pressure", 8);
   m_rate_frequency = n_private.param<int>("output/frequency",0);
+
+  m_magnetic_calibration_mode = n_private.param<int>("magnetometer/calibration/mode",1);
+  m_magnetic_calibration_bandwidth = n_private.param<int>("magnetometer/calibration/bandwidth",2);
 
   std::vector<int> mod_div;
   mod_div.push_back(m_log_status);
@@ -725,16 +734,69 @@ bool Ellipse::set_cmd_output(){
 }
 
 
+void Ellipse::start_mag_calibration(){
+  SbgErrorCode errorCode = sbgEComCmdMagStartCalib(&m_comHandle, (SbgEComMagCalibMode)m_magnetic_calibration_mode, (SbgEComMagCalibBandwidth)m_magnetic_calibration_bandwidth);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));}
+}
 
+void Ellipse::end_mag_calibration(){
+  SbgErrorCode errorCode = sbgEComCmdMagComputeCalib(&m_comHandle, &m_magCalibResults);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));}
 
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - %s", MAG_CALIB_QUAL[m_magCalibResults.quality].c_str());
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - %s", MAG_CALIB_CONF[m_magCalibResults.confidence].c_str());
 
+  /// ************* WARNING IF ISSUES WITH COMPUTATIONS ************* //
 
+  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_NOT_ENOUGH_POINTS)
+    ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough valid points. Maybe you are moving too fast");
+  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_TOO_MUCH_DISTORTIONS)
+      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Unable to find a calibration solution. Maybe there are too much non static distortions");
+  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_ALIGNMENT_ISSUE)
+      ROS_WARN("SBG DRIVER - MAG CALIBRATION - The magnetic calibration has troubles to correct the magnetometers and inertial frame alignment");
+  if(m_magnetic_calibration_mode == SBG_ECOM_MAG_CALIB_MODE_2D){
+      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
+        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much roll motion for a 2D magnetic calibration");
+      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
+        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much pitch motion for a 2D magnetic calibration");
+  }
+  else{
+      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
+        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough roll motion for a 3D magnetic calibration");
+      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
+        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough pitch motion for a 3D magnetic calibration.");
+  }
+  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Z_MOTION_ISSUE)
+    ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough yaw motion to compute a valid magnetic calibration");
 
+  /// ************* Results ************* //
 
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Used Points: %u", m_magCalibResults.numPoints);
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Max Points: %u", m_magCalibResults.maxNumPoints);
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Mean, Std, Max");
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [Before] %0.2f %0.2f %0.2f", m_magCalibResults.beforeMeanError, m_magCalibResults.beforeStdError, m_magCalibResults.beforeMaxError);
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [After] %0.2f %0.2f %0.2f", m_magCalibResults.afterMeanError, m_magCalibResults.afterStdError, m_magCalibResults.afterMaxError);
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Accuracy (deg) %0.2f %0.2f %0.2f", sbgRadToDegF(m_magCalibResults.meanAccuracy), sbgRadToDegF(m_magCalibResults.stdAccuracy), sbgRadToDegF(m_magCalibResults.maxAccuracy));
 
+  /// ************* Save matrix to a file ************* //
 
+  auto t = std::time(nullptr);
+  auto tm = *std::localtime(&t);
+  ostringstream oss;
+  oss << std::put_time(&tm, "mag_calib_%Y_%m_%d-%Hh%Mmin%Ss.txt");
 
+  ofstream save_file;
+  save_file.open(oss.str());
+  save_file << "Offset" << endl;
+  save_file << m_magCalibResults.offset[0] << "\t" << m_magCalibResults.offset[1] << "\t" << m_magCalibResults.offset[2] << endl;
+  save_file << "Matrix" << endl;
+  save_file << m_magCalibResults.matrix[0] << "\t" << m_magCalibResults.matrix[1] << "\t" << m_magCalibResults.matrix[2] << endl;
+  save_file << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;
+  save_file << m_magCalibResults.matrix[6] << "\t" << m_magCalibResults.matrix[7] << "\t" << m_magCalibResults.matrix[8] << endl;
+  save_file.close();
+}
 
-
-
-
+void Ellipse::save_mag_calibration(){
+  SbgErrorCode errorCode = sbgEComCmdMagSetCalibData(&m_comHandle, m_magCalibResults.offset, m_magCalibResults.matrix);
+  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdMagSetCalibData Error : %s", sbgErrorCodeToString(errorCode));}
+}

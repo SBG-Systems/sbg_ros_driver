@@ -137,12 +137,6 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/sbgECom/src
 )
 
-# file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/sbgECom/src/*.c)
-# file(GLOB_RECURSE COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/*.c)
-# list(REMOVE_ITEM COMMON_SRC ${PROJECT_SOURCE_DIR}/sbgECom/common/interfaces/sbgInterfaceSerialWin.c)
-
-# MESSAGE( STATUS ${COMMON_SRC})
-
 ## Declare a C++ library
 # add_library(sbg
 #   src/${PROJECT_NAME}/sbg.cpp
@@ -158,11 +152,16 @@ add_executable(ellipse
   src/main.cpp
   src/ellipse.cpp
   src/ellipse_msg.cpp
-  ${SRC} 
-  #${COMMON_SRC}
+)
+
+add_executable(mag_calibration_ellipse
+  src/ellipse_mag.cpp
+  src/ellipse.cpp
+  src/ellipse_msg.cpp
 )
 
 target_compile_options(ellipse PRIVATE -fpermissive)
+target_compile_options(mag_calibration_ellipse PRIVATE -fpermissive)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -171,6 +170,11 @@ target_compile_options(ellipse PRIVATE -fpermissive)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(ellipse
+   ${catkin_LIBRARIES}
+   sbgECom
+)
+
+target_link_libraries(mag_calibration_ellipse
    ${catkin_LIBRARIES}
    sbgECom
 )

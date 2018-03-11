@@ -113,7 +113,21 @@ magnetometer:
   # 2 Measurement is always accepted
   magnetometerRejectMode: 1
 
-  # Magnetic calibration is not set in this file as it is specifi to each device
+  # Theses parameters are only used for a calibration run
+  calibration:
+    # 1 2D Tell the device that the magnetic calibration will be performed with limited motions. 
+    #     This calibration mode is only designed to be used when roll and pitch motions are less than ± 5°. 
+    #     To work correctly, the device should be rotated through at least a full circle.
+    # 2 3D Tell the device to start a full 3D magnetic calibration procedure. The 3D magnetic calibration offers the best accuracy
+    mode: 1
+
+    # 0 LOW_BW Use this parameter in case of strong magnetic noise during calibration. 
+    #     Motion during calibration is then limited to slow rotations.
+    # 1 MEDIUM_BW Tell the device that medium dynamics will be observed during the magnetic calibration process. 
+    #     It can be used in case of medium magnetic noise during calibration process. Medium dynamics are used during calibration.
+    # 2 HIGH_BW This parameter is suitable to most applications. It can be used when the dynamics during calibration are relatively high.
+    bandwidth: 2
+
 
 # GNSS configuration
 # Note: Pitch and Yaw offsets as well as antenna distance parameters should only be considered in

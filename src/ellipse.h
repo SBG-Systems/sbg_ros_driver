@@ -26,6 +26,10 @@ class Ellipse
     void load_param();
     void configure();
 
+    void start_mag_calibration();
+    void end_mag_calibration();
+    void save_mag_calibration();
+
     bool set_cmd_init_parameters();
     bool set_cmd_motion_profile();
     bool set_cmd_imu_lever_arm();
@@ -186,6 +190,10 @@ class Ellipse
     int m_log_event_c;
     int m_log_event_d;
     int m_log_pressure;
+
+    int m_magnetic_calibration_mode;
+    int m_magnetic_calibration_bandwidth;
+    SbgEComMagCalibResults	m_magCalibResults;
 };
 
 /*!
@@ -200,5 +208,14 @@ class Ellipse
     SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
 
     static std::map<int, int> MODE_DIV_2_FREQ = {{0,0},{1,200},{2,100},{4,50},{5,40},{8,25},{10,20},{20,10},{40,5},{200,1}};
+
+    static std::map<SbgEComMagCalibQuality, std::string> MAG_CALIB_QUAL= {{SBG_ECOM_MAG_CALIB_QUAL_OPTIMAL, "Quality: optimal"},
+                                                                            {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},
+                                                                            {SBG_ECOM_MAG_CALIB_QUAL_POOR, "Quality: poor"}};
+
+    static std::map<SbgEComMagCalibConfidence, std::string> MAG_CALIB_CONF= {{SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
+                                                                            {SBG_ECOM_MAG_CALIB_TRUST_MEDIUM, "Confidence: medium"},
+                                                                            {SBG_ECOM_MAG_CALIB_TRUST_LOW, "Confidence: low"}};
+
 
 #endif
