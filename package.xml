@@ -20,4 +20,6 @@
   <run_depend>std_msgs</run_depend>
   <run_depend>message_runtime</run_depend>
   
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
 </package>

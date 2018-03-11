@@ -269,7 +269,7 @@ SbgErrorCode sbgEComBinaryLogParseGpsRawData(SbgStreamBuffer *pInputStream, SbgL
 		// Copy the buffer
 		//
 		errorCode = sbgStreamBufferReadBuffer(pInputStream, pOutputData->rawBuffer, payloadSize);
-		pOutputData->bufferSize = (uint32)payloadSize;
+		pOutputData->bufferSize = payloadSize;
 	}
 	else
 	{

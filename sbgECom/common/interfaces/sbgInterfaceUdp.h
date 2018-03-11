@@ -53,11 +53,10 @@ extern "C" {
  */
 typedef struct _SbgInterfaceUdp
 {
-	void			*pUdpRecvSocket;				/*!< The socket used to receive some UDP data. */
-	void			*pUdpSendSocket;				/*!< The socket used to send some UDP data. */
-	sbgIpAddress	 outAddress;
-	uint32			 inPort;
-	uint32			 outPort;
+	void			*pUdpSocket;					/*!< The socket used to send and / or receive some UDP data. */
+	sbgIpAddress	 remoteAddr;					/*!< IP address to send data to. */
+	uint32			 remotePort;					/*!< Ethernet port to send data to. */
+	uint32			 localPort;						/*!< Ethernet port on which the interface is listening. */
 } SbgInterfaceUdp;
 
 //----------------------------------------------------------------------//
@@ -69,12 +68,12 @@ typedef struct _SbgInterfaceUdp
  *	An UDP interface can send some data to an output ip address and port and read all received
  *	data on a input port.
  *	\param[in]	pHandle							Pointer on an allocated interface instance to initialize.
- *	\param[in]	outAdress						IP address to send data to.
- *	\param[in]	outPort							Ethernet port to send data to.
- *	\param[in]	inPort							Ehternet port to read data from.
+ *	\param[in]	remoteAddr						IP address to send data to.
+ *	\param[in]	remotePort						Ethernet port to send data to.
+ *	\param[in]	localPort						Ehternet port on which the interface is listening.
  *	\return										SBG_NO_ERROR if the interface has been created.
  */
-SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress outAddress, uint32 outPort, uint32 inPort);
+SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress remoteAddr, uint32 remotePort, uint32 localPort);
 
 /*!
  *	Destroy an interface initialized using sbgInterfaceUdpCreate.
@@ -86,7 +85,7 @@ SbgErrorCode sbgInterfaceUdpDestroy(SbgInterface *pHandle);
 /*!
  *	Define if a socket can send broadcasted packets.
  *	\param[in]	pInterface						Pointer on a valid UDP interface created using sbgInterfaceUdpCreate.
- *	\param[in]	allowBroadcast					Set to TRUE to allow this socket to send broadcasted UDP packets.
+ *	\param[in]	allowBroadcast					Set to true to allow this socket to send broadcasted UDP packets.
  *	\return										SBG_NO_ERROR if the allow broadcast status has been changed.
  */
 SbgErrorCode sbgInterfaceUdpAllowBroadcast(SbgInterface *pHandle, bool allowBroadcast);

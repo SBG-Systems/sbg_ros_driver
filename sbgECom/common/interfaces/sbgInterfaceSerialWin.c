@@ -111,11 +111,11 @@ SbgErrorCode sbgInterfaceSerialCreate(SbgInterface *pHandle, const char *deviceN
 					//
 					// Disable flow control
 					//
-					comState.fDsrSensitivity = FALSE;
-					comState.fOutxCtsFlow = FALSE;
-					comState.fOutxDsrFlow = FALSE;
-					comState.fOutX = FALSE;
-					comState.fInX = FALSE;
+					comState.fDsrSensitivity = false;
+					comState.fOutxCtsFlow = false;
+					comState.fOutxDsrFlow = false;
+					comState.fOutX = false;
+					comState.fInX = false;
 
 					//
 					// Define timeout attributes (0 ms read timeout)
