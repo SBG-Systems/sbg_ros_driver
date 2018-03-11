@@ -787,6 +787,8 @@ void Ellipse::end_mag_calibration(){
 
   ofstream save_file;
   save_file.open(oss.str());
+  save_file << MAG_CALIB_QUAL[m_magCalibResults.quality] << endl;
+  save_file << MAG_CALIB_CONF[m_magCalibResults.confidence] << endl;
   save_file << "Offset" << endl;
   save_file << m_magCalibResults.offset[0] << "\t" << m_magCalibResults.offset[1] << "\t" << m_magCalibResults.offset[2] << endl;
   save_file << "Matrix" << endl;
