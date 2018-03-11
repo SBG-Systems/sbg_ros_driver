@@ -89,7 +89,7 @@ typedef SbgErrorCode (*SbgInterfaceReadFunc)(SbgInterface *pHandle, void *pBuffe
 /*!
  * Returns true if the interface is working correctly.
  * \param[in]	pHandle									Valid handle on an initialized interface.
- * \return												true if this interface is working correctly.
+ * \return												TRUE if this interface is working correctly.
  */
 typedef bool (*SbgInterfaceIsValidFunc)(SbgInterface *pHandle);
 
@@ -137,47 +137,15 @@ SBG_INLINE void sbgInterfaceZeroInit(SbgInterface *pHandle)
 
 /*!
  * Returns true if this interface seems to be up and running.
- * \param[in]	pHandle									Handle on an interface to test (if pHandle == NULL, retruns false).
- * \return												true if this interface seems to be up and running.
+ * \param[in]	pHandle									Handle on an interface to test (if pHandle == NULL, retruns FALSE).
+ * \return												TRUE if this interface seems to be up and running.
  */
 SBG_INLINE bool sbgInterfaceIsValid(SbgInterface *pHandle)
 {
 	//
-	// Check input arguments
+	// Call the correct valid method according to the interface
 	//
-	SBG_ASSERT(pHandle);
-
-	//
-	// To be valid, an interface should have a valid name, type and read / write method
-	// Optionally, we can also ask the interface to return a validity flag
-	//
-	if ( (pHandle->type != SBG_IF_TYPE_UNKNOW) && (pHandle->pWriteFunc) && (pHandle->pReadFunc) )
-	{
-		//
-		// Check if this interface has a specific valid method
-		//
-		if (pHandle->pIsValidFunc)
-		{
-			//
-			// Return the status of the interface specific valid method
-			//
-			return pHandle->pIsValidFunc(pHandle);
-		}
-		else
-		{
-			//
-			// This interface is valid
-			//
-			return true;
-		}
-	}
-	else
-	{
-		//
-		// This interface is invalid
-		//
-		return false;
-	}
+	return pHandle->pIsValidFunc(pHandle);
 }
 
 /*!

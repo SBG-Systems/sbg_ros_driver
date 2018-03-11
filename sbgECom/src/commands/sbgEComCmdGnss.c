@@ -50,6 +50,9 @@ SbgErrorCode sbgEComCmdGnssSetModel(SbgEComHandle *pHandle, const void *pBuffer,
 	return sbgEComTransferSend(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, pBuffer, size);
 }
 
+
+
+
 /*!
  *	Retrieve the alignment configuration of the gnss module.
  *	\param[in]	pHandle						A valid sbgECom handle.
@@ -61,7 +64,7 @@ SbgErrorCode sbgEComCmdGnssGetLeverArmAlignment(SbgEComHandle *pHandle, SbgEComG
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
@@ -73,7 +76,7 @@ SbgErrorCode sbgEComCmdGnssGetLeverArmAlignment(SbgEComHandle *pHandle, SbgEComG
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the command only since this is a no-payload command
@@ -88,7 +91,7 @@ SbgErrorCode sbgEComCmdGnssGetLeverArmAlignment(SbgEComHandle *pHandle, SbgEComG
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_GNSS_1_LEVER_ARM_ALIGNMENT command
@@ -158,7 +161,7 @@ SbgErrorCode sbgEComCmdGnssSetLeverArmAlignment(SbgEComHandle *pHandle, const Sb
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -178,7 +181,7 @@ SbgErrorCode sbgEComCmdGnssSetLeverArmAlignment(SbgEComHandle *pHandle, const Sb
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -188,7 +191,7 @@ SbgErrorCode sbgEComCmdGnssSetLeverArmAlignment(SbgEComHandle *pHandle, const Sb
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK
@@ -232,7 +235,7 @@ SbgErrorCode sbgEComCmdGnssGetRejection(SbgEComHandle *pHandle, SbgEComGnssRejec
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
@@ -244,7 +247,7 @@ SbgErrorCode sbgEComCmdGnssGetRejection(SbgEComHandle *pHandle, SbgEComGnssRejec
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the command only since this is a no-payload command
@@ -259,7 +262,7 @@ SbgErrorCode sbgEComCmdGnssGetRejection(SbgEComHandle *pHandle, SbgEComGnssRejec
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_GNSS_1_REJECT_MODES command
@@ -276,7 +279,7 @@ SbgErrorCode sbgEComCmdGnssGetRejection(SbgEComHandle *pHandle, SbgEComGnssRejec
 					//
 					pRejectConf->position	= (SbgEComRejectionMode)sbgStreamBufferReadUint8LE(&inputStream);
 					pRejectConf->velocity	= (SbgEComRejectionMode)sbgStreamBufferReadUint8LE(&inputStream);
-					sbgStreamBufferReadUint8LE(&inputStream);													// Skipped for backward compatibility
+					pRejectConf->course		= (SbgEComRejectionMode)sbgStreamBufferReadUint8LE(&inputStream);
 					pRejectConf->hdt		= (SbgEComRejectionMode)sbgStreamBufferReadUint8LE(&inputStream);
 
 					//
@@ -327,7 +330,7 @@ SbgErrorCode sbgEComCmdGnssSetRejection(SbgEComHandle *pHandle, const SbgEComGns
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -339,13 +342,13 @@ SbgErrorCode sbgEComCmdGnssSetRejection(SbgEComHandle *pHandle, const SbgEComGns
 			//
 			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)pRejectConf->position);
 			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)pRejectConf->velocity);
-			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)SBG_ECOM_NEVER_ACCEPT_MODE);		// Reserved parameter
+			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)pRejectConf->course);
 			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)pRejectConf->hdt);
 
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -355,7 +358,7 @@ SbgErrorCode sbgEComCmdGnssSetRejection(SbgEComHandle *pHandle, const SbgEComGns
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, cmdId, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK

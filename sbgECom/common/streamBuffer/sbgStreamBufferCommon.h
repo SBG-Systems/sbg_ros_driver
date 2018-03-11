@@ -42,8 +42,6 @@
 	#define sbgStreamBufferReadInt32		sbgStreamBufferReadInt32BE
 	#define sbgStreamBufferReadUint64		sbgStreamBufferReadUint64BE
 	#define sbgStreamBufferReadInt64		sbgStreamBufferReadInt64BE
-	#define sbgStreamBufferReadSizeT32		sbgStreamBufferReadSizeT32BE
-	#define sbgStreamBufferReadSizeT64		sbgStreamBufferReadSizeT64BE
 	#define sbgStreamBufferReadFloat		sbgStreamBufferReadFloatBE
 	#define sbgStreamBufferReadDouble		sbgStreamBufferReadDoubleBE
  
@@ -55,8 +53,6 @@
 	#define sbgStreamBufferWriteInt32		sbgStreamBufferWriteInt32BE
 	#define sbgStreamBufferWriteUint64		sbgStreamBufferWriteUint64BE
 	#define sbgStreamBufferWriteInt64		sbgStreamBufferWriteInt64BE
-	#define sbgStreamBufferWriteSizeT32		sbgStreamBufferWriteSizeT32BE
-	#define sbgStreamBufferWriteSizeT64		sbgStreamBufferWriteSizeT64BE
 	#define sbgStreamBufferWriteFloat		sbgStreamBufferWriteFloatBE
 	#define sbgStreamBufferWriteDouble		sbgStreamBufferWriteDoubleBE
 #else
@@ -71,8 +67,6 @@
 	#define sbgStreamBufferReadInt32		sbgStreamBufferReadInt32LE
 	#define sbgStreamBufferReadUint64		sbgStreamBufferReadUint64LE
 	#define sbgStreamBufferReadInt64		sbgStreamBufferReadInt64LE
-	#define sbgStreamBufferReadSizeT32		sbgStreamBufferReadSizeT32LE
-	#define sbgStreamBufferReadSizeT64		sbgStreamBufferReadSizeT64LE
 	#define sbgStreamBufferReadFloat		sbgStreamBufferReadFloatLE
 	#define sbgStreamBufferReadDouble		sbgStreamBufferReadDoubleLE
  
@@ -84,8 +78,6 @@
 	#define sbgStreamBufferWriteInt32		sbgStreamBufferWriteInt32LE
 	#define sbgStreamBufferWriteUint64		sbgStreamBufferWriteUint64LE
 	#define sbgStreamBufferWriteInt64		sbgStreamBufferWriteInt64LE
-	#define sbgStreamBufferWriteSizeT32		sbgStreamBufferWriteSizeT32LE
-	#define sbgStreamBufferWriteSizeT64		sbgStreamBufferWriteSizeT64LE
 	#define sbgStreamBufferWriteFloat		sbgStreamBufferWriteFloatLE
 	#define sbgStreamBufferWriteDouble		sbgStreamBufferWriteDoubleLE
 #endif

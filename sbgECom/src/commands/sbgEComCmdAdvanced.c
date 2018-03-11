@@ -15,7 +15,7 @@ SbgErrorCode sbgEComCmdAdvancedGetConf(SbgEComHandle *pHandle, SbgEComAdvancedCo
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
@@ -27,7 +27,7 @@ SbgErrorCode sbgEComCmdAdvancedGetConf(SbgEComHandle *pHandle, SbgEComAdvancedCo
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the command without payload since this is a no-payload command
@@ -42,7 +42,7 @@ SbgErrorCode sbgEComCmdAdvancedGetConf(SbgEComHandle *pHandle, SbgEComAdvancedCo
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_ADVANCED_CONF command
@@ -106,7 +106,7 @@ SbgErrorCode sbgEComCmdAdvancedSetConf(SbgEComHandle *pHandle, const SbgEComAdva
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -121,7 +121,7 @@ SbgErrorCode sbgEComCmdAdvancedSetConf(SbgEComHandle *pHandle, const SbgEComAdva
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -131,7 +131,7 @@ SbgErrorCode sbgEComCmdAdvancedSetConf(SbgEComHandle *pHandle, const SbgEComAdva
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK

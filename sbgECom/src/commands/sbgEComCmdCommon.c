@@ -22,14 +22,14 @@
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  *										SBG_TIME_OUT if the command hasn't been received withint the specified time out.
  */
-SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize, uint32 timeOut)
+SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, uint32 *pSize, uint32 maxSize, uint32 timeOut)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgBinaryLogData	logData;
 	uint8				receivedMsg;
 	uint8				receivedMsgClass;
 	uint16				receivedCmd;
-	size_t				payloadSize;
+	uint32				payloadSize;
 	uint8				payloadData[SBG_ECOM_MAX_PAYLOAD_SIZE];
 	uint32				lastValidTime;
 	
@@ -188,7 +188,7 @@ SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint
  *										Other error codes may come from the function itself, or from the device returning an NACK.
  *										
  */
-SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pData, size_t *pSize, size_t maxSize, uint32 timeOut)
+SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pData, uint32 *pSize, uint32 maxSize, uint32 timeOut)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgErrorCode		ackErrorCode;
@@ -243,8 +243,8 @@ SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg
 					// We can now parse the message and check if this gives an negative answer to our expected command
 					//
 					sbgStreamBufferInitForRead(&inputStream, pData, *pSize);
-					ackMsg			= sbgStreamBufferReadUint8LE(&inputStream);
-					ackMsgClass		= sbgStreamBufferReadUint8LE(&inputStream);
+					ackMsg			= sbgStreamBufferReadUint8(&inputStream);
+					ackMsgClass		= sbgStreamBufferReadUint8(&inputStream);
 					ackErrorCode	= (SbgErrorCode)sbgStreamBufferReadUint16LE(&inputStream);
 
 					//
@@ -305,7 +305,7 @@ SbgErrorCode sbgEComWaitForAck(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint8				payload[2*sizeof(uint16)];
 	SbgStreamBuffer		inputStream;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				ackClass;
 	uint8				ackMsg;
 
@@ -338,8 +338,8 @@ SbgErrorCode sbgEComWaitForAck(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg
 			// The ACK frame contains the ack message ID and class, and a uint16 for the return error code
 			// We make sure that the ACK is for the correct command
 			//
-			ackMsg = sbgStreamBufferReadUint8LE(&inputStream);
-			ackClass = sbgStreamBufferReadUint8LE(&inputStream);
+			ackMsg = sbgStreamBufferReadUint8(&inputStream);
+			ackClass = sbgStreamBufferReadUint8(&inputStream);
 
 			if ((ackMsg == msg) && (ackClass == msgClass))
 			{
@@ -401,7 +401,7 @@ SbgErrorCode sbgEComSendAck(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, S
 	//
 	// Send the ACK command
 	//
-	return sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ACK, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+	return sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ACK, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 }
 
 //----------------------------------------------------------------------//
@@ -438,12 +438,12 @@ SbgErrorCode sbgEComCmdGenericSetModelId(SbgEComHandle *pHandle, uint8 msgClass,
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, msgClass, msg, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -453,7 +453,7 @@ SbgErrorCode sbgEComCmdGenericSetModelId(SbgEComHandle *pHandle, uint8 msgClass,
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, msgClass, msg, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK
@@ -498,7 +498,7 @@ SbgErrorCode sbgEComCmdGenericGetModelInfo(SbgEComHandle *pHandle, uint8 msgClas
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
@@ -510,7 +510,7 @@ SbgErrorCode sbgEComCmdGenericGetModelInfo(SbgEComHandle *pHandle, uint8 msgClas
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the command only since this is a no payload command
@@ -525,7 +525,7 @@ SbgErrorCode sbgEComCmdGenericGetModelInfo(SbgEComHandle *pHandle, uint8 msgClas
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, msgClass, msg, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComReceiveCmd(pHandle, msgClass, msg, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a the specified command

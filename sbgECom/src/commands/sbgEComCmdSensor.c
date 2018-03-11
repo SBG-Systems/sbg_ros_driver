@@ -62,7 +62,7 @@ SbgErrorCode sbgEComCmdSensorGetInitCondition(SbgEComHandle *pHandle, SbgEComIni
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
@@ -74,7 +74,7 @@ SbgErrorCode sbgEComCmdSensorGetInitCondition(SbgEComHandle *pHandle, SbgEComIni
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the command only since this is a no payload command
@@ -89,7 +89,7 @@ SbgErrorCode sbgEComCmdSensorGetInitCondition(SbgEComHandle *pHandle, SbgEComIni
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_INIT_PARAMETERS, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_INIT_PARAMETERS, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_INIT_PARAMETERS command
@@ -158,7 +158,7 @@ SbgErrorCode sbgEComCmdSensorSetInitCondition(SbgEComHandle *pHandle, const SbgE
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -178,7 +178,7 @@ SbgErrorCode sbgEComCmdSensorSetInitCondition(SbgEComHandle *pHandle, const SbgE
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_INIT_PARAMETERS, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_INIT_PARAMETERS, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -188,7 +188,7 @@ SbgErrorCode sbgEComCmdSensorSetInitCondition(SbgEComHandle *pHandle, const SbgE
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_INIT_PARAMETERS, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_INIT_PARAMETERS, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK
@@ -231,7 +231,7 @@ SbgErrorCode sbgEComCmdSensorGetAidingAssignment(SbgEComHandle *pHandle, SbgECom
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				receivedBuffer[16];
 	SbgStreamBuffer		inputStream;
 
@@ -243,7 +243,7 @@ SbgErrorCode sbgEComCmdSensorGetAidingAssignment(SbgEComHandle *pHandle, SbgECom
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the command only since this is a no payload command
@@ -258,7 +258,7 @@ SbgErrorCode sbgEComCmdSensorGetAidingAssignment(SbgEComHandle *pHandle, SbgECom
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_AIDING_ASSIGNMENT, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_AIDING_ASSIGNMENT, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_AIDING_ASSIGNMENT command
@@ -327,7 +327,7 @@ SbgErrorCode sbgEComCmdSensorSetAidingAssignment(SbgEComHandle *pHandle, const S
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -347,7 +347,7 @@ SbgErrorCode sbgEComCmdSensorSetAidingAssignment(SbgEComHandle *pHandle, const S
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_AIDING_ASSIGNMENT, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_AIDING_ASSIGNMENT, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -357,7 +357,7 @@ SbgErrorCode sbgEComCmdSensorSetAidingAssignment(SbgEComHandle *pHandle, const S
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_AIDING_ASSIGNMENT, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_AIDING_ASSIGNMENT, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK
@@ -401,7 +401,7 @@ SbgErrorCode sbgEComCmdSensorGetAlignmentAndLeverArm(SbgEComHandle *pHandle, Sbg
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	size_t				receivedSize;
+	uint32				receivedSize;
 	uint8				receivedBuffer[32];
 	SbgStreamBuffer		inputStream;
 
@@ -413,7 +413,7 @@ SbgErrorCode sbgEComCmdSensorGetAlignmentAndLeverArm(SbgEComHandle *pHandle, Sbg
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Send the command only since this is a no-payload command
@@ -428,7 +428,7 @@ SbgErrorCode sbgEComCmdSensorGetAlignmentAndLeverArm(SbgEComHandle *pHandle, Sbg
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_IMU_ALIGNMENT command
@@ -500,7 +500,7 @@ SbgErrorCode sbgEComCmdSensorSetAlignmentAndLeverArm(SbgEComHandle *pHandle, con
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		for (trial = 0; trial < 3; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -522,7 +522,7 @@ SbgErrorCode sbgEComCmdSensorSetAlignmentAndLeverArm(SbgEComHandle *pHandle, con
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -532,7 +532,7 @@ SbgErrorCode sbgEComCmdSensorSetAlignmentAndLeverArm(SbgEComHandle *pHandle, con
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_IMU_ALIGNMENT_LEVER_ARM, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
 
 				//
 				// Test if we have received a valid ACK

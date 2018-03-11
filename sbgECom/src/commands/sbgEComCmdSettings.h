@@ -59,7 +59,7 @@ SbgErrorCode sbgEComCmdSettingsAction(SbgEComHandle *pHandle, SbgEComSettingsAct
  *	\param[in]	size						Size of the buffer.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdImportSettings(SbgEComHandle *pHandle, const void *pBuffer, size_t size);
+SbgErrorCode sbgEComCmdImportSettings(SbgEComHandle *pHandle, const void *pBuffer, uint32 size);
 
 /*!
  *	Retrieve a complete set of settings from the device as a buffer.
@@ -69,6 +69,6 @@ SbgErrorCode sbgEComCmdImportSettings(SbgEComHandle *pHandle, const void *pBuffe
  *	\param[in]	maxSize						The maximum buffer size in bytes that can be stored into pBuffer.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdExportSettings(SbgEComHandle *pHandle, void *pBuffer, size_t *pSize, size_t maxSize);
+SbgErrorCode sbgEComCmdExportSettings(SbgEComHandle *pHandle, void *pBuffer, uint32 *pSize, uint32 maxSize);
 
 #endif

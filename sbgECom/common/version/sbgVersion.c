@@ -25,7 +25,7 @@ void sbgVersionDecode(uint32 encodedVersion, SbgVersion *pVersionInfo)
 		//
 		// We have a software scheme, decode it
 		//
-		pVersionInfo->softwareScheme = true;
+		pVersionInfo->softwareScheme = TRUE;
 
 		//
 		// Decode the software scheme fields
@@ -45,7 +45,7 @@ void sbgVersionDecode(uint32 encodedVersion, SbgVersion *pVersionInfo)
 		//
 		// We have a basic scheme, decode it
 		//
-		pVersionInfo->softwareScheme = false;
+		pVersionInfo->softwareScheme = FALSE;
 
 		//
 		// Decode the software scheme fields
@@ -375,7 +375,7 @@ SbgErrorCode sbgVersionFromString(const char *pVersionStr, SbgVersion *pVersionI
 		//
 		// We have read successfully a basic version
 		//
-		pVersionInfo->softwareScheme = false;
+		pVersionInfo->softwareScheme = FALSE;
 
 		//
 		// Fill the version numbers
@@ -390,7 +390,7 @@ SbgErrorCode sbgVersionFromString(const char *pVersionStr, SbgVersion *pVersionI
 		//
 		// We have read successfully a software scheme version
 		//
-		pVersionInfo->softwareScheme = true;
+		pVersionInfo->softwareScheme = TRUE;
 
 		//
 		// Fill the version numbers

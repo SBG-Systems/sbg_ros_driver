@@ -82,7 +82,7 @@ typedef struct _SbgEComModelInfo
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  *										SBG_TIME_OUT if the command hasn't been received withint the specified time out.
  */
-SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize, uint32 timeOut);
+SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, uint32 *pSize, uint32 maxSize, uint32 timeOut);
 
 /*!
  *	Wait for a specific command to be received given a time out.
@@ -101,7 +101,7 @@ SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  *										SBG_TIME_OUT if the command hasn't been received withint the specified time out.
  */
-SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pData, size_t *pSize, size_t maxSize, uint32 timeOut);
+SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pData, uint32 *pSize, uint32 maxSize, uint32 timeOut);
 
 //----------------------------------------------------------------------//
 //- ACK related commands  operations                                   -//

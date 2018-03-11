@@ -44,7 +44,6 @@ extern "C" {
 #include "../sbgDefines.h"
 #include "../sbgErrorCodes.h"
 #include "../sbgTypes.h"
-#include <stdbool.h>
 
 //----------------------------------------------------------------------//
 //- Version related definitions                                        -//
@@ -98,7 +97,7 @@ typedef enum _SbgVersionCmpThresold
  */
 typedef struct _SbgVersion
 {
-	bool					softwareScheme;				/*!< Set to true if it's a software scheme or false if it's a basic one. */
+	bool					softwareScheme;				/*!< Set to TRUE if it's a software scheme or FALSE if it's a basic one. */
 	SbgVersionQualifier		qualifier;					/*!< Qualifier of the current version */
 	uint8					major;						/*!< Major version */
 	uint8					minor;						/*!< Minor version */
@@ -160,9 +159,9 @@ uint32 sbgVersionEncode(const SbgVersion *pVersionInfo);
 //----------------------------------------------------------------------//
 
 /*!
- *	Returns true if this encoded version number is using a software scheme.
+ *	Returns TRUE if this encoded version number is using a software scheme.
  *	\param[in]	encodedVersion											The encoded version number to test stored in a uint32.
- *	\return																true if the version number is using a software scheme.
+ *	\return																TRUE if the version number is using a software scheme.
  */
 SBG_INLINE bool sbgVersionIsUsingSoftwareScheme(uint32 encodedVersion)
 {

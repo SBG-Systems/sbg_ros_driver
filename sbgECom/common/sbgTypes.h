@@ -27,27 +27,22 @@
 //----------------------------------------------------------------------//
 #define SBG_MIN_INT_8					(-128)
 #define SBG_MAX_INT_8					(127)
-#define SBG_HALF_UINT_8					(128)
 #define SBG_MAX_UINT_8					(255)
 
 #define SBG_MIN_INT_16					(-32768)
 #define SBG_MAX_INT_16					(32767)
-#define SBG_HALF_UINT_16				(32768)
 #define SBG_MAX_UINT_16					(65535)
 
 #define SBG_MIN_INT_24					(-8388608l)
 #define SBG_MAX_INT_24					(8388607l)
-#define SBG_HALF_UINT_24				(8388608ul)
 #define SBG_MAX_UINT_24					(16777216ul)
 
-#define SBG_MIN_INT_32					(-2147483647l - 1)
+#define SBG_MIN_INT_32					(-2147483648l)
 #define SBG_MAX_INT_32					(2147483647l)
-#define SBG_HALF_UINT_32				(2147483648ul)
 #define SBG_MAX_UINT_32					(4294967295ul)
 
-#define SBG_MIN_INT_64					(-9223372036854775807ll - 1)
+#define SBG_MIN_INT_64					(-9223372036854775808ll)
 #define SBG_MAX_INT_64					(9223372036854775807ll)
-#define SBG_HALF_UINT_64				(9223372036854775808ull)
 #define SBG_MAX_UINT_64					(0xFFFFFFFFFFFFFFFFull)
 
 //----------------------------------------------------------------------//
@@ -64,10 +59,15 @@ typedef signed		short			int16;		// 16 bits
 typedef signed		int				int32;		// 32 bits
 typedef signed		long long int	int64;		// 64 bits
 
+// Redefine boolean only if needed (we are using a C compiler)
+#ifndef __cplusplus
+	typedef	unsigned	char		bool;	//  8 bits
+#endif
+
 //----------------------------------------------------------------------//
 //- Misc types definitions                                             -//
 //----------------------------------------------------------------------//
-typedef uint32						sbgIpAddress;					/*!< Define an IP v4 address stored in 4 bytes. The format is A.B.C.D, each component is 8 bits and stored in Big Endian. */
+typedef uint32						sbgIpAddress;					/*!< Define an IP address as an uint32. */
 
 //------------------------------------------------------------------//
 //- Type punning safe conversion unions                            -//
@@ -90,33 +90,6 @@ typedef union _Uint8ToInt16
 	int16	value;
 	uint8	buffer[2];
 } Uint8ToInt16;
-
-/*!
- * Union used to convert a buffer or 2 unit8 values to a uint16
- */
-typedef union _Uint8ToUint16
-{
-	uint16	value;
-	uint8	buffer[2];
-} Uint8ToUint16;
-
-/*!
- * Union used to convert a buffer or 4 unit8 two's complement values to a int32
- */
-typedef union _Uint8ToInt32
-{
-	int32	value;
-	uint8	buffer[4];
-} Uint8ToInt32;
-
-/*!
- * Union used to convert a buffer or 4 unit8 values to a uint32
- */
-typedef union _Uint8ToUint32
-{
-	uint32	value;
-	uint8	buffer[4];
-} Uint8ToUint32;
 
 /*!
  * Union that allows type punning (access to a floating point number bits)
