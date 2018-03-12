@@ -212,9 +212,18 @@ class Ellipse
                                                                             {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},
                                                                             {SBG_ECOM_MAG_CALIB_QUAL_POOR, "Quality: poor"}};
 
-    static std::map<SbgEComMagCalibConfidence, std::string> MAG_CALIB_CONF= {{SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
+    static std::map<SbgEComMagCalibConfidence, std::string> MAG_CALIB_CONF = {{SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
                                                                             {SBG_ECOM_MAG_CALIB_TRUST_MEDIUM, "Confidence: medium"},
                                                                             {SBG_ECOM_MAG_CALIB_TRUST_LOW, "Confidence: low"}};
+
+    static std::map<SbgEComMagCalibMode, std::string> MAG_CALIB_MODE = {{SBG_ECOM_MAG_CALIB_MODE_2D, "Mode 2D"},
+                                                                            {SBG_ECOM_MAG_CALIB_MODE_3D, "Mode 3D"}};
+
+    static std::map<SbgEComMagCalibBandwidth, std::string> MAG_CALIB_BW = {{SBG_ECOM_MAG_CALIB_HIGH_BW, "High Bandwidth"},
+                                                                            {SBG_ECOM_MAG_CALIB_MEDIUM_BW, "Medium Bandwidth"},
+                                                                            {SBG_ECOM_MAG_CALIB_LOW_BW, "Low Bandwidth"}};
+
+
 
 
 #endif

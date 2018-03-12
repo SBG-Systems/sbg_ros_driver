@@ -29,7 +29,7 @@ void Ellipse::connect(){
   if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComInit Error : %s", sbgErrorCodeToString(errorCode));}
 
   // Get Infos
-  read_GetInfo(&m_comHandle);
+  read_get_info(&m_comHandle);
 }
 
 void Ellipse::init_callback(){
@@ -788,8 +788,8 @@ bool Ellipse::start_mag_calibration(){
     return false;
   }else{
     ROS_INFO("SBG DRIVER - MAG CALIBRATION Start calibration");
-    ROS_INFO("SBG DRIVER - MAG CALIBRATION mode : %d", m_magnetic_calibration_mode);
-    ROS_INFO("SBG DRIVER - MAG CALIBRATION bandwidth : %d", m_magnetic_calibration_bandwidth);
+    ROS_INFO("SBG DRIVER - MAG CALIBRATION mode : %s", MAG_CALIB_MODE[(SbgEComMagCalibMode)m_magnetic_calibration_mode].c_str());
+    ROS_INFO("SBG DRIVER - MAG CALIBRATION bandwidth : %s", MAG_CALIB_BW[(SbgEComMagCalibBandwidth)m_magnetic_calibration_bandwidth].c_str());
     return true;
   }
 }
@@ -832,8 +832,8 @@ bool Ellipse::end_mag_calibration(){
   ROS_INFO("SBG DRIVER - MAG CALIBRATION - Used Points: %u", m_magCalibResults.numPoints);
   ROS_INFO("SBG DRIVER - MAG CALIBRATION - Max Points: %u", m_magCalibResults.maxNumPoints);
   ROS_INFO("SBG DRIVER - MAG CALIBRATION - Mean, Std, Max");
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [Before] %0.2f %0.2f %0.2f", m_magCalibResults.beforeMeanError, m_magCalibResults.beforeStdError, m_magCalibResults.beforeMaxError);
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [After] %0.2f %0.2f %0.2f", m_magCalibResults.afterMeanError, m_magCalibResults.afterStdError, m_magCalibResults.afterMaxError);
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [Before] %.2f %.2f %.2f", m_magCalibResults.beforeMeanError, m_magCalibResults.beforeStdError, m_magCalibResults.beforeMaxError);
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [After] %.2f %.2f %.2f", m_magCalibResults.afterMeanError, m_magCalibResults.afterStdError, m_magCalibResults.afterMaxError);
   ROS_INFO("SBG DRIVER - MAG CALIBRATION - Accuracy (deg) %0.2f %0.2f %0.2f", sbgRadToDegF(m_magCalibResults.meanAccuracy), sbgRadToDegF(m_magCalibResults.stdAccuracy), sbgRadToDegF(m_magCalibResults.maxAccuracy));
 
   /// ************* Save matrix to a file ************* //
@@ -845,11 +845,22 @@ bool Ellipse::end_mag_calibration(){
 
   ofstream save_file;
   save_file.open(oss.str());
+  save_file << "Parameters" << endl;
+  save_file << "* CALIB_MODE = " << MAG_CALIB_MODE[(SbgEComMagCalibMode)m_magnetic_calibration_mode] << endl;
+  save_file << "* CALIB_BW = " << MAG_CALIB_BW[(SbgEComMagCalibBandwidth)m_magnetic_calibration_bandwidth] << endl;
+  save_file << "============================" << endl;
+  save_file << "Results" << endl;
   save_file << MAG_CALIB_QUAL[m_magCalibResults.quality] << endl;
   save_file << MAG_CALIB_CONF[m_magCalibResults.confidence] << endl;
-  save_file << "Offset" << endl;
+  save_file << "Infos" << endl;
+  save_file << "* Used Points : " << m_magCalibResults.numPoints << "/" << m_magCalibResults.maxNumPoints << endl;
+  save_file << "* Mean, Std, Max" << endl;
+  save_file << "  [Before] " << m_magCalibResults.beforeMeanError << " " << m_magCalibResults.beforeStdError << " " << m_magCalibResults.beforeMaxError << endl;
+  save_file << "  [After] " << m_magCalibResults.afterMeanError << " " << m_magCalibResults.afterStdError << " " << m_magCalibResults.afterMaxError << endl;
+  save_file << "  [Accuracy] " << sbgRadToDegF(m_magCalibResults.meanAccuracy) << " " << sbgRadToDegF(m_magCalibResults.stdAccuracy) << " " << sbgRadToDegF(m_magCalibResults.maxAccuracy);
+  save_file << "* Offset" << endl;
   save_file << m_magCalibResults.offset[0] << "\t" << m_magCalibResults.offset[1] << "\t" << m_magCalibResults.offset[2] << endl;
-  save_file << "Matrix" << endl;
+  save_file << "* Matrix" << endl;
   save_file << m_magCalibResults.matrix[0] << "\t" << m_magCalibResults.matrix[1] << "\t" << m_magCalibResults.matrix[2] << endl;
   save_file << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;
   save_file << m_magCalibResults.matrix[6] << "\t" << m_magCalibResults.matrix[7] << "\t" << m_magCalibResults.matrix[8] << endl;
@@ -867,6 +878,7 @@ bool Ellipse::save_mag_calibration(){
     return false;
   }
   else{
+    ROS_INFO("SBG DRIVER - MAG CALIBRATION - Saving data to the device");
     return true;
   }
 }

@@ -85,6 +85,6 @@ void read_gps_vel_status(sbg_driver::SbgGpsVelStatus &msg, const uint32 &val);
 void read_gps_pos_status(sbg_driver::SbgGpsPosStatus &msg, const uint32 &val);
 
 // Read Info from the device
-void read_GetInfo(SbgEComHandle *comHandle);
+void read_get_info(SbgEComHandle *comHandle);
 
 #endif

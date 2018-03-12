@@ -302,7 +302,7 @@ void read_ecom_log_pressure(sbg_driver::SbgPressure &msg, const SbgBinaryLogData
 	msg.altitude = pLogData->pressureData.height;
 }
 
-void read_GetInfo(SbgEComHandle *comHandle){
+void read_get_info(SbgEComHandle *comHandle){
   SbgEComDeviceInfo pInfo;
   SbgErrorCode errorCode = sbgEComCmdGetInfo(comHandle, &pInfo);
   if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComCmdGetInfo Error : %s", sbgErrorCodeToString(errorCode));}
