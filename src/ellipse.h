@@ -160,7 +160,6 @@ class Ellipse
 
     int m_gnss1PosRejectMode;
     int m_gnss1VelRejectMode;
-    int m_gnss1CourseRejectMode;
     int m_gnss1HdtRejectMode;
 
     float m_odomGain;

@@ -28,7 +28,25 @@ SbgErrorCode sbgEComBinaryLogParseStatusData(SbgStreamBuffer *pInputStream, SbgL
 	pOutputData->aidingStatus	= sbgStreamBufferReadUint32LE(pInputStream);
 	pOutputData->reserved2		= sbgStreamBufferReadUint32LE(pInputStream);
 	pOutputData->reserved3		= sbgStreamBufferReadUint16LE(pInputStream);
-
+	
+	//
+	// Test if we have a additional information such as uptime (since version 1.7)
+	//
+	if (sbgStreamBufferGetSpace(pInputStream) >= sizeof(uint32))
+	{
+		//
+		// Read the additional information
+		//
+		pOutputData->uptime		= sbgStreamBufferReadUint32LE(pInputStream);
+	}
+	else
+	{
+		//
+		// Default the additional information
+		//
+		pOutputData->uptime = 0;
+	}
+	
 	//
 	// Return if any error has occurred while parsing the frame
 	//
@@ -59,6 +77,11 @@ SbgErrorCode sbgEComBinaryLogWriteStatusData(SbgStreamBuffer *pOutputStream, con
 	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->aidingStatus);
 	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->reserved2);
 	sbgStreamBufferWriteUint16LE(pOutputStream, pInputData->reserved3);
+	
+	//
+	// Write the additional information added in version 1.7
+	//
+	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->uptime);
 
 	//
 	// Return if any error has occurred while writing the frame

@@ -4,7 +4,7 @@
 #include <std_srvs/Trigger.h>
 
 Ellipse *e_ref;
-bool start_calibration = false;
+bool start_calibration = true;
 bool one_calibration_done = false;
 
 bool calibration_process(std_srvs::Trigger::Request  &req,
@@ -16,7 +16,7 @@ bool calibration_process(std_srvs::Trigger::Request  &req,
   }
   else{
     res.success = e_ref->end_mag_calibration();;
-    res.message = "End Calibration process";
+    res.message = "End Calibration process (see console to get info)";
     one_calibration_done = true;
   }
   return true;
@@ -43,8 +43,6 @@ int main(int argc, char **argv)
   ROS_INFO("SBG DRIVER - Init node & load params");
   Ellipse ellipse(&n);
   e_ref = &ellipse;
-
-  ellipse.init_publishers();
 
   ROS_INFO("SBG DRIVER - Ellipse connect");
   ellipse.connect();

@@ -155,17 +155,17 @@ add_executable(ellipse
   src/ellipse_msg.cpp
 )
 
-add_executable(mag_calibration_ellipse
+add_executable(ellipse_mag
   src/ellipse_mag.cpp
   src/ellipse.cpp
   src/ellipse_msg.cpp
 )
 
 add_dependencies(ellipse ${sbg_driver_EXPORTED_TARGETS})
-add_dependencies(mag_calibration_ellipse ${sbg_driver_EXPORTED_TARGETS})
+add_dependencies(ellipse_mag ${sbg_driver_EXPORTED_TARGETS})
 
 target_compile_options(ellipse PRIVATE -fpermissive)
-target_compile_options(mag_calibration_ellipse PRIVATE -fpermissive)
+target_compile_options(ellipse_mag PRIVATE -fpermissive)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -178,7 +178,7 @@ target_link_libraries(ellipse
    sbgECom
 )
 
-target_link_libraries(mag_calibration_ellipse
+target_link_libraries(ellipse_mag
    ${catkin_LIBRARIES}
    sbgECom
 )
@@ -198,7 +198,7 @@ target_link_libraries(mag_calibration_ellipse
 # )
 
 ## Mark executables and/or libraries for installation
- install(TARGETS ellipse mag_calibration_ellipse
+ install(TARGETS ellipse ellipse_mag
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -217,6 +217,7 @@ target_link_libraries(mag_calibration_ellipse
    launch/calibration_sbg_ellipse.launch
    launch/sbg_ellipse.launch
    config/ellipse_E_default.yaml
+   config/ellipse_A_default.yaml
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
  )
 

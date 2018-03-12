@@ -13,7 +13,8 @@ Ellipse::Ellipse(ros::NodeHandle *n){
 }
 
 Ellipse::~Ellipse(){
-
+  sbgEComClose(&m_comHandle);
+  sbgInterfaceSerialDestroy(&m_sbgInterface);
 }
 
 void Ellipse::connect(){
@@ -144,7 +145,6 @@ void Ellipse::load_param(){
   m_gnss1AntennaDistance = n_private.param<float>("gnss/antennaDistance", 0);
   m_gnss1PosRejectMode = n_private.param<int>("gnss/posRejectMode", 1);
   m_gnss1VelRejectMode = n_private.param<int>("gnss/velRejectMode", 1);
-  m_gnss1CourseRejectMode = n_private.param<int>("gnss/courseRejectMode", 1);
   m_gnss1HdtRejectMode = n_private.param<int>("gnss/hdtRejectMode", 1);
 
   m_odomGain = n_private.param<float>("odom/gain", 4800);
@@ -157,25 +157,25 @@ void Ellipse::load_param(){
 
   m_timeReference = (uint8)n_private.param<int>("output/timeReference",0);
 
-  m_log_status = n_private.param<int>("output/log_status", 8);
-  m_log_imu_data = n_private.param<int>("output/log_imu_data", 8);
-  m_log_ekf_euler = n_private.param<int>("output/log_ekf_euler", 8);
+  m_log_status = n_private.param<int>("output/log_status", 0);
+  m_log_imu_data = n_private.param<int>("output/log_imu_data", 0);
+  m_log_ekf_euler = n_private.param<int>("output/log_ekf_euler", 0);
   m_log_ekf_quat = n_private.param<int>("output/log_ekf_quat", 0);
-  m_log_ekf_nav = n_private.param<int>("output/log_ekf_nav", 8);
-  m_log_ship_motion = n_private.param<int>("output/log_ship_motion", 8);
-  m_log_utc_time = n_private.param<int>("output/log_utc_time", 8);
-  m_log_mag = n_private.param<int>("output/log_mag", 8);
+  m_log_ekf_nav = n_private.param<int>("output/log_ekf_nav", 0);
+  m_log_ship_motion = n_private.param<int>("output/log_ship_motion", 0);
+  m_log_utc_time = n_private.param<int>("output/log_utc_time", 0);
+  m_log_mag = n_private.param<int>("output/log_mag", 0);
   m_log_mag_calib = n_private.param<int>("output/log_mag_calib", 0);
-  m_log_gps1_vel = n_private.param<int>("output/log_gps1_vel", 10001);
-  m_log_gps1_pos = n_private.param<int>("output/log_gps1_pos", 10001);
-  m_log_gps1_hdt = n_private.param<int>("output/log_gps1_hdt", 10001);
-  m_log_gps1_raw = n_private.param<int>("output/log_gps1_raw", 10001);
+  m_log_gps1_vel = n_private.param<int>("output/log_gps1_vel", 0);
+  m_log_gps1_pos = n_private.param<int>("output/log_gps1_pos", 0);
+  m_log_gps1_hdt = n_private.param<int>("output/log_gps1_hdt", 0);
+  m_log_gps1_raw = n_private.param<int>("output/log_gps1_raw", 0);
   m_log_odo_vel = n_private.param<int>("output/log_odo_vel", 0);
   m_log_event_a = n_private.param<int>("output/log_event_a", 0);
   m_log_event_b = n_private.param<int>("output/log_event_b", 0);
   m_log_event_c = n_private.param<int>("output/log_event_c", 0);
   m_log_event_d = n_private.param<int>("output/log_event_d", 0);
-  m_log_pressure = n_private.param<int>("output/log_pressure", 8);
+  m_log_pressure = n_private.param<int>("output/log_pressure", 0);
   m_rate_frequency = n_private.param<int>("output/frequency",0);
 
   m_magnetic_calibration_mode = n_private.param<int>("magnetometer/calibration/mode",1);
@@ -217,9 +217,7 @@ void Ellipse::load_param(){
 }
 
 void Ellipse::publish(){
-  SbgErrorCode errorCode = sbgEComHandle(&m_comHandle);
-  if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComHandle Error : %s", sbgErrorCodeToString(errorCode));}
-
+  sbgEComHandle(&m_comHandle);
   if(m_new_sbgStatus && m_log_status != 0){
     m_new_sbgStatus = false;
     m_sbgStatus_pub.publish(m_sbgStatus_msg);
@@ -425,7 +423,6 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
 bool Ellipse::set_cmd_init_parameters(){
   SbgEComInitConditionConf init_condition;
   sbgEComCmdSensorGetInitCondition(&m_comHandle, &init_condition);
-
   if(init_condition.year != m_initYear
      || init_condition.day != m_initDay
      || init_condition.month != m_initMonth
@@ -439,6 +436,7 @@ bool Ellipse::set_cmd_init_parameters(){
     init_condition.longitude = m_initLong;
     init_condition.altitude = m_initAlt;
     sbgEComCmdSensorSetInitCondition(&m_comHandle, &init_condition);
+    ROS_INFO("SBG DRIVER - [Param] New init");
     return true;
   }
   return false;
@@ -449,6 +447,7 @@ bool Ellipse::set_cmd_motion_profile(){
   sbgEComCmdSensorGetMotionProfileInfo(&m_comHandle, &motion_profile);
   if(motion_profile.id != m_motionProfileId){
     sbgEComCmdSensorSetMotionProfileId(&m_comHandle, m_motionProfileId);
+    ROS_INFO("SBG DRIVER - [Param] motion profile");
     return true;
   }
   return false;
@@ -458,6 +457,7 @@ bool Ellipse::set_cmd_imu_lever_arm(){
   SbgEComSensorAlignmentInfo pAlignConf;
   float leverArm[3];
   sbgEComCmdSensorGetAlignmentAndLeverArm(&m_comHandle, &pAlignConf, leverArm);
+
   if(leverArm[0] != m_imuLeverArm[0]
      || leverArm[1] != m_imuLeverArm[1]
      || leverArm[2] != m_imuLeverArm[2]
@@ -475,6 +475,7 @@ bool Ellipse::set_cmd_imu_lever_arm(){
     pAlignConf.misPitch = m_imuMisPitch;
     pAlignConf.misYaw = m_imuMisYaw ;
     sbgEComCmdSensorSetAlignmentAndLeverArm(&m_comHandle, &pAlignConf, leverArm);
+    ROS_INFO("SBG DRIVER - [Param] imu lever arm");
     return true;
   }
   return false;
@@ -483,15 +484,17 @@ bool Ellipse::set_cmd_imu_lever_arm(){
 bool Ellipse::set_cmd_aiding_assignement(){
   SbgEComAidingAssignConf aidingAssign;
   sbgEComCmdSensorGetAidingAssignment(&m_comHandle, &aidingAssign);
+
   if(aidingAssign.gps1Port != m_gnss1ModulePortAssignment
      || aidingAssign.gps1Sync != m_gnss1ModuleSyncAssignment
-     || aidingAssign.odometerPinsConf != m_rtcmPortAssignment
-     || aidingAssign.rtcmPort != m_odometerPinAssignment){
+     || aidingAssign.odometerPinsConf != m_odometerPinAssignment
+     || aidingAssign.rtcmPort != m_rtcmPortAssignment){
     aidingAssign.gps1Port = (SbgEComModulePortAssignment) m_gnss1ModulePortAssignment;
     aidingAssign.gps1Sync = (SbgEComModuleSyncAssignment) m_gnss1ModuleSyncAssignment;
-    aidingAssign.odometerPinsConf = (SbgEComOdometerPinAssignment) m_rtcmPortAssignment;
-    aidingAssign.rtcmPort = (SbgEComModulePortAssignment) m_odometerPinAssignment;
+    aidingAssign.odometerPinsConf = (SbgEComOdometerPinAssignment) m_odometerPinAssignment;
+    aidingAssign.rtcmPort = (SbgEComModulePortAssignment) m_rtcmPortAssignment;
     sbgEComCmdSensorSetAidingAssignment(&m_comHandle, &aidingAssign);
+    ROS_INFO("SBG DRIVER - [Param] Aiding assignement");
     return true;
   }
   return false;
@@ -502,6 +505,7 @@ bool Ellipse::set_cmd_mag_model(){
   sbgEComCmdMagGetModelInfo(&m_comHandle, &model_info);
   if(model_info.id != m_magModelId){
     sbgEComCmdMagSetModelId(&m_comHandle, m_magModelId);
+    ROS_INFO("SBG DRIVER - [Param] Mag model");
     return true;
   }
   return false;
@@ -513,6 +517,7 @@ bool Ellipse::set_cmd_mag_reject_mode(){
   if(rejection.magneticField != m_magRejectMode){
     rejection.magneticField = (SbgEComRejectionMode) m_magRejectMode;
     sbgEComCmdMagSetRejection(&m_comHandle, &rejection);
+    ROS_INFO("SBG DRIVER - [Param] Mag reject mode");
     return true;
   }
   return false;
@@ -523,6 +528,7 @@ bool Ellipse::set_cmd_gnss_model(){
   sbgEComCmdGnss1GetModelInfo(&m_comHandle, &model_info);
   if(model_info.id != m_gnssModelId){
     sbgEComCmdMagSetModelId(&m_comHandle, m_gnssModelId);
+    ROS_INFO("SBG DRIVER - [Param] gnss model");
     return true;
   }
   return false;
@@ -544,6 +550,7 @@ bool Ellipse::set_cmd_gnss_lever_arm(){
     pAlignInfo.pitchOffset = m_gnss1PitchOffset;
     pAlignInfo.yawOffset = m_gnss1YawOffset ;
     sbgEComCmdGnss1SetLeverArmAlignment(&m_comHandle, &pAlignInfo);
+    ROS_INFO("SBG DRIVER - [Param] Gnss lever arm");
     return true;
   }
   return false;
@@ -552,17 +559,16 @@ bool Ellipse::set_cmd_gnss_lever_arm(){
 bool Ellipse::set_cmd_gnss_reject_mode(){
   SbgEComGnssRejectionConf rejection;
   sbgEComCmdGnss1GetRejection(&m_comHandle, &rejection);
-  
-  if(rejection.course != m_gnss1CourseRejectMode
-     || rejection.hdt != m_gnss1HdtRejectMode
+
+  if(rejection.hdt != m_gnss1HdtRejectMode
      || rejection.position != m_gnss1PosRejectMode
      || rejection.velocity != m_gnss1VelRejectMode){
-    
-    rejection.course = (SbgEComRejectionMode) m_gnss1CourseRejectMode;
+
     rejection.hdt = (SbgEComRejectionMode) m_gnss1HdtRejectMode;
     rejection.position = (SbgEComRejectionMode) m_gnss1PosRejectMode;
     rejection.velocity = (SbgEComRejectionMode) m_gnss1VelRejectMode;
     sbgEComCmdGnss1SetRejection(&m_comHandle, &rejection);
+    ROS_INFO("SBG DRIVER - [Param] gnss reject mode");
     return true;
   }
   return false;
@@ -580,6 +586,7 @@ bool Ellipse::set_cmd_odom_conf(){
     odom.gainError = m_odomGainError;
     odom.reverseMode = m_odomDirection;
     sbgEComCmdOdoSetConf(&m_comHandle, &odom);
+    ROS_INFO("SBG DRIVER - [Param] odom conf");
     return true;
   }
   return false;
@@ -596,6 +603,7 @@ bool Ellipse::set_cmd_odom_lever_arm(){
     leverArm[1] = m_odomLever[1];
     leverArm[2] = m_odomLever[2];
     sbgEComCmdOdoSetLeverArm(&m_comHandle, leverArm);
+    ROS_INFO("SBG DRIVER - [Param] odom lever arm ");
     return true;
   }
   return false;
@@ -607,6 +615,7 @@ bool Ellipse::set_cmd_odom_reject_mode(){
   if(rejection.velocity != m_odomRejectMode){
     rejection.velocity = (SbgEComRejectionMode) m_odomRejectMode;
     sbgEComCmdOdoSetRejection(&m_comHandle, &rejection);
+    ROS_INFO("SBG DRIVER - [Param] odom reject mode");
     return true;
   }
   return false;
@@ -620,6 +629,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_status){
     pConf = (SbgEComOutputMode) m_log_status;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_STATUS, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log status");
     change = true;
   }
 
@@ -627,6 +637,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_utc_time){
     pConf = (SbgEComOutputMode) m_log_utc_time;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_UTC_TIME, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log utc");
     change = true;
   }
 
@@ -634,48 +645,55 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_imu_data){
     pConf = (SbgEComOutputMode) m_log_imu_data;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA, pConf);
-    change = true;
-  }
-
-  sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG,&pConf);
-  if(pConf != m_log_ekf_euler){
-    pConf = (SbgEComOutputMode) m_log_ekf_euler;
-    sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG, pConf);
-    change = true;
-  }
-
-  sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG_CALIB,&pConf);
-  if(pConf != m_log_ekf_quat){
-    pConf = (SbgEComOutputMode) m_log_ekf_quat;
-    sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG_CALIB, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log imu data");
     change = true;
   }
 
   sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_EULER,&pConf);
-  if(pConf != m_log_ekf_nav){
-    pConf = (SbgEComOutputMode) m_log_ekf_nav;
+  if(pConf != m_log_ekf_euler){
+    pConf = (SbgEComOutputMode) m_log_ekf_euler;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_EULER, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log ekf euler");
     change = true;
   }
 
   sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT,&pConf);
-  if(pConf != m_log_ship_motion){
-    pConf = (SbgEComOutputMode) m_log_ship_motion;
+  if(pConf != m_log_ekf_quat){
+    pConf = (SbgEComOutputMode) m_log_ekf_quat;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_QUAT, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log ekf quat");
     change = true;
   }
 
   sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV,&pConf);
-  if(pConf != m_log_mag){
-    pConf = (SbgEComOutputMode) m_log_mag;
+  if(pConf != m_log_ekf_nav){
+    pConf = (SbgEComOutputMode) m_log_ekf_nav;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EKF_NAV, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log ekf nav");
     change = true;
   }
 
   sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION,&pConf);
+  if(pConf != m_log_ship_motion){
+    pConf = (SbgEComOutputMode) m_log_ship_motion;
+    sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, pConf);
+    ROS_INFO("SBG DRIVER - [Param] ship motion");
+    change = true;
+  }
+
+  sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG,&pConf);
+  if(pConf != m_log_mag){
+    pConf = (SbgEComOutputMode) m_log_mag;
+    sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log mag");
+    change = true;
+  }
+
+  sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG_CALIB,&pConf);
   if(pConf != m_log_mag_calib){
     pConf = (SbgEComOutputMode) m_log_mag_calib;
-    sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_SHIP_MOTION, pConf);
+    sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_MAG_CALIB, pConf);
+    ROS_INFO("SBG DRIVER - [Param] mag calib");
     change = true;
   }
 
@@ -683,6 +701,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_gps1_vel){
     pConf = (SbgEComOutputMode) m_log_gps1_vel;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_VEL, pConf);
+    ROS_INFO("SBG DRIVER - [Param] gps1 vel");
     change = true;
   }
 
@@ -690,6 +709,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_gps1_pos){
     pConf = (SbgEComOutputMode) m_log_gps1_pos;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_POS, pConf);
+    ROS_INFO("SBG DRIVER - [Param] gps1 pos");
     change = true;
   }
 
@@ -697,6 +717,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_gps1_hdt){
     pConf = (SbgEComOutputMode) m_log_gps1_hdt;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_HDT, pConf);
+    ROS_INFO("SBG DRIVER - [Param] gps1 hdt");
     change = true;
   }
 
@@ -704,6 +725,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_gps1_raw){
     pConf = (SbgEComOutputMode) m_log_gps1_raw;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_GPS1_RAW, pConf);
+    ROS_INFO("SBG DRIVER - [Param] gps1 raw");
     change = true;
   }
 
@@ -711,6 +733,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_odo_vel){
     pConf = (SbgEComOutputMode) m_log_odo_vel;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_ODO_VEL, pConf);
+    ROS_INFO("SBG DRIVER - [Param] odo vel");
     change = true;
   }
 
@@ -718,6 +741,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_event_a){
     pConf = (SbgEComOutputMode) m_log_event_a;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_A, pConf);
+    ROS_INFO("SBG DRIVER - [Param] event a");
     change = true;
   }
 
@@ -725,6 +749,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_event_b){
     pConf = (SbgEComOutputMode) m_log_event_b;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_B, pConf);
+    ROS_INFO("SBG DRIVER - [Param] event b");
     change = true;
   }
 
@@ -732,6 +757,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_event_c){
     pConf = (SbgEComOutputMode) m_log_event_c;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_C, pConf);
+    ROS_INFO("SBG DRIVER - [Param] event c");
     change = true;
   }
 
@@ -739,6 +765,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_event_d){
     pConf = (SbgEComOutputMode) m_log_event_d;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_D, pConf);
+    ROS_INFO("SBG DRIVER - [Param] event d");
     change = true;
   }
 
@@ -746,6 +773,7 @@ bool Ellipse::set_cmd_output(){
   if(pConf != m_log_pressure){
     pConf = (SbgEComOutputMode) m_log_pressure;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_PRESSURE, pConf);
+    ROS_INFO("SBG DRIVER - [Param] log pressure");
     change = true;
   }
 
@@ -759,6 +787,9 @@ bool Ellipse::start_mag_calibration(){
     ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));
     return false;
   }else{
+    ROS_INFO("SBG DRIVER - MAG CALIBRATION Start calibration");
+    ROS_INFO("SBG DRIVER - MAG CALIBRATION mode : %d", m_magnetic_calibration_mode);
+    ROS_INFO("SBG DRIVER - MAG CALIBRATION bandwidth : %d", m_magnetic_calibration_bandwidth);
     return true;
   }
 }
@@ -778,20 +809,20 @@ bool Ellipse::end_mag_calibration(){
   if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_NOT_ENOUGH_POINTS)
     ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough valid points. Maybe you are moving too fast");
   if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_TOO_MUCH_DISTORTIONS)
-      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Unable to find a calibration solution. Maybe there are too much non static distortions");
+    ROS_WARN("SBG DRIVER - MAG CALIBRATION - Unable to find a calibration solution. Maybe there are too much non static distortions");
   if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_ALIGNMENT_ISSUE)
-      ROS_WARN("SBG DRIVER - MAG CALIBRATION - The magnetic calibration has troubles to correct the magnetometers and inertial frame alignment");
+    ROS_WARN("SBG DRIVER - MAG CALIBRATION - The magnetic calibration has troubles to correct the magnetometers and inertial frame alignment");
   if(m_magnetic_calibration_mode == SBG_ECOM_MAG_CALIB_MODE_2D){
-      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
-        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much roll motion for a 2D magnetic calibration");
-      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
-        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much pitch motion for a 2D magnetic calibration");
+    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
+      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much roll motion for a 2D magnetic calibration");
+    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
+      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much pitch motion for a 2D magnetic calibration");
   }
   else{
-      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
-        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough roll motion for a 3D magnetic calibration");
-      if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
-        ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough pitch motion for a 3D magnetic calibration.");
+    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
+      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough roll motion for a 3D magnetic calibration");
+    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
+      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough pitch motion for a 3D magnetic calibration.");
   }
   if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Z_MOTION_ISSUE)
     ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough yaw motion to compute a valid magnetic calibration");
@@ -823,6 +854,8 @@ bool Ellipse::end_mag_calibration(){
   save_file << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;
   save_file << m_magCalibResults.matrix[6] << "\t" << m_magCalibResults.matrix[7] << "\t" << m_magCalibResults.matrix[8] << endl;
   save_file.close();
+  const std::string tmp = oss.str();
+  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Saving data to %s", tmp.c_str());
 
   return true;
 }

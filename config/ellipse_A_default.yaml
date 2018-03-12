@@ -86,7 +86,7 @@ aidingAssignment:
   # 2 Module connected on PORT_C
   # 3 Module connected on PORT_D
   # 5 Module is connected internally
-  gnss1ModulePortAssignment: 1
+  gnss1ModulePortAssignment: 255
   # GNSS module sync assignment:
   # 0 Module is disabled
   # 1 Synchronization is done using SYNC_IN_A pin
@@ -97,7 +97,7 @@ aidingAssignment:
   # 6 Synchronization is done using SYNC_OUT_A pin
   # 7 Synchronization is done using SYNC_OUT_B pin
   gnss1ModuleSyncAssignment: 0
-  # RTCM input port assignment for Ellipse-N DGPS (see gnss1ModulePortAssignment for values)
+  # RTCM input port assignment for Ellipse-N DGPS
   rtcmPortAssignment: 255
   # Odometer module pin assignment
   # 0 Odometer is disabled
@@ -229,7 +229,7 @@ output:
   # Includes the 4 quaternions values
   log_ekf_quat: 0
   # Position and velocities in NED coordinates with the accuracies on each axis
-  log_ekf_nav: 8
+  log_ekf_nav: 0
   # Heave, surge and sway and accelerations on each axis for up to 4 points
   log_ship_motion: 8
   # Provides UTC time reference
@@ -239,13 +239,13 @@ output:
   # Magnetometer calibration data (raw buffer)
   log_mag_calib: 0
   # GPS velocities from primary or secondary GPS receiver
-  log_gps1_vel: 10001
+  log_gps1_vel: 0
   # GPS positions from primary or secondary GPS receiver
-  log_gps1_pos: 10001
+  log_gps1_pos: 0
   # GPS true heading from dual antenna system
-  log_gps1_hdt: 10001
+  log_gps1_hdt: 0
   # GPS 1 raw data for post processing.
-  log_gps1_raw: 10001
+  log_gps1_raw: 0
   # Provides odometer velocity
   log_odo_vel: 0
   # Event A/B/C/D Event markers sent when events are detected on a sync in pin
@@ -254,7 +254,7 @@ output:
   log_event_c: 0
   log_event_d: 0
   # Barometric altimeter output
-  log_pressure: 8
+  log_pressure: 0
 
   # Node frequency (Hz) (if set to 0, the node will decide the most appropriate frequency to run)
   frequency: 0
