@@ -1,13 +1,9 @@
-﻿^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package sbg_ros_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Forthcoming
 -----------
-* [CMake] Correction of message dependency
-* updated sbgECom library
-* Contributors: Thomas Le Mézo
-
 * Major update of the driver
 * Implement log message from SBG Ellipse
 * Startup configuration
