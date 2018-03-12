@@ -8,7 +8,7 @@ Forthcoming
 * Implement log message from SBG Ellipse
 * Startup configuration
 * Magnetic calibration
-* Contributors: Thomas Le Mézo
+* Contributors: Thomas Le Mezo
 
 1.0.6 (2017-03-31)
 ------------------
@@ -20,4 +20,4 @@ Forthcoming
 ------------------
 * First realease of SBG ROS Driver
 * Publish sensor_msgs::NavSatFix and sensor_msgs::Imu messages at 25Hz
-* Contributors: Thomas Le Mézo
+* Contributors: Thomas Le Mezo
