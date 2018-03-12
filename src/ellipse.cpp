@@ -2,6 +2,7 @@
 #include "ellipse_msg.h"
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <ctime>
 
