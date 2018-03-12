@@ -160,6 +160,9 @@ add_executable(mag_calibration_ellipse
   src/ellipse_msg.cpp
 )
 
+add_dependencies(ellipse ${sbg_driver_EXPORTED_TARGETS})
+add_dependencies(mag_calibration_ellipse ${sbg_driver_EXPORTED_TARGETS})
+
 target_compile_options(ellipse PRIVATE -fpermissive)
 target_compile_options(mag_calibration_ellipse PRIVATE -fpermissive)
 
