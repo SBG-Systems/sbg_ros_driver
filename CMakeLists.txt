@@ -213,13 +213,13 @@ target_link_libraries(ellipse_mag
  )
 
 # Mark other files for installation (e.g. launch and bag files, etc.)
- install(FILES
-   launch/calibration_sbg_ellipse.launch
-   launch/sbg_ellipse.launch
-   config/ellipse_E_default.yaml
-   config/ellipse_A_default.yaml
-   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
- )
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  PATTERN ".git" EXCLUDE)
+
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+  PATTERN ".git" EXCLUDE)
 
 #############
 ## Testing ##
