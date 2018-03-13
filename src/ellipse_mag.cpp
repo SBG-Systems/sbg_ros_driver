@@ -28,6 +28,7 @@ bool calibration_save(std_srvs::Trigger::Request  &req,
   if(one_calibration_done){
     res.success = e_ref->save_mag_calibration();
     res.message = "Calibration saved";
+    e_ref->save_config();
   }
   else{
     res.success = false;

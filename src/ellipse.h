@@ -25,6 +25,7 @@ class Ellipse
     void connect();
     void load_param();
     void configure();
+    void save_config();
 
     bool start_mag_calibration();
     bool end_mag_calibration();

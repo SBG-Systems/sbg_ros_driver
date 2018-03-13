@@ -97,13 +97,17 @@ void Ellipse::configure(){
 
   if(change){
     // // SAVE AND REBOOT
-    ROS_INFO("SBG DRIVER - The configuration of the Ellipse was updated according to the configuration file");
+    save_config();
+  }
+}
+
+void Ellipse::save_config(){
+  ROS_INFO("SBG DRIVER - The configuration of the Ellipse was updated according to the configuration file");
     SbgErrorCode errorCode = sbgEComCmdSettingsAction(&m_comHandle, SBG_ECOM_SAVE_SETTINGS);
     if (errorCode != SBG_NO_ERROR)
       ROS_WARN("SBG DRIVER - sbgEComCmdSettingsAction (Saving) Error : %s", sbgErrorCodeToString(errorCode));
     else
       ROS_INFO("SBG DRIVER - SAVED & REBOOT");
-  }
 }
 
 void Ellipse::load_param(){
