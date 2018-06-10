@@ -6,7 +6,25 @@
 #include <fstream>
 #include <ctime>
 
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/xtime.hpp>
+#include <boost/date_time/local_time/local_time.hpp>
+
 using namespace std;
+
+// From ros_com/recorder
+std::string timeToStr(ros::WallTime ros_t){
+    (void)ros_t;
+    std::stringstream msg;
+    const boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    boost::posix_time::time_facet *const f = new boost::posix_time::time_facet("%Y-%m-%d-%H-%M-%S");
+    msg.imbue(std::locale(msg.getloc(),f));
+    msg << now;
+    return msg.str();
+}
 
 Ellipse::Ellipse(ros::NodeHandle *n){
   m_node = n;
@@ -843,10 +861,10 @@ bool Ellipse::end_mag_calibration(){
 
   /// ************* Save matrix to a file ************* //
 
-  auto t = std::time(nullptr);
-  auto tm = *std::localtime(&t);
   ostringstream oss;
-  oss << std::put_time(&tm, "mag_calib_%Y_%m_%d-%Hh%Mmin%Ss.txt");
+  oss << "mag_calib";
+  oss << timeToStr(ros::WallTime::now());
+  oss << ".txt";
 
   ofstream save_file;
   save_file.open(oss.str());

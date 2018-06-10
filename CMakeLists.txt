@@ -133,7 +133,7 @@ catkin_package(
 add_subdirectory(sbgECom)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/src
+  ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/sbgECom/common
   ${PROJECT_SOURCE_DIR}/sbgECom/src
 )
