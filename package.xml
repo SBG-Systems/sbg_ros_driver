@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>sbg_driver</name>
-  <version>1.1.6</version>
+  <version>1.1.7</version>
   <description>The SBG ROS Driver package</description>
   <maintainer email="thomas.le_mezo@ensta-bretagne.org">Thomas Le Mézo</maintainer>
   <url>http://wiki.ros.org/sbg_driver</url>
