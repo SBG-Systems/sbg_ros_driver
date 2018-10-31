@@ -14,14 +14,14 @@ uint16 status
 # GPS Time of Week ms
 uint32 tow
 
-# True heading angle (0 to 360°). °
+# True heading angle (0 to 360 deg).
 float32 true_heading
 
-# 1 σ True heading estimated accuracy (0 to 360°). °
+# 1 σ True heading estimated accuracy (0 to 360 deg).
 float32 true_heading_acc
 
-# Pitch angle from the master to the rover °
+# Pitch angle from the master to the rover
 float32 pitch
 
-# 1 σ pitch estimated accuracy °
+# 1 σ pitch estimated accuracy
 float32 pitch_acc

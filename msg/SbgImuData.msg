@@ -13,7 +13,7 @@ geometry_msgs/Vector3 accel
 # Filtered Gyroscope – X, Y, Z axis rad/s 
 geometry_msgs/Vector3 gyro
 
-# Internal Temperature °C 
+# Internal Temperature degC 
 float32 temp
 
 # Sculling output – X, Y, Z axis m/s2 

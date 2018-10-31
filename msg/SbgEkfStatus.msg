@@ -9,10 +9,10 @@
 # 4 NAV_POSITION	Nominal mode, the Kalman filter computes all parameters (attitude, velocity, position). Absolute position is provided. 
 uint8 solution_mode 
 
-# True if Attitude data is reliable (Roll/Pitch error < 0,5°)
+# True if Attitude data is reliable (Roll/Pitch error < 0,5 deg)
 bool attitude_valid
 
-# True if Heading data is reliable (Heading error < 1°)
+# True if Heading data is reliable (Heading error < 1 deg)
 bool heading_valid
 
 # True if Velocity data is reliable (velocity error < 1.5 m/s)
