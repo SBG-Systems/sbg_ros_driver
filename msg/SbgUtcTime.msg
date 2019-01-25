@@ -1,7 +1,7 @@
 # SBG Ellipse Messages
 Header header
 
-# Time since sensor is powered up (µs)
+# Time since sensor is powered up (us)
 uint32 time_stamp
 
 # General UTC time and clock sync status

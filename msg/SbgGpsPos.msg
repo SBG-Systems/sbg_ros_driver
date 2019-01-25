@@ -1,7 +1,7 @@
 # SBG Ellipse Messages
 Header header
 
-#  Time since sensor is powered up μs 
+#  Time since sensor is powered up us 
 uint32 time_stamp
 
 # GPS position fix and status bitmask
@@ -13,7 +13,7 @@ uint32 gps_tow
 # [Latitude (positive North deg), Longitude (positive East deg), Altitude (Above Mean Sea Level m)]
 geometry_msgs/Vector3 position
 
-# Altitude difference between the geoid and the Ellipsoid (WGS-84 Altitude – MSL Altitude)
+# Altitude difference between the geoid and the Ellipsoid (WGS-84 Altitude - MSL Altitude)
 # (Height above Ellipsoid = altitude + undulation)
 float32 undulation
 
