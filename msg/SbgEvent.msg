@@ -1,7 +1,7 @@
 # SBG Ellipse Messages
 Header header
 
-# Time since sensor is powered up μs 
+# Time since sensor is powered up us 
 uint32 time_stamp
 
 # True if we have received events at a higher rate than 1 kHz.
