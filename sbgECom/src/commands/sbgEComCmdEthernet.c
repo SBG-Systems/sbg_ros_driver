@@ -1,5 +1,6 @@
 #include "sbgEComCmdEthernet.h"
 #include <streamBuffer/sbgStreamBuffer.h>
+
 //----------------------------------------------------------------------//
 //- Private methods declarations                                       -//
 //----------------------------------------------------------------------//
@@ -10,13 +11,13 @@
  * \param[in]	pEthernetConf					Structure used to hold the parameters to write to the payload buffer.
  * \return										SBG_NO_ERROR if the structure has been written correctly.
  */
-SbgErrorCode sbgEComEthernetConfWrite(SbgStreamBuffer *pOutputStream, const SbgEComEthernetConf *pEthernetConf)
+static SbgErrorCode sbgEComEthernetConfWrite(SbgStreamBuffer *pOutputStream, const SbgEComEthernetConf *pEthernetConf)
 {
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pEthernetConf);
+	assert(pOutputStream);
+	assert(pEthernetConf);
 
 	//
 	// Build payload
@@ -40,13 +41,13 @@ SbgErrorCode sbgEComEthernetConfWrite(SbgStreamBuffer *pOutputStream, const SbgE
  * \param[out]	pEthernetConf					Structure used to store the parsed parameters.
  * \return										SBG_NO_ERROR if the structure has been parsed correctly.
  */
-SbgErrorCode sbgEComEthernetConfParse(SbgStreamBuffer *pInputStream, SbgEComEthernetConf *pEthernetConf)
+static SbgErrorCode sbgEComEthernetConfParse(SbgStreamBuffer *pInputStream, SbgEComEthernetConf *pEthernetConf)
 {
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pEthernetConf);
+	assert(pInputStream);
+	assert(pEthernetConf);
 
 	//
 	// Read all parameters from the payload
@@ -87,8 +88,8 @@ SbgErrorCode sbgEComEthernetGetConf(SbgEComHandle *pHandle, SbgEComEthernetConf 
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pEthernetConf);
+	assert(pHandle);
+	assert(pEthernetConf);
 
 	//
 	// Send the command three times
@@ -159,8 +160,8 @@ SbgErrorCode sbgEComEthernetSetConf(SbgEComHandle *pHandle, const SbgEComEtherne
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pEthernetConf);
+	assert(pHandle);
+	assert(pEthernetConf);
 		
 	//
 	// Send the command three times
@@ -237,8 +238,8 @@ SbgErrorCode sbgEComEthernetInfo(SbgEComHandle *pHandle, SbgEComEthernetConf *pE
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pEthernetConf);
+	assert(pHandle);
+	assert(pEthernetConf);
 
 	//
 	// Send the command three times

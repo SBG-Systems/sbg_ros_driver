@@ -15,8 +15,8 @@ SbgErrorCode sbgEComBinaryLogParseOdometerData(SbgStreamBuffer *pInputStream, Sb
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
+	assert(pInputStream);
+	assert(pOutputData);
 
 	//
 	// Read the frame payload
@@ -43,8 +43,8 @@ SbgErrorCode sbgEComBinaryLogWriteOdometerData(SbgStreamBuffer *pOutputStream, c
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the frame payload

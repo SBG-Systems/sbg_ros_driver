@@ -21,9 +21,9 @@ SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, cons
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pPayload);
-	SBG_ASSERT(payloadSize > 0);
-	SBG_ASSERT(pOutputData);
+	assert(pPayload);
+	assert(payloadSize > 0);
+	assert(pOutputData);
 
 	//
 	// Handle the different classes of messages differently
@@ -41,116 +41,65 @@ SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, cons
 		switch (msg)
 		{
 		case SBG_ECOM_LOG_STATUS:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseStatusData(&inputStream, &pOutputData->statusData);
 			break;
 		case SBG_ECOM_LOG_IMU_DATA:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseImuData(&inputStream, &pOutputData->imuData);
 			break;
+		case SBG_ECOM_LOG_IMU_SHORT:
+			errorCode = sbgEComBinaryLogParseImuShort(&inputStream, &pOutputData->imuShort);
+			break;
 		case SBG_ECOM_LOG_EKF_EULER:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseEkfEulerData(&inputStream, &pOutputData->ekfEulerData);
 			break;
 		case SBG_ECOM_LOG_EKF_QUAT:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseEkfQuatData(&inputStream, &pOutputData->ekfQuatData);
 			break;
 		case SBG_ECOM_LOG_EKF_NAV:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseEkfNavData(&inputStream, &pOutputData->ekfNavData);
 			break;
 		case SBG_ECOM_LOG_SHIP_MOTION:
 		case SBG_ECOM_LOG_SHIP_MOTION_HP:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseShipMotionData(&inputStream, &pOutputData->shipMotionData);
 			break;
 		case SBG_ECOM_LOG_ODO_VEL:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseOdometerData(&inputStream, &pOutputData->odometerData);
 			break;
 		case SBG_ECOM_LOG_UTC_TIME:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseUtcData(&inputStream, &pOutputData->utcData);
 			break;
 		case SBG_ECOM_LOG_GPS1_VEL:
 		case SBG_ECOM_LOG_GPS2_VEL:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseGpsVelData(&inputStream, &pOutputData->gpsVelData);
 			break;
 		case SBG_ECOM_LOG_GPS1_POS:
 		case SBG_ECOM_LOG_GPS2_POS:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseGpsPosData(&inputStream, &pOutputData->gpsPosData);
 			break;
 		case SBG_ECOM_LOG_GPS1_HDT:
 		case SBG_ECOM_LOG_GPS2_HDT:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseGpsHdtData(&inputStream, &pOutputData->gpsHdtData);
 			break;
 		case SBG_ECOM_LOG_GPS1_RAW:
 		case SBG_ECOM_LOG_GPS2_RAW:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseGpsRawData(&inputStream, &pOutputData->gpsRawData);
 			break;
 		case SBG_ECOM_LOG_MAG:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseMagData(&inputStream, &pOutputData->magData);
 			break;
 		case SBG_ECOM_LOG_MAG_CALIB:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseMagCalibData(&inputStream, &pOutputData->magCalibData);
 			break;
 		case SBG_ECOM_LOG_DVL_BOTTOM_TRACK:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseDvlData(&inputStream, &pOutputData->dvlData);
 			break;
 		case SBG_ECOM_LOG_DVL_WATER_TRACK:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseDvlData(&inputStream, &pOutputData->dvlData);
 			break;
 		case SBG_ECOM_LOG_PRESSURE:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParsePressureData(&inputStream, &pOutputData->pressureData);
 			break;
 		case SBG_ECOM_LOG_USBL:
-			//
-			// Parse this binary log
-			//
 			errorCode = sbgEComBinaryLogParseUsblData(&inputStream, &pOutputData->usblData);
 			break;
 		case SBG_ECOM_LOG_EVENT_A:
@@ -158,16 +107,16 @@ SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, cons
 		case SBG_ECOM_LOG_EVENT_C:
 		case SBG_ECOM_LOG_EVENT_D:
 		case SBG_ECOM_LOG_EVENT_E:
-			//
-			// Parse all events markers logs
-			//
 			errorCode = sbgEComBinaryLogParseEvent(&inputStream, &pOutputData->eventMarker);
 			break;
 		case SBG_ECOM_LOG_DEBUG_0:
-			//
-			// Parse this binary log
-			//
-			errorCode = sbgEComBinaryLogParseDebug0Data(&inputStream, &pOutputData->debug0Data);
+		case SBG_ECOM_LOG_DEBUG_1:
+		case SBG_ECOM_LOG_DEBUG_2:
+		case SBG_ECOM_LOG_DEBUG_3:
+			errorCode = sbgEComBinaryLogParseDebugData(&inputStream, &pOutputData->debugData);
+			break;
+		case SBG_ECOM_LOG_IMU_RAW_DATA:
+			errorCode = sbgEComBinaryLogParseImuRawData(&inputStream, &pOutputData->imuRawData);
 			break;
 		default:
 			//

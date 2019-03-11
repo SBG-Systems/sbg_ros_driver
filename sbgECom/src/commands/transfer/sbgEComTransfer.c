@@ -15,7 +15,7 @@
  * \param[in] size						Total size of the upload.
  * \return								SBG_NO_ERROR when the transfer was initiated successfully.
  */
-SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t size)
+static SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t size)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		streamBuffer;
@@ -25,7 +25,7 @@ SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uin
 	//
 	// Check input parameter
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Initialize stream buffer that will contain payload
@@ -81,7 +81,7 @@ SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uin
  * \param[in] packetSize				The size of this packet.
  * \return								SBG_NO_ERROR if the packet was sent and acknowledged by the device.
  */
-SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, size_t offset, size_t packetSize)
+static SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, size_t offset, size_t packetSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		streamBuffer;
@@ -91,9 +91,9 @@ SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uin
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pBuffer);
-	SBG_ASSERT(packetSize > 0);
+	assert(pHandle);
+	assert(pBuffer);
+	assert(packetSize > 0);
 
 	//
 	// Initialize stream buffer for output
@@ -147,7 +147,7 @@ SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uin
  * \param[in] msg						Original protocol message id asking for transfer.
  * \return								SBG_NO_ERROR when the transfer ended successfully.
  */
-SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg)
+static SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
@@ -157,7 +157,7 @@ SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClass, uint
 	//
 	// Check input parameter
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 	
 	//
 	// Initialize stream buffer for output
@@ -210,7 +210,7 @@ SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClass, uint
  * \param[out] pSize					Size of the transfer initiated, returned from the device.
  * \return								SBG_NO_ERROR when the transfer initiated successfully.
  */
-SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t *pSize)
+static SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t *pSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
@@ -227,7 +227,7 @@ SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, 
 	//
 	// Check input parameter
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Initialize stream buffer for output
@@ -323,7 +323,7 @@ SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, 
  * \param[in] packetSize				The size of the data asked to the device.
  * \return								SBG_NO_ERROR if the packet was successfully received.
  */
-SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, size_t offset, size_t packetSize)
+static SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, size_t offset, size_t packetSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
@@ -340,9 +340,9 @@ SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, 
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pBuffer);
-	SBG_ASSERT(packetSize > 0);
+	assert(pHandle);
+	assert(pBuffer);
+	assert(packetSize > 0);
 
 	//
 	// Initialize stream buffer for output
@@ -431,7 +431,7 @@ SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, 
  * \param[in] msg						Original protocol message id asking for transfer.
  * \return								SBG_NO_ERROR when the transfer ended successfully.
  */
-SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg)
+static SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
@@ -441,7 +441,7 @@ SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8 msgClass, u
 	//
 	// Check input parameter
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 	
 	//
 	// Initialize stream buffer for output
@@ -508,9 +508,9 @@ SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 m
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pBuffer);
-	SBG_ASSERT(size > 0);
+	assert(pHandle);
+	assert(pBuffer);
+	assert(size > 0);
 
 	//
 	// Make sure we are not trying to send a buffer that is too large
@@ -597,10 +597,10 @@ SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8 msgClass, uint
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pBuffer);
-	SBG_ASSERT(pActualSize);
-	SBG_ASSERT(bufferSize > 0);
+	assert(pHandle);
+	assert(pBuffer);
+	assert(pActualSize);
+	assert(bufferSize > 0);
 
 	//
 	// initiate data transfer

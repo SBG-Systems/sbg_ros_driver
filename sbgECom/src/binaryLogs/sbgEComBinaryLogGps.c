@@ -15,8 +15,8 @@ SbgErrorCode sbgEComBinaryLogParseGpsVelData(SbgStreamBuffer *pInputStream, SbgL
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
+	assert(pInputStream);
+	assert(pOutputData);
 
 	//
 	// Read the frame payload
@@ -50,8 +50,8 @@ SbgErrorCode sbgEComBinaryLogWriteGpsVelData(SbgStreamBuffer *pOutputStream, con
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the frame payload
@@ -84,8 +84,8 @@ SbgErrorCode sbgEComBinaryLogParseGpsPosData(SbgStreamBuffer *pInputStream, SbgL
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
+	assert(pInputStream);
+	assert(pOutputData);
 
 	//
 	// Read the frame payload
@@ -140,8 +140,8 @@ SbgErrorCode sbgEComBinaryLogWriteGpsPosData(SbgStreamBuffer *pOutputStream, con
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the frame payload
@@ -184,8 +184,8 @@ SbgErrorCode sbgEComBinaryLogParseGpsHdtData(SbgStreamBuffer *pInputStream, SbgL
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
+	assert(pInputStream);
+	assert(pOutputData);
 
 	//
 	// Read the frame payload
@@ -215,8 +215,8 @@ SbgErrorCode sbgEComBinaryLogWriteGpsHdtData(SbgStreamBuffer *pOutputStream, con
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the frame payload
@@ -249,8 +249,8 @@ SbgErrorCode sbgEComBinaryLogParseGpsRawData(SbgStreamBuffer *pInputStream, SbgL
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
+	assert(pInputStream);
+	assert(pOutputData);
 
 	//
 	// This buffer is different from other because only a variable size raw buffer is stored
@@ -293,8 +293,8 @@ SbgErrorCode sbgEComBinaryLogWriteGpsRawData(SbgStreamBuffer *pOutputStream, con
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the buffer and return if any error has occurred

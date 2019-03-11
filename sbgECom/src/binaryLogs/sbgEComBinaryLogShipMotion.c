@@ -15,8 +15,8 @@ SbgErrorCode sbgEComBinaryLogParseShipMotionData(SbgStreamBuffer *pInputStream, 
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
+	assert(pInputStream);
+	assert(pOutputData);
 
 	//
 	// Read the frame payload
@@ -85,8 +85,8 @@ SbgErrorCode sbgEComBinaryLogWriteShipMotionData(SbgStreamBuffer *pOutputStream,
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the frame payload

@@ -3,9 +3,13 @@
 
 #include "ros/ros.h"
 #include "ellipse_msg.h"
+
+extern "C"
+{
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
 #include <sbgErrorCodes.h>
+}
 
 #include <iostream>
 #include <map>
@@ -69,6 +73,7 @@ class Ellipse
     sbg_driver::SbgEvent m_sbgEventB_msg;
     sbg_driver::SbgEvent m_sbgEventC_msg;
     sbg_driver::SbgEvent m_sbgEventD_msg;
+    sbg_driver::SbgEvent m_sbgEventE_msg;
     sbg_driver::SbgPressure m_sbgPressure_msg;
 
   public:
@@ -90,6 +95,7 @@ class Ellipse
     bool m_new_sbgEventB;
     bool m_new_sbgEventC;
     bool m_new_sbgEventD;
+    bool m_new_sbgEventE;
     bool m_new_sbgPressure;
 
     int m_rate_frequency;
@@ -113,6 +119,7 @@ class Ellipse
     ros::Publisher m_sbgEventB_pub;
     ros::Publisher m_sbgEventC_pub;
     ros::Publisher m_sbgEventD_pub;
+    ros::Publisher m_sbgEventE_pub;
     ros::Publisher m_sbgPressure_pub;
 
     // *************** SBG TOOLS *************** //
@@ -189,6 +196,7 @@ class Ellipse
     int m_log_event_b;
     int m_log_event_c;
     int m_log_event_d;
+    int m_log_event_e;
     int m_log_pressure;
 
     int m_magnetic_calibration_mode;

@@ -71,8 +71,8 @@
 #define SBG_ECOM_ETH4_VALID					(0x00000001u << 19)		/*!< Set to 0 in case of error on ETH4. */
 
 #define SBG_ECOM_CAN_VALID					(0x00000001u << 25)		/*!< Set to 0 in case of low level communication error. */
-#define SBG_ECOM_CAN_RX_OK					(0x00000001u << 26)		/*!< Set to 0 in case of error on CAN Bus output buffer. */
-#define SBG_ECOM_CAN_TX_OK					(0x00000001u << 27)		/*!< Set to 0 in case of error on CAN Bus input buffer. */
+#define SBG_ECOM_CAN_RX_OK					(0x00000001u << 26)		/*!< Set to 0 in case of error on CAN Bus input buffer. */
+#define SBG_ECOM_CAN_TX_OK					(0x00000001u << 27)		/*!< Set to 0 in case of error on CAN Bus output buffer. */
 
 /*!
  * Communication status for the CAN Bus.

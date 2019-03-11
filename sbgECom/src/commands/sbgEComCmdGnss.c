@@ -5,13 +5,14 @@
 //----------------------------------------------------------------------//
 //- GNSS private commands                                              -//
 //----------------------------------------------------------------------//
+
 /*!
  *	Set GNSS error model id.
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[in]	id							Model ID to set
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGnssSetModelId(SbgEComHandle *pHandle, uint32 id, SbgEComCmd cmdId)
+static SbgErrorCode sbgEComCmdGnssSetModelId(SbgEComHandle *pHandle, uint32 id, SbgEComCmd cmdId)
 {
 	//
 	// Call generic function with specific command name
@@ -25,7 +26,7 @@ SbgErrorCode sbgEComCmdGnssSetModelId(SbgEComHandle *pHandle, uint32 id, SbgECom
  *	\param[out]	pMotionProfileInfo			Pointer to a SbgEComModelInfo to contain the current GNSS error model info.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGnssGetModelInfo(SbgEComHandle *pHandle, SbgEComModelInfo *pModelInfo, SbgEComCmd cmdId)
+static SbgErrorCode sbgEComCmdGnssGetModelInfo(SbgEComHandle *pHandle, SbgEComModelInfo *pModelInfo, SbgEComCmd cmdId)
 {
 	//
 	// Call generic function with specific command name
@@ -42,7 +43,7 @@ SbgErrorCode sbgEComCmdGnssGetModelInfo(SbgEComHandle *pHandle, SbgEComModelInfo
  *	\param[in]	size						Size of the buffer.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGnssSetModel(SbgEComHandle *pHandle, const void *pBuffer, uint32 size, SbgEComCmd cmdId)
+static SbgErrorCode sbgEComCmdGnssSetModel(SbgEComHandle *pHandle, const void *pBuffer, uint32 size, SbgEComCmd cmdId)
 {
 	//
 	// Call function that handle data transfer
@@ -57,7 +58,7 @@ SbgErrorCode sbgEComCmdGnssSetModel(SbgEComHandle *pHandle, const void *pBuffer,
  *	\param[in]	cmdId						Command to send. Can be used to configure either GNSS 1 or 2
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGnssGetLeverArmAlignment(SbgEComHandle *pHandle, SbgEComGnssAlignmentInfo *pAlignConf, SbgEComCmd cmdId)
+static SbgErrorCode sbgEComCmdGnssGetLeverArmAlignment(SbgEComHandle *pHandle, SbgEComGnssAlignmentInfo *pAlignConf, SbgEComCmd cmdId)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
@@ -143,7 +144,7 @@ SbgErrorCode sbgEComCmdGnssGetLeverArmAlignment(SbgEComHandle *pHandle, SbgEComG
  *	\param[in]	cmdId						Command to send. Can be used to configure either GNSS 1 or 2
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGnssSetLeverArmAlignment(SbgEComHandle *pHandle, const SbgEComGnssAlignmentInfo *pAlignConf, SbgEComCmd cmdId)
+static SbgErrorCode sbgEComCmdGnssSetLeverArmAlignment(SbgEComHandle *pHandle, const SbgEComGnssAlignmentInfo *pAlignConf, SbgEComCmd cmdId)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
@@ -228,7 +229,7 @@ SbgErrorCode sbgEComCmdGnssSetLeverArmAlignment(SbgEComHandle *pHandle, const Sb
  *	\param[in]	cmdId						Command to send. Can be used to configure either GNSS 1 or 2
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGnssGetRejection(SbgEComHandle *pHandle, SbgEComGnssRejectionConf *pRejectConf, SbgEComCmd cmdId)
+static SbgErrorCode sbgEComCmdGnssGetRejection(SbgEComHandle *pHandle, SbgEComGnssRejectionConf *pRejectConf, SbgEComCmd cmdId)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
@@ -312,7 +313,7 @@ SbgErrorCode sbgEComCmdGnssGetRejection(SbgEComHandle *pHandle, SbgEComGnssRejec
  *	\param[in]	cmdId						Command to send. Can be used to configure either GNSS 1 or 2
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGnssSetRejection(SbgEComHandle *pHandle, const SbgEComGnssRejectionConf *pRejectConf, SbgEComCmd cmdId)
+static SbgErrorCode sbgEComCmdGnssSetRejection(SbgEComHandle *pHandle, const SbgEComGnssRejectionConf *pRejectConf, SbgEComCmd cmdId)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;

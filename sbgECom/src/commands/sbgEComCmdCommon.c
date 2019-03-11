@@ -312,7 +312,7 @@ SbgErrorCode sbgEComWaitForAck(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Try to receive the ACK
@@ -384,7 +384,7 @@ SbgErrorCode sbgEComSendAck(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, S
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Initialize a stream buffer to write the command payload

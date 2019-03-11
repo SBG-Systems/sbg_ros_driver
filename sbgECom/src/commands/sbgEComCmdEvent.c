@@ -186,7 +186,6 @@ SbgErrorCode sbgEComCmdSyncOutGetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 	uint32				trial;
 	size_t				receivedSize;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
-	uint8				reserved;
 	SbgStreamBuffer		inputStream;
 	uint8				outputBuffer;
 
@@ -231,7 +230,7 @@ SbgErrorCode sbgEComCmdSyncOutGetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 					// First is returned the id of the sync, then a reserved field, the output function, polarity and the duration at last.
 					//
 					syncOutId = (SbgEComSyncOutId)sbgStreamBufferReadUint8LE(&inputStream);
-					reserved = sbgStreamBufferReadUint8LE(&inputStream);
+					sbgStreamBufferReadUint8LE(&inputStream);
 					pConf->outputFunction = (SbgEComSyncOutFunction)sbgStreamBufferReadUint16LE(&inputStream);
 					pConf->polarity = (SbgEComSyncOutPolarity)sbgStreamBufferReadUint8LE(&inputStream);
 					pConf->duration = sbgStreamBufferReadUint32LE(&inputStream);

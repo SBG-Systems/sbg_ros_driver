@@ -28,6 +28,7 @@
 #include "sbgEComBinaryLogEvent.h"
 #include "sbgEComBinaryLogGps.h"
 #include "sbgEComBinaryLogImu.h"
+#include "sbgEComBinaryLogImuRaw.h"
 #include "sbgEComBinaryLogMag.h"
 #include "sbgEComBinaryLogOdometer.h"
 #include "sbgEComBinaryLogPressure.h"
@@ -47,6 +48,7 @@ typedef union _SbgBinaryLogData
 {
 	SbgLogStatusData		statusData;			/*!< Stores data for the SBG_ECOM_LOG_STATUS message. */
 	SbgLogImuData			imuData;			/*!< Stores data for the SBG_ECOM_LOG_IMU_DATA message. */
+	SbgLogImuShort			imuShort;			/*!< Stores data for the SBG_ECOM_LOG_IMU_SHORT message. */
 	SbgLogEkfEulerData		ekfEulerData;		/*!< Stores data for the SBG_ECOM_LOG_EKF_EULER message. */
 	SbgLogEkfQuatData		ekfQuatData;		/*!< Stores data for the SBG_ECOM_LOG_EKF_QUAT message. */
 	SbgLogEkfNavData		ekfNavData;			/*!< Stores data for the SBG_ECOM_LOG_EKF_NAV message. */
@@ -63,7 +65,8 @@ typedef union _SbgBinaryLogData
 	SbgLogPressureData		pressureData;		/*!< Stores data for the SBG_ECOM_LOG_PRESSURE message. */
 	SbgLogUsblData			usblData;			/*!< Stores data for the SBG_ECOM_LOG_USBL message. */
 	SbgLogEvent				eventMarker;		/*!< Stores data for the SBG_ECOM_LOG_EVENT_# message. */
-	SbgLogDebug0Data		debug0Data;			/*!< Stores debug information */
+	SbgLogDebugData			debugData;			/*!< Stores debug information */
+	SbgLogImuRawData		imuRawData;			/*!< Stores data for the SBG_ECOM_LOG_IMU_RAW_DATA message. */
 	SbgLogFastImuData		fastImuData;		/*!< Stores Fast Imu Data for 1KHz output */
 } SbgBinaryLogData;
 

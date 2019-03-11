@@ -1,5 +1,6 @@
 #include "sbgECom.h"
 #include "sbgEComVersion.h"
+#include <version/sbgVersion.h>
 #include <streamBuffer/sbgStreamBuffer.h>
 #include "commands/sbgEComCmdCommon.h"
 
@@ -97,7 +98,7 @@ SbgErrorCode sbgEComHandleOneLog(SbgEComHandle *pHandle)
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Try to read a received frame
@@ -180,7 +181,7 @@ SbgErrorCode sbgEComHandle(SbgEComHandle *pHandle)
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Try to read all received frames, we thus loop until we get an SBG_NOT_READY error
@@ -267,9 +268,9 @@ void sbgEComSetCmdTrialsAndTimeOut(SbgEComHandle *pHandle, uint32 numTrials, uin
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(numTrials > 0);
-	SBG_ASSERT(cmdDefaultTimeOut > 0);
+	assert(pHandle);
+	assert(numTrials > 0);
+	assert(cmdDefaultTimeOut > 0);
 
 	//
 	// Define the new settings

@@ -15,8 +15,8 @@ SbgErrorCode sbgEComBinaryLogParseUsblData(SbgStreamBuffer *pInputStream, SbgLog
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
+	assert(pInputStream);
+	assert(pOutputData);
 
 	//
 	// Read the frame payload
@@ -50,8 +50,8 @@ SbgErrorCode sbgEComBinaryLogWriteUsblData(SbgStreamBuffer *pOutputStream, const
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the frame payload

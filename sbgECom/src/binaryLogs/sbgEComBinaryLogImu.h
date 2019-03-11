@@ -63,6 +63,19 @@ typedef struct _SbgLogImuData
 } SbgLogImuData;
 
 /*!
+ * Structure that stores data for the SBG_ECOM_LOG_IMU_SHORT message.
+ * This message is only sent asynchrounously and is the prefered log for post processing.
+ */
+typedef struct _SbgLogImuShort
+{
+	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16	status;						/*!< IMU status bitmask. */
+	int32	deltaVelocity[3];			/*!< X, Y, Z delta velocity. Unit is 1048576 LSB for 1 m.s^-2. */
+	int32	deltaAngle[3];				/*!< X, Y, Z delta angle. Unit is 67108864 LSB for 1 rad.s^-1. */
+	int16	temperature;				/*!< IMU average temperature. Unit is 256 LSB for 1°C. */
+} SbgLogImuShort;
+
+/*!
  * Structure that stores the data for SBG_ECOM_LOG_FAST_IMU_DATA message
  */
 typedef struct _SbgLogFastImuData
@@ -72,6 +85,33 @@ typedef struct _SbgLogFastImuData
 	float	accelerometers[3];			/*!< X, Y, Z accelerometers in m.s^-2. */
 	float	gyroscopes[3];				/*!< X, Y, Z gyroscopes in rad.s^-1. */
 } SbgLogFastImuData;
+
+//----------------------------------------------------------------------//
+//- Getter / helpers                                                   -//
+//----------------------------------------------------------------------//
+
+/*!
+ * Return from an IMU Short log, the X, Y or Z delta angle value in rad.s^-1
+ * \param[in]	pImuShort					Input IMU short message instance.
+ * \param[in]	idx							The component to return from 0 to 2.
+ * \return									The delta angle value converted in rad.s^-1.
+ */
+float sbgLogImuShortGetDeltaAngle(const SbgLogImuShort *pImuShort, size_t idx);
+
+/*!
+ * Return from an IMU Short log, the X, Y or Z delta velocity value in m.s^-2
+ * \param[in]	pImuShort					Input IMU short message instance.
+ * \param[in]	idx							The component to return from 0 to 2.
+ * \return									The delta velocity value converted in m.s^-2.
+ */
+float sbgLogImuShortGetDeltaVelocity(const SbgLogImuShort *pImuShort, size_t idx);
+
+/*!
+ * Return from an IMU Short log, the temperature in °C
+ * \param[in]	pImuShort					Input IMU short message instance.
+ * \return									The converted temperature in °C
+ */
+float sbgLogImuShortGetTemperature(const SbgLogImuShort *pImuShort);
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -92,6 +132,22 @@ SbgErrorCode sbgEComBinaryLogParseImuData(SbgStreamBuffer *pInputStream, SbgLogI
  * \return									SBG_NO_ERROR if the message has been generated in the provided buffer.
  */
 SbgErrorCode sbgEComBinaryLogWriteImuData(SbgStreamBuffer *pOutputStream, const SbgLogImuData *pInputData);
+
+/*!
+ * Parse data for the SBG_ECOM_LOG_IMU_SHORT message and fill the corresponding structure.
+ * \param[in]	pInputStream				Input stream buffer to read the payload from.
+ * \param[out]	pOutputData					Pointer on the output structure that stores parsed data.
+ * \return									SBG_NO_ERROR if the payload has been parsed.
+ */
+SbgErrorCode sbgEComBinaryLogParseImuShort(SbgStreamBuffer *pInputStream, SbgLogImuShort *pOutputData);
+
+/*!
+ * Write data for the SBG_ECOM_LOG_IMU_SHORT message to the output stream buffer from the provided structure.
+ * \param[out]	pOutputStream				Output stream buffer to write the payload to.
+ * \param[in]	pInputData					Pointer on the input structure that stores data to write.
+ * \return									SBG_NO_ERROR if the message has been generated in the provided buffer.
+ */
+SbgErrorCode sbgEComBinaryLogWriteImuShort(SbgStreamBuffer *pOutputStream, const SbgLogImuShort *pInputData);
 
 /*!
  * Parse data for the SBG_ECOM_LOG_FAST_IMU_DATA message and fill the corresponding structure.

@@ -93,6 +93,8 @@ void Ellipse::init_publishers(){
     m_sbgEventC_pub = m_node->advertise<sbg_driver::SbgEvent>("eventC",10);
   if(m_log_event_d !=0)
     m_sbgEventD_pub = m_node->advertise<sbg_driver::SbgEvent>("eventD",10);
+  if(m_log_event_e !=0)
+    m_sbgEventE_pub = m_node->advertise<sbg_driver::SbgEvent>("eventE",10);
   if(m_log_pressure !=0)
     m_sbgPressure_pub = m_node->advertise<sbg_driver::SbgPressure>("pressure",10);
 }
@@ -198,6 +200,7 @@ void Ellipse::load_param(){
   m_log_event_b = n_private.param<int>("output/log_event_b", 0);
   m_log_event_c = n_private.param<int>("output/log_event_c", 0);
   m_log_event_d = n_private.param<int>("output/log_event_d", 0);
+  m_log_event_e = n_private.param<int>("output/log_event_e", 0);
   m_log_pressure = n_private.param<int>("output/log_pressure", 0);
   m_rate_frequency = n_private.param<int>("output/frequency",0);
 
@@ -223,6 +226,7 @@ void Ellipse::load_param(){
   mod_div.push_back(m_log_event_b);
   mod_div.push_back(m_log_event_c);
   mod_div.push_back(m_log_event_d);
+  mod_div.push_back(m_log_event_e);
   mod_div.push_back(m_log_pressure);
 
   if(m_rate_frequency==0){
@@ -331,6 +335,11 @@ void Ellipse::publish(){
     m_sbgEventD_pub.publish(m_sbgEventD_msg);
   }
 
+  if(m_new_sbgEventE && m_log_event_e != 0){
+    m_new_sbgEventE = false;
+    m_sbgEventE_pub.publish(m_sbgEventE_msg);
+  }
+
   if(m_new_sbgPressure && m_log_pressure != 0){
     m_new_sbgPressure = false;
     m_sbgPressure_pub.publish(m_sbgPressure_msg);
@@ -340,6 +349,7 @@ void Ellipse::publish(){
 
 SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg){
   Ellipse *e = (Ellipse*)pUserArg;
+  if(msgClass == SBG_ECOM_CLASS_LOG_ECOM_0){
   switch (msg){
   case SBG_ECOM_LOG_STATUS:
     read_ecom_log_status(e->m_sbgStatus_msg, pLogData);
@@ -354,6 +364,16 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
   case SBG_ECOM_LOG_IMU_DATA:
     read_ecom_log_imu_data(e->m_sbgImuData_msg, pLogData);
     e->m_new_sbgImuData = true;
+    break;
+
+  case SBG_ECOM_LOG_MAG:
+    read_ecom_log_mag(e->m_sbgMag_msg, pLogData);
+    e->m_new_sbgMag = true;
+    break;
+
+  case SBG_ECOM_LOG_MAG_CALIB:
+    read_ecom_log_mag_calib(e->m_sbgMagCalib_msg, pLogData);
+    e->m_new_sbgMagCalib = true;
     break;
 
   case SBG_ECOM_LOG_EKF_EULER:
@@ -376,16 +396,6 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
     e->m_new_sbgShipMotion = true;
     break;
 
-  case SBG_ECOM_LOG_MAG:
-    read_ecom_log_mag(e->m_sbgMag_msg, pLogData);
-    e->m_new_sbgMag = true;
-    break;
-
-  case SBG_ECOM_LOG_MAG_CALIB:
-    read_ecom_log_mag_calib(e->m_sbgMagCalib_msg, pLogData);
-    e->m_new_sbgMagCalib = true;
-    break;
-
   case SBG_ECOM_LOG_GPS1_VEL:
     read_ecom_log_gps_vel(e->m_sbgGpsVel_msg, pLogData);
     e->m_new_sbgGpsVel = true;
@@ -404,6 +414,26 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
   case SBG_ECOM_LOG_GPS1_RAW:
     read_ecom_log_gps_raw(e->m_sbgGpsRaw_msg, pLogData);
     e->m_new_sbgGpsRaw = true;
+    break;
+
+  case SBG_ECOM_LOG_GPS2_VEL:
+//    read_ecom_log_gps_vel(e->m_sbgGpsVel_msg, pLogData);
+//    e->m_new_sbgGpsVel = true;
+    break;
+
+  case SBG_ECOM_LOG_GPS2_POS:
+//    read_ecom_log_gps_pos(e->m_sbgGpsPos_msg, pLogData);
+//    e->m_new_sbgGpsPos = true;
+    break;
+
+  case SBG_ECOM_LOG_GPS2_HDT:
+//    read_ecom_log_gps_hdt(e->m_sbgGpsHdt_msg, pLogData);
+//    e->m_new_sbgGpsHdt = true;
+    break;
+
+  case SBG_ECOM_LOG_GPS2_RAW:
+//    read_ecom_log_gps_raw(e->m_sbgGpsRaw_msg, pLogData);
+//    e->m_new_sbgGpsRaw = true;
     break;
 
   case SBG_ECOM_LOG_ODO_VEL:
@@ -431,13 +461,73 @@ SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgECo
     e->m_new_sbgEventD = true;
     break;
 
+  case SBG_ECOM_LOG_EVENT_E:
+    read_ecom_log_event(e->m_sbgEventE_msg, pLogData);
+    e->m_new_sbgEventE = true;
+    break;
+
+  case SBG_ECOM_LOG_DVL_BOTTOM_TRACK:
+    // read_ecom_log_dvl_bottom_track(e->m_sbg ,pLogData);
+    // e->m_new_sbgDvl_bottom_track = true;
+    break;
+  case SBG_ECOM_LOG_DVL_WATER_TRACK:
+    // read_ecom_log_dvl_water_track(e->m_sbg ,pLogData);
+    // e->m_new_sbgDvl_water_track = true;
+    break;
+  case SBG_ECOM_LOG_SHIP_MOTION_HP:
+    // read_ecom_log_ship_motion_hp(e->m_sbg ,pLogData);
+    // e->m_new_sbgShip_motion_hp = true;
+    break;
+
   case SBG_ECOM_LOG_PRESSURE:
     read_ecom_log_pressure(e->m_sbgPressure_msg, pLogData);
     e->m_new_sbgPressure = true;
     break;
 
+  case SBG_ECOM_LOG_USBL:
+    // read_ecom_log_usbl(e->m_sbg ,pLogData);
+    // e->m_new_sbgUsbl = true;
+    break;
+  case SBG_ECOM_LOG_DEBUG_0:
+    // read_ecom_log_debug_0(e->m_sbg ,pLogData);
+    // e->m_new_sbgDebug_0 = true;
+    break;
+  case SBG_ECOM_LOG_IMU_RAW_DATA:
+    // read_ecom_log_imu_raw_data(e->m_sbg ,pLogData);
+    // e->m_new_sbgImu_raw_data = true;
+    break;
+  case SBG_ECOM_LOG_DEBUG_1:
+    // read_ecom_log_debug_1(e->m_sbg ,pLogData);
+    // e->m_new_sbgDebug_1 = true;
+    break;
+  case SBG_ECOM_LOG_DEBUG_2:
+    // read_ecom_log_debug_2(e->m_sbg ,pLogData);
+    // e->m_new_sbgDebug_2 = true;
+    break;
+  case SBG_ECOM_LOG_DEBUG_3:
+    // read_ecom_log_debug_3(e->m_sbg ,pLogData);
+    // e->m_new_sbgDebug_3 = true;
+    break;
+  case SBG_ECOM_LOG_IMU_SHORT:
+    // read_ecom_log_imu_short(e->m_sbg ,pLogData);
+    // e->m_new_sbgImu_short = true;
+    break;
+  case SBG_ECOM_LOG_ECOM_NUM_MESSAGES:
+    // read_ecom_log_ecom_num_messages(e->m_sbg ,pLogData);
+    // e->m_new_sbgEcom_num_messages = true;
+    break;
+
   default:
     break;
+  }
+  }
+  else if(msgClass == SBG_ECOM_CLASS_LOG_ECOM_1){
+    switch(msg){
+      case SBG_ECOM_LOG_FAST_IMU_DATA:
+        break;
+      default:
+        break;
+    }
   }
   return SBG_NO_ERROR;
 }
@@ -789,6 +879,14 @@ bool Ellipse::set_cmd_output(){
     pConf = (SbgEComOutputMode) m_log_event_d;
     sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_D, pConf);
     ROS_INFO("SBG DRIVER - [Param] event d");
+    change = true;
+  }
+
+  sbgEComCmdOutputGetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_E,&pConf);
+  if(pConf != m_log_event_e){
+    pConf = (SbgEComOutputMode) m_log_event_e;
+    sbgEComCmdOutputSetConf(&m_comHandle, m_portOutput, SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_E, pConf);
+    ROS_INFO("SBG DRIVER - [Param] event e");
     change = true;
   }
 

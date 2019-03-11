@@ -108,8 +108,14 @@ typedef enum _SbgEComLog
 	SBG_ECOM_LOG_PRESSURE					= 36,		/*!< Pressure sensor such as depth sensor or altimeter. */
 
 	SBG_ECOM_LOG_USBL						= 37,		/*!< Raw USBL position data for subsea navigation. */
-
+	
 	SBG_ECOM_LOG_DEBUG_0					= 39,		/*!< Debug Log. */
+	SBG_ECOM_LOG_IMU_RAW_DATA				= 40,		/*!< Factory only log. */
+	SBG_ECOM_LOG_DEBUG_1					= 41,		/*!< Debug Log. */
+	SBG_ECOM_LOG_DEBUG_2					= 42,		/*!< Debug Log. */
+	SBG_ECOM_LOG_DEBUG_3					= 43,		/*!< Debug Log. */
+
+	SBG_ECOM_LOG_IMU_SHORT					= 44,		/*!< Short IMU message recommended for post processing usages. */
 
 	SBG_ECOM_LOG_ECOM_NUM_MESSAGES						/*!< Helper definition to know the number of ECom messages */
 } SbgEComLog;
@@ -170,6 +176,7 @@ typedef enum _SbgEComIdThirdParty
 	SBG_ECOM_THIRD_PARTY_SIMRAD_3000		= 4,		/*!< Konsberg SimRad 3000 proprietary frame that outputs Roll, Pitch and Heading. */
 		
 	SBG_ECOM_THIRD_PARTY_SEAPATH_B26		= 5,		/*!< Konsberg Seapth Binary Log 26 used for MBES FM mode. */
+	SBG_ECOM_THIRD_PARTY_DOLOG_HRP			= 6,		/*!< DOLOG Heading, Roll, Pitch proprietary and binary message. */
 
 	SBG_ECOM_LOG_THIRD_PARTY_NUM_MESSAGES				/*!< Helper definition to know the number of third party messages */
 } SbgEComIdThirdParty;
@@ -248,6 +255,9 @@ typedef enum _SbgEComCmd
 	SBG_ECOM_CMD_ETHERNET_CONF				= 36,		/*!< Set/get Ethernet configuration such as DHCP mode and IP address. */
 	SBG_ECOM_CMD_ETHERNET_INFO				= 37,		/*!< Return the current IP used by the device. */
 
+	/* Validity thresholds */
+	SBG_ECOM_CMD_VALIDITY_THRESHOLDS		= 38,		/*!< Set/get Validity flag thresholds for position, velocity, attitude and heading */
+
 	/* Misc. */
 	SBG_ECOM_LOG_ECOM_NUM_CMDS							/*!< Helper definition to know the number of commands */
 } SbgEComCmd;
@@ -313,7 +323,7 @@ SBG_INLINE bool sbgEComBinaryLogIsCmdValid(uint16 cmdId)
 	// Test if this command id is part of the enum
 	// TODO Improve that test!!
 	//
-	if ( (cmdId >= SBG_ECOM_LOG_STATUS) && (cmdId <= SBG_ECOM_LOG_DEBUG_0) )
+	if ( (cmdId >= SBG_ECOM_LOG_STATUS) && (cmdId < SBG_ECOM_LOG_ECOM_NUM_MESSAGES) )
 	{
 		return TRUE;
 	}
