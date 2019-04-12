@@ -79,6 +79,8 @@ typedef enum _SbgEComGnssType
 	SBG_ECOM_GNSS_TYPE_NOV_OEM615		= 3,	/*!< Novatel OEM615 device */
 	SBG_ECOM_GNSS_TYPE_NOV_OEM615_DUAL	= 4,	/*!< Two Novatel OEM615 devices for dual antenna */
 	SBG_ECOM_GNSS_TYPE_NOV_OEM617D		= 5,	/*!< Novatel OEM617D device */
+	SBG_ECOM_GNSS_TYPE_SEP_AX4			= 6,	/*!< Septentrio Asterx m4 */
+	SBG_ECOM_GNSS_TYPE_SEP_AXM2A		= 7		/*!< Septentrio Asterx m2a */
 } SbgEComGnssType;
 
 /*!

@@ -32,6 +32,7 @@
 #define SBG_ECOM_HEAVE_SURGE_SWAY_INCLUDED	(0x0001u << 2)			/*!< Set to 1 if surge and sway channels are provided in this output. */
 #define SBG_ECOM_HEAVE_PERIOD_INCLUDED		(0x0001u << 3)			/*!< Set to 1 if the heave period is provided in this output. */
 #define SBG_ECOM_HEAVE_PERIOD_VALID			(0x0001u << 4)			/*!< Set to 1 if the returned heave period is assumed to be valid. */
+#define SBG_ECOM_HEAVE_SWELL_MODE			(0x0001u << 5)			/*!< Set to 1 if the real time heave filter is using the swell mode computations. */
 
 //----------------------------------------------------------------------//
 //- Log structure definitions                                          -//

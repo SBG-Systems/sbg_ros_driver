@@ -1,0 +1,5 @@
+<launch>
+  <node name="sbg_ellipse" pkg="sbg_driver" type="ellipse" output="screen">
+  	<rosparam command="load" file="$(find sbg_driver)/config/ellipse_A_default.yaml" />
+  </node>
+</launch>

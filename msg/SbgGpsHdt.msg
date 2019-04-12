@@ -1,7 +1,7 @@
 # SBG Ellipse Messages
 Header header
 
-# Time since sensor is powered up μs 
+# Time since sensor is powered up us 
 uint32 time_stamp
 
 # GPS True Heading status.
@@ -14,14 +14,14 @@ uint16 status
 # GPS Time of Week ms
 uint32 tow
 
-# True heading angle (0 to 360°). °
+# True heading angle (0 to 360 deg).
 float32 true_heading
 
-# 1 σ True heading estimated accuracy (0 to 360°). °
+# 1 sigma True heading estimated accuracy (0 to 360 deg).
 float32 true_heading_acc
 
-# Pitch angle from the master to the rover °
+# Pitch angle from the master to the rover
 float32 pitch
 
-# 1 σ pitch estimated accuracy °
+# 1 sigma pitch estimated accuracy
 float32 pitch_acc

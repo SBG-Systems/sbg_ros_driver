@@ -23,37 +23,45 @@
 #include <sbgCommon.h>
 #include <streamBuffer/sbgStreamBuffer.h>
 
+#include "../protocol/sbgEComProtocol.h"
+
 //----------------------------------------------------------------------//
 //- Log structure definitions                                          -//
 //----------------------------------------------------------------------//
 
 /*!
  * Log structure for debug data.
+ *
+ * If debug data doesn't fit in a frame, multiple debug messages are sent
+ * with different message IDs but the same internal ID.
  */
-typedef struct _SbgLogDebug0
+typedef struct _SbgLogDebugData
 {
-	uint32	timeStamp;				/*!< Time in us since the sensor power up. */
-	uint32	data[64];				/*!< Debug data */
-} SbgLogDebug0Data;
+	uint32		 id;										/*!< Debug frame ID */
+	uint32		 offset;									/*!< Offset of the debug log */
+	uint32		 size;										/*!< Debug frame size */
+	uint32		 totalSize;									/*!< Total size of the debug log */
+	uint8		 data[SBG_ECOM_MAX_PAYLOAD_SIZE - 16];		/*!< Debug data */
+} SbgLogDebugData;
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
 //----------------------------------------------------------------------//
 
 /*!
- *	Parse data for the SBG_ECOM_LOG_DEBUG_0 message and fill the corresponding structure.
+ *	Parse data for SBG_ECOM_LOG_DEBUG_X messages and fill the corresponding structure.
  *	\param[in]	pInputStream				Input stream buffer to read the payload from.
  *	\param[out]	pOutputData					Pointer on the output structure that stores parsed data.
  *	\return									SBG_NO_ERROR if the payload has been parsed.
  */
-SbgErrorCode sbgEComBinaryLogParseDebug0Data(SbgStreamBuffer *pInputStream, SbgLogDebug0Data *pOutputData);
+SbgErrorCode sbgEComBinaryLogParseDebugData(SbgStreamBuffer *pInputStream, SbgLogDebugData *pOutputData);
 
 /*!
- * Write data for the SBG_ECOM_LOG_DEBUG_0 message to the output stream buffer from the provided structure.
+ * Write data for SBG_ECOM_LOG_DEBUG_X messages to the output stream buffer from the provided structure.
  * \param[out]	pOutputStream				Output stream buffer to write the payload to.
  * \param[in]	pInputData					Pointer on the input structure that stores data to write.
  * \return									SBG_NO_ERROR if the message has been generated in the provided buffer.
  */
-SbgErrorCode sbgEComBinaryLogWriteDebug0Data(SbgStreamBuffer *pOutputStream, const SbgLogDebug0Data *pInputData);
+SbgErrorCode sbgEComBinaryLogWriteDebugData(SbgStreamBuffer *pOutputStream, const SbgLogDebugData *pInputData);
 
 #endif

@@ -1,6 +1,8 @@
 #include "sbgECom.h"
 #include "sbgEComVersion.h"
+#include <version/sbgVersion.h>
 #include <streamBuffer/sbgStreamBuffer.h>
+#include "commands/sbgEComCmdCommon.h"
 
 //----------------------------------------------------------------------//
 //- Private methods declarations                                       -//
@@ -28,9 +30,15 @@ SbgErrorCode sbgEComInit(SbgEComHandle *pHandle, SbgInterface *pInterface)
 		//
 		// Initialize the sbgECom handle
 		//
-		pHandle->pReceiveCallback = NULL;
-		pHandle->pReceiveLogCallback = NULL;
-		pHandle->pUserArg = NULL;
+		pHandle->pReceiveCallback		= NULL;
+		pHandle->pReceiveLogCallback	= NULL;
+		pHandle->pUserArg				= NULL;
+
+		//
+		// Initialize the default number of trials and time out
+		//
+		pHandle->numTrials			= 3;
+		pHandle->cmdDefaultTimeOut	= SBG_ECOM_DEFAULT_CMD_TIME_OUT;
 
 		//
 		// Initialize the protocol 
@@ -84,13 +92,13 @@ SbgErrorCode sbgEComHandleOneLog(SbgEComHandle *pHandle)
 	uint8				receivedMsg;
 	uint8				receivedMsgClass;
 	uint16				receivedCmd;
-	uint32				payloadSize;
+	size_t				payloadSize;
 	uint8				payloadData[SBG_ECOM_MAX_PAYLOAD_SIZE];
 
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Try to read a received frame
@@ -173,7 +181,7 @@ SbgErrorCode sbgEComHandle(SbgEComHandle *pHandle)
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Try to read all received frames, we thus loop until we get an SBG_NOT_READY error
@@ -247,6 +255,28 @@ SbgErrorCode sbgEComSetReceiveLogCallback(SbgEComHandle *pHandle, SbgEComReceive
 	}
 
 	return errorCode;
+}
+
+/*!
+ * Define the default number of trials that should be done when a command is send to the device as well as the time out.
+ * \param[in]	pHandle							A valid sbgECom handle.
+ * \parma[in]	numTrials						Number of trials when a command is sent (starting at 1).
+ * \param[in]	cmdDefaultTimeOut				Default time out in milliseconds to wait to receive an answer from the device.
+ */
+void sbgEComSetCmdTrialsAndTimeOut(SbgEComHandle *pHandle, uint32 numTrials, uint32 cmdDefaultTimeOut)
+{
+	//
+	// Check input arguments
+	//
+	assert(pHandle);
+	assert(numTrials > 0);
+	assert(cmdDefaultTimeOut > 0);
+
+	//
+	// Define the new settings
+	//
+	pHandle->numTrials			= numTrials;
+	pHandle->cmdDefaultTimeOut	= cmdDefaultTimeOut;
 }
 
 /*!

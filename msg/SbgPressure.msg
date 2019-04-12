@@ -1,7 +1,7 @@
 # SBG Ellipse Messages
 Header header
 
-# Time since sensor is powered up μs 
+# Time since sensor is powered up us 
 uint32 time_stamp
 
 # Pressure status (True if the altimeter equipment was correctly initialized)

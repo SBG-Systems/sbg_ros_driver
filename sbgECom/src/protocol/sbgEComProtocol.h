@@ -51,7 +51,7 @@ typedef struct _SbgEComProtocol
 {
 	SbgInterface		*pLinkedInterface;							/*!< Associated interface used by the protocol to read/write bytes. */
 	uint8				 rxBuffer[SBG_ECOM_MAX_BUFFER_SIZE];		/*!< The reception buffer. */
-	uint32				 rxBufferSize;								/*!< The current reception buffer size in bytes. */
+	size_t				 rxBufferSize;								/*!< The current reception buffer size in bytes. */
 } SbgEComProtocol;
 
 //----------------------------------------------------------------------//
@@ -82,7 +82,7 @@ SbgErrorCode sbgEComProtocolClose(SbgEComProtocol *pHandle);
  * \param[in]	size					Size in bytes of the data payload (less than 4086).
  * \return								SBG_NO_ERROR if the frame has been sent.
  */
-SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, uint32 size);
+SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, size_t size);
 
 /*!
  * Try to receive a frame from the device and returns the cmd, data and size of data field.
@@ -98,7 +98,7 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
  *										SBG_NULL_POINTER if an input parameter is NULL.<br>
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  */
-SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, uint32 *pSize, uint32 maxSize);
+SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize);
 
 //----------------------------------------------------------------------//
 //- Frame generation to stream buffer                                  -//
@@ -108,19 +108,25 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
  * Initialize an output stream for an sbgECom frame generation.
  * This method is helpful to avoid memory copy compared to sbgEComProtocolSend one.
  *
- * Warning, the stream will be seek to the beginning!
  * \param[in]	pOutputStream			Pointer to an allocated and initialized output stream.
  * \param[in]	msgClass				Message class (0-255)
  * \param[in]	msg						Message id (0-255)
+ * \param[out]	pStreamCursor			The initial output stream cursor that thus points to the begining of the generated message.
+ *										This value should be passed to sbgEComFinalizeFrameGeneration for correct operations.
  * \return								SBG_NO_ERROR in case of good operation.
  */
-SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 msgClass, uint8 msg);
+SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 msgClass, uint8 msg, size_t *pStreamCursor);
 
 /*!
  * Finalize an output stream that has been initialized with sbgEComStartFrameGeneration.
+ * At return, the output stream buffer should point at the end of the generated message.
+ * You can thus easily create consecutive SBG_ECOM_LOGS with these methods.
+ *
  * \param[in]	pOutputStream			Pointer to an allocated and initialized output stream.
+ * \param[in]	streamCursor			Position in the stream buffer of the generated message first byte.
+ *										This value is returned by sbgEComStartFrameGeneration and is mandatory for correct operations.
  * \return								SBG_NO_ERROR in case of good operation.
  */
-SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream);
+SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream, size_t streamCursor);
 
 #endif

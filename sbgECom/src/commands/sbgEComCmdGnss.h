@@ -26,18 +26,21 @@
 //- GNSS definitions												   -//
 //----------------------------------------------------------------------//
 
-/*! 
+/*!
  * This enum defines the different GNSS model IDs available in standard
  */
 typedef enum _SbgEComGnssModelsStdIds
 {
-	SBG_ECOM_GNSS_MODEL_UBLOX_GPS_GLONASS		= 101,		/*!< Used on Ellipse-N to setup the internal GNSS in GPS+GLONASS */
-	SBG_ECOM_GNSS_MODEL_NMEA					= 102,		/*!< Default mode for Ellipse-E connection to external GNSS */
-	SBG_ECOM_GNSS_MODEL_UBLOX_GPS_BEIDOU		= 103,		/*!< Used on Ellipse-N to setup the internal GNSS in GPS+BEIDOU */
-	SBG_ECOM_GNSS_MODEL_UBLOX_EXTERNAL			= 104,		/*!< Used on Ellipse-E to setup a connection to ublox in read only mode. */
-	SBG_ECOM_GNSS_MODEL_NOVATEL_EXTERNAL		= 106,		/*!< Used on Ellipse-E to setup a connection to Novatel receiver in read only mode. */
-	SBG_ECOM_GNSS_MODEL_NOVATEL_INTERNAL		= 107,		/*!< Used on Ellipse-D by default */
-	SBG_ECOM_GNSS_MODEL_SEPTENTRIO_EXTERNAL		= 109		/*!< Used on Ellipse-E to setup a connection to Septentrio receiver in read only mode. */
+	SBG_ECOM_GNSS_MODEL_UBLOX_GPS_GLONASS	= 101,		/*!< Used on Ellipse-N to setup the internal GNSS in GPS+GLONASS */
+	SBG_ECOM_GNSS_MODEL_NMEA				= 102,		/*!< Used on ELLIPSE-E to accept an external GNSS using NMEA protocol */
+	SBG_ECOM_GNSS_MODEL_UBLOX_GPS_BEIDOU	= 103,		/*!< Used on ELLIPSE-N to setup the internal GNSS in GPS+BEIDOU */
+	SBG_ECOM_GNSS_MODEL_UBLOX_EXTERNAL		= 104,		/*!< Used on ELLIPSE-E to accept an external Ublox GNSS (read only) */
+	SBG_ECOM_GNSS_MODEL_UBLOX_HIGH_DYNAMICS	= 105,		/*!< Used on ELLIPSE-N to setup the internal GNSS to high dynamic motion constraints. */
+	SBG_ECOM_GNSS_MODEL_NOVATEL_EXTERNAL	= 106,		/*!< Used on ELLIPSE-E to accept an external Novatel GNSS (read only) */
+	SBG_ECOM_GNSS_MODEL_ELLIPSE_D_INTERNAL	= 107,		/*!< Used on ELLIPSE-D to setup the internal GNSS receiver. */
+	SBG_ECOM_GNSS_MODEL_UBLOX_HIGH_SPEED	= 108,		/*!< Used on ELLIPSE-N to setup the internal GNSS for high speed applications (airborne > 200 km/h) */
+	SBG_ECOM_GNSS_MODEL_SEPTENTRIO_EXTERNAL	= 109,		/*!< Used on ELLIPSE-E to accept an external Septentrio GNSS (read only) */
+	SBG_ECOM_GNSS_MODEL_UBLOX_LOW_SPEED		= 110		/*!< Used on ELLIPSE-N to setup the internal GNSS receiver for pedestrian applications. */
 } SbgEComGnssModelsStdIds;
 
 //----------------------------------------------------------------------//
@@ -64,7 +67,6 @@ typedef struct _SbgEComGnssRejectionConf
 {
 	SbgEComRejectionMode	position;		/*!< Rejection mode for position. */
 	SbgEComRejectionMode	velocity;		/*!< Rejection mode for velocity. */
-	SbgEComRejectionMode	course;			/*!< Rejection mode for course over ground. */
 	SbgEComRejectionMode	hdt;			/*!< Rejection mode for true heading. */
 } SbgEComGnssRejectionConf;
 

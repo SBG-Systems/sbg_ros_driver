@@ -22,6 +22,7 @@
 
 #include <sbgCommon.h>
 #include "sbgEComCmdAdvanced.h"
+#include "sbgEComCmdEthernet.h"
 #include "sbgEComCmdEvent.h"
 #include "sbgEComCmdFeatures.h"
 #include "sbgEComCmdGnss.h"

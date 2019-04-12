@@ -3,9 +3,13 @@
 
 #include "ros/ros.h"
 #include "ellipse_msg.h"
+
+extern "C"
+{
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
 #include <sbgErrorCodes.h>
+}
 
 #include <iostream>
 #include <map>
@@ -25,6 +29,7 @@ class Ellipse
     void connect();
     void load_param();
     void configure();
+    void save_config();
 
     bool start_mag_calibration();
     bool end_mag_calibration();
@@ -68,6 +73,7 @@ class Ellipse
     sbg_driver::SbgEvent m_sbgEventB_msg;
     sbg_driver::SbgEvent m_sbgEventC_msg;
     sbg_driver::SbgEvent m_sbgEventD_msg;
+    sbg_driver::SbgEvent m_sbgEventE_msg;
     sbg_driver::SbgPressure m_sbgPressure_msg;
 
   public:
@@ -89,6 +95,7 @@ class Ellipse
     bool m_new_sbgEventB;
     bool m_new_sbgEventC;
     bool m_new_sbgEventD;
+    bool m_new_sbgEventE;
     bool m_new_sbgPressure;
 
     int m_rate_frequency;
@@ -112,6 +119,7 @@ class Ellipse
     ros::Publisher m_sbgEventB_pub;
     ros::Publisher m_sbgEventC_pub;
     ros::Publisher m_sbgEventD_pub;
+    ros::Publisher m_sbgEventE_pub;
     ros::Publisher m_sbgPressure_pub;
 
     // *************** SBG TOOLS *************** //
@@ -160,7 +168,6 @@ class Ellipse
 
     int m_gnss1PosRejectMode;
     int m_gnss1VelRejectMode;
-    int m_gnss1CourseRejectMode;
     int m_gnss1HdtRejectMode;
 
     float m_odomGain;
@@ -189,6 +196,7 @@ class Ellipse
     int m_log_event_b;
     int m_log_event_c;
     int m_log_event_d;
+    int m_log_event_e;
     int m_log_pressure;
 
     int m_magnetic_calibration_mode;
@@ -213,9 +221,18 @@ class Ellipse
                                                                             {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},
                                                                             {SBG_ECOM_MAG_CALIB_QUAL_POOR, "Quality: poor"}};
 
-    static std::map<SbgEComMagCalibConfidence, std::string> MAG_CALIB_CONF= {{SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
+    static std::map<SbgEComMagCalibConfidence, std::string> MAG_CALIB_CONF = {{SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
                                                                             {SBG_ECOM_MAG_CALIB_TRUST_MEDIUM, "Confidence: medium"},
                                                                             {SBG_ECOM_MAG_CALIB_TRUST_LOW, "Confidence: low"}};
+
+    static std::map<SbgEComMagCalibMode, std::string> MAG_CALIB_MODE = {{SBG_ECOM_MAG_CALIB_MODE_2D, "Mode 2D"},
+                                                                            {SBG_ECOM_MAG_CALIB_MODE_3D, "Mode 3D"}};
+
+    static std::map<SbgEComMagCalibBandwidth, std::string> MAG_CALIB_BW = {{SBG_ECOM_MAG_CALIB_HIGH_BW, "High Bandwidth"},
+                                                                            {SBG_ECOM_MAG_CALIB_MEDIUM_BW, "Medium Bandwidth"},
+                                                                            {SBG_ECOM_MAG_CALIB_LOW_BW, "Low Bandwidth"}};
+
+
 
 
 #endif

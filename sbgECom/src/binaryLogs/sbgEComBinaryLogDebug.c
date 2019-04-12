@@ -5,71 +5,80 @@
 //----------------------------------------------------------------------//
 
 /*!
- *	Parse data for the SBG_ECOM_LOG_DEBUG_0 message and fill the corresponding structure.
+ *	Parse data for SBG_ECOM_LOG_DEBUG_X messages and fill the corresponding structure.
  *	\param[in]	pInputStream				Input stream buffer to read the payload from.
  *	\param[out]	pOutputData					Pointer on the output structure that stores parsed data.
  *	\return									SBG_NO_ERROR if the payload has been parsed.
  */
-SbgErrorCode sbgEComBinaryLogParseDebug0Data(SbgStreamBuffer *pInputStream, SbgLogDebug0Data *pOutputData)
+SbgErrorCode sbgEComBinaryLogParseDebugData(SbgStreamBuffer *pInputStream, SbgLogDebugData *pOutputData)
 {
-	uint32			i;
+	SbgErrorCode	 errorCode;
 
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pInputStream);
-	SBG_ASSERT(pOutputData);
-	
+	assert(pInputStream);
+	assert(pOutputData);
+
 	//
 	// Read the frame payload and return
 	//
-	pOutputData->timeStamp = sbgStreamBufferReadUint32LE(pInputStream);
+	pOutputData->id			= sbgStreamBufferReadUint32LE(pInputStream);
+	pOutputData->offset		= sbgStreamBufferReadUint32LE(pInputStream);
+	pOutputData->size		= sbgStreamBufferReadUint32LE(pInputStream);
+	pOutputData->totalSize	= sbgStreamBufferReadUint32LE(pInputStream);
 
-	//
-	// Read each value in the array
-	//
-	for (i = 0; i < 64; i++)
+	errorCode = sbgStreamBufferGetLastError(pInputStream);
+
+	if (errorCode == SBG_NO_ERROR)
 	{
-		pOutputData->data[i] = sbgStreamBufferReadUint32LE(pInputStream);
+		if (pOutputData->size <= SBG_ARRAY_SIZE(pOutputData->data))
+		{
+			sbgStreamBufferReadBuffer(pInputStream, pOutputData->data, pOutputData->size);
+			errorCode = sbgStreamBufferGetLastError(pInputStream);
+		}
+		else
+		{
+			errorCode = SBG_BUFFER_OVERFLOW;
+		}
 	}
 
-	//
-	// Return if any error has occurred while parsing the frame
-	//
-	return sbgStreamBufferGetLastError(pInputStream);
+	return errorCode;
 }
 
 /*!
- * Write data for the SBG_ECOM_LOG_DEBUG_0 message to the output stream buffer from the provided structure.
+ * Write data for SBG_ECOM_LOG_DEBUG_X messages to the output stream buffer from the provided structure.
  * \param[out]	pOutputStream				Output stream buffer to write the payload to.
  * \param[in]	pInputData					Pointer on the input structure that stores data to write.
  * \return									SBG_NO_ERROR if the message has been generated in the provided buffer.
  */
-SbgErrorCode sbgEComBinaryLogWriteDebug0Data(SbgStreamBuffer *pOutputStream, const SbgLogDebug0Data *pInputData)
+SbgErrorCode sbgEComBinaryLogWriteDebugData(SbgStreamBuffer *pOutputStream, const SbgLogDebugData *pInputData)
 {
-	uint32	i;
+	SbgErrorCode	 errorCode;
 
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
-	SBG_ASSERT(pInputData);
+	assert(pOutputStream);
+	assert(pInputData);
 
 	//
 	// Write the frame payload
 	//
-	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->timeStamp);
+	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->id);
+	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->offset);
+	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->size);
+	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->totalSize);
 
-	//
-	// Write each value in the array
-	//
-	for (i = 0; i < 64; i++)
+	if (pInputData->size <= SBG_ARRAY_SIZE(pInputData->data))
 	{
-		sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->data[i]);
+		sbgStreamBufferWriteBuffer(pOutputStream, pInputData->data, pInputData->size);
+		errorCode = sbgStreamBufferGetLastError(pOutputStream);
+	}
+	else
+	{
+		errorCode = SBG_BUFFER_OVERFLOW;
 	}
 
-	//
-	// Return if any error has occurred while writing the frame
-	//
-	return sbgStreamBufferGetLastError(pOutputStream);
+	return errorCode;
 }

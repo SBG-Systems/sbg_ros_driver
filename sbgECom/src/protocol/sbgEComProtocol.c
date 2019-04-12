@@ -18,8 +18,8 @@ SbgErrorCode sbgEComProtocolInit(SbgEComProtocol *pHandle, SbgInterface *pInterf
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pInterface);
+	assert(pHandle);
+	assert(pInterface);
 		
 	//
 	// Initialize the created protocol handle
@@ -40,7 +40,7 @@ SbgErrorCode sbgEComProtocolClose(SbgEComProtocol *pHandle)
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Reset all members to zero
@@ -63,7 +63,7 @@ SbgErrorCode sbgEComProtocolClose(SbgEComProtocol *pHandle)
  * \param[in]	size					Size in bytes of the data payload (less than 4086).
  * \return								SBG_NO_ERROR if the frame has been sent.
  */
-SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, uint32 size)
+SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, size_t size)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
@@ -73,7 +73,7 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	if ( (size <= SBG_ECOM_MAX_PAYLOAD_SIZE) && ( ((size > 0) && (pData)) || (size == 0) ) )
 	{
@@ -149,24 +149,24 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
  *										SBG_NULL_POINTER if an input parameter is NULL.<br>
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  */
-SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, uint32 *pSize, uint32 maxSize)
+SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize)
 {
 	SbgErrorCode		errorCode = SBG_NOT_READY;
 	SbgStreamBuffer		inputStream;
 	bool				syncFound;
-	uint32				payloadSize = 0;
+	size_t				payloadSize = 0;
 	uint16				frameCrc;
 	uint16				computedCrc;
-	uint32				i;
+	size_t				i;
 	size_t				numBytesRead;
 	uint8				receivedMsgClass;
 	uint8				receivedMsg;
-	uint32				payloadOffset;
+	size_t				payloadOffset;
 
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 	
 	// 
 	// Set the return size to 0 in order to avoid possible bugs
@@ -189,7 +189,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
 			//
 			// No error during reading so increment the number of bytes stored in the rx buffer
 			//
-			pHandle->rxBufferSize += (uint32)numBytesRead;
+			pHandle->rxBufferSize += numBytesRead;
 		}
 	}
 
@@ -296,7 +296,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
 				//
 				// We should have the whole frame so for now, skip the payload part but before store the current cursor
 				//
-				payloadOffset = (uint32)sbgStreamBufferTell(&inputStream);
+				payloadOffset = sbgStreamBufferTell(&inputStream);
 				sbgStreamBufferSeek(&inputStream, payloadSize, SB_SEEK_CUR_INC);
 
 				//
@@ -463,23 +463,25 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
  * Initialize an output stream for an sbgECom frame generation.
  * This method is helpful to avoid memory copy compared to sbgEComProtocolSend one.
  *
- * Warning, the stream will be seek to the beginning!
  * \param[in]	pOutputStream			Pointer to an allocated and initialized output stream.
  * \param[in]	msgClass				Message class (0-255)
  * \param[in]	msg						Message id (0-255)
+ * \param[out]	pStreamCursor			The initial output stream cursor that thus points to the begining of the generated message.
+ *										This value should be passed to sbgEComFinalizeFrameGeneration for correct operations.
  * \return								SBG_NO_ERROR in case of good operation.
  */
-SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 msgClass, uint8 msg)
+SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 msgClass, uint8 msg, size_t *pStreamCursor)
 {
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
+	assert(pOutputStream);
+	assert(pStreamCursor);
 
 	//
-	// Go to the beginning of the stream to ease frame size computation
+	// Backup the current position in the stream buffer
 	//
-	sbgStreamBufferSeek(pOutputStream, 0, SB_SEEK_SET);
+	*pStreamCursor = sbgStreamBufferTell(pOutputStream);
 
 	//
 	// Write the header
@@ -501,10 +503,15 @@ SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 m
 
 /*!
  * Finalize an output stream that has been initialized with sbgEComStartFrameGeneration.
+ * At return, the output stream buffer should point at the end of the generated message.
+ * You can thus easily create consecutive SBG_ECOM_LOGS with these methods.
+ *
  * \param[in]	pOutputStream			Pointer to an allocated and initialized output stream.
+ * \param[in]	streamCursor			Position in the stream buffer of the generated message first byte.
+ *										This value is returned by sbgEComStartFrameGeneration and is mandatory for correct operations.
  * \return								SBG_NO_ERROR in case of good operation.
  */
-SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream)
+SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream, size_t streamCursor)
 {
 	SbgErrorCode	errorCode;
 	size_t			payloadSize;	
@@ -514,7 +521,7 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream)
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pOutputStream);
+	assert(pOutputStream);
 
 	//
 	// Test if any error has occurred on the stream first
@@ -529,7 +536,7 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream)
 		//
 		// Compute the payload size (written data minus the header)
 		//
-		payloadSize = sbgStreamBufferGetLength(pOutputStream) - 6;
+		payloadSize = sbgStreamBufferGetLength(pOutputStream) - streamCursor - 6;
 
 		//
 		// Test that the payload size is valid
@@ -542,9 +549,9 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream)
 			currentPos = sbgStreamBufferTell(pOutputStream);
 
 			//
-			// Goto the payload size field
+			// Goto the payload size field (4th byte in the frame)
 			//
-			sbgStreamBufferSeek(pOutputStream, 4, SB_SEEK_SET);
+			sbgStreamBufferSeek(pOutputStream, streamCursor+4, SB_SEEK_SET);
 
 			//
 			// Write the payload size
@@ -559,7 +566,7 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream)
 			//
 			// Compute the 16 bits CRC on the whole frame except Sync 1 and Sync 2
 			//
-			frameCrc = sbgCrc16Compute((uint8*)sbgStreamBufferGetLinkedBuffer(pOutputStream) + 2, payloadSize + 4);
+			frameCrc = sbgCrc16Compute((uint8*)sbgStreamBufferGetLinkedBuffer(pOutputStream) + streamCursor + 2, payloadSize + 4);
 
 			//
 			// Append the CRC
@@ -577,6 +584,7 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream)
 			// Invalid payload size
 			//
 			errorCode = SBG_BUFFER_OVERFLOW;
+			SBG_LOG_ERROR(errorCode, "Payload of %u bytes is too big for a valid sbgECom log", payloadSize);
 		}
 	}
 	else

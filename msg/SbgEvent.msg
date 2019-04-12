@@ -1,7 +1,7 @@
 # SBG Ellipse Messages
 Header header
 
-# Time since sensor is powered up μs 
+# Time since sensor is powered up us 
 uint32 time_stamp
 
 # True if we have received events at a higher rate than 1 kHz.
@@ -20,14 +20,14 @@ bool offset_2_valid
 bool offset_3_valid
 
 
-# Time offset for the second received event. (μs)
+# Time offset for the second received event. (us)
 uint16 time_offset_0
 
-# Time offset for the third received event. (μs)
+# Time offset for the third received event. (us)
 uint16 time_offset_1
 
-# Time offset for the fourth received event. (μs)
+# Time offset for the fourth received event. (us)
 uint16  time_offset_2
 
-# Time offset for the fifth received event. (μs)
+# Time offset for the fifth received event. (us)
 uint16  time_offset_3

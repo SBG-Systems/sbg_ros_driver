@@ -16,7 +16,7 @@ SbgErrorCode sbgEComCmdSyncInGetConf(SbgEComHandle *pHandle, SbgEComSyncInId syn
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	uint32				receivedSize;
+	size_t				receivedSize;
 	uint8				outputBuffer;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
@@ -29,7 +29,7 @@ SbgErrorCode sbgEComCmdSyncInGetConf(SbgEComHandle *pHandle, SbgEComSyncInId syn
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < 3; trial++)
+		for (trial = 0; trial < pHandle->numTrials; trial++)
 		{
 			//
 			// Send the command with syncInId as a 1-byte payload
@@ -45,7 +45,7 @@ SbgErrorCode sbgEComCmdSyncInGetConf(SbgEComHandle *pHandle, SbgEComSyncInId syn
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_IN_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_IN_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_SYNC_IN_CONF command
@@ -113,7 +113,7 @@ SbgErrorCode sbgEComCmdSyncInSetConf(SbgEComHandle *pHandle, SbgEComSyncInId syn
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < 3; trial++)
+		for (trial = 0; trial < pHandle->numTrials; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -130,7 +130,7 @@ SbgErrorCode sbgEComCmdSyncInSetConf(SbgEComHandle *pHandle, SbgEComSyncInId syn
 			//
 			// Send the message over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_IN_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_IN_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -140,7 +140,7 @@ SbgErrorCode sbgEComCmdSyncInSetConf(SbgEComHandle *pHandle, SbgEComSyncInId syn
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_IN_CONF, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_IN_CONF, pHandle->cmdDefaultTimeOut);
 
 				//
 				// Test if we have received a valid ACK
@@ -184,9 +184,8 @@ SbgErrorCode sbgEComCmdSyncOutGetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	uint32				trial;
-	uint32				receivedSize;
+	size_t				receivedSize;
 	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
-	uint8				reserved;
 	SbgStreamBuffer		inputStream;
 	uint8				outputBuffer;
 
@@ -198,7 +197,7 @@ SbgErrorCode sbgEComCmdSyncOutGetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < 3; trial++)
+		for (trial = 0; trial < pHandle->numTrials; trial++)
 		{
 			//
 			// Send the command with syncOutId as a 1-byte payload
@@ -214,7 +213,7 @@ SbgErrorCode sbgEComCmdSyncOutGetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_OUT_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), SBG_ECOM_DEFAULT_CMD_TIME_OUT);
+				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_OUT_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
 
 				//
 				// Test if we have received a SBG_ECOM_CMD_SYNC_OUT_CONF command
@@ -231,7 +230,7 @@ SbgErrorCode sbgEComCmdSyncOutGetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 					// First is returned the id of the sync, then a reserved field, the output function, polarity and the duration at last.
 					//
 					syncOutId = (SbgEComSyncOutId)sbgStreamBufferReadUint8LE(&inputStream);
-					reserved = sbgStreamBufferReadUint8LE(&inputStream);
+					sbgStreamBufferReadUint8LE(&inputStream);
 					pConf->outputFunction = (SbgEComSyncOutFunction)sbgStreamBufferReadUint16LE(&inputStream);
 					pConf->polarity = (SbgEComSyncOutPolarity)sbgStreamBufferReadUint8LE(&inputStream);
 					pConf->duration = sbgStreamBufferReadUint32LE(&inputStream);
@@ -284,7 +283,7 @@ SbgErrorCode sbgEComCmdSyncOutSetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 		//
 		// Send the command three times
 		//
-		for (trial = 0; trial < 3; trial++)
+		for (trial = 0; trial < pHandle->numTrials; trial++)
 		{
 			//
 			// Init stream buffer for output
@@ -303,7 +302,7 @@ SbgErrorCode sbgEComCmdSyncOutSetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 			//
 			// Send the payload over ECom
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_OUT_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), (uint32)sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_OUT_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -313,7 +312,7 @@ SbgErrorCode sbgEComCmdSyncOutSetConf(SbgEComHandle *pHandle, SbgEComSyncOutId s
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_OUT_CONF, SBG_ECOM_DEFAULT_CMD_TIME_OUT);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SYNC_OUT_CONF, pHandle->cmdDefaultTimeOut);
 
 				//
 				// Test if we have received a valid ACK
