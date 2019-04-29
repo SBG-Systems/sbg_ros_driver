@@ -1,17 +1,14 @@
-#include "ellipse.h"
-#include "ellipse_msg.h"
-
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <ctime>
 
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
-#include <boost/thread.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
+
+#include "ellipse.h"
 
 using namespace std;
 
@@ -48,55 +45,52 @@ void Ellipse::connect(){
   if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComInit Error : %s", sbgErrorCodeToString(errorCode));}
 
   // Get Infos
-  read_get_info(&m_comHandle);
+  readDeviceInfo(&m_comHandle);
 }
 
-void Ellipse::init_callback(){
-  SbgErrorCode errorCode = sbgEComSetReceiveLogCallback(&m_comHandle, onLogReceived, this);
+void Ellipse::init_callback()
+{
+  SbgErrorCode errorCode = sbgEComSetReceiveLogCallback(&m_comHandle, onLogReceivedCallback, this);
   if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComSetReceiveLogCallback Error : %s", sbgErrorCodeToString(errorCode));}
 }
 
-void Ellipse::init_publishers(){
-  if(m_log_status!=0)
-    m_sbgStatus_pub = m_node->advertise<sbg_driver::SbgStatus>("status",10);
-  if(m_log_utc_time !=0)
-    m_sbgUtcTime_pub = m_node->advertise<sbg_driver::SbgUtcTime>("utc_time",10);
-  if(m_log_imu_data !=0)
-    m_sbgImuData_pub = m_node->advertise<sbg_driver::SbgImuData>("imu_data",10);
-  if(m_log_ekf_euler !=0)
-    m_sbgEkfEuler_pub = m_node->advertise<sbg_driver::SbgEkfEuler>("ekf_euler",10);
-  if(m_log_ekf_quat !=0)
-    m_sbgEkfQuat_pub = m_node->advertise<sbg_driver::SbgEkfQuat>("ekf_quat",10);
-  if(m_log_ekf_nav !=0)
-    m_sbgEkfNav_pub = m_node->advertise<sbg_driver::SbgEkfNav>("ekf_nav",10);
-  if(m_log_ship_motion !=0)
-    m_sbgShipMotion_pub = m_node->advertise<sbg_driver::SbgShipMotion>("ship_motion",10);
-  if(m_log_mag !=0)
-    m_sbgMag_pub = m_node->advertise<sbg_driver::SbgMag>("mag",10);
-  if(m_log_mag_calib !=0)
-    m_sbgMagCalib_pub = m_node->advertise<sbg_driver::SbgMagCalib>("mag_calib",10);
-  if(m_log_gps1_vel !=0)
-    m_sbgGpsVel_pub = m_node->advertise<sbg_driver::SbgGpsVel>("gps_vel",10);
-  if(m_log_gps1_pos !=0)
-    m_sbgGpsPos_pub = m_node->advertise<sbg_driver::SbgGpsPos>("gps_pos",10);
-  if(m_log_gps1_hdt !=0)
-    m_sbgGpsHdt_pub = m_node->advertise<sbg_driver::SbgGpsHdt>("gps_hdt",10);
-  if(m_log_gps1_raw !=0)
-    m_sbgGpsRaw_pub = m_node->advertise<sbg_driver::SbgGpsRaw>("gps_raw",10);
-  if(m_log_odo_vel !=0)
-    m_sbgOdoVel_pub = m_node->advertise<sbg_driver::SbgOdoVel>("odo_vel",10);
-  if(m_log_event_a !=0)
-    m_sbgEventA_pub = m_node->advertise<sbg_driver::SbgEvent>("eventA",10);
-  if(m_log_event_b !=0)
-    m_sbgEventB_pub = m_node->advertise<sbg_driver::SbgEvent>("eventB",10);
-  if(m_log_event_c !=0)
-    m_sbgEventC_pub = m_node->advertise<sbg_driver::SbgEvent>("eventC",10);
-  if(m_log_event_d !=0)
-    m_sbgEventD_pub = m_node->advertise<sbg_driver::SbgEvent>("eventD",10);
-  if(m_log_event_e !=0)
-    m_sbgEventE_pub = m_node->advertise<sbg_driver::SbgEvent>("eventE",10);
-  if(m_log_pressure !=0)
-    m_sbgPressure_pub = m_node->advertise<sbg_driver::SbgPressure>("pressure",10);
+void Ellipse::init_publishers()
+{
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_STATUS, static_cast<SbgEComOutputMode>(m_log_status), "status");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_UTC_TIME, static_cast<SbgEComOutputMode>(m_log_utc_time), "utc_time");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_IMU_DATA, static_cast<SbgEComOutputMode>(m_log_imu_data), "imu_data");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_MAG, static_cast<SbgEComOutputMode>(m_log_mag), "mag");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_MAG_CALIB, static_cast<SbgEComOutputMode>(m_log_mag_calib), "mag_calib");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_EULER, static_cast<SbgEComOutputMode>(m_log_mag_calib), "ekf_euler");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_QUAT, static_cast<SbgEComOutputMode>(m_log_mag_calib), "ekf_quat");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_NAV, static_cast<SbgEComOutputMode>(m_log_mag_calib), "ekf_nav");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_SHIP_MOTION, static_cast<SbgEComOutputMode>(m_log_ship_motion), "ship_motion");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_VEL, static_cast<SbgEComOutputMode>(m_log_gps1_vel), "gps_vel");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_POS, static_cast<SbgEComOutputMode>(m_log_gps1_pos), "gps_pos");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_HDT, static_cast<SbgEComOutputMode>(m_log_gps1_hdt), "gps_hdt");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_RAW, static_cast<SbgEComOutputMode>(m_log_gps1_raw), "gps_raw");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_ODO_VEL, static_cast<SbgEComOutputMode>(m_log_odo_vel), "odo_vel");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_A, static_cast<SbgEComOutputMode>(m_log_event_a), "eventA");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_B, static_cast<SbgEComOutputMode>(m_log_event_b), "eventB");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_C, static_cast<SbgEComOutputMode>(m_log_event_c), "eventC");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_D, static_cast<SbgEComOutputMode>(m_log_event_d), "eventD");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_E, static_cast<SbgEComOutputMode>(m_log_event_e), "eventE");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_PRESSURE, static_cast<SbgEComOutputMode>(m_log_pressure), "pressure");
+
+  //
+  // Check if the rate frequency has to be defined according to the defined publishers.
+  //
+  if(m_rate_frequency==0)
+  {
+    m_rate_frequency = m_message_publisher_.getOutputFrequency();
+  }
 }
 
 void Ellipse::configure(){
@@ -206,332 +200,40 @@ void Ellipse::load_param(){
 
   m_magnetic_calibration_mode = n_private.param<int>("magnetometer/calibration/mode",1);
   m_magnetic_calibration_bandwidth = n_private.param<int>("magnetometer/calibration/bandwidth",2);
-
-  std::vector<int> mod_div;
-  mod_div.push_back(m_log_status);
-  mod_div.push_back(m_log_imu_data);
-  mod_div.push_back(m_log_ekf_euler);
-  mod_div.push_back(m_log_ekf_quat);
-  mod_div.push_back(m_log_ekf_nav);
-  mod_div.push_back(m_log_ship_motion);
-  mod_div.push_back(m_log_utc_time);
-  mod_div.push_back(m_log_mag);
-  mod_div.push_back(m_log_mag_calib);
-  mod_div.push_back(m_log_gps1_vel);
-  mod_div.push_back(m_log_gps1_pos);
-  mod_div.push_back(m_log_gps1_hdt);
-  mod_div.push_back(m_log_gps1_raw);
-  mod_div.push_back(m_log_odo_vel);
-  mod_div.push_back(m_log_event_a);
-  mod_div.push_back(m_log_event_b);
-  mod_div.push_back(m_log_event_c);
-  mod_div.push_back(m_log_event_d);
-  mod_div.push_back(m_log_event_e);
-  mod_div.push_back(m_log_pressure);
-
-  if(m_rate_frequency==0){
-    int mod_div_min = 3e5;
-    for(int i=0; i<mod_div.size(); i++){
-      if(mod_div[i]<mod_div_min && mod_div[i]!=0)
-        mod_div_min = mod_div[i];
-    }
-
-    if(mod_div_min>=10000) // Case Event
-      mod_div_min = 8;
-
-    m_rate_frequency = MODE_DIV_2_FREQ[mod_div_min];
-  }
 }
 
-void Ellipse::publish(){
-  sbgEComHandle(&m_comHandle);
-  if(m_new_sbgStatus && m_log_status != 0){
-    m_new_sbgStatus = false;
-    m_sbgStatus_pub.publish(m_sbgStatus_msg);
-  }
+/*!
+ *  Callback definition called each time a new log is received.
+ * 
+ *  \param[in]  pHandle                 Valid handle on the sbgECom instance that has called this callback.
+ *  \param[in]  msgClass                Class of the message we have received
+ *  \param[in]  msg                   Message ID of the log received.
+ *  \param[in]  pLogData                Contains the received log data as an union.
+ *  \param[in]  pUserArg                Optional user supplied argument.
+ *  \return                       SBG_NO_ERROR if the received log has been used successfully.
+ */
+SbgErrorCode Ellipse::onLogReceivedCallback(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg)
+{
+  Ellipse *p_ellipse;
+  p_ellipse = (Ellipse*)(pUserArg);
 
-  if(m_new_sbgUtcTime && m_log_utc_time != 0){
-    m_new_sbgUtcTime = false;
-    m_sbgUtcTime_pub.publish(m_sbgUtcTime_msg);
-  }
-
-  if(m_new_sbgImuData && m_log_imu_data != 0){
-    m_new_sbgImuData = false;
-    m_sbgImuData_pub.publish(m_sbgImuData_msg);
-  }
-
-  if(m_new_sbgEkfEuler && m_log_ekf_euler != 0){
-    m_new_sbgEkfEuler = false;
-    m_sbgEkfEuler_pub.publish(m_sbgEkfEuler_msg);
-  }
-
-  if(m_new_sbgEkfQuat && m_log_ekf_quat != 0){
-    m_new_sbgEkfQuat = false;
-    m_sbgEkfQuat_pub.publish(m_sbgEkfQuat_msg);
-  }
-
-  if(m_new_sbgEkfNav && m_log_ekf_nav != 0){
-    m_new_sbgEkfNav = false;
-    m_sbgEkfNav_pub.publish(m_sbgEkfNav_msg);
-  }
-
-  if(m_new_sbgShipMotion && m_log_ship_motion != 0){
-    m_new_sbgShipMotion = false;
-    m_sbgShipMotion_pub.publish(m_sbgShipMotion_msg);
-  }
-
-  if(m_new_sbgMag && m_log_mag != 0){
-    m_new_sbgMag = false;
-    m_sbgMag_pub.publish(m_sbgMag_msg);
-  }
-
-  if(m_new_sbgMagCalib && m_log_mag_calib != 0){
-    m_new_sbgMagCalib = false;
-    m_sbgMagCalib_pub.publish(m_sbgMagCalib_msg);
-  }
-
-  if(m_new_sbgGpsVel && m_log_gps1_vel != 0){
-    m_new_sbgGpsVel = false;
-    m_sbgGpsVel_pub.publish(m_sbgGpsVel_msg);
-  }
-
-  if(m_new_sbgGpsPos && m_log_gps1_pos != 0){
-    m_new_sbgGpsPos = false;
-    m_sbgGpsPos_pub.publish(m_sbgGpsPos_msg);
-  }
-
-  if(m_new_sbgGpsHdt && m_log_gps1_hdt != 0){
-    m_new_sbgGpsHdt = false;
-    m_sbgGpsHdt_pub.publish(m_sbgGpsHdt_msg);
-  }
-
-  if(m_new_sbgGpsRaw && m_log_gps1_raw != 0){
-    m_new_sbgGpsRaw = false;
-    m_sbgGpsRaw_pub.publish(m_sbgGpsRaw_msg);
-  }
-
-  if(m_new_sbgOdoVel && m_log_odo_vel != 0){
-    m_new_sbgOdoVel = false;
-    m_sbgOdoVel_pub.publish(m_sbgOdoVel_msg);
-  }
-
-  if(m_new_sbgEventA && m_log_event_a != 0){
-    m_new_sbgEventA = false;
-    m_sbgEventA_pub.publish(m_sbgEventA_msg);
-  }
-
-  if(m_new_sbgEventB && m_log_event_b != 0){
-    m_new_sbgEventB = false;
-    m_sbgEventB_pub.publish(m_sbgEventB_msg);
-  }
-
-  if(m_new_sbgEventC && m_log_event_c != 0){
-    m_new_sbgEventC = false;
-    m_sbgEventC_pub.publish(m_sbgEventC_msg);
-  }
-
-  if(m_new_sbgEventD && m_log_event_d != 0){
-    m_new_sbgEventD = false;
-    m_sbgEventD_pub.publish(m_sbgEventD_msg);
-  }
-
-  if(m_new_sbgEventE && m_log_event_e != 0){
-    m_new_sbgEventE = false;
-    m_sbgEventE_pub.publish(m_sbgEventE_msg);
-  }
-
-  if(m_new_sbgPressure && m_log_pressure != 0){
-    m_new_sbgPressure = false;
-    m_sbgPressure_pub.publish(m_sbgPressure_msg);
-  }
+  p_ellipse->onLogReceived(msgClass, msg, pLogData);
 }
 
-
-SbgErrorCode onLogReceived(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg){
-  Ellipse *e = (Ellipse*)pUserArg;
-  if(msgClass == SBG_ECOM_CLASS_LOG_ECOM_0){
-  switch (msg){
-  case SBG_ECOM_LOG_STATUS:
-    read_ecom_log_status(e->m_sbgStatus_msg, pLogData);
-    e->m_new_sbgStatus = true;
-    break;
-
-  case SBG_ECOM_LOG_UTC_TIME:
-    read_ecom_log_utc_time(e->m_sbgUtcTime_msg, pLogData);
-    e->m_new_sbgUtcTime = true;
-    break;
-
-  case SBG_ECOM_LOG_IMU_DATA:
-    read_ecom_log_imu_data(e->m_sbgImuData_msg, pLogData);
-    e->m_new_sbgImuData = true;
-    break;
-
-  case SBG_ECOM_LOG_MAG:
-    read_ecom_log_mag(e->m_sbgMag_msg, pLogData);
-    e->m_new_sbgMag = true;
-    break;
-
-  case SBG_ECOM_LOG_MAG_CALIB:
-    read_ecom_log_mag_calib(e->m_sbgMagCalib_msg, pLogData);
-    e->m_new_sbgMagCalib = true;
-    break;
-
-  case SBG_ECOM_LOG_EKF_EULER:
-    read_ecom_log_ekf_euler(e->m_sbgEkfEuler_msg, pLogData);
-    e->m_new_sbgEkfEuler = true;
-    break;
-
-  case SBG_ECOM_LOG_EKF_QUAT:
-    read_ecom_log_ekf_quat(e->m_sbgEkfQuat_msg, pLogData);
-    e->m_new_sbgEkfQuat = true;
-    break;
-
-  case SBG_ECOM_LOG_EKF_NAV:
-    read_ecom_log_ekf_nav(e->m_sbgEkfNav_msg, pLogData);
-    e->m_new_sbgEkfNav = true;
-    break;
-
-  case SBG_ECOM_LOG_SHIP_MOTION:
-    read_ecom_log_ship_motion(e->m_sbgShipMotion_msg, pLogData);
-    e->m_new_sbgShipMotion = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS1_VEL:
-    read_ecom_log_gps_vel(e->m_sbgGpsVel_msg, pLogData);
-    e->m_new_sbgGpsVel = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS1_POS:
-    read_ecom_log_gps_pos(e->m_sbgGpsPos_msg, pLogData);
-    e->m_new_sbgGpsPos = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS1_HDT:
-    read_ecom_log_gps_hdt(e->m_sbgGpsHdt_msg, pLogData);
-    e->m_new_sbgGpsHdt = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS1_RAW:
-    read_ecom_log_gps_raw(e->m_sbgGpsRaw_msg, pLogData);
-    e->m_new_sbgGpsRaw = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS2_VEL:
-//    read_ecom_log_gps_vel(e->m_sbgGpsVel_msg, pLogData);
-//    e->m_new_sbgGpsVel = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS2_POS:
-//    read_ecom_log_gps_pos(e->m_sbgGpsPos_msg, pLogData);
-//    e->m_new_sbgGpsPos = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS2_HDT:
-//    read_ecom_log_gps_hdt(e->m_sbgGpsHdt_msg, pLogData);
-//    e->m_new_sbgGpsHdt = true;
-    break;
-
-  case SBG_ECOM_LOG_GPS2_RAW:
-//    read_ecom_log_gps_raw(e->m_sbgGpsRaw_msg, pLogData);
-//    e->m_new_sbgGpsRaw = true;
-    break;
-
-  case SBG_ECOM_LOG_ODO_VEL:
-    read_ecom_log_odo_vel(e->m_sbgOdoVel_msg, pLogData);
-    e->m_new_sbgOdoVel = true;
-    break;
-
-  case SBG_ECOM_LOG_EVENT_A:
-    read_ecom_log_event(e->m_sbgEventA_msg, pLogData);
-    e->m_new_sbgEventA = true;
-    break;
-
-  case SBG_ECOM_LOG_EVENT_B:
-    read_ecom_log_event(e->m_sbgEventB_msg, pLogData);
-    e->m_new_sbgEventB = true;
-    break;
-
-  case SBG_ECOM_LOG_EVENT_C:
-    read_ecom_log_event(e->m_sbgEventC_msg, pLogData);
-    e->m_new_sbgEventC = true;
-    break;
-
-  case SBG_ECOM_LOG_EVENT_D:
-    read_ecom_log_event(e->m_sbgEventD_msg, pLogData);
-    e->m_new_sbgEventD = true;
-    break;
-
-  case SBG_ECOM_LOG_EVENT_E:
-    read_ecom_log_event(e->m_sbgEventE_msg, pLogData);
-    e->m_new_sbgEventE = true;
-    break;
-
-  case SBG_ECOM_LOG_DVL_BOTTOM_TRACK:
-    // read_ecom_log_dvl_bottom_track(e->m_sbg ,pLogData);
-    // e->m_new_sbgDvl_bottom_track = true;
-    break;
-  case SBG_ECOM_LOG_DVL_WATER_TRACK:
-    // read_ecom_log_dvl_water_track(e->m_sbg ,pLogData);
-    // e->m_new_sbgDvl_water_track = true;
-    break;
-  case SBG_ECOM_LOG_SHIP_MOTION_HP:
-    // read_ecom_log_ship_motion_hp(e->m_sbg ,pLogData);
-    // e->m_new_sbgShip_motion_hp = true;
-    break;
-
-  case SBG_ECOM_LOG_PRESSURE:
-    read_ecom_log_pressure(e->m_sbgPressure_msg, pLogData);
-    e->m_new_sbgPressure = true;
-    break;
-
-  case SBG_ECOM_LOG_USBL:
-    // read_ecom_log_usbl(e->m_sbg ,pLogData);
-    // e->m_new_sbgUsbl = true;
-    break;
-  case SBG_ECOM_LOG_DEBUG_0:
-    // read_ecom_log_debug_0(e->m_sbg ,pLogData);
-    // e->m_new_sbgDebug_0 = true;
-    break;
-  case SBG_ECOM_LOG_IMU_RAW_DATA:
-    // read_ecom_log_imu_raw_data(e->m_sbg ,pLogData);
-    // e->m_new_sbgImu_raw_data = true;
-    break;
-  case SBG_ECOM_LOG_DEBUG_1:
-    // read_ecom_log_debug_1(e->m_sbg ,pLogData);
-    // e->m_new_sbgDebug_1 = true;
-    break;
-  case SBG_ECOM_LOG_DEBUG_2:
-    // read_ecom_log_debug_2(e->m_sbg ,pLogData);
-    // e->m_new_sbgDebug_2 = true;
-    break;
-  case SBG_ECOM_LOG_DEBUG_3:
-    // read_ecom_log_debug_3(e->m_sbg ,pLogData);
-    // e->m_new_sbgDebug_3 = true;
-    break;
-  case SBG_ECOM_LOG_IMU_SHORT:
-    // read_ecom_log_imu_short(e->m_sbg ,pLogData);
-    // e->m_new_sbgImu_short = true;
-    break;
-  case SBG_ECOM_LOG_ECOM_NUM_MESSAGES:
-    // read_ecom_log_ecom_num_messages(e->m_sbg ,pLogData);
-    // e->m_new_sbgEcom_num_messages = true;
-    break;
-
-  default:
-    break;
-  }
-  }
-  else if(msgClass == SBG_ECOM_CLASS_LOG_ECOM_1){
-    switch(msg){
-      case SBG_ECOM_LOG_FAST_IMU_DATA:
-        break;
-      default:
-        break;
-    }
-  }
-  return SBG_NO_ERROR;
+/*!
+ * Function to handle the received log.
+ * 
+ * \param[in]  msgClass               Class of the message we have received
+ * \param[in]  msg                    Message ID of the log received.
+ * \param[in]  pLogData               Contains the received log data as an union.
+ */
+void Ellipse::onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData)
+{
+  //
+  // Publish the received SBG log.
+  //
+  m_message_publisher_.publish(msgClass, msg, *pLogData);
 }
-
 
 bool Ellipse::set_cmd_init_parameters(){
   SbgEComInitConditionConf init_condition;
@@ -1002,4 +704,55 @@ bool Ellipse::save_mag_calibration(){
     ROS_INFO("SBG DRIVER - MAG CALIBRATION - Saving data to the device");
     return true;
   }
+}
+
+/*!
+ * Periodic handle of the connected Ellipse.
+ */
+void Ellipse::periodicHandle(void)
+{
+  sbgEComHandle(&m_comHandle);
+}
+
+/*!
+ * Read the device informations.
+ * 
+ * \param[in] p_com_handle      SBG communication handle.
+ */
+void Ellipse::readDeviceInfo(SbgEComHandle* p_com_handle)
+{
+  SbgEComDeviceInfo pInfo;
+  SbgErrorCode errorCode = sbgEComCmdGetInfo(p_com_handle, &pInfo);
+  if (errorCode != SBG_NO_ERROR)
+  {
+    ROS_WARN("SBG DRIVER - sbgEComCmdGetInfo Error : %s", sbgErrorCodeToString(errorCode));
+  }
+
+  char version[32];
+
+  ROS_INFO("SBG DRIVER - productCode = %s", pInfo.productCode);
+  ROS_INFO("SBG DRIVER - serialNumber = %u", pInfo.serialNumber);
+
+  sbgVersionToStringEncoded(pInfo.calibationRev, version, 32);
+  ROS_INFO("SBG DRIVER - calibationRev = %s", version);
+
+  ROS_INFO("SBG DRIVER - calibrationYear = %u", pInfo.calibrationYear);
+  ROS_INFO("SBG DRIVER - calibrationMonth = %u", pInfo.calibrationMonth);
+  ROS_INFO("SBG DRIVER - calibrationDay = %u", pInfo.calibrationDay);
+
+  sbgVersionToStringEncoded(pInfo.hardwareRev, version, 32);
+  ROS_INFO("SBG DRIVER - hardwareRev = %s", version);
+
+  sbgVersionToStringEncoded(pInfo.firmwareRev, version, 32);
+  ROS_INFO("SBG DRIVER - firmwareRev = %s", version); 
+}
+
+/*!
+ * Get the device frequency.
+ * 
+ * \return                      Device frequency to read the logs.
+ */
+int Ellipse::getDeviceRateFrequency(void) const
+{
+  return m_rate_frequency;
 }

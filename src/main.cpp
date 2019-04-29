@@ -21,10 +21,11 @@ int main(int argc, char **argv)
   ellipse.init_callback();
 
   ROS_INFO("SBG DRIVER - START RECEIVING DATA");
-  ros::Rate loop_rate(ellipse.m_rate_frequency);
+  ros::Rate loop_rate(ellipse.getDeviceRateFrequency());
+
   while (ros::ok())
   {
-    ellipse.publish();
+    ellipse.periodicHandle();
 
     ros::spinOnce();
     loop_rate.sleep();
