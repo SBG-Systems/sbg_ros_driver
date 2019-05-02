@@ -9,7 +9,7 @@ int main(int argc, char **argv)
   ROS_INFO("SBG DRIVER - Init node & load params");
   Ellipse ellipse(&n);
 
-  ellipse.init_publishers();
+  ellipse.initPublishers();
 
   ROS_INFO("SBG DRIVER - Ellipse connect");
   ellipse.connect();
@@ -21,12 +21,11 @@ int main(int argc, char **argv)
   ellipse.init_callback();
 
   ROS_INFO("SBG DRIVER - START RECEIVING DATA");
-  ros::Rate loop_rate(ellipse.m_rate_frequency);
+  ros::Rate loop_rate(ellipse.getDeviceRateFrequency());
+
   while (ros::ok())
   {
-    ellipse.publish();
-
-    ros::spinOnce();
+    ellipse.periodicHandle();
     loop_rate.sleep();
   }
 

@@ -148,17 +148,22 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 # add_dependencies(sbg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+## Define common resources.
+set (SBG_COMMON_RESOURCES
+  src/message_publisher.cpp
+  src/message_wrapper.cpp
+  src/ellipse.cpp
+)
+
 ## Declare a C++ executable
 add_executable(ellipse
+  ${SBG_COMMON_RESOURCES}
   src/main.cpp
-  src/ellipse.cpp
-  src/ellipse_msg.cpp
 )
 
 add_executable(ellipse_mag
+  ${SBG_COMMON_RESOURCES}
   src/ellipse_mag.cpp
-  src/ellipse.cpp
-  src/ellipse_msg.cpp
 )
 
 add_dependencies(ellipse ${sbg_driver_EXPORTED_TARGETS})
