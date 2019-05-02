@@ -25,10 +25,10 @@ class Ellipse
      * 
      *  \param[in]  pHandle                 Valid handle on the sbgECom instance that has called this callback.
      *  \param[in]  msgClass                Class of the message we have received
-     *  \param[in]  msg                   Message ID of the log received.
+     *  \param[in]  msg                     Message ID of the log received.
      *  \param[in]  pLogData                Contains the received log data as an union.
      *  \param[in]  pUserArg                Optional user supplied argument.
-     *  \return                       SBG_NO_ERROR if the received log has been used successfully.
+     *  \return                             SBG_NO_ERROR if the received log has been used successfully.
      */
     static SbgErrorCode onLogReceivedCallback(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
 
@@ -47,7 +47,6 @@ class Ellipse
 
     ~Ellipse();
 
-    void init_publishers();
     void init_callback();
     void connect();
     void load_param();
@@ -71,6 +70,11 @@ class Ellipse
     bool set_cmd_odom_lever_arm();
     bool set_cmd_odom_reject_mode();
     bool set_cmd_output();
+
+    /*!
+     * Initialize the publishers according to the configuration.
+     */
+    void initPublishers(void);
 
     /*!
      * Periodic handle of the connected Ellipse.
@@ -180,8 +184,6 @@ class Ellipse
     int m_magnetic_calibration_bandwidth;
     SbgEComMagCalibResults	m_magCalibResults;
 };
-
-static std::map<int, int> MODE_DIV_2_FREQ = {{0,0},{1,200},{2,100},{4,50},{5,40},{8,25},{10,20},{20,10},{40,5},{200,1}};
 
 static std::map<SbgEComMagCalibQuality, std::string> MAG_CALIB_QUAL= {{SBG_ECOM_MAG_CALIB_QUAL_OPTIMAL, "Quality: optimal"},
                                                                             {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},

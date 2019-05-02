@@ -16,29 +16,7 @@ MessagePublisher::MessagePublisher(void):
 m_max_mesages_(10),
 m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED)
 {
-  //
-  // Shutdown all publishers, to be able to detect if the publisher has been initialized when receiving data.
-  //
-  m_sbgStatus_pub_.shutdown();
-  m_sbgUtcTime_pub_.shutdown();
-  m_sbgImuData_pub_.shutdown();
-  m_sbgEkfEuler_pub_.shutdown();
-  m_sbgEkfQuat_pub_.shutdown();
-  m_sbgEkfNav_pub_.shutdown();
-  m_sbgShipMotion_pub_.shutdown();
-  m_sbgMag_pub_.shutdown();
-  m_sbgMagCalib_pub_.shutdown();
-  m_sbgGpsVel_pub_.shutdown();
-  m_sbgGpsPos_pub_.shutdown();
-  m_sbgGpsHdt_pub_.shutdown();
-  m_sbgGpsRaw_pub_.shutdown();
-  m_sbgOdoVel_pub_.shutdown();
-  m_sbgEventA_pub_.shutdown();
-  m_sbgEventB_pub_.shutdown();
-  m_sbgEventC_pub_.shutdown();
-  m_sbgEventD_pub_.shutdown();
-  m_sbgEventE_pub_.shutdown();
-  m_sbgPressure_pub_.shutdown();
+
 }
 
 //---------------------------------------------------------------------//

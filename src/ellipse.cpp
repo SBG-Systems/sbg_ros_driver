@@ -54,45 +54,6 @@ void Ellipse::init_callback()
   if (errorCode != SBG_NO_ERROR){ROS_WARN("SBG DRIVER - sbgEComSetReceiveLogCallback Error : %s", sbgErrorCodeToString(errorCode));}
 }
 
-void Ellipse::init_publishers()
-{
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_STATUS, static_cast<SbgEComOutputMode>(m_log_status), "status");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_UTC_TIME, static_cast<SbgEComOutputMode>(m_log_utc_time), "utc_time");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_IMU_DATA, static_cast<SbgEComOutputMode>(m_log_imu_data), "imu_data");
-
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_MAG, static_cast<SbgEComOutputMode>(m_log_mag), "mag");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_MAG_CALIB, static_cast<SbgEComOutputMode>(m_log_mag_calib), "mag_calib");
-
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_EULER, static_cast<SbgEComOutputMode>(m_log_mag_calib), "ekf_euler");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_QUAT, static_cast<SbgEComOutputMode>(m_log_mag_calib), "ekf_quat");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_NAV, static_cast<SbgEComOutputMode>(m_log_mag_calib), "ekf_nav");
-
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_SHIP_MOTION, static_cast<SbgEComOutputMode>(m_log_ship_motion), "ship_motion");
-
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_VEL, static_cast<SbgEComOutputMode>(m_log_gps1_vel), "gps_vel");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_POS, static_cast<SbgEComOutputMode>(m_log_gps1_pos), "gps_pos");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_HDT, static_cast<SbgEComOutputMode>(m_log_gps1_hdt), "gps_hdt");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_RAW, static_cast<SbgEComOutputMode>(m_log_gps1_raw), "gps_raw");
-
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_ODO_VEL, static_cast<SbgEComOutputMode>(m_log_odo_vel), "odo_vel");
-
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_A, static_cast<SbgEComOutputMode>(m_log_event_a), "eventA");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_B, static_cast<SbgEComOutputMode>(m_log_event_b), "eventB");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_C, static_cast<SbgEComOutputMode>(m_log_event_c), "eventC");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_D, static_cast<SbgEComOutputMode>(m_log_event_d), "eventD");
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_E, static_cast<SbgEComOutputMode>(m_log_event_e), "eventE");
-
-  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_PRESSURE, static_cast<SbgEComOutputMode>(m_log_pressure), "pressure");
-
-  //
-  // Check if the rate frequency has to be defined according to the defined publishers.
-  //
-  if(m_rate_frequency==0)
-  {
-    m_rate_frequency = m_message_publisher_.getOutputFrequency();
-  }
-}
-
 void Ellipse::configure(){
   bool change = false;
   change |= set_cmd_init_parameters();
@@ -703,6 +664,48 @@ bool Ellipse::save_mag_calibration(){
   else{
     ROS_INFO("SBG DRIVER - MAG CALIBRATION - Saving data to the device");
     return true;
+  }
+}
+
+/*!
+ * Initialize the publishers according to the configuration.
+ */
+void Ellipse::initPublishers(void)
+{
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_STATUS, static_cast<SbgEComOutputMode>(m_log_status), "status");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_UTC_TIME, static_cast<SbgEComOutputMode>(m_log_utc_time), "utc_time");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_IMU_DATA, static_cast<SbgEComOutputMode>(m_log_imu_data), "imu_data");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_MAG, static_cast<SbgEComOutputMode>(m_log_mag), "mag");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_MAG_CALIB, static_cast<SbgEComOutputMode>(m_log_mag_calib), "mag_calib");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_EULER, static_cast<SbgEComOutputMode>(m_log_ekf_euler), "ekf_euler");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_QUAT, static_cast<SbgEComOutputMode>(m_log_ekf_quat), "ekf_quat");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EKF_NAV, static_cast<SbgEComOutputMode>(m_log_ekf_nav), "ekf_nav");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_SHIP_MOTION, static_cast<SbgEComOutputMode>(m_log_ship_motion), "ship_motion");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_VEL, static_cast<SbgEComOutputMode>(m_log_gps1_vel), "gps_vel");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_POS, static_cast<SbgEComOutputMode>(m_log_gps1_pos), "gps_pos");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_HDT, static_cast<SbgEComOutputMode>(m_log_gps1_hdt), "gps_hdt");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_GPS1_RAW, static_cast<SbgEComOutputMode>(m_log_gps1_raw), "gps_raw");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_ODO_VEL, static_cast<SbgEComOutputMode>(m_log_odo_vel), "odo_vel");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_A, static_cast<SbgEComOutputMode>(m_log_event_a), "eventA");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_B, static_cast<SbgEComOutputMode>(m_log_event_b), "eventB");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_C, static_cast<SbgEComOutputMode>(m_log_event_c), "eventC");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_D, static_cast<SbgEComOutputMode>(m_log_event_d), "eventD");
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_EVENT_E, static_cast<SbgEComOutputMode>(m_log_event_e), "eventE");
+
+  m_message_publisher_.initPublisher(m_node, SBG_ECOM_LOG_PRESSURE, static_cast<SbgEComOutputMode>(m_log_pressure), "pressure");
+
+  //
+  // Check if the rate frequency has to be defined according to the defined publishers.
+  //
+  if(m_rate_frequency==0)
+  {
+    m_rate_frequency = m_message_publisher_.getOutputFrequency();
   }
 }
 
