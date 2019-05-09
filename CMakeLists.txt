@@ -152,6 +152,8 @@ include_directories(
 set (SBG_COMMON_RESOURCES
   src/message_publisher.cpp
   src/message_wrapper.cpp
+  src/config_store.cpp
+  src/config_output.cpp
   src/ellipse.cpp
 )
 
