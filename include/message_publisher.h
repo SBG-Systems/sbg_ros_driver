@@ -1,12 +1,8 @@
 #ifndef SBG_ROS_MESSAGE_PUBLISHER_H
 #define SBG_ROS_MESSAGE_PUBLISHER_H
 
-#include "ros/ros.h"
-
-#include <sbgEComLib.h>
-#include <sbgEComIds.h>
-
-#include "message_wrapper.h"
+#include <config_output.h>
+#include <message_wrapper.h>
 
 namespace sbg
 {
@@ -43,7 +39,7 @@ private:
   int               m_max_mesages_;
 
   //---------------------------------------------------------------------//
-  //- Internal methods                                                  -//
+  //- Private methods                                                   -//
   //---------------------------------------------------------------------//
 
   /*!
@@ -52,6 +48,16 @@ private:
    * \param[in] output_conf         Output configuration.
    */
   void updateOutputConfiguration(SbgEComOutputMode output_conf);
+
+  /*!
+   * Initialize the publisher for the specified SBG Id, and the output configuration.
+   * 
+   * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
+   * \param[in] sbg_msg_id              Id of the SBG message.
+   * \param[in] output_conf             Output configuration.
+   * \param[in] ref_output_topic        Output topic for the publisher.
+   */
+  void initPublisher(ros::NodeHandle *p_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic);
 
 public:
 
@@ -80,14 +86,12 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
-   * Initialize the publisher for the specified SBG Id, and the output configuration.
+   * Initialize the publishers for the output configuration.
    * 
    * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
-   * \param[in] sbg_msg_id              Id of the SBG message.
-   * \param[in] output_conf             Output configuration.
-   * \param[in] ref_output_topic        Output topic for the publisher.
+   * \param[in] ref_output_config       Output configuration for the publishers.
    */
-  void initPublisher(ros::NodeHandle *p_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic); 
+  void initPublishers(ros::NodeHandle *p_ros_node_handle, const ConfigOutput &ref_output_config); 
 
   /*!
    * Publish the received SbgLog if the corresponding publisher is defined.

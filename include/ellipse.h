@@ -1,189 +1,152 @@
-#ifndef ELLIPSE_HEADER
-#define ELLIPSE_HEADER
-
-#include "ros/ros.h"
-
-extern "C"
-{
-#include <sbgEComLib.h>
-#include <sbgEComIds.h>
-#include <sbgErrorCodes.h>
-}
+#ifndef SBG_ROS_ELLIPSE_H
+#define SBG_ROS_ELLIPSE_H
 
 #include <iostream>
 #include <map>
 #include <string>
 
 #include <message_publisher.h>
+#include <config_store.h>
 
+namespace sbg
+{
+/*!
+ * Class to handle a connected SBG Ellipse device.
+ */
 class Ellipse
 {
-  private:
+private:
 
-    /*!
-     *  Callback definition called each time a new log is received.
-     * 
-     *  \param[in]  pHandle                 Valid handle on the sbgECom instance that has called this callback.
-     *  \param[in]  msgClass                Class of the message we have received
-     *  \param[in]  msg                     Message ID of the log received.
-     *  \param[in]  pLogData                Contains the received log data as an union.
-     *  \param[in]  pUserArg                Optional user supplied argument.
-     *  \return                             SBG_NO_ERROR if the received log has been used successfully.
-     */
-    static SbgErrorCode onLogReceivedCallback(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
+  SbgEComHandle           m_com_handle_;
+  SbgInterface            m_sbg_interface_;
+  ros::NodeHandle*        m_p_node_;
+  MessagePublisher        m_message_publisher_;
+  ConfigStore             m_config_store_;
 
-    /*!
-     * Function to handle the received log.
-     * 
-     * \param[in]  msgClass               Class of the message we have received
-     * \param[in]  msg                    Message ID of the log received.
-     * \param[in]  pLogData               Contains the received log data as an union.
-     */
-    void onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData);
+  int                     m_rate_frequency_;
+  SbgEComMagCalibResults  m_magCalibResults;
 
-  public:
+  //---------------------------------------------------------------------//
+  //- Private  methods                                                  -//
+  //---------------------------------------------------------------------//
 
-    Ellipse(ros::NodeHandle *n);
+  /*!
+   *  Callback definition called each time a new log is received.
+   * 
+   *  \param[in]  pHandle                 Valid handle on the sbgECom instance that has called this callback.
+   *  \param[in]  msgClass                Class of the message we have received
+   *  \param[in]  msg                     Message ID of the log received.
+   *  \param[in]  pLogData                Contains the received log data as an union.
+   *  \param[in]  pUserArg                Optional user supplied argument.
+   *  \return                             SBG_NO_ERROR if the received log has been used successfully.
+   */
+  static SbgErrorCode onLogReceivedCallback(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
 
-    ~Ellipse();
+  /*!
+   * Function to handle the received log.
+   * 
+   * \param[in]  msgClass               Class of the message we have received
+   * \param[in]  msg                    Message ID of the log received.
+   * \param[in]  pLogData               Contains the received log data as an union.
+   */
+  void onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData);
 
-    void init_callback();
-    void connect();
-    void load_param();
-    void configure();
-    void save_config();
+  /*!
+   * Load the parameters.
+   */
+  void loadParameters(void);
 
-    bool start_mag_calibration();
-    bool end_mag_calibration();
-    bool save_mag_calibration();
+  /*!
+   * Read the device informations.
+   * 
+   * \param[in] p_com_handle      SBG communication handle.
+   * \throw                       Unable to read the device information.
+   */
+  void readDeviceInfo(SbgEComHandle* p_com_handle);
 
-    bool set_cmd_init_parameters();
-    bool set_cmd_motion_profile();
-    bool set_cmd_imu_lever_arm();
-    bool set_cmd_aiding_assignement();
-    bool set_cmd_mag_model();
-    bool set_cmd_mag_reject_mode();
-    bool set_cmd_gnss_model();
-    bool set_cmd_gnss_lever_arm();
-    bool set_cmd_gnss_reject_mode();
-    bool set_cmd_odom_conf();
-    bool set_cmd_odom_lever_arm();
-    bool set_cmd_odom_reject_mode();
-    bool set_cmd_output();
+  /*!
+   * Get the SBG version decoded to string.
+   * 
+   * \param[in] sbg_version_enc   SBG version encoded.
+   * \return                      String version decoded.
+   */
+  std::string getSbgVersionDecoded(uint32 sbg_version_enc) const;
 
-    /*!
-     * Initialize the publishers according to the configuration.
-     */
-    void initPublishers(void);
+  /*!
+   * Initialize the publishers according to the configuration.
+   */
+  void initPublishers(void);
 
-    /*!
-     * Periodic handle of the connected Ellipse.
-     */
-    void periodicHandle(void);
+  /*!
+   * Configure the connected Ellipse.
+   */
+  void configureEllipse(void);
 
-    /*!
-     * Read the device informations.
-     * 
-     * \param[in] p_com_handle      SBG communication handle.
-     */
-    void readDeviceInfo(SbgEComHandle* p_com_handle);
+  /*!
+   * Save the configuration of the connected Ellipse.
+   * 
+   * \throw                       Unable to save the configuration.
+   */
+  void saveEllipseConfiguration(void);
 
-    /*!
-     * Get the device frequency.
-     * 
-     * \return                      Device frequency to read the logs.
-     */
-    int getDeviceRateFrequency(void) const;
+public:
 
-  private:
+  //---------------------------------------------------------------------//
+  //- Constructor                                                       -//
+  //---------------------------------------------------------------------//
 
-    ros::NodeHandle *m_node;
-    sbg::MessagePublisher m_message_publisher_;
+  /*!
+   * Default constructor.
+   * 
+   * \param[in] p_node_handle       ROS NodeHandle.
+   */
+  Ellipse(ros::NodeHandle* p_node_handle);
 
-    int m_rate_frequency;
+  /*!
+   * Default destructor.
+   */
+  ~Ellipse(void);
 
- 
-    // *************** SBG TOOLS *************** //
-    SbgEComHandle       m_comHandle;
-    SbgInterface        m_sbgInterface;
+  //---------------------------------------------------------------------//
+  //- Parameters                                                        -//
+  //---------------------------------------------------------------------//
 
-    // *************** SBG Params *************** //
-    // connection param
-    std::string m_uartPortName;
-    uint32 m_uartBaudRate;
-    SbgEComOutputPort m_portOutput;
+  /*!
+   * Get the device frequency.
+   * 
+   * \return                      Device frequency to read the logs.
+   */
+  int getDeviceRateFrequency(void) const;
 
-    double m_initLat;
-    double m_initLong;
-    double m_initAlt;
-    uint16 m_initYear;
-    uint8 m_initMonth;
-    uint8 m_initDay;
-    uint32 m_motionProfileId;
+  //---------------------------------------------------------------------//
+  //- Public  methods                                                   -//
+  //---------------------------------------------------------------------//
 
-    int m_imuAxisDirectionX;
-    int m_imuAxisDirectionY;
-    float m_imuMisRoll;
-    float m_imuMisPitch;
-    float m_imuMisYaw;
-    float m_imuLeverArm[3];
+  /*!
+   * Initialize the Ellipse for receiving data.
+   * 
+   * \throw                       Unable to initialize the Ellipse.
+   */
+  void initEllipseForReceivingData(void);
 
-    int m_gnss1ModulePortAssignment;
-    int m_gnss1ModuleSyncAssignment;
-    int m_rtcmPortAssignment;
-    int m_odometerPinAssignment;
+  /*!
+   * Create the connection to the Ellipse device.
+   * 
+   * \throw                       Unable to connect to the Ellipse.
+   */
+  void connect(void);
 
-    uint32 m_magModelId;
-    int m_magRejectMode;
-    float m_magOffset[3];
-    float m_magMatrix[3][3];
+  /*!
+   * Periodic handle of the connected Ellipse.
+   */
+  void periodicHandle(void);
 
-    uint32 m_gnssModelId;
-
-    float m_gnss1LeverArmX;
-    float m_gnss1LeverArmY;
-    float m_gnss1LeverArmZ;
-    float m_gnss1PitchOffset;
-    float m_gnss1YawOffset;
-    float m_gnss1AntennaDistance;
-
-    int m_gnss1PosRejectMode;
-    int m_gnss1VelRejectMode;
-    int m_gnss1HdtRejectMode;
-
-    float m_odomGain;
-    uint8 m_odomGainError;
-    bool m_odomDirection;
-    float m_odomLever[3];
-    int m_odomRejectMode;
-
-    uint8 m_timeReference;
-
-    int m_log_status;
-    int m_log_imu_data;
-    int m_log_ekf_euler;
-    int m_log_ekf_quat;
-    int m_log_ekf_nav;
-    int m_log_ship_motion;
-    int m_log_utc_time;
-    int m_log_mag;
-    int m_log_mag_calib;
-    int m_log_gps1_vel;
-    int m_log_gps1_pos;
-    int m_log_gps1_hdt;
-    int m_log_gps1_raw;
-    int m_log_odo_vel;
-    int m_log_event_a;
-    int m_log_event_b;
-    int m_log_event_c;
-    int m_log_event_d;
-    int m_log_event_e;
-    int m_log_pressure;
-
-    int m_magnetic_calibration_mode;
-    int m_magnetic_calibration_bandwidth;
-    SbgEComMagCalibResults	m_magCalibResults;
+  // TODO. Improve magnetometer calibration.
+  bool start_mag_calibration();
+  bool end_mag_calibration();
+  bool save_mag_calibration();
 };
+}
 
 static std::map<SbgEComMagCalibQuality, std::string> MAG_CALIB_QUAL= {{SBG_ECOM_MAG_CALIB_QUAL_OPTIMAL, "Quality: optimal"},
                                                                             {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},

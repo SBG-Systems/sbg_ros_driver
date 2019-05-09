@@ -20,7 +20,7 @@ m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED)
 }
 
 //---------------------------------------------------------------------//
-//- Internal methods                                                  -//
+//- Private methods                                                   -//
 //---------------------------------------------------------------------//
 
 /*!
@@ -52,61 +52,6 @@ void MessagePublisher::updateOutputConfiguration(SbgEComOutputMode output_conf)
   }
 }
 
-//---------------------------------------------------------------------//
-//- Parameters                                                        -//
-//---------------------------------------------------------------------//
-
-/*!
- * Get the output frequency for the publisher.
- * 
- * \return                            Output frequency (in Hz).
- */
-int MessagePublisher::getOutputFrequency(void) const
-{
-  switch (m_output_mode_)
-  {
-  case SBG_ECOM_OUTPUT_MODE_DISABLED:
-    return 0;
-  
-  case SBG_ECOM_OUTPUT_MODE_MAIN_LOOP:
-    return 200;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_2:
-    return 100;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_4:
-    return 50;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_5:
-    return 40;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_8:
-    return 25;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_10:
-    return 20;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_20:
-    return 10;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_40:
-    return 5;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_200:
-    return 1;
-
-  case SBG_ECOM_OUTPUT_MODE_HIGH_FREQ_LOOP:
-    return 1000;
-
-  default:
-    return 0;
-  }
-}
-
-//---------------------------------------------------------------------//
-//- Operations                                                        -//
-//---------------------------------------------------------------------//
-
 /*!
  * Initialize the publisher for the specified SBG Id, and the output configuration.
  * 
@@ -127,37 +72,30 @@ void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgECom
     switch (sbg_msg_id)
     {
       case SBG_ECOM_LOG_STATUS:
-
         m_sbgStatus_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgStatus>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_UTC_TIME:
-
         m_sbgUtcTime_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgUtcTime>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_IMU_DATA:
-
         m_sbgImuData_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgImuData>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_MAG:
-
         m_sbgMag_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgMag>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_MAG_CALIB:
-
         m_sbgMagCalib_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgMagCalib>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EKF_EULER:
-
         m_sbgEkfEuler_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EKF_QUAT:
-
         m_sbgEkfQuat_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEkfQuat>(ref_output_topic, m_max_mesages_);
         break;
 
@@ -248,6 +186,92 @@ void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgECom
         break;
     }
   }
+}
+
+//---------------------------------------------------------------------//
+//- Parameters                                                        -//
+//---------------------------------------------------------------------//
+
+/*!
+ * Get the output frequency for the publisher.
+ * 
+ * \return                            Output frequency (in Hz).
+ */
+int MessagePublisher::getOutputFrequency(void) const
+{
+  switch (m_output_mode_)
+  {
+  case SBG_ECOM_OUTPUT_MODE_DISABLED:
+    return 0;
+  
+  case SBG_ECOM_OUTPUT_MODE_MAIN_LOOP:
+    return 200;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_2:
+    return 100;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_4:
+    return 50;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_5:
+    return 40;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_8:
+    return 25;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_10:
+    return 20;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_20:
+    return 10;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_40:
+    return 5;
+
+  case SBG_ECOM_OUTPUT_MODE_DIV_200:
+    return 1;
+
+  case SBG_ECOM_OUTPUT_MODE_HIGH_FREQ_LOOP:
+    return 1000;
+
+  default:
+    return 0;
+  }
+}
+
+//---------------------------------------------------------------------//
+//- Operations                                                        -//
+//---------------------------------------------------------------------//
+
+void MessagePublisher::initPublishers(ros::NodeHandle *p_ros_node_handle, const ConfigOutput &ref_output_config)
+{
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_STATUS, ref_output_config.getOutputMode(SBG_ECOM_LOG_STATUS), "status");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_UTC_TIME, ref_output_config.getOutputMode(SBG_ECOM_LOG_UTC_TIME), "utc_time");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_IMU_DATA, ref_output_config.getOutputMode(SBG_ECOM_LOG_IMU_DATA), "imu_data");
+
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_MAG, ref_output_config.getOutputMode(SBG_ECOM_LOG_MAG), "mag");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_MAG_CALIB, ref_output_config.getOutputMode(SBG_ECOM_LOG_MAG_CALIB), "mag_calib");
+
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EKF_EULER, ref_output_config.getOutputMode(SBG_ECOM_LOG_EKF_EULER), "ekf_euler");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EKF_QUAT, ref_output_config.getOutputMode(SBG_ECOM_LOG_EKF_QUAT), "ekf_quat");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EKF_NAV, ref_output_config.getOutputMode(SBG_ECOM_LOG_EKF_NAV), "ekf_nav");
+
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_SHIP_MOTION, ref_output_config.getOutputMode(SBG_ECOM_LOG_SHIP_MOTION), "ship_motion");
+
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_GPS1_VEL, ref_output_config.getOutputMode(SBG_ECOM_LOG_GPS1_VEL), "gps_vel");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_GPS1_POS, ref_output_config.getOutputMode(SBG_ECOM_LOG_GPS1_POS), "gps_pos");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_GPS1_HDT, ref_output_config.getOutputMode(SBG_ECOM_LOG_GPS1_HDT), "gps_hdt");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_GPS1_RAW, ref_output_config.getOutputMode(SBG_ECOM_LOG_GPS1_RAW), "gps_raw");
+
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_ODO_VEL, ref_output_config.getOutputMode(SBG_ECOM_LOG_ODO_VEL), "odo_vel");
+
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EVENT_A, ref_output_config.getOutputMode(SBG_ECOM_LOG_EVENT_A), "eventA");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EVENT_B, ref_output_config.getOutputMode(SBG_ECOM_LOG_EVENT_B), "eventB");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EVENT_C, ref_output_config.getOutputMode(SBG_ECOM_LOG_EVENT_C), "eventC");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EVENT_D, ref_output_config.getOutputMode(SBG_ECOM_LOG_EVENT_D), "eventD");
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_EVENT_E, ref_output_config.getOutputMode(SBG_ECOM_LOG_EVENT_E), "eventE");
+
+  initPublisher(p_ros_node_handle, SBG_ECOM_LOG_PRESSURE, ref_output_config.getOutputMode(SBG_ECOM_LOG_PRESSURE), "pressure");
 }
 
 /*!
