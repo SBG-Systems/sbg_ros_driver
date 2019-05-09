@@ -9,9 +9,6 @@ using sbg::MessagePublisher;
 //- Constructor                                                       -//
 //---------------------------------------------------------------------//
 
-/*!
- * Default constructor.
- */
 MessagePublisher::MessagePublisher(void):
 m_max_mesages_(10),
 m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED)
@@ -23,11 +20,6 @@ m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED)
 //- Private methods                                                   -//
 //---------------------------------------------------------------------//
 
-/*!
- * Update the output configuration of the publisher.
- * 
- * \param[in] output_conf         Output configuration.
- */
 void MessagePublisher::updateOutputConfiguration(SbgEComOutputMode output_conf)
 {
   //
@@ -52,14 +44,6 @@ void MessagePublisher::updateOutputConfiguration(SbgEComOutputMode output_conf)
   }
 }
 
-/*!
- * Initialize the publisher for the specified SBG Id, and the output configuration.
- * 
- * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
- * \param[in] sbg_msg_id              Id of the SBG message.
- * \param[in] output_conf             Output configuration.
- * \param[in] ref_output_topic        Output topic for the publisher.
- */
 void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic)
 {
   //
@@ -192,11 +176,6 @@ void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgECom
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
 
-/*!
- * Get the output frequency for the publisher.
- * 
- * \return                            Output frequency (in Hz).
- */
 int MessagePublisher::getOutputFrequency(void) const
 {
   switch (m_output_mode_)
@@ -274,13 +253,6 @@ void MessagePublisher::initPublishers(ros::NodeHandle *p_ros_node_handle, const 
   initPublisher(p_ros_node_handle, SBG_ECOM_LOG_PRESSURE, ref_output_config.getOutputMode(SBG_ECOM_LOG_PRESSURE), "pressure");
 }
 
-/*!
- * Publish the received SbgLog if the corresponding publisher is defined.
- * 
- * \param[in] sbg_msg_class           Class ID of the SBG message.
- * \param[in] sbg_msg_id              Id of the SBG message.
- * \param[in] ref_sbg_log             SBG binary log.
- */
 void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log) const
 {
   //
