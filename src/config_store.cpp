@@ -111,7 +111,7 @@ void ConfigStore::configureInitCondition(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the device Init conditions " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the device Init conditions %s", sbgErrorCodeToString(error_code));
   }
 
   if (init_condition.year != m_init_condition_conf_.year
@@ -125,11 +125,13 @@ void ConfigStore::configureInitCondition(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the device Init conditions " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the device Init conditions %s", sbgErrorCodeToString(error_code)) ;
     }
-    
-    ROS_INFO("SBG DRIVER - [Param] Initial conditions updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG DRIVER - [Param] Initial conditions updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -146,7 +148,7 @@ void ConfigStore::configureMotionProfile(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the motion profile " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the motion profile %s", sbgErrorCodeToString(error_code));
   }
 
   if (motion_profile.id != m_motion_profile_model_info_.id)
@@ -155,11 +157,13 @@ void ConfigStore::configureMotionProfile(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the motion profile " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the motion profile %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG DRIVER - [Param] Motion profile updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG DRIVER - [Param] Motion profile updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -177,7 +181,7 @@ void ConfigStore::configureImuAlignement(SbgEComHandle* p_com_handle)
  
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the IMU alignement " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the IMU alignement %s", sbgErrorCodeToString(error_code));
   }
 
   if (leverArm[0] != m_sensor_lever_arm_[0]
@@ -193,11 +197,13 @@ void ConfigStore::configureImuAlignement(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the IMU alignement " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the IMU alignement %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Imu alignement updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Imu alignement updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -214,7 +220,7 @@ void ConfigStore::configureAidingAssignement(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the aiding assignement " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the aiding assignement %s", sbgErrorCodeToString(error_code));
   }
 
   if (aiding_assign.gps1Port != m_aiding_assignement_conf_.gps1Port
@@ -226,11 +232,13 @@ void ConfigStore::configureAidingAssignement(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the aiding assignement " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the aiding assignement  %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Aiding assignement updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Aiding assignement updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -247,7 +255,7 @@ void ConfigStore::configureMagModel(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the magnetometer model " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the magnetometer model %s", sbgErrorCodeToString(error_code));
   }
 
   if (model_info.id != m_mag_model_info_.id)
@@ -256,11 +264,13 @@ void ConfigStore::configureMagModel(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the magnetometer model " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the magnetometer model %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Magnetometer model updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Magnetometer model updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -277,7 +287,7 @@ void ConfigStore::configureMagRejection(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the magnetometer rejection " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the magnetometer rejection %s", sbgErrorCodeToString(error_code));
   }
 
   if (mag_rejection.magneticField != m_mag_rejection_conf_.magneticField)
@@ -286,11 +296,13 @@ void ConfigStore::configureMagRejection(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the magnetometer rejection " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the magnetometer rejection %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Magnetometer rejection updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Magnetometer rejection updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -307,7 +319,7 @@ void ConfigStore::configureGnssModel(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the Gnss model " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the Gnss model %s", sbgErrorCodeToString(error_code));
   }
 
   if (model_info.id != m_gnss_model_info_.id)
@@ -316,11 +328,13 @@ void ConfigStore::configureGnssModel(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the Gnss model " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the Gnss model %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Gnss model updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Gnss model updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -337,7 +351,7 @@ void ConfigStore::configureGnssLevelArm(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the Gnss level Arm " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the Gnss level Arm %s", sbgErrorCodeToString(error_code));
   }
 
   if (gnss_alignement.antennaDistance != m_gnss_alignement_info_.antennaDistance
@@ -351,11 +365,13 @@ void ConfigStore::configureGnssLevelArm(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the Gnss level Arm " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the Gnss level Arm %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Gnss level arm updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Gnss level arm updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -372,7 +388,7 @@ void ConfigStore::configureGnssRejection(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the Gnss rejection " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the Gnss rejection %s", sbgErrorCodeToString(error_code));
   }
 
   if (rejection.hdt != m_gnss_rejection_conf_.hdt
@@ -383,11 +399,13 @@ void ConfigStore::configureGnssRejection(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the Gnss rejection " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the Gnss rejection %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Gnss rejection updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Gnss rejection updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -404,7 +422,7 @@ void ConfigStore::configureOdometer(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the Odometer configuration " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the Odometer configuration %s", sbgErrorCodeToString(error_code));
   }
 
   if (odom_conf.gain != m_odometer_conf_.gain
@@ -415,11 +433,13 @@ void ConfigStore::configureOdometer(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the Odometer configuration " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the Odometer configuration %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Odometer configuration updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Odometer configuration updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -436,7 +456,7 @@ void ConfigStore::configureOdometerLevelArm(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the odometer level arms " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the odometer level arms %s", sbgErrorCodeToString(error_code));
   }
 
   if (leverArm[0] != m_odometer_level_arm_[0]
@@ -447,11 +467,13 @@ void ConfigStore::configureOdometerLevelArm(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the odometer level arms " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the odometer level arms %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Odometer level arms updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Odometer level arms updated on the device.");
+      m_rebootNeeded = true;
+    }
   }
 }
 
@@ -468,7 +490,7 @@ void ConfigStore::configureOdometerRejection(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the odometer rejection " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the odometer rejection %s", sbgErrorCodeToString(error_code));
   }
 
   if (odom_rejection.velocity != m_odometer_rejection_conf_.velocity)
@@ -477,11 +499,13 @@ void ConfigStore::configureOdometerRejection(SbgEComHandle* p_com_handle)
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the odometer rejection " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the odometer rejection %s", sbgErrorCodeToString(error_code));
     }
-
-    ROS_INFO("SBG_DRIVER - [Param] Odometer rejection updated on the device.");
-    m_rebootNeeded = true;
+    else
+    {
+      ROS_INFO("SBG_DRIVER - [Param] Odometer rejection updated on the device.");
+      m_rebootNeeded = true;
+    }
   }   
 }
 

@@ -96,7 +96,7 @@ void Ellipse::readDeviceInfo(SbgEComHandle* p_com_handle)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the device Info : " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_ERROR("Unable to get the device Info : %s", sbgErrorCodeToString(error_code));
   }
 
   ROS_INFO("SBG DRIVER - productCode = %s", device_info.productCode);
@@ -154,10 +154,12 @@ void Ellipse::saveEllipseConfiguration(void)
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to save the settings on the Ellipse - " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_ERROR("Unable to save the settings on the Ellipse - %s", sbgErrorCodeToString(error_code));
   }
-
-  ROS_INFO("SBG_DRIVER - Settings saved and device rebooted.");
+  else
+  {
+    ROS_INFO("SBG_DRIVER - Settings saved and device rebooted.");
+  }
 }
 
 //---------------------------------------------------------------------//

@@ -37,7 +37,7 @@ void ConfigOutput::configureCommandOutput(SbgEComHandle* p_com_handle, SbgEComOu
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("Unable to get the output configuration from the device " + std::string(sbgErrorCodeToString(error_code)));
+    ROS_WARN("Unable to get the output configuration from the device %s", sbgErrorCodeToString(error_code));
   }
 
   if (current_output_mode != output_mode)
@@ -46,10 +46,12 @@ void ConfigOutput::configureCommandOutput(SbgEComHandle* p_com_handle, SbgEComOu
 
     if (error_code != SBG_NO_ERROR)
     {
-      throw ros::Exception("Unable to set the output configuration from the device " + std::string(sbgErrorCodeToString(error_code)));
+      ROS_WARN("Unable to set the output configuration log ID %d from the device %s", sbg_msg_id, sbgErrorCodeToString(error_code));
     }
-
-    m_rebootNeeded = true;
+    else
+    {
+      m_rebootNeeded = true;
+    }
   }
 }
 
