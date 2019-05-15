@@ -154,25 +154,25 @@ set (SBG_COMMON_RESOURCES
   src/message_wrapper.cpp
   src/config_store.cpp
   src/config_output.cpp
-  src/ellipse.cpp
+  src/sbg_device.cpp
 )
 
 ## Declare a C++ executable
-add_executable(ellipse
+add_executable(sbg_device
   ${SBG_COMMON_RESOURCES}
   src/main.cpp
 )
 
-add_executable(ellipse_mag
+add_executable(sbg_device_mag
   ${SBG_COMMON_RESOURCES}
-  src/ellipse_mag.cpp
+  src/main_mag.cpp
 )
 
-add_dependencies(ellipse ${sbg_driver_EXPORTED_TARGETS})
-add_dependencies(ellipse_mag ${sbg_driver_EXPORTED_TARGETS})
+add_dependencies(sbg_device ${sbg_driver_EXPORTED_TARGETS})
+add_dependencies(sbg_device_mag ${sbg_driver_EXPORTED_TARGETS})
 
-target_compile_options(ellipse PRIVATE -fpermissive)
-target_compile_options(ellipse_mag PRIVATE -fpermissive)
+target_compile_options(sbg_device PRIVATE -fpermissive)
+target_compile_options(sbg_device_mag PRIVATE -fpermissive)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -180,12 +180,12 @@ target_compile_options(ellipse_mag PRIVATE -fpermissive)
 # add_dependencies(ellipse sbgECom)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(ellipse
+target_link_libraries(sbg_device
    ${catkin_LIBRARIES}
    sbgECom
 )
 
-target_link_libraries(ellipse_mag
+target_link_libraries(sbg_device_mag
    ${catkin_LIBRARIES}
    sbgECom
 )
@@ -205,7 +205,7 @@ target_link_libraries(ellipse_mag
 # )
 
 ## Mark executables and/or libraries for installation
- install(TARGETS ellipse ellipse_mag
+ install(TARGETS sbg_device sbg_device_mag
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

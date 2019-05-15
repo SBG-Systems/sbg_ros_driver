@@ -15,6 +15,12 @@ private:
   std::string                 m_uart_port_name_;
   SbgEComOutputPort           m_output_port_;
   uint32                      m_uart_baud_rate_;
+  bool                        m_serial_communication_;
+  
+  sbgIpAddress                m_sbg_ip_address_;
+  uint32                      m_out_port_;
+  uint32                      m_in_port_;
+  bool                        m_upd_communication_;
 
   SbgEComInitConditionConf    m_init_condition_conf_;
   SbgEComModelInfo            m_motion_profile_model_info_;
@@ -258,6 +264,16 @@ public:
    * \throw     Exception         Unable to initialize the communication interface.
    */
   void initCommunicationInterface(SbgInterface* p_sbg_interface) const;
+
+  /*!
+   * Update the communication interface after configuration if needed.
+
+  /*!
+   * Close the communication interface.
+   * 
+   * \param[in] p_sbg_interface   SBG communication interface.
+   */
+  void closeCommunicationInterface(SbgInterface* p_sbg_interface) const;
 
   /*!
    * Configure the connected communication SBG handle.

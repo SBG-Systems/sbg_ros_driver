@@ -7,10 +7,10 @@
 #include <boost/thread/xtime.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 
-#include "ellipse.h"
+#include "sbg_device.h"
 
 using namespace std;
-using sbg::Ellipse;
+using sbg::SbgDevice;
 
 // From ros_com/recorder
 std::string timeToStr(ros::WallTime ros_t)
@@ -25,19 +25,20 @@ std::string timeToStr(ros::WallTime ros_t)
 }
 
 /*!
- * Class to handle a connected SBG Ellipse device.
+ * Class to handle a connected SBG device.
  */
 //---------------------------------------------------------------------//
 //- Constructor                                                       -//
 //---------------------------------------------------------------------//
 
-Ellipse::Ellipse(ros::NodeHandle* p_node_handle):
+SbgDevice::SbgDevice(ros::NodeHandle* p_node_handle):
 m_p_node_(p_node_handle)
 {
   loadParameters();
+  connect();
 }
 
-Ellipse::~Ellipse(void)
+SbgDevice::~SbgDevice(void)
 {
   SbgErrorCode error_code;
 
@@ -48,29 +49,24 @@ Ellipse::~Ellipse(void)
     ROS_ERROR("Unable to close the SBG communication handle - %s.", sbgErrorCodeToString(error_code));
   }
 
-  error_code = sbgInterfaceSerialDestroy(&m_sbg_interface_);
-
-  if (error_code != SBG_NO_ERROR)
-  {
-    ROS_ERROR("Unable to close the serial interface - %s.", sbgErrorCodeToString(error_code));
-  }
+  m_config_store_.closeCommunicationInterface(&m_sbg_interface_);
 }
 
 //---------------------------------------------------------------------//
 //- Private  methods                                                  -//
 //---------------------------------------------------------------------//
 
-SbgErrorCode Ellipse::onLogReceivedCallback(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg)
+SbgErrorCode SbgDevice::onLogReceivedCallback(SbgEComHandle* pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData, void* pUserArg)
 {
-  Ellipse *p_ellipse;
-  p_ellipse = (Ellipse*)(pUserArg);
+  SbgDevice *p_sbg_device;
+  p_sbg_device = (SbgDevice*)(pUserArg);
 
-  p_ellipse->onLogReceived(msgClass, msg, pLogData);
+  p_sbg_device->onLogReceived(msgClass, msg, pLogData);
 
   return SBG_NO_ERROR;
 }
 
-void Ellipse::onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData)
+void SbgDevice::onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData)
 {
   //
   // Publish the received SBG log.
@@ -78,7 +74,7 @@ void Ellipse::onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBi
   m_message_publisher_.publish(msgClass, msg, *pLogData);
 }
 
-void Ellipse::loadParameters(void)
+void SbgDevice::loadParameters(void)
 {
   //
   // Get the ROS private nodeHandle, where the parameters are loaded from the launch file.
@@ -87,7 +83,22 @@ void Ellipse::loadParameters(void)
   m_config_store_.loadFromRosNodeHandle(n_private);
 }
 
-void Ellipse::readDeviceInfo(SbgEComHandle* p_com_handle)
+void SbgDevice::connect(void)
+{
+  SbgErrorCode error_code;
+
+  m_config_store_.initCommunicationInterface(&m_sbg_interface_);
+  error_code = sbgEComInit(&m_com_handle_, &m_sbg_interface_);
+
+  if (error_code != SBG_NO_ERROR)
+  {
+    throw ros::Exception("SBG_DRIVER - [Init] Unable to initialize the SbgECom protocol - " + std::string(sbgErrorCodeToString(error_code)));
+  }
+
+  readDeviceInfo(&m_com_handle_);
+}
+
+void SbgDevice::readDeviceInfo(SbgEComHandle* p_com_handle)
 {
   SbgEComDeviceInfo device_info;
   SbgErrorCode      error_code; 
@@ -103,15 +114,13 @@ void Ellipse::readDeviceInfo(SbgEComHandle* p_com_handle)
   ROS_INFO("SBG DRIVER - serialNumber = %u", device_info.serialNumber);
 
   ROS_INFO("SBG DRIVER - calibationRev = %s", getSbgVersionDecoded(device_info.calibationRev).c_str());
-  ROS_INFO("SBG DRIVER - calibrationYear = %u", device_info.calibrationYear);
-  ROS_INFO("SBG DRIVER - calibrationMonth = %u", device_info.calibrationMonth);
-  ROS_INFO("SBG DRIVER - calibrationDay = %u", device_info.calibrationDay);
+  ROS_INFO("SBG DRIVER - calibrationDate = %u / %u / %u", device_info.calibrationDay, device_info.calibrationMonth, device_info.calibrationYear);
 
   ROS_INFO("SBG DRIVER - hardwareRev = %s", getSbgVersionDecoded(device_info.hardwareRev).c_str());
   ROS_INFO("SBG DRIVER - firmwareRev = %s", getSbgVersionDecoded(device_info.firmwareRev).c_str()); 
 }
 
-std::string Ellipse::getSbgVersionDecoded(uint32 sbg_version_enc) const
+std::string SbgDevice::getSbgVersionDecoded(uint32 sbg_version_enc) const
 {
   char version[32];
   sbgVersionToStringEncoded(sbg_version_enc, version, 32);
@@ -119,7 +128,7 @@ std::string Ellipse::getSbgVersionDecoded(uint32 sbg_version_enc) const
   return std::string(version);
 }
 
-void Ellipse::initPublishers(void)
+void SbgDevice::initPublishers(void)
 {
   m_message_publisher_.initPublishers(m_p_node_, m_config_store_.getOutputConfiguration());
 
@@ -136,17 +145,17 @@ void Ellipse::initPublishers(void)
   }
 }
 
-void Ellipse::configureEllipse(void)
+void SbgDevice::configure(void)
 {
   m_config_store_.configureComHandle(&m_com_handle_);
 
   if (m_config_store_.isRebootNeeded())
   {
-    saveEllipseConfiguration();
+    saveDeviceConfiguration();
   }
 }
 
-void Ellipse::saveEllipseConfiguration(void)
+void SbgDevice::saveDeviceConfiguration(void)
 {
   SbgErrorCode error_code;
 
@@ -154,7 +163,7 @@ void Ellipse::saveEllipseConfiguration(void)
 
   if (error_code != SBG_NO_ERROR)
   {
-    ROS_ERROR("Unable to save the settings on the Ellipse - %s", sbgErrorCodeToString(error_code));
+    ROS_ERROR("Unable to save the settings on the SBG device - %s", sbgErrorCodeToString(error_code));
   }
   else
   {
@@ -166,7 +175,7 @@ void Ellipse::saveEllipseConfiguration(void)
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
 
-int Ellipse::getDeviceRateFrequency(void) const
+int SbgDevice::getDeviceRateFrequency(void) const
 {
   return m_rate_frequency_;
 }
@@ -175,12 +184,11 @@ int Ellipse::getDeviceRateFrequency(void) const
 //- Public  methods                                                   -//
 //---------------------------------------------------------------------//
 
-void Ellipse::initEllipseForReceivingData(void)
+void SbgDevice::initDeviceForReceivingData(void)
 {
   SbgErrorCode error_code;
-
   initPublishers();
-  configureEllipse();
+  //configure();
 
   error_code = sbgEComSetReceiveLogCallback(&m_com_handle_, onLogReceivedCallback, this);
 
@@ -190,27 +198,12 @@ void Ellipse::initEllipseForReceivingData(void)
   }
 }
 
-void Ellipse::connect(void)
-{
-  SbgErrorCode error_code;
-
-  m_config_store_.initCommunicationInterface(&m_sbg_interface_);
-  error_code = sbgEComInit(&m_com_handle_, &m_sbg_interface_);
-
-  if (error_code != SBG_NO_ERROR)
-  {
-    throw ros::Exception("SBG_DRIVER - [Init] Unable to initialize the SbgECom protocol - " + std::string(sbgErrorCodeToString(error_code)));
-  }
-
-  readDeviceInfo(&m_com_handle_);
-}
-
-void Ellipse::periodicHandle(void)
+void SbgDevice::periodicHandle(void)
 {
   sbgEComHandle(&m_com_handle_);
 }
 
-bool Ellipse::start_mag_calibration()
+bool SbgDevice::start_mag_calibration()
 {
   SbgErrorCode errorCode;
   SbgEComMagCalibMode         mag_calib_mode;
@@ -231,7 +224,7 @@ bool Ellipse::start_mag_calibration()
   }
 }
 
-bool Ellipse::end_mag_calibration(){
+bool SbgDevice::end_mag_calibration(){
   SbgErrorCode errorCode = sbgEComCmdMagComputeCalib(&m_com_handle_, &m_magCalibResults);
   if (errorCode != SBG_NO_ERROR){
     ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));
@@ -314,7 +307,7 @@ bool Ellipse::end_mag_calibration(){
   return true;
 }
 
-bool Ellipse::save_mag_calibration(){
+bool SbgDevice::save_mag_calibration(){
   SbgErrorCode errorCode = sbgEComCmdMagSetCalibData(&m_com_handle_, m_magCalibResults.offset, m_magCalibResults.matrix);
   if (errorCode != SBG_NO_ERROR){
     ROS_WARN("SBG DRIVER - sbgEComCmdMagSetCalibData Error : %s", sbgErrorCodeToString(errorCode));
@@ -322,7 +315,7 @@ bool Ellipse::save_mag_calibration(){
   }
   else{
     ROS_INFO("SBG DRIVER - MAG CALIBRATION - Saving data to the device");
-    saveEllipseConfiguration();
+    saveDeviceConfiguration();
     return true;
   }
 }

@@ -1,29 +1,26 @@
-#include <ellipse.h>
+#include <sbg_device.h>
 
-using sbg::Ellipse;
+using sbg::SbgDevice;
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "sbg_ellipse");
-  ros::NodeHandle n;
+  ros::init(argc, argv, "sbg_device");
+  ros::NodeHandle node_handle;
 
   try
   {
-    ROS_INFO("SBG DRIVER - Init node & load params");
-    Ellipse ellipse(&n);
+    ROS_INFO("SBG DRIVER - Init node, load params and connect to the device.");
+    SbgDevice sbg_device(&node_handle);
 
-    ROS_INFO("SBG DRIVER - Ellipse connect");
-    ellipse.connect();
-
-    ROS_INFO("SBG DRIVER - Ellipse configure for receiving data");
-    ellipse.initEllipseForReceivingData();
+    ROS_INFO("SBG DRIVER - Initialize device for receiving data");
+    sbg_device.initDeviceForReceivingData();
 
     ROS_INFO("SBG DRIVER - START RECEIVING DATA");
-    ros::Rate loop_rate(ellipse.getDeviceRateFrequency());
+    ros::Rate loop_rate(sbg_device.getDeviceRateFrequency());
 
     while (ros::ok())
     {
-      ellipse.periodicHandle();
+      sbg_device.periodicHandle();
       loop_rate.sleep();
     }
 

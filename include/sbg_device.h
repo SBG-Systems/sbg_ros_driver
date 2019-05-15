@@ -1,5 +1,5 @@
-#ifndef SBG_ROS_ELLIPSE_H
-#define SBG_ROS_ELLIPSE_H
+#ifndef SBG_ROS_SBG_DEVICE_H
+#define SBG_ROS_SBG_DEVICE_H
 
 #include <iostream>
 #include <map>
@@ -11,9 +11,9 @@
 namespace sbg
 {
 /*!
- * Class to handle a connected SBG Ellipse device.
+ * Class to handle a connected SBG device.
  */
-class Ellipse
+class SbgDevice
 {
 private:
 
@@ -40,7 +40,7 @@ private:
    *  \param[in]  pUserArg                Optional user supplied argument.
    *  \return                             SBG_NO_ERROR if the received log has been used successfully.
    */
-  static SbgErrorCode onLogReceivedCallback(SbgEComHandle *pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData, void *pUserArg);
+  static SbgErrorCode onLogReceivedCallback(SbgEComHandle* pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData, void* pUserArg);
 
   /*!
    * Function to handle the received log.
@@ -49,12 +49,19 @@ private:
    * \param[in]  msg                    Message ID of the log received.
    * \param[in]  pLogData               Contains the received log data as an union.
    */
-  void onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData *pLogData);
+  void onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData);
 
   /*!
    * Load the parameters.
    */
   void loadParameters(void);
+
+  /*!
+   * Create the connection to the SBG device.
+   * 
+   * \throw                       Unable to connect to the SBG device.
+   */
+  void connect(void);
 
   /*!
    * Read the device informations.
@@ -78,16 +85,16 @@ private:
   void initPublishers(void);
 
   /*!
-   * Configure the connected Ellipse.
+   * Configure the connected SBG device.
    */
-  void configureEllipse(void);
+  void configure(void);
 
   /*!
-   * Save the configuration of the connected Ellipse.
+   * Save the configuration of the connected SBG device.
    * 
    * \throw                       Unable to save the configuration.
    */
-  void saveEllipseConfiguration(void);
+  void saveDeviceConfiguration(void);
 
 public:
 
@@ -100,12 +107,12 @@ public:
    * 
    * \param[in] p_node_handle       ROS NodeHandle.
    */
-  Ellipse(ros::NodeHandle* p_node_handle);
+  SbgDevice(ros::NodeHandle* p_node_handle);
 
   /*!
    * Default destructor.
    */
-  ~Ellipse(void);
+  ~SbgDevice(void);
 
   //---------------------------------------------------------------------//
   //- Parameters                                                        -//
@@ -123,21 +130,14 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
-   * Initialize the Ellipse for receiving data.
+   * Initialize the SBG device for receiving data.
    * 
-   * \throw                       Unable to initialize the Ellipse.
+   * \throw                       Unable to initialize the SBG device.
    */
-  void initEllipseForReceivingData(void);
+  void initDeviceForReceivingData(void);
 
   /*!
-   * Create the connection to the Ellipse device.
-   * 
-   * \throw                       Unable to connect to the Ellipse.
-   */
-  void connect(void);
-
-  /*!
-   * Periodic handle of the connected Ellipse.
+   * Periodic handle of the connected SBG device.
    */
   void periodicHandle(void);
 

@@ -1,11 +1,11 @@
-#include "ellipse.h"
+#include "sbg_device.h"
 #include <ros/ros.h>
 #include <std_srvs/SetBool.h>
 #include <std_srvs/Trigger.h>
 
-using sbg::Ellipse;
+using sbg::SbgDevice;
 
-Ellipse *e_ref;
+SbgDevice *e_ref;
 bool start_calibration = true;
 bool one_calibration_done = false;
 
@@ -40,17 +40,14 @@ bool calibration_save(std_srvs::Trigger::Request  &req,
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "sbg_ellipse_mag");
+  ros::init(argc, argv, "sbg_device_mag");
   ros::NodeHandle n;
 
   try
   {
-    ROS_INFO("SBG DRIVER - Init node & load params");
-    Ellipse ellipse(&n);
-    e_ref = &ellipse;
-
-    ROS_INFO("SBG DRIVER - Ellipse connect");
-    ellipse.connect();
+    ROS_INFO("SBG DRIVER - Init node, load params and connect to the device");
+    SbgDevice sbg_device(&n);
+    e_ref = &sbg_device;
 
     ros::ServiceServer calibration_srv = n.advertiseService("mag_calibration", calibration_process);
     ros::ServiceServer calibration_save_srv = n.advertiseService("mag_calibration_save", calibration_save);

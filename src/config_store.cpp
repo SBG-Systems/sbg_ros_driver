@@ -22,9 +22,25 @@ m_rebootNeeded(false)
 
 void ConfigStore::loadCommunicationParameters(ros::NodeHandle& ref_node_handle)
 {
-  m_uart_port_name_   = ref_node_handle.param<std::string>("uartConf/portName", "/dev/ttyUSB0");
-  m_uart_baud_rate_   = static_cast<uint32>(ref_node_handle.param<int>("uartConf/baudRate", 115200));
-  m_output_port_      = static_cast<SbgEComOutputPort>(ref_node_handle.param<int>("uartConf/portID", SBG_ECOM_OUTPUT_PORT_A));
+  if (ref_node_handle.hasParam("uartConf"))
+  {
+    m_serial_communication_ = true;
+    m_uart_port_name_       = ref_node_handle.param<std::string>("uartConf/portName", "/dev/ttyUSB0");
+    m_uart_baud_rate_       = static_cast<uint32>(ref_node_handle.param<int>("uartConf/baudRate", 115200));
+    m_output_port_          = static_cast<SbgEComOutputPort>(ref_node_handle.param<int>("uartConf/portID", SBG_ECOM_OUTPUT_PORT_A));
+  }
+  else if (ref_node_handle.hasParam("ipConf"))
+  {
+    m_upd_communication_  = true;
+
+    m_sbg_ip_address_ = sbgNetworkIpFromString(ref_node_handle.param<std::string>("ipConf/ipAddress", "0.0.0.0").c_str());
+    m_out_port_       = static_cast<uint32>(ref_node_handle.param<int>("ipConf/out_port", 0));
+    m_in_port_        = static_cast<uint32>(ref_node_handle.param<int>("ipConf/in_port", 0));
+  }
+  else
+  {
+    throw ros::Exception("SBG DRIVER - Invalid communication interface parameters.");
+  }
 }
 
 void ConfigStore::loadSensorParameters(ros::NodeHandle& ref_node_handle)
@@ -559,14 +575,37 @@ void ConfigStore::initCommunicationInterface(SbgInterface* p_sbg_interface) cons
 {
   SbgErrorCode error_code;
 
-  //
-  // Create the serial interface with the parameters.
-  //
-  error_code = sbgInterfaceSerialCreate(p_sbg_interface, m_uart_port_name_.c_str(), m_uart_baud_rate_);
+  if (m_serial_communication_)
+  {
+    error_code = sbgInterfaceSerialCreate(p_sbg_interface, m_uart_port_name_.c_str(), m_uart_baud_rate_);
+  }
+  else if (m_upd_communication_)
+  {
+    error_code = sbgInterfaceUdpCreate(p_sbg_interface, m_sbg_ip_address_, m_in_port_, m_out_port_);
+  }
 
   if (error_code != SBG_NO_ERROR)
   {
-    throw ros::Exception("SBG DRIVER - sbgInterfaceSerialCreate Error : " + std::string(sbgErrorCodeToString(error_code)));
+     throw ros::Exception("SBG DRIVER - Unable to initialize the communication interface : " + std::string(sbgErrorCodeToString(error_code)));
+  }
+}
+
+void ConfigStore::closeCommunicationInterface(SbgInterface* p_sbg_interface) const
+{
+  SbgErrorCode error_code;
+
+  if (m_serial_communication_)
+  {
+    error_code = sbgInterfaceSerialDestroy(p_sbg_interface);
+  }
+  else if (m_upd_communication_)
+  {
+    error_code = sbgInterfaceUdpDestroy(p_sbg_interface);
+  }
+
+  if (error_code != SBG_NO_ERROR)
+  {
+    ROS_ERROR("SBG DRIVER - Unable to close the communication interface.");
   }
 }
 
