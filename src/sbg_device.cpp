@@ -188,7 +188,7 @@ void SbgDevice::initDeviceForReceivingData(void)
 {
   SbgErrorCode error_code;
   initPublishers();
-  //configure();
+  configure();
 
   error_code = sbgEComSetReceiveLogCallback(&m_com_handle_, onLogReceivedCallback, this);
 

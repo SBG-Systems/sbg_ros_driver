@@ -1,5 +1,8 @@
 # Configuration file for SBG device through an Uart interface.
 
+# Configuration of the device with ROS.
+confWithRos: false
+
 # Uart configuration
 uartConf:
   # Port Name

@@ -11,7 +11,8 @@ using sbg::ConfigStore;
 //---------------------------------------------------------------------//
 
 ConfigStore::ConfigStore(void):
-m_rebootNeeded(false)
+m_rebootNeeded(false),
+m_configure_through_ros_(false)
 {
 
 }
@@ -22,6 +23,8 @@ m_rebootNeeded(false)
 
 void ConfigStore::loadCommunicationParameters(ros::NodeHandle& ref_node_handle)
 {
+  m_configure_through_ros_ = ref_node_handle.param<bool>("confWithRos", false);
+
   if (ref_node_handle.hasParam("uartConf"))
   {
     m_serial_communication_ = true;
@@ -611,18 +614,23 @@ void ConfigStore::closeCommunicationInterface(SbgInterface* p_sbg_interface) con
 
 void ConfigStore::configureComHandle(SbgEComHandle* p_com_handle)
 {
-  m_config_output_.configureComHandle(p_com_handle, m_output_port_);
+  if (m_configure_through_ros_)
+  {
+    ROS_INFO("SBG DRIVER - The device will be configured with the ROS driver.");
 
-  configureInitCondition(p_com_handle);
-  configureMotionProfile(p_com_handle);
-  configureImuAlignement(p_com_handle);
-  configureAidingAssignement(p_com_handle);
-  configureMagModel(p_com_handle);
-  configureMagRejection(p_com_handle);
-  configureGnssLevelArm(p_com_handle);
-  configureGnssModel(p_com_handle);
-  configureGnssRejection(p_com_handle);
-  configureOdometer(p_com_handle);
-  configureOdometerLevelArm(p_com_handle);
-  configureOdometerRejection(p_com_handle);
+    m_config_output_.configureComHandle(p_com_handle, m_output_port_);
+
+    configureInitCondition(p_com_handle);
+    configureMotionProfile(p_com_handle);
+    configureImuAlignement(p_com_handle);
+    configureAidingAssignement(p_com_handle);
+    configureMagModel(p_com_handle);
+    configureMagRejection(p_com_handle);
+    configureGnssLevelArm(p_com_handle);
+    configureGnssModel(p_com_handle);
+    configureGnssRejection(p_com_handle);
+    configureOdometer(p_com_handle);
+    configureOdometerLevelArm(p_com_handle);
+    configureOdometerRejection(p_com_handle);
+  }
 }

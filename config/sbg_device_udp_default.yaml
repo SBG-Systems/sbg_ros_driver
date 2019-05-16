@@ -1,8 +1,11 @@
 # Configuration file for SBG device through an Udp interface.
 
+# Configuration of the device with ROS.
+confWithRos: false
+
 # Udp configuration
 ipConf:
-  ipAddress: "0.0.0.0"          # Ip address of the device.
+  ipAddress: "0.0.0.0"              # Ip address of the device.
   out_port: 1234                    # Output port of the device.
   in_port: 5678                     # Inport of the device.
 

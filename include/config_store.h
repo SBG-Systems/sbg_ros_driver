@@ -22,6 +22,8 @@ private:
   uint32                      m_in_port_;
   bool                        m_upd_communication_;
 
+  bool                        m_configure_through_ros_;
+
   SbgEComInitConditionConf    m_init_condition_conf_;
   SbgEComModelInfo            m_motion_profile_model_info_;
 

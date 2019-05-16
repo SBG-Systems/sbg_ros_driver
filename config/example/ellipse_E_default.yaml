@@ -6,6 +6,9 @@
 # Ellipse-N - GNSS-based
 # Ellipse-D - Dual-antenna GNSS
 
+# Configuration of the device with ROS.
+confWithRos: true
+
 uartConf:
   # Port Name
   portName: "/dev/ttyUSB0"
