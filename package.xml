@@ -3,9 +3,8 @@
   <name>sbg_driver</name>
   <version>1.1.8</version>
   <description>The SBG ROS Driver package</description>
-  <maintainer email="thomas.le_mezo@ensta-bretagne.org">Thomas Le Mézo</maintainer>
+  <maintainer email="erwan.cabon@sbg-systems.com">Erwan Cabon</maintainer>
   <url>http://wiki.ros.org/sbg_driver</url>
-
 
   <license>MIT</license>
 
