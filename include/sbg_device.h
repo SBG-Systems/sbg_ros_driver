@@ -5,6 +5,9 @@
 #include <map>
 #include <string>
 
+#include <std_srvs/SetBool.h>
+#include <std_srvs/Trigger.h>
+
 #include <message_publisher.h>
 #include <config_store.h>
 
@@ -24,7 +27,12 @@ private:
   ConfigStore             m_config_store_;
 
   int                     m_rate_frequency_;
+
+  bool                    m_mag_calibration_ongoing_;
+  bool                    m_mag_calibration_done_;
   SbgEComMagCalibResults  m_magCalibResults;
+  ros::ServiceServer      m_calib_service_;
+  ros::ServiceServer      m_calib_save_service_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -96,6 +104,55 @@ private:
    */
   void saveDeviceConfiguration(void);
 
+  /*!
+   * Process the magnetometer calibration.
+   * 
+   * \param[in] ref_ros_request   ROS service request.
+   * \param[in] ref_ros_response  ROS service response.
+   * \return                      Return true if the calibration process has been succesfull.
+   */
+  bool processMagCalibration(std_srvs::Trigger::Request& ref_ros_request, std_srvs::Trigger::Response& ref_ros_response);
+
+  /*!
+   * Save the magnetometer calibration.
+   * 
+   * \param[in] ref_ros_request   ROS service request.
+   * \param[in] ref_ros_response  ROS service response.
+   * \return                      Return true if the calibration has been saved.
+   */
+  bool saveMagCalibration(std_srvs::Trigger::Request& ref_ros_request, std_srvs::Trigger::Response& ref_ros_response);
+
+  /*!
+   * Start the magnetometer calibration process.
+   * 
+   * \return                      True if the calibration process has started successfully.
+   */
+  bool startMagCalibration(void);
+
+  /*!
+   * End the magnetometer calibration process.
+   * 
+   * \return                      True if the calibration process has ended successfully.
+   */
+  bool endMagCalibration(void);
+
+  /*!
+   * Upload the magnetometers calibration results to the device.
+   * 
+   * \return                      True if the magnetometers calibration has been successfully uploaded to the device.
+   */
+  bool uploadMagCalibrationToDevice(void);
+
+  /*!
+   * Display magnetometers calibration status result.
+   */
+  void displayMagCalibrationStatusResult(void) const;
+
+  /*!
+   * Export magnetometers calibration results.
+   */
+  void exportMagCalibrationResults(void) const;
+
 public:
 
   //---------------------------------------------------------------------//
@@ -137,20 +194,21 @@ public:
   void initDeviceForReceivingData(void);
 
   /*!
+   * Initialize the device for magnetometers calibration.
+   */
+  void initDeviceForMagCalibration(void);
+
+  /*!
    * Periodic handle of the connected SBG device.
    */
   void periodicHandle(void);
-
-  // TODO. Improve magnetometer calibration.
-  bool start_mag_calibration();
-  bool end_mag_calibration();
-  bool save_mag_calibration();
 };
 }
 
 static std::map<SbgEComMagCalibQuality, std::string> MAG_CALIB_QUAL= {{SBG_ECOM_MAG_CALIB_QUAL_OPTIMAL, "Quality: optimal"},
                                                                             {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},
-                                                                            {SBG_ECOM_MAG_CALIB_QUAL_POOR, "Quality: poor"}};
+                                                                            {SBG_ECOM_MAG_CALIB_QUAL_POOR, "Quality: poor"},
+                                                                            {SBG_ECOM_MAG_CALIB_QUAL_INVALID, "Quality: invalid"}};
 
 static std::map<SbgEComMagCalibConfidence, std::string> MAG_CALIB_CONF = {{SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
                                                                             {SBG_ECOM_MAG_CALIB_TRUST_MEDIUM, "Confidence: medium"},

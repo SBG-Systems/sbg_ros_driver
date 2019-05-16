@@ -32,7 +32,9 @@ std::string timeToStr(ros::WallTime ros_t)
 //---------------------------------------------------------------------//
 
 SbgDevice::SbgDevice(ros::NodeHandle* p_node_handle):
-m_p_node_(p_node_handle)
+m_p_node_(p_node_handle),
+m_mag_calibration_ongoing_(false),
+m_mag_calibration_done_(false)
 {
   loadParameters();
   connect();
@@ -171,6 +173,238 @@ void SbgDevice::saveDeviceConfiguration(void)
   }
 }
 
+bool SbgDevice::processMagCalibration(std_srvs::Trigger::Request& ref_ros_request, std_srvs::Trigger::Response& ref_ros_response)
+{
+  if (m_mag_calibration_ongoing_)
+  {
+    if (endMagCalibration())
+    {
+      ref_ros_response.success = true;
+      ref_ros_response.message = "Magnetometer calibration is finished. See the output console to get calibration informations.";
+    }
+    else
+    {
+      ref_ros_response.success = false;
+      ref_ros_response.message = "Unable to end the calibration.";
+    }
+
+    m_mag_calibration_ongoing_  = false;
+    m_mag_calibration_done_     = true;
+  }
+  else
+  {
+    if (startMagCalibration())
+    {
+      ref_ros_response.success = true;
+      ref_ros_response.message = "Magnetometer calibration process started.";
+    }
+    else
+    {
+      ref_ros_response.success = false;
+      ref_ros_response.message = "Unable to start magnetometers calibration.";
+    }
+
+    m_mag_calibration_ongoing_ = true;
+  }
+
+  return ref_ros_response.success;
+}
+
+bool SbgDevice::saveMagCalibration(std_srvs::Trigger::Request& ref_ros_request, std_srvs::Trigger::Response& ref_ros_response)
+{
+  if (m_mag_calibration_ongoing_)
+  {
+    ref_ros_response.success = false;
+    ref_ros_response.message = "Magnetometer calibration process is still ongoing, finish it before trying to save it.";
+  }
+  else if (m_mag_calibration_done_)
+  {
+    if (uploadMagCalibrationToDevice())
+    {
+      ref_ros_response.success = true;
+      ref_ros_response.message = "Magnetometer calibration has been uploaded to the device.";
+    }
+    else
+    {
+      ref_ros_response.success = false;
+      ref_ros_response.message = "Magnetometer calibration has not been uploaded to the device.";
+    }
+  }
+  else
+  {
+    ref_ros_response.success = false;
+    ref_ros_response.message = "No magnetometer calibration has been done.";
+  }
+
+  return ref_ros_response.success;
+}
+
+bool SbgDevice::startMagCalibration(void)
+{
+  SbgErrorCode              error_code;
+  SbgEComMagCalibMode       mag_calib_mode;
+  SbgEComMagCalibBandwidth  mag_calib_bandwidth;
+
+  mag_calib_mode      = m_config_store_.getMagCalibrationMode();
+  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
+  
+  error_code = sbgEComCmdMagStartCalib(&m_com_handle_, mag_calib_mode, mag_calib_bandwidth);
+
+  if (error_code != SBG_NO_ERROR)
+  {
+    ROS_WARN("SBG DRIVER [Mag Calib] - Unable to start the magnetometer calibration : %s", sbgErrorCodeToString(error_code));
+    return false;
+  }
+  else
+  {
+    ROS_INFO("SBG DRIVER [Mag Calib] - Start calibration");
+    ROS_INFO("SBG DRIVER [Mag Calib] - Mode : %s", MAG_CALIB_MODE[mag_calib_mode].c_str());
+    ROS_INFO("SBG DRIVER [Mag Calib] - Bandwidth : %s", MAG_CALIB_BW[mag_calib_bandwidth].c_str());
+    return true;
+  }
+}
+
+bool SbgDevice::endMagCalibration(void)
+{
+  SbgErrorCode error_code;
+  
+  error_code = sbgEComCmdMagComputeCalib(&m_com_handle_, &m_magCalibResults);
+
+  if (error_code != SBG_NO_ERROR)
+  {
+    ROS_WARN("SBG DRIVER [Mag Calib] - Unable to compute the magnetometer calibration results : %s", sbgErrorCodeToString(error_code));
+    return false;
+  }
+  else
+  {
+    displayMagCalibrationStatusResult();
+    exportMagCalibrationResults();
+
+    return true;
+  }
+}
+
+bool SbgDevice::uploadMagCalibrationToDevice(void)
+{
+  SbgErrorCode error_code;
+
+  if (m_magCalibResults.quality != SBG_ECOM_MAG_CALIB_QUAL_INVALID)
+  {
+    error_code = sbgEComCmdMagSetCalibData(&m_com_handle_, m_magCalibResults.offset, m_magCalibResults.matrix);
+
+    if (error_code != SBG_NO_ERROR)
+    {
+      ROS_WARN("SBG DRIVER [Mag Calib] - Unable to set the magnetometers calibration data to the device : %s", sbgErrorCodeToString(error_code));
+      return false;
+    }
+    else
+    {
+      ROS_INFO("SBG DRIVER [Mag Calib] - Saving data to the device");
+      saveDeviceConfiguration();
+      return true;
+    }
+  }
+  else
+  {
+    ROS_ERROR("SBG DRIVER [Mag Calib] - The calibration was invalid, it can't be uploaded on the device.");
+    return false;
+  }
+}
+
+void SbgDevice::displayMagCalibrationStatusResult(void) const
+{
+  ROS_INFO("SBG DRIVER [Mag Calib] - Quality of the calibration %s", MAG_CALIB_QUAL[m_magCalibResults.quality].c_str());
+  ROS_INFO("SBG DRIVER [Mag Calib] - Calibration results confidence %s", MAG_CALIB_CONF[m_magCalibResults.confidence].c_str());
+
+  SbgEComMagCalibMode         mag_calib_mode;
+  SbgEComMagCalibBandwidth    mag_calib_bandwidth;
+
+  mag_calib_mode      = m_config_store_.getMagCalibrationMode();
+  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
+
+  //
+  // Check the magnetometers calibration status and display the warnings.
+  //
+  if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_NOT_ENOUGH_POINTS)
+  {
+    ROS_WARN("SBG DRIVER [Mag Calib] - Not enough valid points. Maybe you are moving too fast");
+  }
+  if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_TOO_MUCH_DISTORTIONS)
+  {
+    ROS_WARN("SBG DRIVER [Mag Calib] - Unable to find a calibration solution. Maybe there are too much non static distortions");
+  }   
+  if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_ALIGNMENT_ISSUE)
+  {
+    ROS_WARN("SBG DRIVER [Mag Calib] - The magnetic calibration has troubles to correct the magnetometers and inertial frame alignment");
+  }
+  if (mag_calib_mode == SBG_ECOM_MAG_CALIB_MODE_2D)
+  {
+    if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
+    {
+      ROS_WARN("SBG DRIVER [Mag Calib] - Too much roll motion for a 2D magnetic calibration");
+    }
+    if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
+    {
+      ROS_WARN("SBG DRIVER [Mag Calib] - Too much pitch motion for a 2D magnetic calibration");
+    }
+  }
+  else
+  {
+    if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
+    {
+      ROS_WARN("SBG DRIVER [Mag Calib] - Not enough roll motion for a 3D magnetic calibration");
+    }
+    if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
+    {
+      ROS_WARN("SBG DRIVER [Mag Calib] - Not enough pitch motion for a 3D magnetic calibration.");
+    }
+  }
+  if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Z_MOTION_ISSUE)
+  {
+    ROS_WARN("SBG DRIVER [Mag Calib] - Not enough yaw motion to compute a valid magnetic calibration");
+  }
+}
+
+void SbgDevice::exportMagCalibrationResults(void) const
+{
+  SbgEComMagCalibMode       mag_calib_mode;
+  SbgEComMagCalibBandwidth  mag_calib_bandwidth;
+  ostringstream             mag_results_stream;
+  string                    output_filename;
+
+  mag_calib_mode      = m_config_store_.getMagCalibrationMode();
+  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
+  
+  mag_results_stream << "SBG DRIVER [Mag Calib]" << endl;
+  mag_results_stream << "======= Parameters =======" << endl;
+  mag_results_stream << "* CALIB_MODE = " << MAG_CALIB_MODE[mag_calib_mode] << endl;
+  mag_results_stream << "* CALIB_BW = " << MAG_CALIB_BW[mag_calib_bandwidth] << endl;
+
+  mag_results_stream << "======= Results =======" << endl;
+  mag_results_stream << MAG_CALIB_QUAL[m_magCalibResults.quality] << endl;
+  mag_results_stream << MAG_CALIB_CONF[m_magCalibResults.confidence] << endl;
+  mag_results_stream << "======= Infos =======" << endl;
+  mag_results_stream << "* Used points : " << m_magCalibResults.numPoints << "/" << m_magCalibResults.maxNumPoints << endl;
+  mag_results_stream << "* Mean, Std, Max" << endl;
+  mag_results_stream << "[Before]\t" << m_magCalibResults.beforeMeanError << "\t" <<  m_magCalibResults.beforeStdError << "\t" << m_magCalibResults.beforeMaxError << endl;
+  mag_results_stream << "[After]\t" << m_magCalibResults.afterMeanError << "\t" << m_magCalibResults.afterStdError << "\t" << m_magCalibResults.afterMaxError << endl;
+  mag_results_stream << "[Accuracy]\t" << sbgRadToDegF(m_magCalibResults.meanAccuracy) << "\t" << sbgRadToDegF(m_magCalibResults.stdAccuracy) << "\t" << sbgRadToDegF(m_magCalibResults.maxAccuracy) << endl;
+  mag_results_stream << "* Offset\t" << m_magCalibResults.offset[0] << "\t" << m_magCalibResults.offset[1] << "\t" << m_magCalibResults.offset[2] << endl;
+  
+  mag_results_stream << "* Matrix" << endl;
+  mag_results_stream << m_magCalibResults.matrix[0] << "\t" << m_magCalibResults.matrix[1] << "\t" << m_magCalibResults.matrix[2] << endl;
+  mag_results_stream << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;
+  mag_results_stream << m_magCalibResults.matrix[6] << "\t" << m_magCalibResults.matrix[7] << "\t" << m_magCalibResults.matrix[8] << endl;
+
+  output_filename = "mag_calib_" + timeToStr(ros::WallTime::now()) + ".txt";
+  ofstream output_file(output_filename);
+  output_file << mag_results_stream.str();
+  output_file.close();
+
+  ROS_INFO("%s", mag_results_stream.str().c_str());
+  ROS_INFO("SBG DRIVER [Mag Calib] - Magnetometers calibration results saved to file %s", output_filename.c_str());
+}
+
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
@@ -198,124 +432,15 @@ void SbgDevice::initDeviceForReceivingData(void)
   }
 }
 
+void SbgDevice::initDeviceForMagCalibration(void)
+{
+  m_calib_service_      = m_p_node_->advertiseService("mag_calibration", &SbgDevice::processMagCalibration, this);
+  m_calib_save_service_ = m_p_node_->advertiseService("mag_calibration_save", &SbgDevice::saveMagCalibration, this);
+
+  ROS_INFO("SBG DRIVER [Init] - SBG device is initialized for magnetometers calibration.");
+}
+
 void SbgDevice::periodicHandle(void)
 {
   sbgEComHandle(&m_com_handle_);
-}
-
-bool SbgDevice::start_mag_calibration()
-{
-  SbgErrorCode errorCode;
-  SbgEComMagCalibMode         mag_calib_mode;
-  SbgEComMagCalibBandwidth    mag_calib_bandwidth;
-
-  mag_calib_mode = m_config_store_.getMagCalibrationMode();
-  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
-  
-  errorCode = sbgEComCmdMagStartCalib(&m_com_handle_, mag_calib_mode, mag_calib_bandwidth);
-  if (errorCode != SBG_NO_ERROR){
-    ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));
-    return false;
-  }else{
-    ROS_INFO("SBG DRIVER - MAG CALIBRATION Start calibration");
-    ROS_INFO("SBG DRIVER - MAG CALIBRATION mode : %s", MAG_CALIB_MODE[mag_calib_mode].c_str());
-    ROS_INFO("SBG DRIVER - MAG CALIBRATION bandwidth : %s", MAG_CALIB_BW[mag_calib_bandwidth].c_str());
-    return true;
-  }
-}
-
-bool SbgDevice::end_mag_calibration(){
-  SbgErrorCode errorCode = sbgEComCmdMagComputeCalib(&m_com_handle_, &m_magCalibResults);
-  if (errorCode != SBG_NO_ERROR){
-    ROS_WARN("SBG DRIVER - sbgEComCmdMagStartCalib Error : %s", sbgErrorCodeToString(errorCode));
-    return false;
-  }
-
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - %s", MAG_CALIB_QUAL[m_magCalibResults.quality].c_str());
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - %s", MAG_CALIB_CONF[m_magCalibResults.confidence].c_str());
-
-  SbgEComMagCalibMode         mag_calib_mode;
-  SbgEComMagCalibBandwidth    mag_calib_bandwidth;
-
-  mag_calib_mode = m_config_store_.getMagCalibrationMode();
-  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
-
-  /// ************* WARNING IF ISSUES WITH COMPUTATIONS ************* //
-
-  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_NOT_ENOUGH_POINTS)
-    ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough valid points. Maybe you are moving too fast");
-  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_TOO_MUCH_DISTORTIONS)
-    ROS_WARN("SBG DRIVER - MAG CALIBRATION - Unable to find a calibration solution. Maybe there are too much non static distortions");
-  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_ALIGNMENT_ISSUE)
-    ROS_WARN("SBG DRIVER - MAG CALIBRATION - The magnetic calibration has troubles to correct the magnetometers and inertial frame alignment");
-  if(mag_calib_mode == SBG_ECOM_MAG_CALIB_MODE_2D){
-    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
-      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much roll motion for a 2D magnetic calibration");
-    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
-      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Too much pitch motion for a 2D magnetic calibration");
-  }
-  else{
-    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_X_MOTION_ISSUE)
-      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough roll motion for a 3D magnetic calibration");
-    if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Y_MOTION_ISSUE)
-      ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough pitch motion for a 3D magnetic calibration.");
-  }
-  if(m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_Z_MOTION_ISSUE)
-    ROS_WARN("SBG DRIVER - MAG CALIBRATION - Not enough yaw motion to compute a valid magnetic calibration");
-
-  /// ************* Results ************* //
-
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Used Points: %u", m_magCalibResults.numPoints);
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Max Points: %u", m_magCalibResults.maxNumPoints);
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Mean, Std, Max");
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [Before] %.2f %.2f %.2f", m_magCalibResults.beforeMeanError, m_magCalibResults.beforeStdError, m_magCalibResults.beforeMaxError);
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - [After] %.2f %.2f %.2f", m_magCalibResults.afterMeanError, m_magCalibResults.afterStdError, m_magCalibResults.afterMaxError);
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Accuracy (deg) %0.2f %0.2f %0.2f", sbgRadToDegF(m_magCalibResults.meanAccuracy), sbgRadToDegF(m_magCalibResults.stdAccuracy), sbgRadToDegF(m_magCalibResults.maxAccuracy));
-
-  /// ************* Save matrix to a file ************* //
-
-  ostringstream oss;
-  oss << "mag_calib";
-  oss << timeToStr(ros::WallTime::now());
-  oss << ".txt";
-
-  ofstream save_file;
-  save_file.open(oss.str());
-  save_file << "Parameters" << endl;
-  save_file << "* CALIB_MODE = " << MAG_CALIB_MODE[mag_calib_mode] << endl;
-  save_file << "* CALIB_BW = " << MAG_CALIB_BW[mag_calib_bandwidth] << endl;
-  save_file << "============================" << endl;
-  save_file << "Results" << endl;
-  save_file << MAG_CALIB_QUAL[m_magCalibResults.quality] << endl;
-  save_file << MAG_CALIB_CONF[m_magCalibResults.confidence] << endl;
-  save_file << "Infos" << endl;
-  save_file << "* Used Points : " << m_magCalibResults.numPoints << "/" << m_magCalibResults.maxNumPoints << endl;
-  save_file << "* Mean, Std, Max" << endl;
-  save_file << "  [Before] " << m_magCalibResults.beforeMeanError << " " << m_magCalibResults.beforeStdError << " " << m_magCalibResults.beforeMaxError << endl;
-  save_file << "  [After] " << m_magCalibResults.afterMeanError << " " << m_magCalibResults.afterStdError << " " << m_magCalibResults.afterMaxError << endl;
-  save_file << "  [Accuracy] " << sbgRadToDegF(m_magCalibResults.meanAccuracy) << " " << sbgRadToDegF(m_magCalibResults.stdAccuracy) << " " << sbgRadToDegF(m_magCalibResults.maxAccuracy);
-  save_file << "* Offset" << endl;
-  save_file << m_magCalibResults.offset[0] << "\t" << m_magCalibResults.offset[1] << "\t" << m_magCalibResults.offset[2] << endl;
-  save_file << "* Matrix" << endl;
-  save_file << m_magCalibResults.matrix[0] << "\t" << m_magCalibResults.matrix[1] << "\t" << m_magCalibResults.matrix[2] << endl;
-  save_file << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;
-  save_file << m_magCalibResults.matrix[6] << "\t" << m_magCalibResults.matrix[7] << "\t" << m_magCalibResults.matrix[8] << endl;
-  save_file.close();
-  const std::string tmp = oss.str();
-  ROS_INFO("SBG DRIVER - MAG CALIBRATION - Saving data to %s", tmp.c_str());
-
-  return true;
-}
-
-bool SbgDevice::save_mag_calibration(){
-  SbgErrorCode errorCode = sbgEComCmdMagSetCalibData(&m_com_handle_, m_magCalibResults.offset, m_magCalibResults.matrix);
-  if (errorCode != SBG_NO_ERROR){
-    ROS_WARN("SBG DRIVER - sbgEComCmdMagSetCalibData Error : %s", sbgErrorCodeToString(errorCode));
-    return false;
-  }
-  else{
-    ROS_INFO("SBG DRIVER - MAG CALIBRATION - Saving data to the device");
-    saveDeviceConfiguration();
-    return true;
-  }
 }
