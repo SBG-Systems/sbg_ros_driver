@@ -1,8 +1,15 @@
-# sbg_driver
-ROS driver for SBG System Ellipse IMU
+# sbg_ros_driver
+ROS package for SBG Systems IMU.  [SBG Systems](https://www.sbg-systems.com/)
+
+Initial work has been done by [ENSTA Bretagne](https://github.com/ENSTABretagneRobotics).
+
+[sbg_driver Wiki ROS](http://wiki.ros.org/sbg_driver)
+
+SBG ROS driver allows the user to configure the IMU (if possible, according to the device), to receive messages from the Sbg message protocol, some ROS standard messages (ToDo), and to calibrate the magnetometers.
 
 ## Installation
 ### Standard Installation
+User can install the sbg_ros_driver through the standard ROS installation system.
 * Kinectic
 ```sudo apt-get install ros-kinetic-sbg-driver```
 * Lunar
@@ -52,4 +59,11 @@ To add yourself to the dialout group preform the following :
   * Restart your computer to enable access
 
 ### Create udev rules
-ToDo
+Udev rules can be defined for communication port, in order to avoid modifying the port in configuration if it has changed.
+[Udev documentation](https://wiki.debian.org/udev)
+
+A symlink can be configured and defined to uniquely identify the connected device. 
+
+Once it is done, configuration file could be updated `portName: "/dev/sbg"`.
+
+See the docs folder, to see an example of rules with the corresponding screenshot using the udev functions.
