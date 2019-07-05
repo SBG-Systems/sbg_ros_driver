@@ -35,6 +35,8 @@ class MessageWrapper
 {
 private:
 
+  ros::Time m_ros_processing_time_;
+
   //---------------------------------------------------------------------//
   //- Internal methods                                                  -//
   //---------------------------------------------------------------------//
@@ -153,6 +155,17 @@ public:
    * Default constructor.
    */
   MessageWrapper(void);
+
+  //---------------------------------------------------------------------//
+  //- Parameters                                                        -//
+  //---------------------------------------------------------------------//
+
+  /*!
+   * Set the wrapper processing ROS time.
+   * 
+   * \param[in] ref_ros_time        ROS processing time to set.
+   */
+  void setRosProcessingTime(const ros::Time& ref_ros_time);
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

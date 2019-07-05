@@ -73,7 +73,7 @@ void SbgDevice::onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const Sbg
   //
   // Publish the received SBG log.
   //
-  m_message_publisher_.publish(msgClass, msg, *pLogData);
+  m_message_publisher_.publish(m_ros_processing_time_, msgClass, msg, *pLogData);
 }
 
 void SbgDevice::loadParameters(void)
@@ -442,5 +442,7 @@ void SbgDevice::initDeviceForMagCalibration(void)
 
 void SbgDevice::periodicHandle(void)
 {
+  m_ros_processing_time_ = ros::Time::now();
+
   sbgEComHandle(&m_com_handle_);
 }

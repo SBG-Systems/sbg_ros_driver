@@ -34,6 +34,8 @@ private:
   ros::ServiceServer      m_calib_service_;
   ros::ServiceServer      m_calib_save_service_;
 
+  ros::Time               m_ros_processing_time_;
+
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
   //---------------------------------------------------------------------//

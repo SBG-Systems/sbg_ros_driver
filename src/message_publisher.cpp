@@ -253,12 +253,14 @@ void MessagePublisher::initPublishers(ros::NodeHandle *p_ros_node_handle, const 
   initPublisher(p_ros_node_handle, SBG_ECOM_LOG_PRESSURE, ref_output_config.getOutputMode(SBG_ECOM_LOG_PRESSURE), "pressure");
 }
 
-void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log) const
+void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
 {
   //
   // Publish the message with the corresponding publisher and SBG message ID.
   // For each log, check if the publisher has been initialized.
   //
+  m_message_wrapper_.setRosProcessingTime(ref_ros_time);
+
   if(sbg_msg_class == SBG_ECOM_CLASS_LOG_ECOM_0)
   {
     switch (sbg_msg_id)

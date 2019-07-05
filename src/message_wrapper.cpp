@@ -20,11 +20,7 @@ MessageWrapper::MessageWrapper(void)
 
 const ros::Time MessageWrapper::createRosTime(uint32 device_timestamp) const
 {
-  //
-  // Temporary.
-  // TODO. Improve Ros time with the UTC/GPS time and device timestamp.
-  //
-  return ros::Time::now();
+  return m_ros_processing_time_;
 }
 
 const geometry_msgs::Vector3 MessageWrapper::createRosVector3(const float* p_float_array) const
@@ -213,6 +209,15 @@ const sbg_driver::SbgUtcTimeStatus MessageWrapper::createUtcStatusMessage(const 
   utc_status_message.clock_utc_status = ref_log_utc.status & SBG_ECOM_CLOCK_UTC_STATUS_SHIFT;
   
   return utc_status_message;
+}
+
+//---------------------------------------------------------------------//
+//- Parameters                                                        -//
+//---------------------------------------------------------------------//
+
+void MessageWrapper::setRosProcessingTime(const ros::Time& ref_ros_time)
+{
+  m_ros_processing_time_ = ref_ros_time;
 }
 
 //---------------------------------------------------------------------//
