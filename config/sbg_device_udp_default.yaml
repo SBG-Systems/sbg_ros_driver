@@ -207,6 +207,7 @@ output:
   # 1 The system will be synchronized on the clock input observed at SYNC_IN_A pin.
   # 2 The system will be synchronized GPS PPS signal, (see GPS module assignment)
   timeReference: 0
+  ros_standard: true
 
   # Status general, clock, com aiding, solution, heave
   log_status: 8

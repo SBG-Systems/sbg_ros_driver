@@ -34,6 +34,16 @@ private:
   ros::Publisher m_sbgEventE_pub_;
   ros::Publisher m_sbgPressure_pub_;
 
+  ros::Publisher          m_imu_pub_;
+  sbg_driver::SbgImuData  m_sbg_imu_message_;
+  sbg_driver::SbgEkfQuat  m_sbg_ekf_quat_message_;
+
+  ros::Publisher m_temp_pub_;
+  ros::Publisher m_mag_pub_;
+  ros::Publisher m_fluid_pub_;
+  ros::Publisher m_pos_ecef_pub_;
+  ros::Publisher m_velocity_pub_;
+
   MessageWrapper    m_message_wrapper_;
   SbgEComOutputMode m_output_mode_;
   int               m_max_mesages_;
@@ -58,6 +68,46 @@ private:
    * \param[in] ref_output_topic        Output topic for the publisher.
    */
   void initPublisher(ros::NodeHandle *p_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic);
+
+  /*!
+   * Define standard ROS publishers.
+   * 
+   * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
+   */
+  void defineRosStandardPublishers(ros::NodeHandle *p_ros_node_handle);
+
+  /*!
+   * Publish a received SBG IMU log.
+   * 
+   * \param[in] ref_sbg_log             SBG log.
+   */
+  void publishIMUData(const SbgBinaryLogData &ref_sbg_log);
+
+  /*!
+   * Process a ROS IMU standard message.
+   */
+  void processRosImuMessage(void);
+
+  /*!
+   * Publish a received SBG Magnetic log.
+   * 
+   * \param[in] ref_sbg_log             SBG log.
+   */
+  void publishMagData(const SbgBinaryLogData &ref_sbg_log);
+
+  /*!
+   * Publish a received SBG Fluid pressure log.
+   * 
+   * \param[in] ref_sbg_log             SBG log.
+   */
+  void publishFluidPressureData(const SbgBinaryLogData &ref_sbg_log);
+
+  /*!
+   * Publish a received SBG EkfNav log.
+   * 
+   * \param[in] ref_sbg_log             SBG log.
+   */
+  void publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_log);
 
 public:
 

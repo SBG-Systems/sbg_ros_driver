@@ -475,3 +475,101 @@ const sbg_driver::SbgUtcTime MessageWrapper::createSbgUtcTimeMessage(const SbgLo
 
   return utc_time_message;
 }
+
+const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const
+{
+  sensor_msgs::Imu imu_ros_message;
+
+  imu_ros_message.header.stamp = createRosTime(ref_sbg_imu_msg.time_stamp);
+
+  imu_ros_message.orientation                       = ref_sbg_quat_msg.quaternion;
+  imu_ros_message.angular_velocity                  = ref_sbg_imu_msg.gyro;
+  imu_ros_message.angular_velocity_covariance[0]    = -1;
+  imu_ros_message.linear_acceleration               = ref_sbg_imu_msg.accel;
+  imu_ros_message.linear_acceleration_covariance[0] = -1;
+
+  return imu_ros_message;
+}
+
+const sensor_msgs::Temperature MessageWrapper::createRosTemperatureMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
+{
+  sensor_msgs::Temperature temperature_message;
+
+  temperature_message.header.stamp    = createRosTime(ref_sbg_imu_msg.time_stamp);
+  temperature_message.header.frame_id = "Imu temperature";
+  temperature_message.temperature     = ref_sbg_imu_msg.temp;
+  temperature_message.variance        = 0;
+
+  return temperature_message;
+}
+
+const sensor_msgs::MagneticField MessageWrapper::createRosMagneticMessage(const sbg_driver::SbgMag& ref_sbg_mag_msg) const
+{
+  sensor_msgs::MagneticField magnetic_message;
+
+  magnetic_message.header.stamp   = createRosTime(ref_sbg_mag_msg.time_stamp);
+  magnetic_message.magnetic_field = ref_sbg_mag_msg.mag;
+
+  return magnetic_message;
+}
+
+const sensor_msgs::FluidPressure MessageWrapper::createRosFluidPressureMessage(const sbg_driver::SbgPressure& ref_sbg_press_msg) const
+{
+  sensor_msgs::FluidPressure fluid_pressure_message;
+
+  fluid_pressure_message.header.stamp   = createRosTime(ref_sbg_press_msg.time_stamp);
+  fluid_pressure_message.fluid_pressure = ref_sbg_press_msg.pressure;
+  fluid_pressure_message.variance       = 0;
+
+  return fluid_pressure_message;
+}
+
+const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgImuData& ref_p_sbg_imu_msg) const
+{
+  geometry_msgs::TwistStamped twist_stamped_message;
+  double delta_t;
+
+  delta_t = (ref_sbg_imu_msg.time_stamp - ref_p_sbg_imu_msg.time_stamp) * 1e-6;
+
+  twist_stamped_message.header.stamp  = createRosTime(ref_sbg_imu_msg.time_stamp);
+  twist_stamped_message.twist.angular = ref_sbg_imu_msg.gyro;
+
+  twist_stamped_message.twist.linear.x = (ref_sbg_imu_msg.accel.x - ref_p_sbg_imu_msg.accel.x) / delta_t;
+  twist_stamped_message.twist.linear.y = (ref_sbg_imu_msg.accel.y - ref_p_sbg_imu_msg.accel.y) / delta_t;
+  twist_stamped_message.twist.linear.z = (ref_sbg_imu_msg.accel.z - ref_p_sbg_imu_msg.accel.z) / delta_t;
+
+  return twist_stamped_message;
+}
+
+const geometry_msgs::PointStamped MessageWrapper::createRosPointStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_msg) const
+{
+  geometry_msgs::PointStamped point_stamped_message;
+
+  point_stamped_message.header.stamp    = createRosTime(ref_sbg_ekf_msg.time_stamp);
+  point_stamped_message.header.frame_id = "IMU position in ECEF";
+
+  //
+  // Conversion from Geodetic coordinates to ECEF is based on World Geodetic System 1984 (WGS84).
+  // Radius are expressed in meters, and latitute/longitude in radian.
+  //
+  double equatorial_radius;
+  double polar_radius;
+  double prime_vertical_radius;
+  double eccentricity;
+  double latitude;
+  double longitude;
+
+  equatorial_radius = 6378137.0;
+  polar_radius      = 6356752.314245;
+  eccentricity      = 1 - pow(polar_radius, 2) / pow(equatorial_radius, 2);
+  latitude          = ref_sbg_ekf_msg.position.x * SBG_PI / 180;
+  longitude         = ref_sbg_ekf_msg.position.y * SBG_PI / 180;
+
+  prime_vertical_radius = equatorial_radius / sqrt(1 - pow(eccentricity, 2) * pow(sin(latitude), 2));
+
+  point_stamped_message.point.x = (prime_vertical_radius + ref_sbg_ekf_msg.position.z) * cos(latitude) * cos(longitude);
+  point_stamped_message.point.y = (prime_vertical_radius + ref_sbg_ekf_msg.position.z) * cos(latitude) * sin(longitude);
+  point_stamped_message.point.z = ((pow(polar_radius, 2) / pow(equatorial_radius, 2)) * prime_vertical_radius + ref_sbg_ekf_msg.position.z) * sin(latitude);
+
+  return point_stamped_message;
+}

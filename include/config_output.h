@@ -20,6 +20,7 @@ private:
   uint8 m_time_reference_;
   int   m_rate_frequency;
   bool  m_rebootNeeded;
+  bool  m_ros_standard_messages_;
 
   SbgEComOutputMode m_log_status_;
   SbgEComOutputMode m_log_imu_data_;
@@ -104,6 +105,13 @@ public:
    * \return                      True if the device has to be rebooted.
    */
   bool isRebootNeeded(void) const;
+
+  /*!
+   * Check if the ROS standard messages have to be published.
+   * 
+   * \return                      True if the ROS standard publishers have to be configured.
+   */
+  bool isRosStandardMessagesDefined(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

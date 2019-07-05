@@ -10,7 +10,8 @@ using sbg::ConfigOutput;
 //---------------------------------------------------------------------//
 
 ConfigOutput::ConfigOutput(void):
-m_rebootNeeded(false)
+m_rebootNeeded(false),
+m_ros_standard_messages_(false)
 {
 
 }
@@ -138,6 +139,11 @@ bool ConfigOutput::isRebootNeeded(void) const
   return m_rebootNeeded;
 }
 
+bool ConfigOutput::isRosStandardMessagesDefined(void) const
+{
+  return m_ros_standard_messages_;
+}
+
 //---------------------------------------------------------------------//
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
@@ -166,6 +172,7 @@ void ConfigOutput::loadFromRosNodeHandle(ros::NodeHandle& ref_node_handle)
   loadOutputConfigFor(ref_node_handle, "output/log_pressure", &m_log_pressure_);
 
   m_rate_frequency = ref_node_handle.param<int>("output/frequency", 0);
+  m_ros_standard_messages_ = ref_node_handle.param<bool>("output/ros_standard", false);
 }
 
 void ConfigOutput::configureComHandle(SbgEComHandle* p_com_handle, SbgEComOutputPort output_port)

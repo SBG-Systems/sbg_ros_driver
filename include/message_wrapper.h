@@ -26,6 +26,13 @@ extern "C"
 #include "sbg_driver/SbgEvent.h"
 #include "sbg_driver/SbgPressure.h"
 
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/Temperature.h>
+#include <sensor_msgs/MagneticField.h>
+#include <sensor_msgs/FluidPressure.h>
+#include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/PointStamped.h>
+
 namespace sbg
 {
 /*!
@@ -298,6 +305,56 @@ public:
    * \return                        UTC time message.                  
    */
   const sbg_driver::SbgUtcTime createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc) const;
+
+  /*!
+   * Create a ROS standard IMU message from SBG messages.
+   * 
+   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \param[in] ref_sbg_quat_msg    SBG_ROS Quaternion message.
+   * \return                        ROS standard IMU message.
+   */
+  const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const;
+
+  /*!
+   * Create a ROS standard Temperature message from SBG message.
+   * 
+   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \return                        ROS standard Temperature message.
+   */
+  const sensor_msgs::Temperature createRosTemperatureMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+
+  /*!
+   * Create a ROS standard MagneticField message from SBG message.
+   * 
+   * \param[in] ref_sbg_mag_msg     SBG-ROS Mag message.
+   * \return                        ROS standard Mag message.
+   */
+  const sensor_msgs::MagneticField createRosMagneticMessage(const sbg_driver::SbgMag& ref_sbg_mag_msg) const;
+
+  /*!
+   * Create a ROS standard FluidPressure message from SBG message.
+   * 
+   * \param[in] ref_sbg_press_msg   SBG-ROS Fluid message.
+   * \return                        ROS standard FuildPressure message.
+   */
+  const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgPressure& ref_sbg_press_msg) const;
+
+  /*!
+   * Create a ROS standard TwistStamped message from SBG messages.
+   * 
+   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \param[in] ref_p_sbg_imu_msg   SBG-ROS IMU previous message.
+   * \return                        ROS standard TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgImuData& ref_p_sbg_imu_msg) const;
+
+  /*!
+   * Create a ROS standard PointStamped message from SBG messages.
+   * 
+   * \param[in] ref_sbg_ekf_msg     SBG-ROS EkfNav message.
+   * \return                        ROS standard PointStamped message (ECEF).
+   */
+  const geometry_msgs::PointStamped createRosPointStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_msg) const;
 };
 }
 
