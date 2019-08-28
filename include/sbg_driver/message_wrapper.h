@@ -17,6 +17,7 @@ extern "C"
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/TimeReference.h>
+#include <sensor_msgs/NavSatFix.h>
 
 // SbgRos message headers
 #include "sbg_driver/SbgStatus.h"
@@ -447,7 +448,15 @@ public:
    * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
    * \return                        ROS standard timeReference message.
    */
-  const sensor_msgs::TimeReference createRosUtcTimeReferenceMessage(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;   
+  const sensor_msgs::TimeReference createRosUtcTimeReferenceMessage(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
+
+  /*!
+   * Create a ROS standard NavSatFix message from a Gps message.
+   * 
+   * \param[in] ref_sbg_gps_msg     SBG-ROS GPS position message.
+   * \return                        ROS standard NavSatFix message.
+   */
+  const sensor_msgs::NavSatFix createRosNavSatFixMessage(const sbg_driver::SbgGpsPos& ref_sbg_gps_msg) const;
 };
 }
 

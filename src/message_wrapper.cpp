@@ -76,11 +76,11 @@ const sbg_driver::SbgGpsPosStatus MessageWrapper::createGpsPosStatusMessage(cons
 
   gps_pos_status_message.status       = sbgEComLogGpsPosGetStatus(ref_log_gps_pos.status);
   gps_pos_status_message.type         = sbgEComLogGpsPosGetType(ref_log_gps_pos.status);
-  gps_pos_status_message.gps_l1_used  = ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GPS_L1_USED;
-  gps_pos_status_message.gps_l2_used  = ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GPS_L2_USED;
-  gps_pos_status_message.gps_l5_used  = ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GPS_L5_USED;
-  gps_pos_status_message.glo_l1_used  = ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GLO_L1_USED;
-  gps_pos_status_message.glo_l2_used  = ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GLO_L2_USED;
+  gps_pos_status_message.gps_l1_used  = (ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GPS_L1_USED) != 0;
+  gps_pos_status_message.gps_l2_used  = (ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GPS_L2_USED) != 0;
+  gps_pos_status_message.gps_l5_used  = (ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GPS_L5_USED) != 0;
+  gps_pos_status_message.glo_l1_used  = (ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GLO_L1_USED) != 0;
+  gps_pos_status_message.glo_l2_used  = (ref_log_gps_pos.status & SBG_ECOM_GPS_POS_GLO_L2_USED) != 0;
 
   return gps_pos_status_message;
 }
@@ -752,4 +752,46 @@ const sensor_msgs::TimeReference MessageWrapper::createRosUtcTimeReferenceMessag
   }
 
   return utc_reference_message;
+}
+
+const sensor_msgs::NavSatFix MessageWrapper::createRosNavSatFixMessage(const sbg_driver::SbgGpsPos& ref_sbg_gps_msg) const
+{
+  sensor_msgs::NavSatFix nav_sat_fix_message;
+
+  nav_sat_fix_message.header.stamp    = createRosTime(ref_sbg_gps_msg.time_stamp);
+  nav_sat_fix_message.header.frame_id = "Navigation Satellite fix";
+
+  if (ref_sbg_gps_msg.status.type == SBG_ECOM_POS_NO_SOLUTION)
+  {
+    nav_sat_fix_message.status.status = nav_sat_fix_message.status.STATUS_NO_FIX;
+  }
+  else if (ref_sbg_gps_msg.status.type == SBG_ECOM_POS_SBAS)
+  {
+    nav_sat_fix_message.status.status = nav_sat_fix_message.status.STATUS_SBAS_FIX;
+  }
+  else
+  {
+    nav_sat_fix_message.status.status = nav_sat_fix_message.status.STATUS_FIX;
+  }
+
+  if (ref_sbg_gps_msg.status.glo_l1_used || ref_sbg_gps_msg.status.glo_l2_used)
+  {
+    nav_sat_fix_message.status.service = nav_sat_fix_message.status.SERVICE_GLONASS;
+  }
+  else
+  {
+    nav_sat_fix_message.status.service = nav_sat_fix_message.status.SERVICE_GPS;
+  }
+
+  nav_sat_fix_message.latitude  = ref_sbg_gps_msg.position.x;
+  nav_sat_fix_message.longitude = ref_sbg_gps_msg.position.y;
+  nav_sat_fix_message.altitude  = ref_sbg_gps_msg.position.z;
+
+  nav_sat_fix_message.position_covariance[0] = pow(ref_sbg_gps_msg.position_accuracy.x, 2);
+  nav_sat_fix_message.position_covariance[4] = pow(ref_sbg_gps_msg.position_accuracy.y, 2);
+  nav_sat_fix_message.position_covariance[8] = pow(ref_sbg_gps_msg.position_accuracy.z, 2);
+
+  nav_sat_fix_message.position_covariance_type = nav_sat_fix_message.COVARIANCE_TYPE_DIAGONAL_KNOWN;
+
+  return nav_sat_fix_message;
 }

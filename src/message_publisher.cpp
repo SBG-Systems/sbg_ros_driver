@@ -224,6 +224,15 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_h
   {
     ROS_WARN("SBG_DRIVER - [Message] SBG Utc data output are not configured, the UTC time reference publisher can not be defined.");
   }
+
+  if (m_sbgGpsPos_pub_)
+  {
+    m_nav_sat_fix_pub_ = p_ros_node_handle->advertise<sensor_msgs::NavSatFix>("imu/nav_sat_fix", m_max_mesages_);
+  }
+  else
+  {
+    ROS_WARN("SBG_DRIVER - [Message] SBG GPS Pos data output are not configured, the NavSatFix publisher can not be defined.");
+  }
 }
 
 void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
@@ -320,6 +329,22 @@ void MessagePublisher::publishUtcData(const SbgBinaryLogData &ref_sbg_log)
     {
       m_utc_reference_pub_.publish(m_message_wrapper_.createRosUtcTimeReferenceMessage(sbg_utc_message));
     }
+  }
+}
+
+void MessagePublisher::publishGpsPosData(const SbgBinaryLogData &ref_sbg_log)
+{
+  sbg_driver::SbgGpsPos sbg_gps_pos_message;
+
+  sbg_gps_pos_message = m_message_wrapper_.createSbgGpsPosMessage(ref_sbg_log.gpsPosData);
+
+  if (m_sbgGpsPos_pub_)
+  {
+    m_sbgGpsPos_pub_.publish(sbg_gps_pos_message);
+  }
+  if (m_nav_sat_fix_pub_)
+  {
+    m_nav_sat_fix_pub_.publish(m_message_wrapper_.createRosNavSatFixMessage(sbg_gps_pos_message));
   }
 }
 
@@ -497,10 +522,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
     case SBG_ECOM_LOG_GPS1_POS:
     case SBG_ECOM_LOG_GPS2_POS:
 
-      if (m_sbgGpsPos_pub_)
-      {
-        m_sbgGpsPos_pub_.publish(m_message_wrapper_.createSbgGpsPosMessage(ref_sbg_log.gpsPosData));
-      }
+      publishGpsPosData(ref_sbg_log);
       break;
 
     case SBG_ECOM_LOG_GPS1_HDT:
