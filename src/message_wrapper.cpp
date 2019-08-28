@@ -204,9 +204,10 @@ const sbg_driver::SbgUtcTimeStatus MessageWrapper::createUtcStatusMessage(const 
   sbg_driver::SbgUtcTimeStatus utc_status_message;
 
   utc_status_message.clock_stable     = ref_log_utc.status & SBG_ECOM_CLOCK_STABLE_INPUT;
-  utc_status_message.clock_status     = ref_log_utc.status & SBG_ECOM_CLOCK_STATUS_MASK;
   utc_status_message.clock_utc_sync   = ref_log_utc.status & SBG_ECOM_CLOCK_UTC_SYNC;
-  utc_status_message.clock_utc_status = ref_log_utc.status & SBG_ECOM_CLOCK_UTC_STATUS_SHIFT;
+
+  utc_status_message.clock_status     = static_cast<uint8_t>(sbgEComLogUtcGetClockStatus(ref_log_utc.status));
+  utc_status_message.clock_utc_status = static_cast<uint8_t>(sbgEComLogUtcGetClockUtcStatus(ref_log_utc.status));
   
   return utc_status_message;
 }
