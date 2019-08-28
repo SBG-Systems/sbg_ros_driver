@@ -130,12 +130,13 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-add_subdirectory(sbgECom)
+add_subdirectory(external/sbgECom)
+
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/sbgECom/common
-  ${PROJECT_SOURCE_DIR}/sbgECom/src
+  ${PROJECT_SOURCE_DIR}/include/sbg_driver/
+  ${PROJECT_SOURCE_DIR}/external/sbgECom/common
+  ${PROJECT_SOURCE_DIR}/external/sbgECom/src
 )
 
 ## Declare a C++ library
