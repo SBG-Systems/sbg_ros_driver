@@ -1,14 +1,24 @@
 #ifndef SBG_ROS_MESSAGE_WRAPPER_H
 #define SBG_ROS_MESSAGE_WRAPPER_H
 
-#include "ros/ros.h"
-
+// SbgECom headers
 extern "C"
 {
   #include <sbgEComLib.h>
   #include <sbgEComIds.h>
 }
 
+// ROS headers
+#include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/PointStamped.h>
+#include "ros/ros.h"
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/Temperature.h>
+#include <sensor_msgs/MagneticField.h>
+#include <sensor_msgs/FluidPressure.h>
+#include <sensor_msgs/TimeReference.h>
+
+// SbgRos message headers
 #include "sbg_driver/SbgStatus.h"
 #include "sbg_driver/SbgUtcTime.h"
 #include "sbg_driver/SbgImuData.h"
@@ -26,13 +36,6 @@ extern "C"
 #include "sbg_driver/SbgEvent.h"
 #include "sbg_driver/SbgPressure.h"
 
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/Temperature.h>
-#include <sensor_msgs/MagneticField.h>
-#include <sensor_msgs/FluidPressure.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <geometry_msgs/PointStamped.h>
-
 namespace sbg
 {
 /*!
@@ -42,7 +45,15 @@ class MessageWrapper
 {
 private:
 
+  //---------------------------------------------------------------------//
+  //- GPS time definitions                                              -//
+  //---------------------------------------------------------------------//
+
+  static const int32_t SBG_GPS_TIME_OF_WEEK_MS_MAX  = (60l*60l*24l*7l*1000l-1l);
+  static const int32_t SBG_GPS_TIME_OF_WEEK_MS_HALF = (60l*60l*24l*7l*1000l/2l-1l);
+
   ros::Time m_ros_processing_time_;
+  int32_t   m_leap_seconds_;
 
   //---------------------------------------------------------------------//
   //- Internal methods                                                  -//
@@ -152,6 +163,73 @@ private:
    */
   const sbg_driver::SbgUtcTimeStatus createUtcStatusMessage(const SbgLogUtcData& ref_log_utc) const;
 
+  /*!
+   * Get the number of days in the year.
+   *
+   * \param[in] year                Year to get the number of days.
+   * \return                        Number of days in the year.
+   */
+  uint32_t getNumberOfDaysInYear(uint16_t year) const;
+
+  /*!
+   * Get the number of days of the month index.
+   * 
+   * \param[in] year                Year.
+   * \param[in] month_index         Month index [1..12].
+   * \return                        Number of days in the month.
+   */
+  uint32_t getNumberOfDaysInMonth(uint16_t year, uint8_t month_index) const;
+
+  /*!
+   * Check if the given year is a leap year.
+   * 
+   * \param[in] year                Year to check.
+   * \return                        True if the year is a leap year.
+   */
+  bool isLeapYear(uint16_t year) const;
+
+  /*!
+   * Convert the UTC time to an Epoch time.
+   * 
+   * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
+   * \return                        Converted Epoch time (in s).
+   */
+  uint32_t convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
+
+  /*!
+   * Get the UTC time of week.
+   *
+   * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
+   * \return                        UTC time of week.
+   */
+  uint32_t getUtcTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
+
+  /*!
+   * Compute the correct time of week from Utc and Gps time.
+   * 
+   * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
+   * \return                        Computed time of week (in ms).
+   */
+  uint32_t computeTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
+
+  /*!
+   * Compute the GPS time of week delta.
+   * 
+   * \param[in] gps_time_of_week_A  First GPS time of week (in ms).
+   * \param[in] gps_time_of_week_B  First GPS time of week (in ms).
+   * \return                        Delta GPS time of week (in ms).
+   */
+  int32 computeGpsTimeOfWeekDelta(uint32_t gps_time_of_week_A, uint32_t gps_time_of_week_B) const;
+
+  /*!
+   * Add an offset to a GPS time of week.
+   * 
+   * \param[in] gps_time_of_week    GPS time of week.
+   * \param[in] offset              Offset to apply (in ms).
+   * \return                        Gps time of week (in ms).
+   */
+  uint32_t addOffsetGpsTimeOfWeek(uint32_t gps_time_of_week, int32 offset) const;   
+ 
 public:
 
   //---------------------------------------------------------------------//
@@ -173,6 +251,13 @@ public:
    * \param[in] ref_ros_time        ROS processing time to set.
    */
   void setRosProcessingTime(const ros::Time& ref_ros_time);
+
+  /*!
+   * Set the leap seconds.
+   * 
+   * \param[in] leap_seconds        Know leap seconds for Utc/Gps time.
+   */
+  void setLeapSeconds(int32 leap_seconds);
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
@@ -355,6 +440,14 @@ public:
    * \return                        ROS standard PointStamped message (ECEF).
    */
   const geometry_msgs::PointStamped createRosPointStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_msg) const;
+
+  /*!
+   * Create a ROS standard timeReference message for a UTC time.
+   * 
+   * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
+   * \return                        ROS standard timeReference message.
+   */
+  const sensor_msgs::TimeReference createRosUtcTimeReferenceMessage(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;   
 };
 }
 

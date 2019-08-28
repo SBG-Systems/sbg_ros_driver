@@ -215,6 +215,15 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_h
   {
     ROS_WARN("SBG_DRIVER - [Message] SBG Ekf data output are not configured, the standard ECEF position publisher can not be defined.");
   }
+
+  if (m_sbgUtcTime_pub_)
+  {
+    m_utc_reference_pub_ = p_ros_node_handle->advertise<sensor_msgs::TimeReference>("imu/utc_ref", m_max_mesages_);
+  }
+  else
+  {
+    ROS_WARN("SBG_DRIVER - [Message] SBG Utc data output are not configured, the UTC time reference publisher can not be defined.");
+  }
 }
 
 void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
@@ -292,6 +301,25 @@ void MessagePublisher::publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_
   if (m_pos_ecef_pub_)
   {
     m_pos_ecef_pub_.publish(m_message_wrapper_.createRosPointStampedMessage(sbg_ekf_nav_message));
+  }
+}
+
+void MessagePublisher::publishUtcData(const SbgBinaryLogData &ref_sbg_log)
+{
+  sbg_driver::SbgUtcTime sbg_utc_message;
+
+  sbg_utc_message = m_message_wrapper_.createSbgUtcTimeMessage(ref_sbg_log.utcData);
+
+  if (m_sbgUtcTime_pub_)
+  {
+    m_sbgUtcTime_pub_.publish(sbg_utc_message);
+  }
+  if (m_utc_reference_pub_)
+  {
+    if (sbg_utc_message.clock_status.clock_utc_status != SBG_ECOM_UTC_INVALID)
+    {
+      m_utc_reference_pub_.publish(m_message_wrapper_.createRosUtcTimeReferenceMessage(sbg_utc_message));
+    }
   }
 }
 
@@ -379,6 +407,8 @@ void MessagePublisher::initPublishers(ros::NodeHandle *p_ros_node_handle, const 
   {
     defineRosStandardPublishers(p_ros_node_handle);
   }
+
+  m_message_wrapper_.setLeapSeconds(ref_output_config.getLeapSeconds());
 }
 
 void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
@@ -403,10 +433,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
     case SBG_ECOM_LOG_UTC_TIME:
 
-      if (m_sbgUtcTime_pub_)
-      {
-        m_sbgUtcTime_pub_.publish(m_message_wrapper_.createSbgUtcTimeMessage(ref_sbg_log.utcData));
-      }
+      publishUtcData(ref_sbg_log);
       break;
 
     case SBG_ECOM_LOG_IMU_DATA:

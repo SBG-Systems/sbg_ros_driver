@@ -212,6 +212,146 @@ const sbg_driver::SbgUtcTimeStatus MessageWrapper::createUtcStatusMessage(const 
   return utc_status_message;
 }
 
+uint32_t MessageWrapper::getNumberOfDaysInYear(uint16_t year) const
+{
+  if (isLeapYear(year))
+  {
+    return 366;
+  }
+  else
+  {
+    return 365;
+  }
+}
+
+uint32_t MessageWrapper::getNumberOfDaysInMonth(uint16_t year, uint8_t month_index) const
+{
+  if ((month_index == 4) || (month_index == 6) || (month_index == 9) || (month_index == 11))
+  {
+    return 30;
+  }
+  else if ((month_index == 2))
+  {
+    if (isLeapYear(year))
+    {
+      return 29;
+    }
+    else
+    {
+      return 28;
+    }
+  }
+  else
+  {
+    return 31;
+  }
+}
+
+bool MessageWrapper::isLeapYear(uint16_t year) const
+{
+  return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+}
+
+uint32_t MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
+{
+  uint32_t days;
+  uint32_t seconds;
+
+  //
+  // Convert the UTC time to Epoch(Unix) time, which is the elasped seconds since 1 Jan 1970.
+  //
+  days    = 0;
+  seconds = 0;
+
+  for (uint16 yearIndex = 1970; yearIndex < ref_sbg_utc_msg.year; yearIndex++)
+  {
+    days += getNumberOfDaysInYear(yearIndex); 
+  }
+
+  for (uint8_t monthIndex = 1; monthIndex < ref_sbg_utc_msg.month; monthIndex++)
+  {
+    days += getNumberOfDaysInMonth(ref_sbg_utc_msg.year, monthIndex);
+  }
+
+  days += ref_sbg_utc_msg.day - 1;
+
+  seconds = days * 24;
+  seconds = (seconds + ref_sbg_utc_msg.hour) * 60;
+  seconds = (seconds + ref_sbg_utc_msg.min) * 60;
+  seconds = seconds + ref_sbg_utc_msg.sec;
+
+  return seconds;
+}
+
+uint32_t MessageWrapper::getUtcTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
+{
+  uint32_t milli_seconds;
+
+  milli_seconds = (ref_sbg_utc_msg.day - 1) * 24;
+  milli_seconds = (milli_seconds + ref_sbg_utc_msg.hour) * 60;
+  milli_seconds = (milli_seconds + ref_sbg_utc_msg.min) * 60;
+  milli_seconds = (milli_seconds + ref_sbg_utc_msg.sec) * 1000;
+  milli_seconds = milli_seconds + ref_sbg_utc_msg.nanosec / 1000;
+
+  return milli_seconds;
+}
+
+uint32_t MessageWrapper::computeTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
+{
+  //
+  // Compute the applied leap second by the device firmware.
+  //
+  int32     applied_leap_seconds;
+  uint32_t  utc_tow;
+
+  applied_leap_seconds  = computeGpsTimeOfWeekDelta(ref_sbg_utc_msg.gps_tow, getUtcTimeOfWeek(ref_sbg_utc_msg));
+  utc_tow               = addOffsetGpsTimeOfWeek(ref_sbg_utc_msg.gps_tow, -applied_leap_seconds);
+
+  return addOffsetGpsTimeOfWeek(utc_tow, m_leap_seconds_ * 1000);
+}
+
+int32 MessageWrapper::computeGpsTimeOfWeekDelta(uint32_t gps_time_of_week_A, uint32_t gps_time_of_week_B) const
+{
+  int32 delta_gps_tow;
+
+  //
+  // Compute the difference between the time of week, and check for GPS rollover.
+  //
+  delta_gps_tow = gps_time_of_week_A - gps_time_of_week_B;
+
+  if (delta_gps_tow > SBG_GPS_TIME_OF_WEEK_MS_HALF)
+  {
+    delta_gps_tow = delta_gps_tow - SBG_GPS_TIME_OF_WEEK_MS_MAX;
+  }
+  else if (delta_gps_tow < -SBG_GPS_TIME_OF_WEEK_MS_HALF)
+  {
+    delta_gps_tow = delta_gps_tow + SBG_GPS_TIME_OF_WEEK_MS_MAX;
+  }
+
+  return delta_gps_tow;
+}
+
+uint32_t MessageWrapper::addOffsetGpsTimeOfWeek(uint32_t gps_time_of_week, int32 offset) const
+{
+  int32 gps_time_of_week_offseted;
+
+  //
+  // Add the offset the Gps time of week and check for Gps rollover.
+  //
+  gps_time_of_week_offseted = gps_time_of_week + offset;
+
+  if (gps_time_of_week_offseted < 0)
+  {
+    gps_time_of_week_offseted += SBG_GPS_TIME_OF_WEEK_MS_MAX;
+  }
+  else if (gps_time_of_week_offseted > SBG_GPS_TIME_OF_WEEK_MS_MAX)
+  {
+    gps_time_of_week_offseted -= SBG_GPS_TIME_OF_WEEK_MS_MAX;
+  }
+
+  return static_cast<uint32_t>(gps_time_of_week_offseted);
+}
+
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
@@ -219,6 +359,11 @@ const sbg_driver::SbgUtcTimeStatus MessageWrapper::createUtcStatusMessage(const 
 void MessageWrapper::setRosProcessingTime(const ros::Time& ref_ros_time)
 {
   m_ros_processing_time_ = ref_ros_time;
+}
+
+void MessageWrapper::setLeapSeconds(int32 leap_seconds)
+{
+  m_leap_seconds_ = leap_seconds;
 }
 
 //---------------------------------------------------------------------//
@@ -573,4 +718,38 @@ const geometry_msgs::PointStamped MessageWrapper::createRosPointStampedMessage(c
   point_stamped_message.point.z = ((pow(polar_radius, 2) / pow(equatorial_radius, 2)) * prime_vertical_radius + ref_sbg_ekf_msg.position.z) * sin(latitude);
 
   return point_stamped_message;
+}
+
+const sensor_msgs::TimeReference MessageWrapper::createRosUtcTimeReferenceMessage(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
+{
+  sensor_msgs::TimeReference utc_reference_message;
+
+  utc_reference_message.header.stamp    = createRosTime(ref_sbg_utc_msg.time_stamp);
+  utc_reference_message.header.frame_id = "UTC time reference";
+  utc_reference_message.source          = "UTC time from device converted to Epoch";
+
+  //
+  // Check if the leap second is included in the UTC time.
+  //
+  if (ref_sbg_utc_msg.clock_status.clock_utc_status == SBG_ECOM_UTC_VALID)
+  {
+    utc_reference_message.time_ref.sec  = convertUtcTimeToEpoch(ref_sbg_utc_msg);
+    utc_reference_message.time_ref.nsec = ref_sbg_utc_msg.nanosec;
+  }
+  else if (ref_sbg_utc_msg.clock_status.clock_utc_status == SBG_ECOM_UTC_NO_LEAP_SEC)
+  {
+    //
+    // The leap second is not valid in the UTC time.
+    // Compute the epoch time from Gps time, and with the known leap second.
+    //
+    uint32 utc_to_epoch_ms;
+    utc_to_epoch_ms = convertUtcTimeToEpoch(ref_sbg_utc_msg) * 1000;
+    utc_to_epoch_ms = utc_to_epoch_ms - getUtcTimeOfWeek(ref_sbg_utc_msg);
+    utc_to_epoch_ms = utc_to_epoch_ms + computeTimeOfWeek(ref_sbg_utc_msg);
+
+    utc_reference_message.time_ref.sec  = floor(utc_to_epoch_ms / 1000);
+    utc_reference_message.time_ref.nsec = (utc_to_epoch_ms - floor(utc_to_epoch_ms / 1000)) * 1000 + ref_sbg_utc_msg.nanosec;
+  }
+
+  return utc_reference_message;
 }

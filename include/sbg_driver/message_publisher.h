@@ -43,6 +43,7 @@ private:
   ros::Publisher m_fluid_pub_;
   ros::Publisher m_pos_ecef_pub_;
   ros::Publisher m_velocity_pub_;
+  ros::Publisher m_utc_reference_pub_;
 
   MessageWrapper    m_message_wrapper_;
   SbgEComOutputMode m_output_mode_;
@@ -108,6 +109,13 @@ private:
    * \param[in] ref_sbg_log             SBG log.
    */
   void publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_log);
+
+  /*!
+   * Publish a received SBG UTC log.
+   * 
+   * \param[in] ref_sbg_log             SBG log.
+   */
+  void publishUtcData(const SbgBinaryLogData &ref_sbg_log); 
 
 public:
 

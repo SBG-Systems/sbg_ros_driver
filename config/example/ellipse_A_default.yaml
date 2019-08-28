@@ -224,6 +224,10 @@ output:
   timeReference: 0
   ros_standard: false
 
+  # Leap seconds between GPS and UTC time.
+  # Last added leap second. 31 December 2016
+  leap_seconds: 18
+
   # Status general, clock, com aiding, solution, heave
   log_status: 8
   # Includes IMU status, acc., gyro, temp delta speeds and delta angles values
