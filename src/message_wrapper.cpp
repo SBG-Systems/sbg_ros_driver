@@ -50,22 +50,22 @@ const sbg_driver::SbgEkfStatus MessageWrapper::createEkfStatusMessage(uint32 ekf
   sbg_driver::SbgEkfStatus ekf_status_message;
 
   ekf_status_message.solution_mode    = sbgEComLogEkfGetSolutionMode(ekf_status);
-  ekf_status_message.attitude_valid   = ekf_status & SBG_ECOM_SOL_ATTITUDE_VALID;
-  ekf_status_message.heading_valid    = ekf_status & SBG_ECOM_SOL_HEADING_VALID;
-  ekf_status_message.velocity_valid   = ekf_status & SBG_ECOM_SOL_VELOCITY_VALID;
-  ekf_status_message.position_valid   = ekf_status & SBG_ECOM_SOL_POSITION_VALID;
+  ekf_status_message.attitude_valid   = (ekf_status & SBG_ECOM_SOL_ATTITUDE_VALID) != 0;
+  ekf_status_message.heading_valid    = (ekf_status & SBG_ECOM_SOL_HEADING_VALID) != 0;
+  ekf_status_message.velocity_valid   = (ekf_status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
+  ekf_status_message.position_valid   = (ekf_status & SBG_ECOM_SOL_POSITION_VALID) != 0;
 
-  ekf_status_message.vert_ref_used    = ekf_status & SBG_ECOM_SOL_VERT_REF_USED;
-  ekf_status_message.mag_ref_used     = ekf_status & SBG_ECOM_SOL_MAG_REF_USED;
-  ekf_status_message.gps1_vel_used    = ekf_status & SBG_ECOM_SOL_GPS1_VEL_USED;
-  ekf_status_message.gps1_pos_used    = ekf_status & SBG_ECOM_SOL_GPS1_POS_USED;
-  ekf_status_message.gps1_course_used = ekf_status & SBG_ECOM_SOL_GPS1_HDT_USED;
-  ekf_status_message.gps1_hdt_used    = ekf_status & SBG_ECOM_SOL_GPS1_HDT_USED;
-  ekf_status_message.gps2_vel_used    = ekf_status & SBG_ECOM_SOL_GPS2_VEL_USED;
-  ekf_status_message.gps2_pos_used    = ekf_status & SBG_ECOM_SOL_GPS2_POS_USED;
-  ekf_status_message.gps2_course_used = ekf_status & SBG_ECOM_SOL_GPS2_POS_USED;
-  ekf_status_message.gps2_hdt_used    = ekf_status & SBG_ECOM_SOL_GPS2_HDT_USED;
-  ekf_status_message.odo_used         = ekf_status & SBG_ECOM_SOL_ODO_USED;
+  ekf_status_message.vert_ref_used    = (ekf_status & SBG_ECOM_SOL_VERT_REF_USED) != 0;
+  ekf_status_message.mag_ref_used     = (ekf_status & SBG_ECOM_SOL_MAG_REF_USED) != 0;
+  ekf_status_message.gps1_vel_used    = (ekf_status & SBG_ECOM_SOL_GPS1_VEL_USED) != 0;
+  ekf_status_message.gps1_pos_used    = (ekf_status & SBG_ECOM_SOL_GPS1_POS_USED) != 0;
+  ekf_status_message.gps1_course_used = (ekf_status & SBG_ECOM_SOL_GPS1_HDT_USED) != 0;
+  ekf_status_message.gps1_hdt_used    = (ekf_status & SBG_ECOM_SOL_GPS1_HDT_USED) != 0;
+  ekf_status_message.gps2_vel_used    = (ekf_status & SBG_ECOM_SOL_GPS2_VEL_USED) != 0;
+  ekf_status_message.gps2_pos_used    = (ekf_status & SBG_ECOM_SOL_GPS2_POS_USED) != 0;
+  ekf_status_message.gps2_course_used = (ekf_status & SBG_ECOM_SOL_GPS2_POS_USED) != 0;
+  ekf_status_message.gps2_hdt_used    = (ekf_status & SBG_ECOM_SOL_GPS2_HDT_USED) != 0;
+  ekf_status_message.odo_used         = (ekf_status & SBG_ECOM_SOL_ODO_USED) != 0;
 
   return ekf_status_message;
 }
@@ -99,16 +99,16 @@ const sbg_driver::SbgImuStatus MessageWrapper::createImuStatusMessage(const SbgL
 {
   sbg_driver::SbgImuStatus imu_status_message;
 
-  imu_status_message.imu_com              = ref_log_imu.status & SBG_ECOM_IMU_COM_OK;
-  imu_status_message.imu_status           = ref_log_imu.status & SBG_ECOM_IMU_STATUS_BIT;
-  imu_status_message.imu_accel_x          = ref_log_imu.status & SBG_ECOM_IMU_ACCEL_X_BIT;
-  imu_status_message.imu_accel_y          = ref_log_imu.status & SBG_ECOM_IMU_ACCEL_Y_BIT;
-  imu_status_message.imu_accel_z          = ref_log_imu.status & SBG_ECOM_IMU_ACCEL_Z_BIT;
-  imu_status_message.imu_gyro_x           = ref_log_imu.status & SBG_ECOM_IMU_GYRO_X_BIT;
-  imu_status_message.imu_gyro_y           = ref_log_imu.status & SBG_ECOM_IMU_GYRO_Y_BIT;
-  imu_status_message.imu_gyro_z           = ref_log_imu.status & SBG_ECOM_IMU_GYRO_Z_BIT;
-  imu_status_message.imu_accels_in_range  = ref_log_imu.status & SBG_ECOM_IMU_ACCELS_IN_RANGE;
-  imu_status_message.imu_gyros_in_range   = ref_log_imu.status & SBG_ECOM_IMU_GYROS_IN_RANGE;
+  imu_status_message.imu_com              = (ref_log_imu.status & SBG_ECOM_IMU_COM_OK) != 0;
+  imu_status_message.imu_status           = (ref_log_imu.status & SBG_ECOM_IMU_STATUS_BIT) != 0 ;
+  imu_status_message.imu_accel_x          = (ref_log_imu.status & SBG_ECOM_IMU_ACCEL_X_BIT) != 0;
+  imu_status_message.imu_accel_y          = (ref_log_imu.status & SBG_ECOM_IMU_ACCEL_Y_BIT) != 0;
+  imu_status_message.imu_accel_z          = (ref_log_imu.status & SBG_ECOM_IMU_ACCEL_Z_BIT) != 0;
+  imu_status_message.imu_gyro_x           = (ref_log_imu.status & SBG_ECOM_IMU_GYRO_X_BIT) != 0;
+  imu_status_message.imu_gyro_y           = (ref_log_imu.status & SBG_ECOM_IMU_GYRO_Y_BIT) != 0;
+  imu_status_message.imu_gyro_z           = (ref_log_imu.status & SBG_ECOM_IMU_GYRO_Z_BIT) != 0;
+  imu_status_message.imu_accels_in_range  = (ref_log_imu.status & SBG_ECOM_IMU_ACCELS_IN_RANGE) != 0;
+  imu_status_message.imu_gyros_in_range   = (ref_log_imu.status & SBG_ECOM_IMU_GYROS_IN_RANGE) != 0;
 
   return imu_status_message;
 }
@@ -117,15 +117,15 @@ const sbg_driver::SbgMagStatus MessageWrapper::createMagStatusMessage(const SbgL
 {
   sbg_driver::SbgMagStatus mag_status_message;
 
-  mag_status_message.mag_x            = ref_log_mag.status & SBG_ECOM_MAG_MAG_X_BIT;
-  mag_status_message.mag_y            = ref_log_mag.status & SBG_ECOM_MAG_MAG_Y_BIT;
-  mag_status_message.mag_z            = ref_log_mag.status & SBG_ECOM_MAG_MAG_Z_BIT;
-  mag_status_message.accel_x          = ref_log_mag.status & SBG_ECOM_MAG_ACCEL_X_BIT;
-  mag_status_message.accel_y          = ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Y_BIT;
-  mag_status_message.accel_z          = ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Z_BIT;
-  mag_status_message.mags_in_range    = ref_log_mag.status & SBG_ECOM_MAG_MAGS_IN_RANGE;
-  mag_status_message.accels_in_range  = ref_log_mag.status & SBG_ECOM_MAG_ACCELS_IN_RANGE;
-  mag_status_message.calibration      = ref_log_mag.status & SBG_ECOM_MAG_CALIBRATION_OK;
+  mag_status_message.mag_x            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_X_BIT) != 0;
+  mag_status_message.mag_y            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Y_BIT) != 0;
+  mag_status_message.mag_z            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Z_BIT) != 0;
+  mag_status_message.accel_x          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_X_BIT) != 0;
+  mag_status_message.accel_y          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Y_BIT) != 0;
+  mag_status_message.accel_z          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Z_BIT) != 0;
+  mag_status_message.mags_in_range    = (ref_log_mag.status & SBG_ECOM_MAG_MAGS_IN_RANGE) != 0;
+  mag_status_message.accels_in_range  = (ref_log_mag.status & SBG_ECOM_MAG_ACCELS_IN_RANGE) != 0;
+  mag_status_message.calibration      = (ref_log_mag.status & SBG_ECOM_MAG_CALIBRATION_OK) != 0;
 
   return mag_status_message;
 }
@@ -134,10 +134,10 @@ const sbg_driver::SbgShipMotionStatus MessageWrapper::createShipMotionStatusMess
 {
   sbg_driver::SbgShipMotionStatus ship_motion_status_message;
 
-  ship_motion_status_message.heave_valid      = ref_log_ship_motion.status & SBG_ECOM_HEAVE_VALID;
-  ship_motion_status_message.heave_vel_aided  = ref_log_ship_motion.status & SBG_ECOM_HEAVE_VEL_AIDED;
-  ship_motion_status_message.period_available = ref_log_ship_motion.status & SBG_ECOM_HEAVE_PERIOD_INCLUDED;
-  ship_motion_status_message.period_valid     = ref_log_ship_motion.status & SBG_ECOM_HEAVE_PERIOD_VALID;
+  ship_motion_status_message.heave_valid      = (ref_log_ship_motion.status & SBG_ECOM_HEAVE_VALID) != 0;
+  ship_motion_status_message.heave_vel_aided  = (ref_log_ship_motion.status & SBG_ECOM_HEAVE_VEL_AIDED) != 0;
+  ship_motion_status_message.period_available = (ref_log_ship_motion.status & SBG_ECOM_HEAVE_PERIOD_INCLUDED) != 0;
+  ship_motion_status_message.period_valid     = (ref_log_ship_motion.status & SBG_ECOM_HEAVE_PERIOD_VALID) != 0;
 
   return ship_motion_status_message;
 }
@@ -146,14 +146,14 @@ const sbg_driver::SbgStatusAiding MessageWrapper::createStatusAidingMessage(cons
 {
   sbg_driver::SbgStatusAiding status_aiding_message;
 
-  status_aiding_message.gps1_pos_recv = ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_POS_RECV;
-  status_aiding_message.gps1_vel_recv = ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_VEL_RECV;
-  status_aiding_message.gps1_hdt_recv = ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_HDT_RECV;
-  status_aiding_message.gps1_utc_recv = ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_UTC_RECV;
+  status_aiding_message.gps1_pos_recv = (ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_POS_RECV) != 0;
+  status_aiding_message.gps1_vel_recv = (ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_VEL_RECV) != 0;
+  status_aiding_message.gps1_hdt_recv = (ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_HDT_RECV) != 0;
+  status_aiding_message.gps1_utc_recv = (ref_log_status.aidingStatus & SBG_ECOM_AIDING_GPS1_UTC_RECV) != 0;
 
-  status_aiding_message.mag_recv = ref_log_status.aidingStatus & SBG_ECOM_AIDING_MAG_RECV;
-  status_aiding_message.odo_recv = ref_log_status.aidingStatus & SBG_ECOM_AIDING_ODO_RECV;
-  status_aiding_message.dvl_recv = ref_log_status.aidingStatus & SBG_ECOM_AIDING_DVL_RECV;
+  status_aiding_message.mag_recv = (ref_log_status.aidingStatus & SBG_ECOM_AIDING_MAG_RECV) != 0;
+  status_aiding_message.odo_recv = (ref_log_status.aidingStatus & SBG_ECOM_AIDING_ODO_RECV) != 0;
+  status_aiding_message.dvl_recv = (ref_log_status.aidingStatus & SBG_ECOM_AIDING_DVL_RECV) != 0;
 
   return status_aiding_message;
 }
@@ -162,26 +162,26 @@ const sbg_driver::SbgStatusCom MessageWrapper::createStatusComMessage(const SbgL
 {
   sbg_driver::SbgStatusCom status_com_message;
 
-  status_com_message.port_a = ref_log_status.comStatus & SBG_ECOM_PORTA_VALID;
-  status_com_message.port_b = ref_log_status.comStatus & SBG_ECOM_PORTB_VALID;
-  status_com_message.port_c = ref_log_status.comStatus & SBG_ECOM_PORTC_VALID;
-  status_com_message.port_d = ref_log_status.comStatus & SBG_ECOM_PORTD_VALID;
-  status_com_message.port_e = ref_log_status.comStatus & SBG_ECOM_PORTE_VALID;
+  status_com_message.port_a = (ref_log_status.comStatus & SBG_ECOM_PORTA_VALID) != 0;
+  status_com_message.port_b = (ref_log_status.comStatus & SBG_ECOM_PORTB_VALID) != 0;
+  status_com_message.port_c = (ref_log_status.comStatus & SBG_ECOM_PORTC_VALID) != 0;
+  status_com_message.port_d = (ref_log_status.comStatus & SBG_ECOM_PORTD_VALID) != 0;
+  status_com_message.port_e = (ref_log_status.comStatus & SBG_ECOM_PORTE_VALID) != 0;
 
-  status_com_message.port_a_rx = ref_log_status.comStatus & SBG_ECOM_PORTA_RX_OK;
-  status_com_message.port_a_tx = ref_log_status.comStatus & SBG_ECOM_PORTA_TX_OK;
-  status_com_message.port_b_rx = ref_log_status.comStatus & SBG_ECOM_PORTB_RX_OK;
-  status_com_message.port_b_tx = ref_log_status.comStatus & SBG_ECOM_PORTB_TX_OK;
-  status_com_message.port_c_rx = ref_log_status.comStatus & SBG_ECOM_PORTC_RX_OK;
-  status_com_message.port_c_tx = ref_log_status.comStatus & SBG_ECOM_PORTC_TX_OK;
-  status_com_message.port_d_rx = ref_log_status.comStatus & SBG_ECOM_PORTD_RX_OK;
-  status_com_message.port_d_tx = ref_log_status.comStatus & SBG_ECOM_PORTD_TX_OK;
-  status_com_message.port_e_rx = ref_log_status.comStatus & SBG_ECOM_PORTE_RX_OK;
-  status_com_message.port_e_tx = ref_log_status.comStatus & SBG_ECOM_PORTE_TX_OK;
+  status_com_message.port_a_rx = (ref_log_status.comStatus & SBG_ECOM_PORTA_RX_OK) != 0;
+  status_com_message.port_a_tx = (ref_log_status.comStatus & SBG_ECOM_PORTA_TX_OK) != 0;
+  status_com_message.port_b_rx = (ref_log_status.comStatus & SBG_ECOM_PORTB_RX_OK) != 0;
+  status_com_message.port_b_tx = (ref_log_status.comStatus & SBG_ECOM_PORTB_TX_OK) != 0;
+  status_com_message.port_c_rx = (ref_log_status.comStatus & SBG_ECOM_PORTC_RX_OK) != 0;
+  status_com_message.port_c_tx = (ref_log_status.comStatus & SBG_ECOM_PORTC_TX_OK) != 0;
+  status_com_message.port_d_rx = (ref_log_status.comStatus & SBG_ECOM_PORTD_RX_OK) != 0;
+  status_com_message.port_d_tx = (ref_log_status.comStatus & SBG_ECOM_PORTD_TX_OK) != 0;
+  status_com_message.port_e_rx = (ref_log_status.comStatus & SBG_ECOM_PORTE_RX_OK) != 0;
+  status_com_message.port_e_tx = (ref_log_status.comStatus & SBG_ECOM_PORTE_TX_OK) != 0;
 
-  status_com_message.can_rx     = ref_log_status.comStatus & SBG_ECOM_CAN_RX_OK;
-  status_com_message.can_tx     = ref_log_status.comStatus & SBG_ECOM_CAN_TX_OK;
-  status_com_message.can_status = ref_log_status.comStatus & SBG_ECOM_CAN_VALID;
+  status_com_message.can_rx     = (ref_log_status.comStatus & SBG_ECOM_CAN_RX_OK) != 0;
+  status_com_message.can_tx     = (ref_log_status.comStatus & SBG_ECOM_CAN_TX_OK) != 0;
+  status_com_message.can_status = (ref_log_status.comStatus & SBG_ECOM_CAN_VALID) != 0;
 
   return status_com_message;
 }
@@ -190,11 +190,11 @@ const sbg_driver::SbgStatusGeneral MessageWrapper::createStatusGeneralMessage(co
 {
   sbg_driver::SbgStatusGeneral status_general_message;
 
-  status_general_message.main_power   = ref_log_status.generalStatus & SBG_ECOM_GENERAL_MAIN_POWER_OK;
-  status_general_message.imu_power    = ref_log_status.generalStatus & SBG_ECOM_GENERAL_IMU_POWER_OK;
-  status_general_message.gps_power    = ref_log_status.generalStatus & SBG_ECOM_GENERAL_GPS_POWER_OK;
-  status_general_message.settings     = ref_log_status.generalStatus & SBG_ECOM_GENERAL_SETTINGS_OK;
-  status_general_message.temperature  = ref_log_status.generalStatus & SBG_ECOM_GENERAL_TEMPERATURE_OK;
+  status_general_message.main_power   = (ref_log_status.generalStatus & SBG_ECOM_GENERAL_MAIN_POWER_OK) != 0;
+  status_general_message.imu_power    = (ref_log_status.generalStatus & SBG_ECOM_GENERAL_IMU_POWER_OK) != 0;
+  status_general_message.gps_power    = (ref_log_status.generalStatus & SBG_ECOM_GENERAL_GPS_POWER_OK) != 0;
+  status_general_message.settings     = (ref_log_status.generalStatus & SBG_ECOM_GENERAL_SETTINGS_OK) != 0;
+  status_general_message.temperature  = (ref_log_status.generalStatus & SBG_ECOM_GENERAL_TEMPERATURE_OK) != 0;
 
   return status_general_message;
 }
@@ -203,8 +203,8 @@ const sbg_driver::SbgUtcTimeStatus MessageWrapper::createUtcStatusMessage(const 
 {
   sbg_driver::SbgUtcTimeStatus utc_status_message;
 
-  utc_status_message.clock_stable     = ref_log_utc.status & SBG_ECOM_CLOCK_STABLE_INPUT;
-  utc_status_message.clock_utc_sync   = ref_log_utc.status & SBG_ECOM_CLOCK_UTC_SYNC;
+  utc_status_message.clock_stable     = (ref_log_utc.status & SBG_ECOM_CLOCK_STABLE_INPUT) != 0;
+  utc_status_message.clock_utc_sync   = (ref_log_utc.status & SBG_ECOM_CLOCK_UTC_SYNC) != 0;
 
   utc_status_message.clock_status     = static_cast<uint8_t>(sbgEComLogUtcGetClockStatus(ref_log_utc.status));
   utc_status_message.clock_utc_status = static_cast<uint8_t>(sbgEComLogUtcGetClockUtcStatus(ref_log_utc.status));
@@ -424,11 +424,11 @@ const sbg_driver::SbgEvent MessageWrapper::createSbgEventMessage(const SbgLogEve
   event_message.header.stamp  = createRosTime(ref_log_event.timeStamp);
   event_message.time_stamp    = ref_log_event.timeStamp;
 
-  event_message.overflow        = ref_log_event.status & SBG_ECOM_EVENT_OVERFLOW;
-  event_message.offset_0_valid  = ref_log_event.status & SBG_ECOM_EVENT_OFFSET_0_VALID;
-  event_message.offset_1_valid  = ref_log_event.status & SBG_ECOM_EVENT_OFFSET_1_VALID;
-  event_message.offset_2_valid  = ref_log_event.status & SBG_ECOM_EVENT_OFFSET_2_VALID;
-  event_message.offset_3_valid  = ref_log_event.status & SBG_ECOM_EVENT_OFFSET_3_VALID;
+  event_message.overflow        = (ref_log_event.status & SBG_ECOM_EVENT_OVERFLOW) != 0;
+  event_message.offset_0_valid  = (ref_log_event.status & SBG_ECOM_EVENT_OFFSET_0_VALID) != 0;
+  event_message.offset_1_valid  = (ref_log_event.status & SBG_ECOM_EVENT_OFFSET_1_VALID) != 0;
+  event_message.offset_2_valid  = (ref_log_event.status & SBG_ECOM_EVENT_OFFSET_2_VALID) != 0;
+  event_message.offset_3_valid  = (ref_log_event.status & SBG_ECOM_EVENT_OFFSET_3_VALID) != 0;
 
   event_message.time_offset_0   = ref_log_event.timeOffset0;
   event_message.time_offset_1   = ref_log_event.timeOffset1;
@@ -565,8 +565,8 @@ const sbg_driver::SbgPressure MessageWrapper::createSbgPressureMessage(const Sbg
   pressure_message.header.stamp = createRosTime(ref_log_pressure.timeStamp);
   pressure_message.time_stamp   = ref_log_pressure.timeStamp;
 
-  pressure_message.valid_pressure = ref_log_pressure.status & SBG_ECOM_PRESSURE_PRESSURE_VALID;
-  pressure_message.valid_altitude = ref_log_pressure.status & SBG_ECOM_PRESSURE_HEIGHT_VALID;
+  pressure_message.valid_pressure = (ref_log_pressure.status & SBG_ECOM_PRESSURE_PRESSURE_VALID) != 0;
+  pressure_message.valid_altitude = (ref_log_pressure.status & SBG_ECOM_PRESSURE_HEIGHT_VALID) != 0;
   pressure_message.pressure       = ref_log_pressure.pressure;
   pressure_message.altitude       = ref_log_pressure.height;
 
