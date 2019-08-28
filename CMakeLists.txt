@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(sbg_driver)
 
-add_compile_options(-std=c++11)
-
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
@@ -139,11 +137,6 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/external/sbgECom/src
 )
 
-## Declare a C++ library
-# add_library(sbg
-#   src/${PROJECT_NAME}/sbg.cpp
-# )
-
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -159,37 +152,20 @@ set (SBG_COMMON_RESOURCES
 )
 
 ## Declare a C++ executable
-add_executable(sbg_device
-  ${SBG_COMMON_RESOURCES}
-  src/main.cpp
-)
-
-add_executable(sbg_device_mag
-  ${SBG_COMMON_RESOURCES}
-  src/main_mag.cpp
-)
-
+add_executable(sbg_device ${SBG_COMMON_RESOURCES} src/main.cpp)
 add_dependencies(sbg_device ${sbg_driver_EXPORTED_TARGETS})
-add_dependencies(sbg_device_mag ${sbg_driver_EXPORTED_TARGETS})
-
 target_compile_options(sbg_device PRIVATE -fpermissive)
+
+add_executable(sbg_device_mag ${SBG_COMMON_RESOURCES} src/main_mag.cpp)
+add_dependencies(sbg_device_mag ${sbg_driver_EXPORTED_TARGETS})
 target_compile_options(sbg_device_mag PRIVATE -fpermissive)
 
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(sbg_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# add_dependencies(ellipse sbgECom)
-
 ## Specify libraries to link a library or executable target against
-target_link_libraries(sbg_device
-   ${catkin_LIBRARIES}
-   sbgECom
-)
+target_link_libraries(sbg_device ${catkin_LIBRARIES} sbgECom)
+target_link_libraries(sbg_device_mag ${catkin_LIBRARIES} sbgECom)
 
-target_link_libraries(sbg_device_mag
-   ${catkin_LIBRARIES}
-   sbgECom
-)
+set_property(TARGET sbg_device PROPERTY CXX_STANDARD 11)
+set_property(TARGET sbg_device_mag PROPERTY CXX_STANDARD 11)
 
 #############
 ## Install ##
@@ -206,19 +182,19 @@ target_link_libraries(sbg_device_mag
 # )
 
 ## Mark executables and/or libraries for installation
- install(TARGETS sbg_device sbg_device_mag
+install(TARGETS sbg_device sbg_device_mag
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+)
 
 ## Mark cpp header files for installation
- install(DIRECTORY include/${PROJECT_NAME}/
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-   FILES_MATCHING PATTERN "*.h"
-   PATTERN ".svn" EXCLUDE
-   PATTERN ".git" EXCLUDE
- )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+  PATTERN ".git" EXCLUDE
+)
 
 # Mark other files for installation (e.g. launch and bag files, etc.)
 install(DIRECTORY launch/
