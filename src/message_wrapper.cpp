@@ -9,18 +9,84 @@ using sbg::MessageWrapper;
 //- Constructor                                                       -//
 //---------------------------------------------------------------------//
 
-MessageWrapper::MessageWrapper(void)
+MessageWrapper::MessageWrapper(void):
+m_first_valid_utc_(false)
 {
-
+  
 }
 
 //---------------------------------------------------------------------//
 //- Internal methods                                                  -//
 //---------------------------------------------------------------------//
 
-const ros::Time MessageWrapper::createRosTime(uint32 device_timestamp) const
+const std_msgs::Header MessageWrapper::createRosHeader(uint32 device_timestamp) const
 {
-  return m_ros_processing_time_;
+  std_msgs::Header header;
+
+  if (!m_first_valid_utc_)
+  {
+    header.stamp    = m_ros_processing_time_;
+    header.frame_id = "Time header is Epoch (Unix) processing time.";
+  }
+  else
+  {
+    header.stamp = computeCorrectedRosTime(device_timestamp);
+
+    std::string frame_header;
+    frame_header = "Time header is UTC time converted to Epoch";
+
+    if (m_last_sbg_utc_.clock_status.clock_utc_status == SBG_ECOM_UTC_INVALID)
+    {
+      frame_header += ", internally computed from the last valid UTC data.";
+    }
+    else
+    {
+      if (m_last_sbg_utc_.clock_status.clock_utc_status == SBG_ECOM_UTC_NO_LEAP_SEC)
+      {
+        frame_header += ", no leap second in UTC data";
+      }
+
+      if (m_last_sbg_utc_.clock_status.clock_utc_sync)
+      {
+        if (m_last_sbg_utc_.clock_status.clock_status == SBG_ECOM_CLOCK_STEERING)
+        {
+          frame_header += ", converging to the PPS";
+        }
+        else if (m_last_sbg_utc_.clock_status.clock_status == SBG_ECOM_CLOCK_VALID)
+        {
+          frame_header += ", synchronized with PPS";
+        }
+      }
+      else
+      {
+        frame_header += ", not synchronized with PPS";
+      }
+    }
+
+    header.frame_id = frame_header;
+  }
+
+  return header;
+}
+
+const ros::Time MessageWrapper::computeCorrectedRosTime(uint32 device_timestamp) const
+{
+  //
+  // Convert the UTC time to epoch from the last received message.
+  // Add the SBG timestamp difference (timestamp is in microsecond).
+  //
+  ros::Time utc_to_epoch;
+  uint32_t  device_timestamp_diff;
+  uint64_t  nanoseconds;
+
+  utc_to_epoch          = convertUtcTimeToEpoch(m_last_sbg_utc_);
+  device_timestamp_diff = device_timestamp - m_last_sbg_utc_.time_stamp;
+
+  nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff * 1e3);
+
+  utc_to_epoch.fromNSec(nanoseconds);
+
+  return utc_to_epoch;
 }
 
 const geometry_msgs::Vector3 MessageWrapper::createRosVector3(const float* p_float_array) const
@@ -252,16 +318,17 @@ bool MessageWrapper::isLeapYear(uint16_t year) const
   return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
 }
 
-uint32_t MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
+const ros::Time MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
 {
-  uint32_t days;
-  uint32_t seconds;
+  ros::Time utc_to_epoch;
+  uint32_t  days;
+  uint64_t  nanoseconds;
 
   //
   // Convert the UTC time to Epoch(Unix) time, which is the elasped seconds since 1 Jan 1970.
   //
-  days    = 0;
-  seconds = 0;
+  days        = 0;
+  nanoseconds = 0;
 
   for (uint16 yearIndex = 1970; yearIndex < ref_sbg_utc_msg.year; yearIndex++)
   {
@@ -275,81 +342,15 @@ uint32_t MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref
 
   days += ref_sbg_utc_msg.day - 1;
 
-  seconds = days * 24;
-  seconds = (seconds + ref_sbg_utc_msg.hour) * 60;
-  seconds = (seconds + ref_sbg_utc_msg.min) * 60;
-  seconds = seconds + ref_sbg_utc_msg.sec;
+  nanoseconds = days * 24;
+  nanoseconds = (nanoseconds + ref_sbg_utc_msg.hour) * 60;
+  nanoseconds = (nanoseconds + ref_sbg_utc_msg.min) * 60;
+  nanoseconds = nanoseconds + ref_sbg_utc_msg.sec;
+  nanoseconds = nanoseconds * 1e9 + ref_sbg_utc_msg.nanosec;
 
-  return seconds;
-}
+  utc_to_epoch.fromNSec(nanoseconds);
 
-uint32_t MessageWrapper::getUtcTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
-{
-  uint32_t milli_seconds;
-
-  milli_seconds = (ref_sbg_utc_msg.day - 1) * 24;
-  milli_seconds = (milli_seconds + ref_sbg_utc_msg.hour) * 60;
-  milli_seconds = (milli_seconds + ref_sbg_utc_msg.min) * 60;
-  milli_seconds = (milli_seconds + ref_sbg_utc_msg.sec) * 1000;
-  milli_seconds = milli_seconds + ref_sbg_utc_msg.nanosec / 1000;
-
-  return milli_seconds;
-}
-
-uint32_t MessageWrapper::computeTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
-{
-  //
-  // Compute the applied leap second by the device firmware.
-  //
-  int32     applied_leap_seconds;
-  uint32_t  utc_tow;
-
-  applied_leap_seconds  = computeGpsTimeOfWeekDelta(ref_sbg_utc_msg.gps_tow, getUtcTimeOfWeek(ref_sbg_utc_msg));
-  utc_tow               = addOffsetGpsTimeOfWeek(ref_sbg_utc_msg.gps_tow, -applied_leap_seconds);
-
-  return addOffsetGpsTimeOfWeek(utc_tow, m_leap_seconds_ * 1000);
-}
-
-int32 MessageWrapper::computeGpsTimeOfWeekDelta(uint32_t gps_time_of_week_A, uint32_t gps_time_of_week_B) const
-{
-  int32 delta_gps_tow;
-
-  //
-  // Compute the difference between the time of week, and check for GPS rollover.
-  //
-  delta_gps_tow = gps_time_of_week_A - gps_time_of_week_B;
-
-  if (delta_gps_tow > SBG_GPS_TIME_OF_WEEK_MS_HALF)
-  {
-    delta_gps_tow = delta_gps_tow - SBG_GPS_TIME_OF_WEEK_MS_MAX;
-  }
-  else if (delta_gps_tow < -SBG_GPS_TIME_OF_WEEK_MS_HALF)
-  {
-    delta_gps_tow = delta_gps_tow + SBG_GPS_TIME_OF_WEEK_MS_MAX;
-  }
-
-  return delta_gps_tow;
-}
-
-uint32_t MessageWrapper::addOffsetGpsTimeOfWeek(uint32_t gps_time_of_week, int32 offset) const
-{
-  int32 gps_time_of_week_offseted;
-
-  //
-  // Add the offset the Gps time of week and check for Gps rollover.
-  //
-  gps_time_of_week_offseted = gps_time_of_week + offset;
-
-  if (gps_time_of_week_offseted < 0)
-  {
-    gps_time_of_week_offseted += SBG_GPS_TIME_OF_WEEK_MS_MAX;
-  }
-  else if (gps_time_of_week_offseted > SBG_GPS_TIME_OF_WEEK_MS_MAX)
-  {
-    gps_time_of_week_offseted -= SBG_GPS_TIME_OF_WEEK_MS_MAX;
-  }
-
-  return static_cast<uint32_t>(gps_time_of_week_offseted);
+  return utc_to_epoch;
 }
 
 //---------------------------------------------------------------------//
@@ -361,11 +362,6 @@ void MessageWrapper::setRosProcessingTime(const ros::Time& ref_ros_time)
   m_ros_processing_time_ = ref_ros_time;
 }
 
-void MessageWrapper::setLeapSeconds(int32 leap_seconds)
-{
-  m_leap_seconds_ = leap_seconds;
-}
-
 //---------------------------------------------------------------------//
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
@@ -374,8 +370,8 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
 {
   sbg_driver::SbgEkfEuler ekf_euler_message;
 
-  ekf_euler_message.header.stamp  = createRosTime(ref_log_ekf_euler.timeStamp);
-  ekf_euler_message.time_stamp    = ref_log_ekf_euler.timeStamp;
+  ekf_euler_message.header      = createRosHeader(ref_log_ekf_euler.timeStamp);
+  ekf_euler_message.time_stamp  = ref_log_ekf_euler.timeStamp;
 
   ekf_euler_message.status    = createEkfStatusMessage(ref_log_ekf_euler.status);
   ekf_euler_message.angle     = createRosVector3(ref_log_ekf_euler.euler);
@@ -388,8 +384,8 @@ const sbg_driver::SbgEkfNav MessageWrapper::createSbgEkfNavMessage(const SbgLogE
 {
   sbg_driver::SbgEkfNav ekf_nav_message;
 
-  ekf_nav_message.header.stamp  = createRosTime(ref_log_ekf_nav.timeStamp);
-  ekf_nav_message.time_stamp    = ekf_nav_message.time_stamp;
+  ekf_nav_message.header      = createRosHeader(ref_log_ekf_nav.timeStamp);
+  ekf_nav_message.time_stamp  = ekf_nav_message.time_stamp;
 
   ekf_nav_message.status            = createEkfStatusMessage(ref_log_ekf_nav.status);
   ekf_nav_message.velocity          = createRosVector3(ref_log_ekf_nav.velocity);
@@ -404,7 +400,7 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
 {
   sbg_driver::SbgEkfQuat ekf_quat_message;
 
-  ekf_quat_message.header.stamp = createRosTime(ref_log_ekf_quat.timeStamp);
+  ekf_quat_message.header       = createRosHeader(ref_log_ekf_quat.timeStamp);
   ekf_quat_message.time_stamp   = ref_log_ekf_quat.timeStamp;
 
   ekf_quat_message.status       = createEkfStatusMessage(ref_log_ekf_quat.status);
@@ -421,8 +417,8 @@ const sbg_driver::SbgEvent MessageWrapper::createSbgEventMessage(const SbgLogEve
 {
   sbg_driver::SbgEvent event_message;
 
-  event_message.header.stamp  = createRosTime(ref_log_event.timeStamp);
-  event_message.time_stamp    = ref_log_event.timeStamp;
+  event_message.header      = createRosHeader(ref_log_event.timeStamp);
+  event_message.time_stamp  = ref_log_event.timeStamp;
 
   event_message.overflow        = (ref_log_event.status & SBG_ECOM_EVENT_OVERFLOW) != 0;
   event_message.offset_0_valid  = (ref_log_event.status & SBG_ECOM_EVENT_OFFSET_0_VALID) != 0;
@@ -442,8 +438,8 @@ const sbg_driver::SbgGpsHdt MessageWrapper::createSbgGpsHdtMessage(const SbgLogG
 {
   sbg_driver::SbgGpsHdt gps_hdt_message;
 
-  gps_hdt_message.header.stamp  = createRosTime(ref_log_gps_hdt.timeStamp);
-  gps_hdt_message.time_stamp    = ref_log_gps_hdt.timeStamp;
+  gps_hdt_message.header      = createRosHeader(ref_log_gps_hdt.timeStamp);
+  gps_hdt_message.time_stamp  = ref_log_gps_hdt.timeStamp;
 
   gps_hdt_message.status            = ref_log_gps_hdt.status;
   gps_hdt_message.tow               = ref_log_gps_hdt.timeOfWeek;
@@ -459,8 +455,8 @@ const sbg_driver::SbgGpsPos MessageWrapper::createSbgGpsPosMessage(const SbgLogG
 {
   sbg_driver::SbgGpsPos gps_pos_message;
 
-  gps_pos_message.header.stamp  = createRosTime(ref_log_gps_pos.timeStamp);
-  gps_pos_message.time_stamp    = ref_log_gps_pos.timeStamp;
+  gps_pos_message.header      = createRosHeader(ref_log_gps_pos.timeStamp);
+  gps_pos_message.time_stamp  = ref_log_gps_pos.timeStamp;
 
   gps_pos_message.status              = createGpsPosStatusMessage(ref_log_gps_pos);
   gps_pos_message.gps_tow             = ref_log_gps_pos.timeOfWeek;
@@ -491,8 +487,8 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
 {
   sbg_driver::SbgGpsVel gps_vel_message;
 
-  gps_vel_message.header.stamp  = createRosTime(ref_log_gps_vel.timeStamp);
-  gps_vel_message.time_stamp    = ref_log_gps_vel.timeStamp;
+  gps_vel_message.header      = createRosHeader(ref_log_gps_vel.timeStamp);
+  gps_vel_message.time_stamp  = ref_log_gps_vel.timeStamp;
 
   gps_vel_message.status      = createGpsVelStatusMessage(ref_log_gps_vel);
   gps_vel_message.gps_tow     = ref_log_gps_vel.timeOfWeek;
@@ -508,8 +504,8 @@ const sbg_driver::SbgImuData MessageWrapper::createSbgImuDataMessage(const SbgLo
 {
   sbg_driver::SbgImuData imu_data_message;
 
-  imu_data_message.header.stamp = createRosTime(ref_log_imu_data.timeStamp);
-  imu_data_message.time_stamp   = ref_log_imu_data.timeStamp;
+  imu_data_message.header     = createRosHeader(ref_log_imu_data.timeStamp);
+  imu_data_message.time_stamp = ref_log_imu_data.timeStamp;
 
   imu_data_message.imu_status   = createImuStatusMessage(ref_log_imu_data);
   imu_data_message.accel        = createRosVector3(ref_log_imu_data.accelerometers);
@@ -525,8 +521,8 @@ const sbg_driver::SbgMag MessageWrapper::createSbgMagMessage(const SbgLogMag& re
 {
   sbg_driver::SbgMag mag_message;
 
-  mag_message.header.stamp  = createRosTime(ref_log_mag.timeStamp);
-  mag_message.time_stamp    = ref_log_mag.timeStamp;
+  mag_message.header      = createRosHeader(ref_log_mag.timeStamp);
+  mag_message.time_stamp  = ref_log_mag.timeStamp;
 
   mag_message.mag     = createRosVector3(ref_log_mag.magnetometers);
   mag_message.accel   = createRosVector3(ref_log_mag.accelerometers);
@@ -540,7 +536,7 @@ const sbg_driver::SbgMagCalib MessageWrapper::createSbgMagCalibMessage(const Sbg
   sbg_driver::SbgMagCalib mag_calib_message;
 
   // TODO. SbgMagCalib is not implemented.
-  mag_calib_message.header.stamp = createRosTime(ref_log_mag_calib.timeStamp);
+  mag_calib_message.header = createRosHeader(ref_log_mag_calib.timeStamp);
 
   return mag_calib_message;
 }
@@ -549,8 +545,8 @@ const sbg_driver::SbgOdoVel MessageWrapper::createSbgOdoVelMessage(const SbgLogO
 {
   sbg_driver::SbgOdoVel odo_vel_message;
 
-  odo_vel_message.header.stamp  = createRosTime(ref_log_odo.timeStamp);
-  odo_vel_message.time_stamp    = ref_log_odo.timeStamp;
+  odo_vel_message.header      = createRosHeader(ref_log_odo.timeStamp);
+  odo_vel_message.time_stamp  = ref_log_odo.timeStamp;
 
   odo_vel_message.status  = ref_log_odo.status;
   odo_vel_message.vel     = ref_log_odo.velocity;
@@ -562,7 +558,7 @@ const sbg_driver::SbgPressure MessageWrapper::createSbgPressureMessage(const Sbg
 {
   sbg_driver::SbgPressure pressure_message;
 
-  pressure_message.header.stamp = createRosTime(ref_log_pressure.timeStamp);
+  pressure_message.header       = createRosHeader(ref_log_pressure.timeStamp);
   pressure_message.time_stamp   = ref_log_pressure.timeStamp;
 
   pressure_message.valid_pressure = (ref_log_pressure.status & SBG_ECOM_PRESSURE_PRESSURE_VALID) != 0;
@@ -577,7 +573,7 @@ const sbg_driver::SbgShipMotion MessageWrapper::createSbgShipMotionMessage(const
 {
   sbg_driver::SbgShipMotion ship_motion_message;
 
-  ship_motion_message.header.stamp  = createRosTime(ref_log_ship_motion.timeStamp);
+  ship_motion_message.header        = createRosHeader(ref_log_ship_motion.timeStamp);
   ship_motion_message.time_stamp    = ref_log_ship_motion.timeStamp;
 
   ship_motion_message.ship_motion   = createRosVector3(ref_log_ship_motion.shipMotion);
@@ -592,7 +588,7 @@ const sbg_driver::SbgStatus MessageWrapper::createSbgStatusMessage(const SbgLogS
 {
   sbg_driver::SbgStatus status_message;
 
-  status_message.header.stamp = createRosTime(ref_log_status.timeStamp);
+  status_message.header       = createRosHeader(ref_log_status.timeStamp);
   status_message.time_stamp   = ref_log_status.timeStamp;
 
   status_message.status_general = createStatusGeneralMessage(ref_log_status);
@@ -602,12 +598,12 @@ const sbg_driver::SbgStatus MessageWrapper::createSbgStatusMessage(const SbgLogS
   return status_message;
 }
 
-const sbg_driver::SbgUtcTime MessageWrapper::createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc) const
+const sbg_driver::SbgUtcTime MessageWrapper::createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc)
 {
   sbg_driver::SbgUtcTime utc_time_message;
 
-  utc_time_message.header.stamp = createRosTime(ref_log_utc.timeStamp);
-  utc_time_message.time_stamp   = ref_log_utc.timeStamp;
+  utc_time_message.header     = createRosHeader(ref_log_utc.timeStamp);
+  utc_time_message.time_stamp = ref_log_utc.timeStamp;
 
   utc_time_message.clock_status = createUtcStatusMessage(ref_log_utc);
   utc_time_message.year         = ref_log_utc.year;
@@ -619,6 +615,23 @@ const sbg_driver::SbgUtcTime MessageWrapper::createSbgUtcTimeMessage(const SbgLo
   utc_time_message.nanosec      = ref_log_utc.nanoSecond;
   utc_time_message.gps_tow      = ref_log_utc.gpsTimeOfWeek;
 
+  if (!m_first_valid_utc_)
+  {
+    if (utc_time_message.clock_status.clock_stable && utc_time_message.clock_status.clock_utc_sync)
+    {
+      if (utc_time_message.clock_status.clock_status == SBG_ECOM_CLOCK_VALID)
+      {
+        m_first_valid_utc_ = true;
+        ROS_INFO("A full valid UTC log has been detected, timestamp will be synchronized with the UTC data.");
+      }
+    }
+  }
+  
+  //
+  // Store the last UTC message.
+  //
+  m_last_sbg_utc_ = utc_time_message;
+
   return utc_time_message;
 }
 
@@ -626,7 +639,7 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
 {
   sensor_msgs::Imu imu_ros_message;
 
-  imu_ros_message.header.stamp = createRosTime(ref_sbg_imu_msg.time_stamp);
+  imu_ros_message.header = createRosHeader(ref_sbg_imu_msg.time_stamp);
 
   imu_ros_message.orientation                       = ref_sbg_quat_msg.quaternion;
   imu_ros_message.angular_velocity                  = ref_sbg_imu_msg.gyro;
@@ -641,10 +654,9 @@ const sensor_msgs::Temperature MessageWrapper::createRosTemperatureMessage(const
 {
   sensor_msgs::Temperature temperature_message;
 
-  temperature_message.header.stamp    = createRosTime(ref_sbg_imu_msg.time_stamp);
-  temperature_message.header.frame_id = "Imu temperature";
-  temperature_message.temperature     = ref_sbg_imu_msg.temp;
-  temperature_message.variance        = 0;
+  temperature_message.header      = createRosHeader(ref_sbg_imu_msg.time_stamp);
+  temperature_message.temperature = ref_sbg_imu_msg.temp;
+  temperature_message.variance    = 0;
 
   return temperature_message;
 }
@@ -653,7 +665,7 @@ const sensor_msgs::MagneticField MessageWrapper::createRosMagneticMessage(const 
 {
   sensor_msgs::MagneticField magnetic_message;
 
-  magnetic_message.header.stamp   = createRosTime(ref_sbg_mag_msg.time_stamp);
+  magnetic_message.header         = createRosHeader(ref_sbg_mag_msg.time_stamp);
   magnetic_message.magnetic_field = ref_sbg_mag_msg.mag;
 
   return magnetic_message;
@@ -663,7 +675,7 @@ const sensor_msgs::FluidPressure MessageWrapper::createRosFluidPressureMessage(c
 {
   sensor_msgs::FluidPressure fluid_pressure_message;
 
-  fluid_pressure_message.header.stamp   = createRosTime(ref_sbg_press_msg.time_stamp);
+  fluid_pressure_message.header         = createRosHeader(ref_sbg_press_msg.time_stamp);
   fluid_pressure_message.fluid_pressure = ref_sbg_press_msg.pressure;
   fluid_pressure_message.variance       = 0;
 
@@ -677,7 +689,7 @@ const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(c
 
   delta_t = (ref_sbg_imu_msg.time_stamp - ref_p_sbg_imu_msg.time_stamp) * 1e-6;
 
-  twist_stamped_message.header.stamp  = createRosTime(ref_sbg_imu_msg.time_stamp);
+  twist_stamped_message.header        = createRosHeader(ref_sbg_imu_msg.time_stamp);
   twist_stamped_message.twist.angular = ref_sbg_imu_msg.gyro;
 
   twist_stamped_message.twist.linear.x = (ref_sbg_imu_msg.accel.x - ref_p_sbg_imu_msg.accel.x) / delta_t;
@@ -691,8 +703,7 @@ const geometry_msgs::PointStamped MessageWrapper::createRosPointStampedMessage(c
 {
   geometry_msgs::PointStamped point_stamped_message;
 
-  point_stamped_message.header.stamp    = createRosTime(ref_sbg_ekf_msg.time_stamp);
-  point_stamped_message.header.frame_id = "IMU position in ECEF";
+  point_stamped_message.header = createRosHeader(ref_sbg_ekf_msg.time_stamp);
 
   //
   // Conversion from Geodetic coordinates to ECEF is based on World Geodetic System 1984 (WGS84).
@@ -724,32 +735,10 @@ const sensor_msgs::TimeReference MessageWrapper::createRosUtcTimeReferenceMessag
 {
   sensor_msgs::TimeReference utc_reference_message;
 
-  utc_reference_message.header.stamp    = createRosTime(ref_sbg_utc_msg.time_stamp);
-  utc_reference_message.header.frame_id = "UTC time reference";
-  utc_reference_message.source          = "UTC time from device converted to Epoch";
+  utc_reference_message.header.stamp = m_ros_processing_time_;
 
-  //
-  // Check if the leap second is included in the UTC time.
-  //
-  if (ref_sbg_utc_msg.clock_status.clock_utc_status == SBG_ECOM_UTC_VALID)
-  {
-    utc_reference_message.time_ref.sec  = convertUtcTimeToEpoch(ref_sbg_utc_msg);
-    utc_reference_message.time_ref.nsec = ref_sbg_utc_msg.nanosec;
-  }
-  else if (ref_sbg_utc_msg.clock_status.clock_utc_status == SBG_ECOM_UTC_NO_LEAP_SEC)
-  {
-    //
-    // The leap second is not valid in the UTC time.
-    // Compute the epoch time from Gps time, and with the known leap second.
-    //
-    uint32 utc_to_epoch_ms;
-    utc_to_epoch_ms = convertUtcTimeToEpoch(ref_sbg_utc_msg) * 1000;
-    utc_to_epoch_ms = utc_to_epoch_ms - getUtcTimeOfWeek(ref_sbg_utc_msg);
-    utc_to_epoch_ms = utc_to_epoch_ms + computeTimeOfWeek(ref_sbg_utc_msg);
-
-    utc_reference_message.time_ref.sec  = floor(utc_to_epoch_ms / 1000);
-    utc_reference_message.time_ref.nsec = (utc_to_epoch_ms - floor(utc_to_epoch_ms / 1000)) * 1000 + ref_sbg_utc_msg.nanosec;
-  }
+  utc_reference_message.time_ref  = computeCorrectedRosTime(ref_sbg_utc_msg.time_stamp);
+  utc_reference_message.source    = "UTC time from device converted to Epoch";
 
   return utc_reference_message;
 }
@@ -758,8 +747,7 @@ const sensor_msgs::NavSatFix MessageWrapper::createRosNavSatFixMessage(const sbg
 {
   sensor_msgs::NavSatFix nav_sat_fix_message;
 
-  nav_sat_fix_message.header.stamp    = createRosTime(ref_sbg_gps_msg.time_stamp);
-  nav_sat_fix_message.header.frame_id = "Navigation Satellite fix";
+  nav_sat_fix_message.header = createRosHeader(ref_sbg_gps_msg.time_stamp);
 
   if (ref_sbg_gps_msg.status.type == SBG_ECOM_POS_NO_SOLUTION)
   {

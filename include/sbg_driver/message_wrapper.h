@@ -46,27 +46,29 @@ class MessageWrapper
 {
 private:
 
-  //---------------------------------------------------------------------//
-  //- GPS time definitions                                              -//
-  //---------------------------------------------------------------------//
-
-  static const int32_t SBG_GPS_TIME_OF_WEEK_MS_MAX  = (60l*60l*24l*7l*1000l-1l);
-  static const int32_t SBG_GPS_TIME_OF_WEEK_MS_HALF = (60l*60l*24l*7l*1000l/2l-1l);
-
-  ros::Time m_ros_processing_time_;
-  int32_t   m_leap_seconds_;
+  ros::Time               m_ros_processing_time_;
+  sbg_driver::SbgUtcTime  m_last_sbg_utc_;
+  bool                    m_first_valid_utc_;
 
   //---------------------------------------------------------------------//
   //- Internal methods                                                  -//
   //---------------------------------------------------------------------//
 
   /*!
-   * Create a ROS time.
+   * Create a ROS message header.
+   * 
+   * \param[in] device_timestamp  SBG device timestamp.
+   * \return                      ROS header message.
+   */
+  const std_msgs::Header createRosHeader(uint32 device_timestamp) const;
+
+  /*!
+   * Compute corrected ROS time for the device timestamp.
    * 
    * \param[in] device_timestamp    SBG device timestamp.
    * \return                        ROS time.
    */
-  const ros::Time createRosTime(uint32 device_timestamp) const;
+  const ros::Time computeCorrectedRosTime(uint32 device_timestamp) const;
 
   /*!
    * Create a ROS Vector3 from a float array.
@@ -195,41 +197,7 @@ private:
    * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
    * \return                        Converted Epoch time (in s).
    */
-  uint32_t convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
-
-  /*!
-   * Get the UTC time of week.
-   *
-   * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
-   * \return                        UTC time of week.
-   */
-  uint32_t getUtcTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
-
-  /*!
-   * Compute the correct time of week from Utc and Gps time.
-   * 
-   * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
-   * \return                        Computed time of week (in ms).
-   */
-  uint32_t computeTimeOfWeek(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
-
-  /*!
-   * Compute the GPS time of week delta.
-   * 
-   * \param[in] gps_time_of_week_A  First GPS time of week (in ms).
-   * \param[in] gps_time_of_week_B  First GPS time of week (in ms).
-   * \return                        Delta GPS time of week (in ms).
-   */
-  int32 computeGpsTimeOfWeekDelta(uint32_t gps_time_of_week_A, uint32_t gps_time_of_week_B) const;
-
-  /*!
-   * Add an offset to a GPS time of week.
-   * 
-   * \param[in] gps_time_of_week    GPS time of week.
-   * \param[in] offset              Offset to apply (in ms).
-   * \return                        Gps time of week (in ms).
-   */
-  uint32_t addOffsetGpsTimeOfWeek(uint32_t gps_time_of_week, int32 offset) const;   
+  const ros::Time convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
  
 public:
 
@@ -252,13 +220,6 @@ public:
    * \param[in] ref_ros_time        ROS processing time to set.
    */
   void setRosProcessingTime(const ros::Time& ref_ros_time);
-
-  /*!
-   * Set the leap seconds.
-   * 
-   * \param[in] leap_seconds        Know leap seconds for Utc/Gps time.
-   */
-  void setLeapSeconds(int32 leap_seconds);
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
@@ -390,7 +351,7 @@ public:
    * \param[in] ref_log_utc         SBG UTC log.
    * \return                        UTC time message.                  
    */
-  const sbg_driver::SbgUtcTime createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc) const;
+  const sbg_driver::SbgUtcTime createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc);
 
   /*!
    * Create a ROS standard IMU message from SBG messages.

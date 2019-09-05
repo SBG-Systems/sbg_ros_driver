@@ -21,7 +21,6 @@ private:
   int   m_rate_frequency;
   bool  m_rebootNeeded;
   bool  m_ros_standard_messages_;
-  int32 m_leap_seconds;
 
   SbgEComOutputMode m_log_status_;
   SbgEComOutputMode m_log_imu_data_;
@@ -113,13 +112,6 @@ public:
    * \return                      True if the ROS standard publishers have to be configured.
    */
   bool isRosStandardMessagesDefined(void) const;
-
-  /*!
-   * Get the known leap seconds.
-   * 
-   * \return                      Leap seconds.
-   */
-  int32 getLeapSeconds(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

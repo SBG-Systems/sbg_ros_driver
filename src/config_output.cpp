@@ -144,11 +144,6 @@ bool ConfigOutput::isRosStandardMessagesDefined(void) const
   return m_ros_standard_messages_;
 }
 
-int32 ConfigOutput::getLeapSeconds(void) const
-{
-  return m_leap_seconds;
-}
-
 //---------------------------------------------------------------------//
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
@@ -178,7 +173,6 @@ void ConfigOutput::loadFromRosNodeHandle(ros::NodeHandle& ref_node_handle)
 
   m_rate_frequency          = ref_node_handle.param<int>("output/frequency", 0);
   m_ros_standard_messages_  = ref_node_handle.param<bool>("output/ros_standard", false);
-  m_leap_seconds            = static_cast<int32>(ref_node_handle.param<int>("output/leap_seconds", 0));
 }
 
 void ConfigOutput::configureComHandle(SbgEComHandle* p_com_handle, SbgEComOutputPort output_port)

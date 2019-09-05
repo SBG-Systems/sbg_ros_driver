@@ -432,8 +432,6 @@ void MessagePublisher::initPublishers(ros::NodeHandle *p_ros_node_handle, const 
   {
     defineRosStandardPublishers(p_ros_node_handle);
   }
-
-  m_message_wrapper_.setLeapSeconds(ref_output_config.getLeapSeconds());
 }
 
 void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
