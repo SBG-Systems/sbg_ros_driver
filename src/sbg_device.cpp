@@ -434,8 +434,8 @@ void SbgDevice::initDeviceForReceivingData(void)
 
 void SbgDevice::initDeviceForMagCalibration(void)
 {
-  m_calib_service_      = m_p_node_->advertiseService("mag_calibration", &SbgDevice::processMagCalibration, this);
-  m_calib_save_service_ = m_p_node_->advertiseService("mag_calibration_save", &SbgDevice::saveMagCalibration, this);
+  m_calib_service_      = m_p_node_->advertiseService("sbg/mag_calibration", &SbgDevice::processMagCalibration, this);
+  m_calib_save_service_ = m_p_node_->advertiseService("sbg/mag_calibration_save", &SbgDevice::saveMagCalibration, this);
 
   ROS_INFO("SBG DRIVER [Init] - SBG device is initialized for magnetometers calibration.");
 }
