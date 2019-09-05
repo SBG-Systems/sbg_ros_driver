@@ -210,21 +210,21 @@ output:
   ros_standard: true
 
   # Status general, clock, com aiding, solution, heave
-  log_status: 8
+  log_status: 200
   # Includes IMU status, acc., gyro, temp delta speeds and delta angles values
   log_imu_data: 8
   # Includes roll, pitch, yaw and their accuracies on each axis
-  log_ekf_euler: 8
+  log_ekf_euler: 0
   # Includes the 4 quaternions values
-  log_ekf_quat: 0
+  log_ekf_quat: 8
   # Position and velocities in NED coordinates with the accuracies on each axis
   log_ekf_nav: 0
   # Heave, surge and sway and accelerations on each axis for up to 4 points
-  log_ship_motion: 8
+  log_ship_motion: 0
   # Provides UTC time reference
-  log_utc_time: 8
+  log_utc_time: 200
   # Magnetic data with associated accelerometer on each axis
-  log_mag: 8
+  log_mag: 0
   # Magnetometer calibration data (raw buffer)
   log_mag_calib: 0
   # GPS velocities from primary or secondary GPS receiver
@@ -247,4 +247,3 @@ output:
 
   # Node frequency (Hz) (if set to 0, the node will decide the most appropriate frequency to run)
   frequency: 0
-
