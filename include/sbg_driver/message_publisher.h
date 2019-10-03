@@ -49,7 +49,7 @@ private:
 
   MessageWrapper          m_message_wrapper_;
   SbgEComOutputMode       m_output_mode_;
-  int                     m_max_mesages_;
+  size_t                  m_max_mesages_;
 
   //---------------------------------------------------------------------//
   //- Private methods                                                   -//
@@ -82,19 +82,19 @@ private:
   /*!
    * Initialize the publisher for the specified SBG Id, and the output configuration.
    * 
-   * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
+   * \param[in] ref_ros_node_handle     Ros NodeHandle to advertise the publisher.
    * \param[in] sbg_msg_id              Id of the SBG message.
    * \param[in] output_conf             Output configuration.
    * \param[in] ref_output_topic        Output topic for the publisher.
    */
-  void initPublisher(ros::NodeHandle *p_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic);
+  void initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic);
 
   /*!
    * Define standard ROS publishers.
    * 
-   * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
+   * \param[in] ref_ros_node_handle     Ros NodeHandle to advertise the publisher.
    */
-  void defineRosStandardPublishers(ros::NodeHandle *p_ros_node_handle);
+  void defineRosStandardPublishers(ros::NodeHandle& ref_ros_node_handle);
 
   /*!
    * Publish a received SBG IMU log.
@@ -172,10 +172,10 @@ public:
   /*!
    * Initialize the publishers for the output configuration.
    * 
-   * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
+   * \param[in] ref_ros_node_handle     Ros NodeHandle to advertise the publisher.
    * \param[in] ref_config_store        Store configuration for the publishers.
    */
-  void initPublishers(ros::NodeHandle *p_ros_node_handle, const ConfigStore &ref_config_store);
+  void initPublishers(ros::NodeHandle& ref_ros_node_handle, const ConfigStore &ref_config_store);
 
   /*!
    * Publish the received SbgLog if the corresponding publisher is defined.

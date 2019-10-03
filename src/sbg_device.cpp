@@ -24,6 +24,25 @@ std::string timeToStr(ros::WallTime ros_t)
     return msg.str();
 }
 
+//
+// Static magnetometers maps definition.
+//
+std::map<SbgEComMagCalibQuality, std::string> SbgDevice::g_mag_calib_quality_ = { {SBG_ECOM_MAG_CALIB_QUAL_OPTIMAL, "Quality: optimal"},
+                                                                                  {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},
+                                                                                  {SBG_ECOM_MAG_CALIB_QUAL_POOR, "Quality: poor"},
+                                                                                  {SBG_ECOM_MAG_CALIB_QUAL_INVALID, "Quality: invalid"}};
+
+std::map<SbgEComMagCalibConfidence, std::string> SbgDevice::g_mag_calib_confidence_ = { {SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
+                                                                                        {SBG_ECOM_MAG_CALIB_TRUST_MEDIUM, "Confidence: medium"},
+                                                                                        {SBG_ECOM_MAG_CALIB_TRUST_LOW, "Confidence: low"}};
+
+std::map<SbgEComMagCalibMode, std::string> SbgDevice::g_mag_calib_mode_ = { {SBG_ECOM_MAG_CALIB_MODE_2D, "Mode 2D"},
+                                                                            {SBG_ECOM_MAG_CALIB_MODE_3D, "Mode 3D"}};
+
+std::map<SbgEComMagCalibBandwidth, std::string> SbgDevice::g_mag_calib_bandwidth = {{SBG_ECOM_MAG_CALIB_HIGH_BW, "High Bandwidth"},
+                                                                                    {SBG_ECOM_MAG_CALIB_MEDIUM_BW, "Medium Bandwidth"},
+                                                                                    {SBG_ECOM_MAG_CALIB_LOW_BW, "Low Bandwidth"}};
+
 /*!
  * Class to handle a connected SBG device.
  */
@@ -31,8 +50,8 @@ std::string timeToStr(ros::WallTime ros_t)
 //- Constructor                                                       -//
 //---------------------------------------------------------------------//
 
-SbgDevice::SbgDevice(ros::NodeHandle* p_node_handle):
-m_p_node_(p_node_handle),
+SbgDevice::SbgDevice(ros::NodeHandle& ref_node_handle):
+m_ref_node_(ref_node_handle),
 m_mag_calibration_ongoing_(false),
 m_mag_calibration_done_(false)
 {
@@ -70,22 +89,22 @@ SbgDevice::~SbgDevice(void)
 //- Private  methods                                                  -//
 //---------------------------------------------------------------------//
 
-SbgErrorCode SbgDevice::onLogReceivedCallback(SbgEComHandle* pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData, void* pUserArg)
+SbgErrorCode SbgDevice::onLogReceivedCallback(SbgEComHandle* p_handle, SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData* p_log_data, void* p_user_arg)
 {
   SbgDevice *p_sbg_device;
-  p_sbg_device = (SbgDevice*)(pUserArg);
+  p_sbg_device = (SbgDevice*)(p_user_arg);
 
-  p_sbg_device->onLogReceived(msgClass, msg, pLogData);
+  p_sbg_device->onLogReceived(msg_class, msg, *p_log_data);
 
   return SBG_NO_ERROR;
 }
 
-void SbgDevice::onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData)
+void SbgDevice::onLogReceived(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData& ref_sbg_data)
 {
   //
   // Publish the received SBG log.
   //
-  m_message_publisher_.publish(m_ros_processing_time_, msgClass, msg, *pLogData);
+  m_message_publisher_.publish(m_ros_processing_time_, msg_class, msg, ref_sbg_data);
 }
 
 void SbgDevice::loadParameters(void)
@@ -165,7 +184,7 @@ std::string SbgDevice::getVersionAsString(uint32 sbg_version_enc) const
 
 void SbgDevice::initPublishers(void)
 {
-  m_message_publisher_.initPublishers(m_p_node_, m_config_store_);
+  m_message_publisher_.initPublishers(m_ref_node_, m_config_store_);
 
   //
   // Check if the rate frequency has to be defined according to the defined publishers.
@@ -273,8 +292,8 @@ bool SbgDevice::startMagCalibration(void)
   else
   {
     ROS_INFO("SBG DRIVER [Mag Calib] - Start calibration");
-    ROS_INFO("SBG DRIVER [Mag Calib] - Mode : %s", MAG_CALIB_MODE[mag_calib_mode].c_str());
-    ROS_INFO("SBG DRIVER [Mag Calib] - Bandwidth : %s", MAG_CALIB_BW[mag_calib_bandwidth].c_str());
+    ROS_INFO("SBG DRIVER [Mag Calib] - Mode : %s", g_mag_calib_mode_[mag_calib_mode].c_str());
+    ROS_INFO("SBG DRIVER [Mag Calib] - Bandwidth : %s", g_mag_calib_bandwidth[mag_calib_bandwidth].c_str());
     return true;
   }
 }
@@ -328,8 +347,8 @@ bool SbgDevice::uploadMagCalibrationToDevice(void)
 
 void SbgDevice::displayMagCalibrationStatusResult(void) const
 {
-  ROS_INFO("SBG DRIVER [Mag Calib] - Quality of the calibration %s", MAG_CALIB_QUAL[m_magCalibResults.quality].c_str());
-  ROS_INFO("SBG DRIVER [Mag Calib] - Calibration results confidence %s", MAG_CALIB_CONF[m_magCalibResults.confidence].c_str());
+  ROS_INFO("SBG DRIVER [Mag Calib] - Quality of the calibration %s", g_mag_calib_quality_[m_magCalibResults.quality].c_str());
+  ROS_INFO("SBG DRIVER [Mag Calib] - Calibration results confidence %s", g_mag_calib_confidence_[m_magCalibResults.confidence].c_str());
 
   SbgEComMagCalibMode         mag_calib_mode;
   SbgEComMagCalibBandwidth    mag_calib_bandwidth;
@@ -392,12 +411,12 @@ void SbgDevice::exportMagCalibrationResults(void) const
   
   mag_results_stream << "SBG DRIVER [Mag Calib]" << endl;
   mag_results_stream << "======= Parameters =======" << endl;
-  mag_results_stream << "* CALIB_MODE = " << MAG_CALIB_MODE[mag_calib_mode] << endl;
-  mag_results_stream << "* CALIB_BW = " << MAG_CALIB_BW[mag_calib_bandwidth] << endl;
+  mag_results_stream << "* CALIB_MODE = " << g_mag_calib_mode_[mag_calib_mode] << endl;
+  mag_results_stream << "* CALIB_BW = " << g_mag_calib_bandwidth[mag_calib_bandwidth] << endl;
 
   mag_results_stream << "======= Results =======" << endl;
-  mag_results_stream << MAG_CALIB_QUAL[m_magCalibResults.quality] << endl;
-  mag_results_stream << MAG_CALIB_CONF[m_magCalibResults.confidence] << endl;
+  mag_results_stream << g_mag_calib_quality_[m_magCalibResults.quality] << endl;
+  mag_results_stream << g_mag_calib_confidence_[m_magCalibResults.confidence] << endl;
   mag_results_stream << "======= Infos =======" << endl;
   mag_results_stream << "* Used points : " << m_magCalibResults.numPoints << "/" << m_magCalibResults.maxNumPoints << endl;
   mag_results_stream << "* Mean, Std, Max" << endl;
@@ -449,8 +468,8 @@ void SbgDevice::initDeviceForReceivingData(void)
 
 void SbgDevice::initDeviceForMagCalibration(void)
 {
-  m_calib_service_      = m_p_node_->advertiseService("sbg/mag_calibration", &SbgDevice::processMagCalibration, this);
-  m_calib_save_service_ = m_p_node_->advertiseService("sbg/mag_calibration_save", &SbgDevice::saveMagCalibration, this);
+  m_calib_service_      = m_ref_node_.advertiseService("sbg/mag_calibration", &SbgDevice::processMagCalibration, this);
+  m_calib_save_service_ = m_ref_node_.advertiseService("sbg/mag_calibration_save", &SbgDevice::saveMagCalibration, this);
 
   ROS_INFO("SBG DRIVER [Init] - SBG device is initialized for magnetometers calibration.");
 }

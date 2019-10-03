@@ -2,11 +2,8 @@
 #define SBG_ROS_MESSAGE_WRAPPER_H
 
 // SbgECom headers
-extern "C"
-{
-  #include <sbgEComLib.h>
-  #include <sbgEComIds.h>
-}
+#include <sbgEComLib.h>
+#include <sbgEComIds.h>
 
 // ROS headers
 #include <geometry_msgs/TwistStamped.h>
@@ -57,34 +54,37 @@ private:
   /*!
    * Create a ROS message header.
    * 
-   * \param[in] device_timestamp  SBG device timestamp.
-   * \return                      ROS header message.
+   * \param[in] device_timestamp    SBG device timestamp (in microseconds).
+   * \return                        ROS header message.
    */
   const std_msgs::Header createRosHeader(uint32 device_timestamp) const;
 
   /*!
    * Compute corrected ROS time for the device timestamp.
    * 
-   * \param[in] device_timestamp    SBG device timestamp.
+   * \param[in] device_timestamp    SBG device timestamp (in microseconds).
    * \return                        ROS time.
    */
   const ros::Time computeCorrectedRosTime(uint32 device_timestamp) const;
 
   /*!
-   * Create a ROS Vector3 from a float array.
+   * Create a ROS Vector3 from a numeric array.
    * 
-   * \param[in] p_float_array       Array of float data.
+   * \template  T                   Numeric template type.
+   * \param[in] p_float_array       Array of X, Y, Z components.
    * \return                        ROS Vector3.
    */
-  const geometry_msgs::Vector3 createRosVector3(const float* p_float_array) const;
+  template <typename T>
+  const geometry_msgs::Vector3 createRosVector3(const T* p_array) const
+  {
+    geometry_msgs::Vector3 vector_message;
 
-  /*!
-   * Create a ROS Vector3 from a double array.
-   * 
-   * \param[in] p_double_array      Array of double data.
-   * \return                        ROS Vector3.
-   */
-  const geometry_msgs::Vector3 createRosVector3(const double* p_double_array) const;
+    vector_message.x = p_array[0];
+    vector_message.y = p_array[1];
+    vector_message.z = p_array[2];
+
+    return vector_message;
+  }
 
   /*!
    * Create SBG-ROS Ekf status message.
@@ -216,6 +216,7 @@ public:
 
   /*!
    * Set the wrapper processing ROS time.
+   * This method is call on the SbgDevice periodic handle, in order to have the same processing time for the messages.
    * 
    * \param[in] ref_ros_time        ROS processing time to set.
    */
@@ -421,4 +422,4 @@ public:
 };
 }
 
-#endif
+#endif // SBG_ROS_MESSAGE_WRAPPER_H

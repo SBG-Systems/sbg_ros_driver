@@ -24,9 +24,22 @@ class SbgDevice
 {
 private:
 
+  //---------------------------------------------------------------------//
+  //- Static members definition                                         -//
+  //---------------------------------------------------------------------//
+
+  static std::map<SbgEComMagCalibQuality, std::string>    g_mag_calib_quality_;
+  static std::map<SbgEComMagCalibConfidence, std::string> g_mag_calib_confidence_;
+  static std::map<SbgEComMagCalibMode, std::string>       g_mag_calib_mode_;
+  static std::map<SbgEComMagCalibBandwidth, std::string>  g_mag_calib_bandwidth;
+
+  //---------------------------------------------------------------------//
+  //- Private variables                                                 -//
+  //---------------------------------------------------------------------//
+
   SbgEComHandle           m_com_handle_;
   SbgInterface            m_sbg_interface_;
-  ros::NodeHandle*        m_p_node_;
+  ros::NodeHandle&        m_ref_node_;
   MessagePublisher        m_message_publisher_;
   ConfigStore             m_config_store_;
   ConfigApplier           m_config_applier_;
@@ -48,23 +61,23 @@ private:
   /*!
    *  Callback definition called each time a new log is received.
    * 
-   *  \param[in]  pHandle                 Valid handle on the sbgECom instance that has called this callback.
-   *  \param[in]  msgClass                Class of the message we have received
-   *  \param[in]  msg                     Message ID of the log received.
-   *  \param[in]  pLogData                Contains the received log data as an union.
-   *  \param[in]  pUserArg                Optional user supplied argument.
-   *  \return                             SBG_NO_ERROR if the received log has been used successfully.
+   *  \param[in]  pHandle         Valid handle on the sbgECom instance that has called this callback.
+   *  \param[in]  msg_class       Class of the message we have received
+   *  \param[in]  msg             Message ID of the log received.
+   *  \param[in]  p_log_data      Contains the received log data as an union.
+   *  \param[in]  p_user_arg      Optional user supplied argument.
+   *  \return                     SBG_NO_ERROR if the received log has been used successfully.
    */
-  static SbgErrorCode onLogReceivedCallback(SbgEComHandle* pHandle, SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData, void* pUserArg);
+  static SbgErrorCode onLogReceivedCallback(SbgEComHandle* p_handle, SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData* p_log_data, void* p_user_arg);
 
   /*!
    * Function to handle the received log.
    * 
-   * \param[in]  msgClass               Class of the message we have received
-   * \param[in]  msg                    Message ID of the log received.
-   * \param[in]  pLogData               Contains the received log data as an union.
+   * \param[in]  msg_class        Class of the message we have received
+   * \param[in]  msg              Message ID of the log received.
+   * \param[in]  ref_sbg_data     Contains the received log data as an union.
    */
-  void onLogReceived(SbgEComClass msgClass, SbgEComMsgId msg, const SbgBinaryLogData* pLogData);
+  void onLogReceived(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData& ref_sbg_data);
 
   /*!
    * Load the parameters.
@@ -161,9 +174,9 @@ public:
   /*!
    * Default constructor.
    * 
-   * \param[in] p_node_handle       ROS NodeHandle.
+   * \param[in] ref_node_handle   ROS NodeHandle.
    */
-  SbgDevice(ros::NodeHandle* p_node_handle);
+  SbgDevice(ros::NodeHandle& ref_node_handle);
 
   /*!
    * Default destructor.
@@ -204,20 +217,4 @@ public:
 };
 }
 
-static std::map<SbgEComMagCalibQuality, std::string> MAG_CALIB_QUAL= {{SBG_ECOM_MAG_CALIB_QUAL_OPTIMAL, "Quality: optimal"},
-                                                                            {SBG_ECOM_MAG_CALIB_QUAL_GOOD, "Quality: good"},
-                                                                            {SBG_ECOM_MAG_CALIB_QUAL_POOR, "Quality: poor"},
-                                                                            {SBG_ECOM_MAG_CALIB_QUAL_INVALID, "Quality: invalid"}};
-
-static std::map<SbgEComMagCalibConfidence, std::string> MAG_CALIB_CONF = {{SBG_ECOM_MAG_CALIB_TRUST_HIGH, "Confidence: high"},
-                                                                            {SBG_ECOM_MAG_CALIB_TRUST_MEDIUM, "Confidence: medium"},
-                                                                            {SBG_ECOM_MAG_CALIB_TRUST_LOW, "Confidence: low"}};
-
-static std::map<SbgEComMagCalibMode, std::string> MAG_CALIB_MODE = {{SBG_ECOM_MAG_CALIB_MODE_2D, "Mode 2D"},
-                                                                            {SBG_ECOM_MAG_CALIB_MODE_3D, "Mode 3D"}};
-
-static std::map<SbgEComMagCalibBandwidth, std::string> MAG_CALIB_BW = {{SBG_ECOM_MAG_CALIB_HIGH_BW, "High Bandwidth"},
-                                                                            {SBG_ECOM_MAG_CALIB_MEDIUM_BW, "Medium Bandwidth"},
-                                                                            {SBG_ECOM_MAG_CALIB_LOW_BW, "Low Bandwidth"}};
-
-#endif
+#endif // SBG_ROS_SBG_DEVICE_H

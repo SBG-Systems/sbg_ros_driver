@@ -157,7 +157,7 @@ std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) co
   }
 }
 
-void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic)
+void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic)
 {
   //
   // Check if the publisher has to be initialized.
@@ -169,95 +169,95 @@ void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgECom
     switch (sbg_msg_id)
     {
       case SBG_ECOM_LOG_STATUS:
-        m_sbgStatus_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgStatus>(ref_output_topic, m_max_mesages_);
+        m_sbgStatus_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgStatus>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_UTC_TIME:
-        m_sbgUtcTime_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgUtcTime>(ref_output_topic, m_max_mesages_);
+        m_sbgUtcTime_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgUtcTime>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_IMU_DATA:
-        m_sbgImuData_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgImuData>(ref_output_topic, m_max_mesages_);
+        m_sbgImuData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuData>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_MAG:
-        m_sbgMag_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgMag>(ref_output_topic, m_max_mesages_);
+        m_sbgMag_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgMag>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_MAG_CALIB:
-        m_sbgMagCalib_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgMagCalib>(ref_output_topic, m_max_mesages_);
+        m_sbgMagCalib_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgMagCalib>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EKF_EULER:
-        m_sbgEkfEuler_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, m_max_mesages_);
+        m_sbgEkfEuler_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EKF_QUAT:
-        m_sbgEkfQuat_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEkfQuat>(ref_output_topic, m_max_mesages_);
+        m_sbgEkfQuat_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfQuat>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EKF_NAV:
 
-        m_sbgEkfNav_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEkfNav>(ref_output_topic, m_max_mesages_);
+        m_sbgEkfNav_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfNav>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_SHIP_MOTION:
 
-        m_sbgShipMotion_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgShipMotion>(ref_output_topic, m_max_mesages_);
+        m_sbgShipMotion_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgShipMotion>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_VEL:
       case SBG_ECOM_LOG_GPS2_VEL:
 
-        m_sbgGpsVel_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgGpsVel>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsVel_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsVel>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_POS:
       case SBG_ECOM_LOG_GPS2_POS:
 
-        m_sbgGpsPos_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgGpsPos>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsPos_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsPos>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_HDT:
       case SBG_ECOM_LOG_GPS2_HDT:
 
-        m_sbgGpsHdt_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgGpsHdt>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsHdt_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsHdt>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_RAW:
       case SBG_ECOM_LOG_GPS2_RAW:
 
-        m_sbgGpsRaw_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgGpsRaw>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsRaw_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsRaw>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_ODO_VEL:
 
-        m_sbgOdoVel_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgOdoVel>(ref_output_topic, m_max_mesages_);
+        m_sbgOdoVel_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgOdoVel>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_A:
 
-        m_sbgEventA_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventA_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_B:
 
-        m_sbgEventB_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventB_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_C:
 
-        m_sbgEventC_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventC_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_D:
 
-        m_sbgEventD_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventD_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_E:
 
-        m_sbgEventE_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventE_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_DVL_BOTTOM_TRACK:
@@ -268,7 +268,7 @@ void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgECom
 
       case SBG_ECOM_LOG_PRESSURE:
 
-        m_sbgPressure_pub_ = p_ros_node_handle->advertise<sbg_driver::SbgPressure>(ref_output_topic, m_max_mesages_);
+        m_sbgPressure_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgPressure>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_USBL:
@@ -285,17 +285,17 @@ void MessagePublisher::initPublisher(ros::NodeHandle *p_ros_node_handle, SbgECom
   }
 }
 
-void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_handle)
+void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node_handle)
 {
   if (m_sbgImuData_pub_ && m_sbgEkfQuat_pub_)
   {
-    m_imu_pub_ = p_ros_node_handle->advertise<sensor_msgs::Imu>("imu/data", m_max_mesages_);
+    m_imu_pub_ = ref_ros_node_handle.advertise<sensor_msgs::Imu>("imu/data", m_max_mesages_);
   }
 
   if (m_sbgImuData_pub_)
   {
-    m_temp_pub_     = p_ros_node_handle->advertise<sensor_msgs::Temperature>("imu/temp", m_max_mesages_);
-    m_velocity_pub_ = p_ros_node_handle->advertise<geometry_msgs::TwistStamped>("imu/velocity", m_max_mesages_);
+    m_temp_pub_     = ref_ros_node_handle.advertise<sensor_msgs::Temperature>("imu/temp", m_max_mesages_);
+    m_velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>("imu/velocity", m_max_mesages_);
   }
   else
   {
@@ -304,7 +304,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_h
 
   if (m_sbgMag_pub_)
   {
-    m_mag_pub_ = p_ros_node_handle->advertise<sensor_msgs::MagneticField>("imu/mag", m_max_mesages_);
+    m_mag_pub_ = ref_ros_node_handle.advertise<sensor_msgs::MagneticField>("imu/mag", m_max_mesages_);
   }
   else
   {
@@ -313,7 +313,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_h
 
   if (m_sbgPressure_pub_)
   {
-    m_fluid_pub_ = p_ros_node_handle->advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_mesages_);
+    m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_mesages_);
   }
   else
   {
@@ -322,7 +322,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_h
 
   if (m_sbgEkfNav_pub_)
   {
-    m_pos_ecef_pub_ = p_ros_node_handle->advertise<geometry_msgs::PointStamped>("imu/pos_ecef", m_max_mesages_);
+    m_pos_ecef_pub_ = ref_ros_node_handle.advertise<geometry_msgs::PointStamped>("imu/pos_ecef", m_max_mesages_);
   }
   else
   {
@@ -331,7 +331,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_h
 
   if (m_sbgUtcTime_pub_)
   {
-    m_utc_reference_pub_ = p_ros_node_handle->advertise<sensor_msgs::TimeReference>("imu/utc_ref", m_max_mesages_);
+    m_utc_reference_pub_ = ref_ros_node_handle.advertise<sensor_msgs::TimeReference>("imu/utc_ref", m_max_mesages_);
   }
   else
   {
@@ -340,7 +340,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle *p_ros_node_h
 
   if (m_sbgGpsPos_pub_)
   {
-    m_nav_sat_fix_pub_ = p_ros_node_handle->advertise<sensor_msgs::NavSatFix>("imu/nav_sat_fix", m_max_mesages_);
+    m_nav_sat_fix_pub_ = ref_ros_node_handle.advertise<sensor_msgs::NavSatFix>("imu/nav_sat_fix", m_max_mesages_);
   }
   else
   {
@@ -474,7 +474,7 @@ uint32 MessagePublisher::getMaxOutputFrequency(void) const
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
 
-void MessagePublisher::initPublishers(ros::NodeHandle *p_ros_node_handle, const ConfigStore &ref_config_store)
+void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, const ConfigStore &ref_config_store)
 {
   //
   // Initialize all the publishers with the defined SBG output from the config store.
@@ -483,12 +483,12 @@ void MessagePublisher::initPublishers(ros::NodeHandle *p_ros_node_handle, const 
 
   for (const ConfigStore::SbgLogOutput &ref_output : ref_output_modes)
   {
-    initPublisher(p_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id));
+    initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id));
   }
 
   if (ref_config_store.checkRosStandardMessages())
   {
-    defineRosStandardPublishers(p_ros_node_handle);
+    defineRosStandardPublishers(ref_ros_node_handle);
   }
 }
 

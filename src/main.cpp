@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   try
   {
     ROS_INFO("SBG DRIVER - Init node, load params and connect to the device.");
-    SbgDevice sbg_device(&node_handle);
+    SbgDevice sbg_device(node_handle);
 
     ROS_INFO("SBG DRIVER - Initialize device for receiving data");
     sbg_device.initDeviceForReceivingData();

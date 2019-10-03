@@ -26,40 +26,40 @@ const std_msgs::Header MessageWrapper::createRosHeader(uint32 device_timestamp) 
   if (!m_first_valid_utc_)
   {
     header.stamp    = m_ros_processing_time_;
-    header.frame_id = "Time header is Epoch (Unix) processing time.";
+    header.frame_id = "System";
   }
   else
   {
     header.stamp = computeCorrectedRosTime(device_timestamp);
 
     std::string frame_header;
-    frame_header = "Time header is UTC time converted to Epoch";
+    frame_header = "UTC";
 
     if (m_last_sbg_utc_.clock_status.clock_utc_status == SBG_ECOM_UTC_INVALID)
     {
-      frame_header += ", internally computed from the last valid UTC data.";
+      frame_header += " INTERNAL";
     }
     else
     {
       if (m_last_sbg_utc_.clock_status.clock_utc_status == SBG_ECOM_UTC_NO_LEAP_SEC)
       {
-        frame_header += ", no leap second in UTC data";
+        frame_header += " NO LEAP";
       }
 
       if (m_last_sbg_utc_.clock_status.clock_utc_sync)
       {
         if (m_last_sbg_utc_.clock_status.clock_status == SBG_ECOM_CLOCK_STEERING)
         {
-          frame_header += ", converging to the PPS";
+          frame_header += " | SYNCHRONIZING";
         }
         else if (m_last_sbg_utc_.clock_status.clock_status == SBG_ECOM_CLOCK_VALID)
         {
-          frame_header += ", synchronized with PPS";
+          frame_header += " | SYNC";
         }
       }
       else
       {
-        frame_header += ", not synchronized with PPS";
+        frame_header += " | NOT SYNC";
       }
     }
 
@@ -82,33 +82,11 @@ const ros::Time MessageWrapper::computeCorrectedRosTime(uint32 device_timestamp)
   utc_to_epoch          = convertUtcTimeToEpoch(m_last_sbg_utc_);
   device_timestamp_diff = device_timestamp - m_last_sbg_utc_.time_stamp;
 
-  nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff * 1e3);
+  nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff) * 1e3;
 
   utc_to_epoch.fromNSec(nanoseconds);
 
   return utc_to_epoch;
-}
-
-const geometry_msgs::Vector3 MessageWrapper::createRosVector3(const float* p_float_array) const
-{
-  geometry_msgs::Vector3 vector3_message;
-
-  vector3_message.x = p_float_array[0];
-  vector3_message.y = p_float_array[1];
-  vector3_message.z = p_float_array[2];
-
-  return vector3_message;
-}
-
-const geometry_msgs::Vector3 MessageWrapper::createRosVector3(const double* p_double_array) const
-{
-  geometry_msgs::Vector3 vector3_message;
-
-  vector3_message.x = p_double_array[0];
-  vector3_message.y = p_double_array[1];
-  vector3_message.z = p_double_array[2];
-
-  return vector3_message;
 }
 
 const sbg_driver::SbgEkfStatus MessageWrapper::createEkfStatusMessage(uint32 ekf_status) const
@@ -374,8 +352,8 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
   ekf_euler_message.time_stamp  = ref_log_ekf_euler.timeStamp;
 
   ekf_euler_message.status    = createEkfStatusMessage(ref_log_ekf_euler.status);
-  ekf_euler_message.angle     = createRosVector3(ref_log_ekf_euler.euler);
-  ekf_euler_message.accuracy  = createRosVector3(ref_log_ekf_euler.eulerStdDev);
+  ekf_euler_message.angle     = createRosVector3<float>(ref_log_ekf_euler.euler);
+  ekf_euler_message.accuracy  = createRosVector3<float>(ref_log_ekf_euler.eulerStdDev);
 
   return ekf_euler_message;
 }
@@ -388,9 +366,9 @@ const sbg_driver::SbgEkfNav MessageWrapper::createSbgEkfNavMessage(const SbgLogE
   ekf_nav_message.time_stamp  = ekf_nav_message.time_stamp;
 
   ekf_nav_message.status            = createEkfStatusMessage(ref_log_ekf_nav.status);
-  ekf_nav_message.velocity          = createRosVector3(ref_log_ekf_nav.velocity);
-  ekf_nav_message.velocity_accuracy = createRosVector3(ref_log_ekf_nav.velocityStdDev);
-  ekf_nav_message.position          = createRosVector3(ref_log_ekf_nav.position);
+  ekf_nav_message.velocity          = createRosVector3<float>(ref_log_ekf_nav.velocity);
+  ekf_nav_message.velocity_accuracy = createRosVector3<float>(ref_log_ekf_nav.velocityStdDev);
+  ekf_nav_message.position          = createRosVector3<double>(ref_log_ekf_nav.position);
   ekf_nav_message.undulation        = ref_log_ekf_nav.undulation;
 
   return ekf_nav_message;
@@ -408,7 +386,7 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
   ekf_quat_message.quaternion.y = ref_log_ekf_quat.quaternion[2];
   ekf_quat_message.quaternion.z = ref_log_ekf_quat.quaternion[3];
   ekf_quat_message.quaternion.w = ref_log_ekf_quat.quaternion[0];
-  ekf_quat_message.accuracy     = createRosVector3(ref_log_ekf_quat.eulerStdDev);
+  ekf_quat_message.accuracy     = createRosVector3<float>(ref_log_ekf_quat.eulerStdDev);
 
   return ekf_quat_message;
 }
@@ -492,8 +470,8 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
 
   gps_vel_message.status      = createGpsVelStatusMessage(ref_log_gps_vel);
   gps_vel_message.gps_tow     = ref_log_gps_vel.timeOfWeek;
-  gps_vel_message.vel         = createRosVector3(ref_log_gps_vel.velocity);
-  gps_vel_message.vel_acc     = createRosVector3(ref_log_gps_vel.velocityAcc);
+  gps_vel_message.vel         = createRosVector3<float>(ref_log_gps_vel.velocity);
+  gps_vel_message.vel_acc     = createRosVector3<float>(ref_log_gps_vel.velocityAcc);
   gps_vel_message.course      = ref_log_gps_vel.course;
   gps_vel_message.course_acc  = ref_log_gps_vel.courseAcc;
 
@@ -508,11 +486,11 @@ const sbg_driver::SbgImuData MessageWrapper::createSbgImuDataMessage(const SbgLo
   imu_data_message.time_stamp = ref_log_imu_data.timeStamp;
 
   imu_data_message.imu_status   = createImuStatusMessage(ref_log_imu_data);
-  imu_data_message.accel        = createRosVector3(ref_log_imu_data.accelerometers);
-  imu_data_message.gyro         = createRosVector3(ref_log_imu_data.gyroscopes);
+  imu_data_message.accel        = createRosVector3<float>(ref_log_imu_data.accelerometers);
+  imu_data_message.gyro         = createRosVector3<float>(ref_log_imu_data.gyroscopes);
   imu_data_message.temp         = ref_log_imu_data.temperature;
-  imu_data_message.delta_vel    = createRosVector3(ref_log_imu_data.deltaVelocity);
-  imu_data_message.delta_angle  = createRosVector3(ref_log_imu_data.deltaAngle);
+  imu_data_message.delta_vel    = createRosVector3<float>(ref_log_imu_data.deltaVelocity);
+  imu_data_message.delta_angle  = createRosVector3<float>(ref_log_imu_data.deltaAngle);
 
   return imu_data_message;
 }
@@ -524,8 +502,8 @@ const sbg_driver::SbgMag MessageWrapper::createSbgMagMessage(const SbgLogMag& re
   mag_message.header      = createRosHeader(ref_log_mag.timeStamp);
   mag_message.time_stamp  = ref_log_mag.timeStamp;
 
-  mag_message.mag     = createRosVector3(ref_log_mag.magnetometers);
-  mag_message.accel   = createRosVector3(ref_log_mag.accelerometers);
+  mag_message.mag     = createRosVector3<float>(ref_log_mag.magnetometers);
+  mag_message.accel   = createRosVector3<float>(ref_log_mag.accelerometers);
   mag_message.status  = createMagStatusMessage(ref_log_mag);
 
   return mag_message;
@@ -576,9 +554,9 @@ const sbg_driver::SbgShipMotion MessageWrapper::createSbgShipMotionMessage(const
   ship_motion_message.header        = createRosHeader(ref_log_ship_motion.timeStamp);
   ship_motion_message.time_stamp    = ref_log_ship_motion.timeStamp;
 
-  ship_motion_message.ship_motion   = createRosVector3(ref_log_ship_motion.shipMotion);
-  ship_motion_message.acceleration  = createRosVector3(ref_log_ship_motion.shipAccel);
-  ship_motion_message.velocity      = createRosVector3(ref_log_ship_motion.shipVel);
+  ship_motion_message.ship_motion   = createRosVector3<float>(ref_log_ship_motion.shipMotion);
+  ship_motion_message.acceleration  = createRosVector3<float>(ref_log_ship_motion.shipAccel);
+  ship_motion_message.velocity      = createRosVector3<float>(ref_log_ship_motion.shipVel);
   ship_motion_message.status        = createShipMotionStatusMessage(ref_log_ship_motion);
 
   return ship_motion_message;
@@ -719,10 +697,10 @@ const geometry_msgs::PointStamped MessageWrapper::createRosPointStampedMessage(c
   equatorial_radius = 6378137.0;
   polar_radius      = 6356752.314245;
   eccentricity      = 1 - pow(polar_radius, 2) / pow(equatorial_radius, 2);
-  latitude          = ref_sbg_ekf_msg.position.x * SBG_PI / 180;
-  longitude         = ref_sbg_ekf_msg.position.y * SBG_PI / 180;
+  latitude          = sbgDegToRadD(ref_sbg_ekf_msg.position.x);
+  longitude         = sbgDegToRadD(ref_sbg_ekf_msg.position.x);
 
-  prime_vertical_radius = equatorial_radius / sqrt(1 - pow(eccentricity, 2) * pow(sin(latitude), 2));
+  prime_vertical_radius = equatorial_radius / sqrt(1.0 - pow(eccentricity, 2) * pow(sin(latitude), 2));
 
   point_stamped_message.point.x = (prime_vertical_radius + ref_sbg_ekf_msg.position.z) * cos(latitude) * cos(longitude);
   point_stamped_message.point.y = (prime_vertical_radius + ref_sbg_ekf_msg.position.z) * cos(latitude) * sin(longitude);
@@ -735,10 +713,13 @@ const sensor_msgs::TimeReference MessageWrapper::createRosUtcTimeReferenceMessag
 {
   sensor_msgs::TimeReference utc_reference_message;
 
-  utc_reference_message.header.stamp = m_ros_processing_time_;
-
-  utc_reference_message.time_ref  = computeCorrectedRosTime(ref_sbg_utc_msg.time_stamp);
-  utc_reference_message.source    = "UTC time from device converted to Epoch";
+  //
+  // This message is defined to have comparison between the System time and the Utc reference.
+  // Header of the ROS message will always be the System time, and the source is the computed time from Utc data.
+  //
+  utc_reference_message.header.stamp  = m_ros_processing_time_;
+  utc_reference_message.time_ref      = computeCorrectedRosTime(ref_sbg_utc_msg.time_stamp);
+  utc_reference_message.source        = "UTC time from device converted to Epoch";
 
   return utc_reference_message;
 }
