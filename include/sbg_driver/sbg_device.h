@@ -113,6 +113,10 @@ private:
 
   /*!
    * Configure the connected SBG device.
+   * This function will configure the device if the config file allows it.
+   * It will log warning for unavailable parameters for the connected device.
+   * 
+   * \throw                       Unable to configure the connected device.
    */
   void configure(void);
 

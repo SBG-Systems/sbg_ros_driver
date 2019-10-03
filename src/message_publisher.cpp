@@ -299,7 +299,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
   else
   {
-    ROS_WARN("SBG_DRIVER - [Message] SBG Imu data output are not configured, the standard Temperature publisher can not be defined.");
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG Imu data output are not configured, the standard Temperature publisher can not be defined.");
   }
 
   if (m_sbgMag_pub_)
@@ -308,7 +308,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
   else
   {
-    ROS_WARN("SBG_DRIVER - [Message] SBG Mag data output are not configured, the standard Magnetic publisher can not be defined.");
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG Mag data output are not configured, the standard Magnetic publisher can not be defined.");
   }
 
   if (m_sbgPressure_pub_)
@@ -317,7 +317,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
   else
   {
-    ROS_WARN("SBG_DRIVER - [Message] SBG Pressure data output are not configured, the standard FluidPressure publisher can not be defined.");
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG Pressure data output are not configured, the standard FluidPressure publisher can not be defined.");
   }
 
   if (m_sbgEkfNav_pub_)
@@ -326,7 +326,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
   else
   {
-    ROS_WARN("SBG_DRIVER - [Message] SBG Ekf data output are not configured, the standard ECEF position publisher can not be defined.");
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG Ekf data output are not configured, the standard ECEF position publisher can not be defined.");
   }
 
   if (m_sbgUtcTime_pub_)
@@ -335,7 +335,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
   else
   {
-    ROS_WARN("SBG_DRIVER - [Message] SBG Utc data output are not configured, the UTC time reference publisher can not be defined.");
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG Utc data output are not configured, the UTC time reference publisher can not be defined.");
   }
 
   if (m_sbgGpsPos_pub_)
@@ -344,7 +344,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
   else
   {
-    ROS_WARN("SBG_DRIVER - [Message] SBG GPS Pos data output are not configured, the NavSatFix publisher can not be defined.");
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG GPS Pos data output are not configured, the NavSatFix publisher can not be defined.");
   }
 }
 

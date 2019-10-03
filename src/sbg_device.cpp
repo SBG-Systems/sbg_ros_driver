@@ -164,14 +164,14 @@ void SbgDevice::readDeviceInfo(void)
     ROS_ERROR("Unable to get the device Info : %s", sbgErrorCodeToString(error_code));
   }
 
-  ROS_INFO("SBG DRIVER - productCode = %s", device_info.productCode);
-  ROS_INFO("SBG DRIVER - serialNumber = %u", device_info.serialNumber);
+  ROS_INFO("SBG_DRIVER - productCode = %s", device_info.productCode);
+  ROS_INFO("SBG_DRIVER - serialNumber = %u", device_info.serialNumber);
 
-  ROS_INFO("SBG DRIVER - calibationRev = %s", getVersionAsString(device_info.calibationRev).c_str());
-  ROS_INFO("SBG DRIVER - calibrationDate = %u / %u / %u", device_info.calibrationDay, device_info.calibrationMonth, device_info.calibrationYear);
+  ROS_INFO("SBG_DRIVER - calibationRev = %s", getVersionAsString(device_info.calibationRev).c_str());
+  ROS_INFO("SBG_DRIVER - calibrationDate = %u / %u / %u", device_info.calibrationDay, device_info.calibrationMonth, device_info.calibrationYear);
 
-  ROS_INFO("SBG DRIVER - hardwareRev = %s", getVersionAsString(device_info.hardwareRev).c_str());
-  ROS_INFO("SBG DRIVER - firmwareRev = %s", getVersionAsString(device_info.firmwareRev).c_str()); 
+  ROS_INFO("SBG_DRIVER - hardwareRev = %s", getVersionAsString(device_info.hardwareRev).c_str());
+  ROS_INFO("SBG_DRIVER - firmwareRev = %s", getVersionAsString(device_info.firmwareRev).c_str()); 
 }
 
 std::string SbgDevice::getVersionAsString(uint32 sbg_version_enc) const

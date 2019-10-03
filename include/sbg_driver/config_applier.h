@@ -25,21 +25,23 @@ private:
 
   /*!
    * Check if the configuration getter worked properly.
-   * This function will only log a warning information if the getter did not work.
+   * This function will log a warning information if the parameter is not available for this device.
    * 
    * \param[in] ref_sbg_error_code          Error code from the configuration getter.
    * \param[in] ref_conf_title              String to identify the configuration.
+   * \throw                                 Unable to get the configuration.
    */
   void checkConfigurationGet(const SbgErrorCode& ref_sbg_error_code, const std::string& ref_conf_title) const;
 
   /*!
    * Check if the configuration has been applied correctly.
    * This function will log if the configuration has been applied.
-   * If it did not work, a warning log will be displayed, but the application will keep running.
-   * It will be the user responsability to check and decide.
+   * It will log a warning if the parameter is not available for this device.
+   * It will be the user responsability to check.
    * 
    * \param[in] ref_sbg_error_code          Error code from the configuration getter.
    * \param[in] ref_conf_title              String to identify the configuration.
+   * \throw                                 Unable to configure.
    */
   void checkConfigurationApplied(const SbgErrorCode& ref_sbg_error_code, const std::string& ref_conf_title);
 
@@ -142,10 +144,13 @@ private:
 
   /*!
    * Configure the output for the SBG log.
+   * If a Log is not available for the connected device, a warning will be logged.
+   * It will be user responsability to check.
    *
    * \param[in] ref_com_handle    SBG communication handle.
    * \param[in] output_port       Output communication port.
    * \param[in] ref_log_output    Log output to configure.
+   * \throw                       Unable to configure the output.
    */
   void configureOutput(SbgEComHandle& ref_sbg_com_handle, SbgEComOutputPort output_port, const ConfigStore::SbgLogOutput &ref_log_output);
 

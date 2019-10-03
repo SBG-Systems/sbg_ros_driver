@@ -22,17 +22,35 @@ m_reboot_needed_(false)
 
 void ConfigApplier::checkConfigurationGet(const SbgErrorCode& ref_sbg_error_code, const std::string& ref_conf_title) const
 {
-  if (ref_sbg_error_code != SBG_NO_ERROR)
+  if (ref_sbg_error_code == SBG_INVALID_PARAMETER)
   {
-    ROS_WARN("SBG_DRIVER - [Config] Unable to get the %s configuration : %s", ref_conf_title.c_str(), sbgErrorCodeToString(ref_sbg_error_code));
+    ROS_WARN("SBG_DRIVER - [Config] Configuration %s is not available for the connected device.", ref_conf_title.c_str());
+  }
+  else if (ref_sbg_error_code != SBG_NO_ERROR)
+  {
+    std::string error_message("SBG_DRIVER - [Config] Unable to get the");
+    error_message.append(ref_conf_title);
+    error_message.append(" configuration : ");
+    error_message.append(sbgErrorCodeToString(ref_sbg_error_code));
+
+    throw ros::Exception(error_message);
   }
 }
 
 void ConfigApplier::checkConfigurationApplied(const SbgErrorCode& ref_sbg_error_code, const std::string& ref_conf_title)
 {
-  if (ref_sbg_error_code != SBG_NO_ERROR)
+  if (ref_sbg_error_code == SBG_INVALID_PARAMETER)
   {
-    ROS_WARN("SBG_DRIVER - [Config] Unable to set the %s configuration : %s", ref_conf_title.c_str(), sbgErrorCodeToString(ref_sbg_error_code));
+    ROS_WARN("SBG_DRIVER - [Config] Configuration %s is not available for the connected device.", ref_conf_title.c_str());
+  }
+  else if (ref_sbg_error_code != SBG_NO_ERROR)
+  {
+    std::string error_message("SBG_DRIVER - [Config] Unable to set the");
+    error_message.append(ref_conf_title);
+    error_message.append(" configuration : ");
+    error_message.append(sbgErrorCodeToString(ref_sbg_error_code));
+
+    throw ros::Exception(error_message);
   }
   else
   {
@@ -331,18 +349,35 @@ void ConfigApplier::configureOutput(SbgEComHandle& ref_sbg_com_handle, SbgEComOu
   //
   error_code = sbgEComCmdOutputGetConf(&ref_sbg_com_handle, output_port, ref_log_output.message_class, ref_log_output.message_id, &current_output_mode);
 
-  if (error_code != SBG_NO_ERROR)
+  if (error_code == SBG_INVALID_PARAMETER)
   {
-    ROS_WARN("Unable to get the output configuration from the device %s", sbgErrorCodeToString(error_code));
+    ROS_WARN("SBG_DRIVER - [Config] Output is not available for this device : Class [%d] - Id [%d]", ref_log_output.message_class, ref_log_output.message_id);
   }
+  else if (error_code != SBG_NO_ERROR)
+  {
+    std::string error_message("SBG_DRIVER - [Config] Output is not available for this device : Class [");
+    error_message.append(std::to_string(ref_log_output.message_class));
+    error_message.append("] - Id [");
+    error_message.append(std::to_string(ref_log_output.message_id));
+    error_message.append("] : ");
+    error_message.append(sbgErrorCodeToString(error_code));
 
-  if (current_output_mode != ref_log_output.output_mode)
+    throw ros::Exception(error_message);
+  }
+  else if (current_output_mode != ref_log_output.output_mode)
   {
     error_code = sbgEComCmdOutputSetConf(&ref_sbg_com_handle, output_port, ref_log_output.message_class, ref_log_output.message_id, ref_log_output.output_mode);
-
+    
     if (error_code != SBG_NO_ERROR)
     {
-      ROS_WARN("Unable to set the output configuration log ID %d from the device %s", ref_log_output.message_id, sbgErrorCodeToString(error_code));
+      std::string error_message("SBG_DRIVER - [Config] Unable to set the output configuration : Class[");
+      error_message.append(std::to_string(ref_log_output.message_class));
+      error_message.append("] - Id [");
+      error_message.append(std::to_string(ref_log_output.message_id));
+      error_message.append("] : ");
+      error_message.append(sbgErrorCodeToString(error_code));
+
+      throw ros::Exception(error_message);
     }
     else
     {
