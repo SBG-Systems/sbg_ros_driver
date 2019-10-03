@@ -1,7 +1,8 @@
 #ifndef SBG_ROS_MESSAGE_PUBLISHER_H
 #define SBG_ROS_MESSAGE_PUBLISHER_H
 
-#include <config_output.h>
+// Project headers
+#include <config_store.h>
 #include <message_wrapper.h>
 
 namespace sbg
@@ -13,53 +14,70 @@ class MessagePublisher
 {
 private:
 
-  ros::Publisher m_sbgStatus_pub_;
-  ros::Publisher m_sbgUtcTime_pub_;
-  ros::Publisher m_sbgImuData_pub_;
-  ros::Publisher m_sbgEkfEuler_pub_;
-  ros::Publisher m_sbgEkfQuat_pub_;
-  ros::Publisher m_sbgEkfNav_pub_;
-  ros::Publisher m_sbgShipMotion_pub_;
-  ros::Publisher m_sbgMag_pub_;
-  ros::Publisher m_sbgMagCalib_pub_;
-  ros::Publisher m_sbgGpsVel_pub_;
-  ros::Publisher m_sbgGpsPos_pub_;
-  ros::Publisher m_sbgGpsHdt_pub_;
-  ros::Publisher m_sbgGpsRaw_pub_;
-  ros::Publisher m_sbgOdoVel_pub_;
-  ros::Publisher m_sbgEventA_pub_;
-  ros::Publisher m_sbgEventB_pub_;
-  ros::Publisher m_sbgEventC_pub_;
-  ros::Publisher m_sbgEventD_pub_;
-  ros::Publisher m_sbgEventE_pub_;
-  ros::Publisher m_sbgPressure_pub_;
+  ros::Publisher          m_sbgStatus_pub_;
+  ros::Publisher          m_sbgUtcTime_pub_;
+  ros::Publisher          m_sbgImuData_pub_;
+  ros::Publisher          m_sbgEkfEuler_pub_;
+  ros::Publisher          m_sbgEkfQuat_pub_;
+  ros::Publisher          m_sbgEkfNav_pub_;
+  ros::Publisher          m_sbgShipMotion_pub_;
+  ros::Publisher          m_sbgMag_pub_;
+  ros::Publisher          m_sbgMagCalib_pub_;
+  ros::Publisher          m_sbgGpsVel_pub_;
+  ros::Publisher          m_sbgGpsPos_pub_;
+  ros::Publisher          m_sbgGpsHdt_pub_;
+  ros::Publisher          m_sbgGpsRaw_pub_;
+  ros::Publisher          m_sbgOdoVel_pub_;
+  ros::Publisher          m_sbgEventA_pub_;
+  ros::Publisher          m_sbgEventB_pub_;
+  ros::Publisher          m_sbgEventC_pub_;
+  ros::Publisher          m_sbgEventD_pub_;
+  ros::Publisher          m_sbgEventE_pub_;
+  ros::Publisher          m_sbgPressure_pub_;
 
   ros::Publisher          m_imu_pub_;
   sbg_driver::SbgImuData  m_sbg_imu_message_;
   sbg_driver::SbgEkfQuat  m_sbg_ekf_quat_message_;
 
-  ros::Publisher m_temp_pub_;
-  ros::Publisher m_mag_pub_;
-  ros::Publisher m_fluid_pub_;
-  ros::Publisher m_pos_ecef_pub_;
-  ros::Publisher m_velocity_pub_;
-  ros::Publisher m_utc_reference_pub_;
-  ros::Publisher m_nav_sat_fix_pub_;
+  ros::Publisher          m_temp_pub_;
+  ros::Publisher          m_mag_pub_;
+  ros::Publisher          m_fluid_pub_;
+  ros::Publisher          m_pos_ecef_pub_;
+  ros::Publisher          m_velocity_pub_;
+  ros::Publisher          m_utc_reference_pub_;
+  ros::Publisher          m_nav_sat_fix_pub_;
 
-  MessageWrapper    m_message_wrapper_;
-  SbgEComOutputMode m_output_mode_;
-  int               m_max_mesages_;
+  MessageWrapper          m_message_wrapper_;
+  SbgEComOutputMode       m_output_mode_;
+  int                     m_max_mesages_;
 
   //---------------------------------------------------------------------//
   //- Private methods                                                   -//
   //---------------------------------------------------------------------//
 
   /*!
-   * Update the output configuration of the publisher.
+   * Update the maximal output frequency for the defined pubishers.
+   * Each time a new publisher is defined, update the maximal output frequency if required.
    * 
-   * \param[in] output_conf         Output configuration.
+   * \param[in] output_mode_freq        Output mode.
    */
-  void updateOutputConfiguration(SbgEComOutputMode output_conf);
+  void updateMaxOutputFrequency(SbgEComOutputMode output_mode);
+
+  /*!
+   * Get the corresponding frequency for the SBG output mode.
+   * 
+   * \param[in] output_mode             Output mode.
+   * \return                            Output frequency (in Hz).
+   */
+  uint32 getCorrespondingFrequency(SbgEComOutputMode output_mode) const;
+
+  /*!
+   * Get the corresponding topic name output for the SBG output mode.
+   * 
+   * \param[in] sbg_message_id          SBG message ID.
+   * \return                            Output topic name.
+   */
+  std::string getOutputTopicName(SbgEComMsgId sbg_message_id) const;
 
   /*!
    * Initialize the publisher for the specified SBG Id, and the output configuration.
@@ -141,11 +159,11 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
-   * Get the output frequency for the publisher.
+   * Get the maximal output frequency for the publisher.
    * 
-   * \return                            Output frequency (in Hz).
+   * \return                            Maixmal output frequency (in Hz).
    */
-  int getOutputFrequency(void) const;
+  uint32 getMaxOutputFrequency(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
@@ -155,9 +173,9 @@ public:
    * Initialize the publishers for the output configuration.
    * 
    * \param[in] p_ros_node_handle       Ros NodeHandle to advertise the publisher.
-   * \param[in] ref_output_config       Output configuration for the publishers.
+   * \param[in] ref_config_store        Store configuration for the publishers.
    */
-  void initPublishers(ros::NodeHandle *p_ros_node_handle, const ConfigOutput &ref_output_config); 
+  void initPublishers(ros::NodeHandle *p_ros_node_handle, const ConfigStore &ref_config_store);
 
   /*!
    * Publish the received SbgLog if the corresponding publisher is defined.
@@ -171,4 +189,4 @@ public:
 };
 }
 
-#endif
+#endif // SBG_ROS_MESSAGE_PUBLISHER_H

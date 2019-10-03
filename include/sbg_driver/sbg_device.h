@@ -1,15 +1,19 @@
 #ifndef SBG_ROS_SBG_DEVICE_H
 #define SBG_ROS_SBG_DEVICE_H
 
+// Standard headers
 #include <iostream>
 #include <map>
 #include <string>
 
+// ROS headers
 #include <std_srvs/SetBool.h>
 #include <std_srvs/Trigger.h>
 
-#include <message_publisher.h>
+// Project headers
+#include <config_applier.h>
 #include <config_store.h>
+#include <message_publisher.h>
 
 namespace sbg
 {
@@ -25,8 +29,9 @@ private:
   ros::NodeHandle*        m_p_node_;
   MessagePublisher        m_message_publisher_;
   ConfigStore             m_config_store_;
+  ConfigApplier           m_config_applier_;
 
-  int                     m_rate_frequency_;
+  uint32                  m_rate_frequency_;
 
   bool                    m_mag_calibration_ongoing_;
   bool                    m_mag_calibration_done_;
@@ -75,19 +80,18 @@ private:
 
   /*!
    * Read the device informations.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
+   *
    * \throw                       Unable to read the device information.
    */
-  void readDeviceInfo(SbgEComHandle* p_com_handle);
+  void readDeviceInfo(void);
 
   /*!
-   * Get the SBG version decoded to string.
+   * Get the SBG version as a string.
    * 
    * \param[in] sbg_version_enc   SBG version encoded.
    * \return                      String version decoded.
    */
-  std::string getSbgVersionDecoded(uint32 sbg_version_enc) const;
+  std::string getVersionAsString(uint32 sbg_version_enc) const;
 
   /*!
    * Initialize the publishers according to the configuration.
@@ -98,13 +102,6 @@ private:
    * Configure the connected SBG device.
    */
   void configure(void);
-
-  /*!
-   * Save the configuration of the connected SBG device.
-   * 
-   * \throw                       Unable to save the configuration.
-   */
-  void saveDeviceConfiguration(void);
 
   /*!
    * Process the magnetometer calibration.
@@ -178,11 +175,11 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
-   * Get the device frequency.
+   * Get the frequency to update the main rate loop for device handling.
    * 
-   * \return                      Device frequency to read the logs.
+   * \return                      Device frequency to read the logs (in Hz).
    */
-  int getDeviceRateFrequency(void) const;
+  uint32 getUpdateFrequency(void) const;
 
   //---------------------------------------------------------------------//
   //- Public  methods                                                   -//

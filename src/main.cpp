@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     sbg_device.initDeviceForReceivingData();
 
     ROS_INFO("SBG DRIVER - START RECEIVING DATA");
-    ros::Rate loop_rate(sbg_device.getDeviceRateFrequency() * 2);
+    ros::Rate loop_rate(sbg_device.getUpdateFrequency() * 2);
 
     while (ros::ok())
     {

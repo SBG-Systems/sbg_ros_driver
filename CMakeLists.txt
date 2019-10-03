@@ -144,10 +144,10 @@ include_directories(
 
 ## Define common resources.
 set (SBG_COMMON_RESOURCES
+  src/config_applier.cpp
   src/message_publisher.cpp
   src/message_wrapper.cpp
   src/config_store.cpp
-  src/config_output.cpp
   src/sbg_device.cpp
 )
 

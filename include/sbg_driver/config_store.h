@@ -1,7 +1,11 @@
 #ifndef SBG_ROS_CONFIG_STORE_H
 #define SBG_ROS_CONFIG_STORE_H
 
-#include "config_output.h"
+// SbgECom headers
+#include <sbgEComLib.h>
+
+// ROS headers
+#include <ros/ros.h>
 
 namespace sbg
 {
@@ -10,6 +14,18 @@ namespace sbg
  */
 class ConfigStore
 {
+public:
+
+  /*!
+   * Structure to define the SBG log output.
+   */
+  struct SbgLogOutput
+  {
+    SbgEComClass      message_class;
+    SbgEComMsgId      message_id;
+    SbgEComOutputMode output_mode;
+  };
+
 private:
 
   std::string                 m_uart_port_name_;
@@ -18,8 +34,8 @@ private:
   bool                        m_serial_communication_;
   
   sbgIpAddress                m_sbg_ip_address_;
-  uint32                      m_out_port_;
-  uint32                      m_in_port_;
+  uint32                      m_out_port_address_;
+  uint32                      m_in_port_address_;
   bool                        m_upd_communication_;
 
   bool                        m_configure_through_ros_;
@@ -28,7 +44,7 @@ private:
   SbgEComModelInfo            m_motion_profile_model_info_;
 
   SbgEComSensorAlignmentInfo  m_sensor_alignement_info_;
-  float                       m_sensor_lever_arm_[3];
+  std::array<float, 3>        m_sensor_lever_arm_;
 
   SbgEComAidingAssignConf     m_aiding_assignement_conf_;
 
@@ -42,161 +58,101 @@ private:
   SbgEComGnssRejectionConf    m_gnss_rejection_conf_;
 
   SbgEComOdoConf              m_odometer_conf_;
-  float                       m_odometer_level_arm_[3];
+  std::array<float, 3>        m_odometer_level_arm_;
   SbgEComOdoRejectionConf     m_odometer_rejection_conf_;
 
-  bool                        m_rebootNeeded;
-
-  ConfigOutput                m_config_output_;
+  std::vector<SbgLogOutput>   m_output_modes_;
+  bool                        m_ros_standard_output_;
+  uint32                      m_rate_frequency_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
   //---------------------------------------------------------------------//
 
   /*!
+   * Get the ROS integer parameter casted in the T type.
+   * This function has the same behavior as the param base function, however it enables an implicit cast, and the use of const NodeHandle.
+   * 
+   * \template  T                 Template type to cast the ROS param to.
+   * \param[in] ref_node_handle   ROS NodeHandle.
+   * \param[in] param_key         Parameter key.
+   * \param[in] default_value     Default value for the parameter.
+   * \return                      ROS integer parameter casted.
+   */
+  template <typename T>
+  T getParameter(const ros::NodeHandle& ref_node_handle, std::string param_key, int default_value) const
+  {
+    if (ref_node_handle.hasParam(param_key))
+    {
+      int parameter;
+      ref_node_handle.param<int>(param_key, parameter, default_value);
+
+      return static_cast<T>(parameter);
+    }
+    else
+    {
+      return static_cast<T>(default_value);
+    }
+  }
+
+  /*!
    * Load interface communication parameters.
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadCommunicationParameters(ros::NodeHandle& ref_node_handle);
+  void loadCommunicationParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load sensor parameters.
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadSensorParameters(ros::NodeHandle& ref_node_handle);
+  void loadSensorParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load IMU alignement parameters.
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadImuAlignementParameters(ros::NodeHandle& ref_node_handle);
+  void loadImuAlignementParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load aiding assignement parameters.
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadAidingAssignementParameters(ros::NodeHandle& ref_node_handle);
+  void loadAidingAssignementParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load magnetometers parameters.
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadMagnetometersParameters(ros::NodeHandle& ref_node_handle);
+  void loadMagnetometersParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load Gnss parameters.
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadGnssParameters(ros::NodeHandle& ref_node_handle);
+  void loadGnssParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load odometer parameters.
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadOdometerParameters(ros::NodeHandle& ref_node_handle);
+  void loadOdometerParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
-   * Configure the initial condition parameters.
+   * Load the output configuration.
    * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the initial conditions.
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   * \param[in] ref_key           String key for the output config.
+   * \param[in] sbg_msg_class     SBG message class.
+   * \param[in] sbg_msg_id        ID of the SBG log.
    */
-  void configureInitCondition(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the motion profile.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the motion profile.
-   */
-  void configureMotionProfile(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the IMU alignement.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the IMU alignement.
-   */
-  void configureImuAlignement(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the aiding assignement.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the aiding assignement.
-   */
-  void configureAidingAssignement(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the magnetometers model.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the magnetometers model.
-   */
-  void configureMagModel(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the magnetometers rejection.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the magnetometers rejection.
-   */
-  void configureMagRejection(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the Gnss model.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the Gnss model.
-   */
-  void configureGnssModel(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the Gnss level arm.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the Gnss level arm.
-   */
-  void configureGnssLevelArm(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the Gnss rejection.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the Gnss rejection.
-   */
-  void configureGnssRejection(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the odometer.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the odometer.
-   */
-  void configureOdometer(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the odometer level arm.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the odometer level arm.
-   */
-  void configureOdometerLevelArm(SbgEComHandle* p_com_handle);
-
-  /*!
-   * Configure the odometer rejection.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the odometer rejection.
-   */
-  void configureOdometerRejection(SbgEComHandle* p_com_handle);
+  void loadOutputConfiguration(const ros::NodeHandle& ref_node_handle, const std::string& ref_key, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id);
 
 public:
 
@@ -214,39 +170,194 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
-   * Check if the device has to be rebooted.
+   * Check if the configuration should be done with ROS.
    * 
-   * \return                      True if the device has to be rebooted.
+   * \return                      True if the ROS driver has to configure the device.
    */
-  bool isRebootNeeded(void) const;
+  bool checkConfigWithRos(void) const;
 
   /*!
-   * Get the rate frequency.
+   * Check if the interface configuration is a serial interface.
    * 
-   * \return                      Rate frequency parameter.
+   * \return                      True if the interface is serial, False otherwise.
    */
-  int getRateFrequency(void) const;
+  bool isInterfaceSerial(void) const;
 
   /*!
-   * Get the output configuration.
+   * Get the UART port name.
    * 
-   * \return                      Output configuration.
+   * \return                      UART serial port name.
    */
-  const ConfigOutput &getOutputConfiguration(void) const;
+  const std::string &getUartPortName(void) const;
 
   /*!
-   * Get the magnetometers calibration mode.
+   * Get the UART baudrate communication.
    * 
-   * \return                      Magnetometer calibration mode.
+   * \return                      UART serial baudrate.
    */
-  SbgEComMagCalibMode getMagCalibrationMode(void) const;
+  uint32 getBaudRate(void) const;
 
   /*!
-   * Get the magnetometers calibration bandwidth.
+   * Get the output port of the device.
    * 
-   * \return                      Magnetometer calibration bandwidth.
+   * \return                      SBG device output port.
    */
-  SbgEComMagCalibBandwidth getMagCalibrationBandwidth(void) const;
+  SbgEComOutputPort getOutputPort(void) const;
+
+  /*!
+   * Check if the interface configuration is a UDP interface.
+   * 
+   * \return                      True if the interface is UDP, False otherwise.
+   */
+  bool isInterfaceUdp(void) const;
+
+  /*!
+   * Get the Ip address of the interface.
+   * 
+   * \return                      Ip address.
+   */
+  sbgIpAddress getIpAddress(void) const;
+
+  /*!
+   * Get the output port.
+   * 
+   * \return                      Output port.
+   */
+  uint32 getOutputPortAddress(void) const;
+
+  /*!
+   * Get the input port.
+   * 
+   * \return                      Input port.
+   */
+  uint32 getInputPortAddress(void) const;
+
+  /*!
+   * Get the initial conditions configuration.
+   * 
+   * \return                                Initial conditions configuration.
+   */
+  const SbgEComInitConditionConf &getInitialConditions(void) const;
+
+  /*!
+   * Get the motion profile configuration.
+   * 
+   * \return                                Motion profile configuration.
+   */
+  const SbgEComModelInfo &getMotionProfile(void) const;
+
+  /*!
+   * Get the sensor alignement configuration.
+   * 
+   * \return                                Sensor alignement configuration.
+   */
+  const SbgEComSensorAlignmentInfo &getSensorAlignement(void) const;
+
+  /*!
+   * Get the sensor level arms.
+   * 
+   * \return                                Sensor level arms X, Y, Z (in meters).
+   */
+  const std::array<float, 3> &getSensorLevelArms(void) const;
+
+  /*!
+   * Get the aiding assignement configuration.
+   * 
+   * \return                                Aiding assignement configuration.
+   */
+  const SbgEComAidingAssignConf &getAidingAssignement(void) const;
+
+  /*!
+   * Get the magnetometer model configuration.
+   * 
+   * \return                                Magnetometer model configuration.
+   */
+  const SbgEComModelInfo &getMagnetometerModel(void) const;
+
+  /*!
+   * Get the magnetometer rejection configuration.
+   * 
+   * \return                                Magnetometer rejection configuration.
+   */
+  const SbgEComMagRejectionConf &getMagnetometerRejection(void) const;
+
+  /*!
+   * Get the magnetometer calibration mode.
+   * 
+   * \return                                Magnetometer calibration mode.
+   */
+  const SbgEComMagCalibMode &getMagnetometerCalibMode(void) const;
+
+  /*!
+   * Get the magnetometer calibration bandwidth.
+   * 
+   * \return                                Magnetometer calibration bandwidth.
+   */
+  const SbgEComMagCalibBandwidth &getMagnetometerCalibBandwidth(void) const;
+
+  /*!
+   * Get the Gnss model configuration.
+   * 
+   * \return                                Gnss model configuration.
+   */
+  const SbgEComModelInfo &getGnssModel(void) const;
+
+  /*!
+   * Get the Gnss aligment configuration.
+   * 
+   * \return                                Gnss alignement configuration.
+   */
+  const SbgEComGnssAlignmentInfo &getGnssAlignement(void) const;
+
+  /*!
+   * Get the Gnss rejection configuration.
+   * 
+   * \return                                Gnss rejection configuration.
+   */
+  const SbgEComGnssRejectionConf &getGnssRejection(void) const;
+
+  /*!
+   * Get the odometer configuration.
+   * 
+   * \return                                Odometer configuration.
+   */
+  const SbgEComOdoConf &getOdometerConf(void) const;
+
+  /*!
+   * Get the odometer level arms.
+   * 
+   * \return                                Odometer X,Y,Z level arms (in meters).
+   */
+  const std::array<float, 3> &getOdometerLevelArms(void) const;
+
+  /*!
+   * Get the odometer rejection.
+   * 
+   * \return                                Odometer rejection configuration.
+   */
+  const SbgEComOdoRejectionConf &getOdometerRejection(void) const;
+
+  /*!
+   * Get all the output modes.
+   * 
+   * \return                      Output mode for this config store.
+   */
+  const std::vector<SbgLogOutput> &getOutputModes(void) const;
+
+  /*!
+   * Check if the ROS standard outputs are defined.
+   * 
+   * \return                      True if standard ROS messages output are defined.
+   */
+  bool checkRosStandardMessages(void) const;
+
+  /*!
+   * Get the reading frequency defined in settings.
+   * If this frequency is null, the driver will automatically configure the max output frequency according to the outputs.
+   * 
+   * \return                      Rate frequency parameter (in Hz).
+   */
+  uint32 getReadingRateFrequency(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
@@ -257,34 +368,8 @@ public:
    * 
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
-  void loadFromRosNodeHandle(ros::NodeHandle& ref_node_handle);
-
-  /*!
-   * Initialize the communication interface.
-   * 
-   * \param[in] p_sbg_interface   SBG communication interface.
-   * \throw     Exception         Unable to initialize the communication interface.
-   */
-  void initCommunicationInterface(SbgInterface* p_sbg_interface) const;
-
-  /*!
-   * Update the communication interface after configuration if needed.
-
-  /*!
-   * Close the communication interface.
-   * 
-   * \param[in] p_sbg_interface   SBG communication interface.
-   */
-  void closeCommunicationInterface(SbgInterface* p_sbg_interface) const;
-
-  /*!
-   * Configure the connected communication SBG handle.
-   * 
-   * \param[in] p_com_handle      SBG communication handle.
-   * \throw                       Unable to configure the SBG handle.
-   */
-  void configureComHandle(SbgEComHandle* p_com_handle);
+  void loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle);
 };
 }
 
-#endif
+#endif // SBG_ROS_CONFIG_STORE_H

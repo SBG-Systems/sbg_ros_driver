@@ -51,7 +51,19 @@ SbgDevice::~SbgDevice(void)
     ROS_ERROR("Unable to close the SBG communication handle - %s.", sbgErrorCodeToString(error_code));
   }
 
-  m_config_store_.closeCommunicationInterface(&m_sbg_interface_);
+  if (m_config_store_.isInterfaceSerial())
+  {
+    error_code = sbgInterfaceSerialDestroy(&m_sbg_interface_);
+  }
+  else if (m_config_store_.isInterfaceUdp())
+  {
+    error_code = sbgInterfaceUdpDestroy(&m_sbg_interface_);
+  }
+
+  if (error_code != SBG_NO_ERROR)
+  {
+    ROS_ERROR("SBG DRIVER - Unable to close the communication interface.");
+  }
 }
 
 //---------------------------------------------------------------------//
@@ -88,8 +100,29 @@ void SbgDevice::loadParameters(void)
 void SbgDevice::connect(void)
 {
   SbgErrorCode error_code;
+  error_code = SBG_NO_ERROR;
 
-  m_config_store_.initCommunicationInterface(&m_sbg_interface_);
+  //
+  // Initialize the communication interface from the config store, then initialize the sbgECom protocol to communicate with the device.
+  //
+  if (m_config_store_.isInterfaceSerial())
+  {
+    error_code = sbgInterfaceSerialCreate(&m_sbg_interface_, m_config_store_.getUartPortName().c_str(), m_config_store_.getBaudRate());
+  }
+  else if (m_config_store_.isInterfaceUdp())
+  {
+    error_code = sbgInterfaceUdpCreate(&m_sbg_interface_, m_config_store_.getIpAddress(), m_config_store_.getInputPortAddress(), m_config_store_.getOutputPortAddress());
+  }
+  else
+  {
+    throw ros::Exception("Invalid interface type for the SBG device.");
+  }
+
+  if (error_code != SBG_NO_ERROR)
+  {
+    throw ros::Exception("SBG_DRIVER - [Init] Unable to initialize the interface - " + std::string(sbgErrorCodeToString(error_code)));
+  }
+  
   error_code = sbgEComInit(&m_com_handle_, &m_sbg_interface_);
 
   if (error_code != SBG_NO_ERROR)
@@ -97,15 +130,15 @@ void SbgDevice::connect(void)
     throw ros::Exception("SBG_DRIVER - [Init] Unable to initialize the SbgECom protocol - " + std::string(sbgErrorCodeToString(error_code)));
   }
 
-  readDeviceInfo(&m_com_handle_);
+  readDeviceInfo();
 }
 
-void SbgDevice::readDeviceInfo(SbgEComHandle* p_com_handle)
+void SbgDevice::readDeviceInfo(void)
 {
   SbgEComDeviceInfo device_info;
   SbgErrorCode      error_code; 
   
-  error_code = sbgEComCmdGetInfo(p_com_handle, &device_info);
+  error_code = sbgEComCmdGetInfo(&m_com_handle_, &device_info);
 
   if (error_code != SBG_NO_ERROR)
   {
@@ -115,14 +148,14 @@ void SbgDevice::readDeviceInfo(SbgEComHandle* p_com_handle)
   ROS_INFO("SBG DRIVER - productCode = %s", device_info.productCode);
   ROS_INFO("SBG DRIVER - serialNumber = %u", device_info.serialNumber);
 
-  ROS_INFO("SBG DRIVER - calibationRev = %s", getSbgVersionDecoded(device_info.calibationRev).c_str());
+  ROS_INFO("SBG DRIVER - calibationRev = %s", getVersionAsString(device_info.calibationRev).c_str());
   ROS_INFO("SBG DRIVER - calibrationDate = %u / %u / %u", device_info.calibrationDay, device_info.calibrationMonth, device_info.calibrationYear);
 
-  ROS_INFO("SBG DRIVER - hardwareRev = %s", getSbgVersionDecoded(device_info.hardwareRev).c_str());
-  ROS_INFO("SBG DRIVER - firmwareRev = %s", getSbgVersionDecoded(device_info.firmwareRev).c_str()); 
+  ROS_INFO("SBG DRIVER - hardwareRev = %s", getVersionAsString(device_info.hardwareRev).c_str());
+  ROS_INFO("SBG DRIVER - firmwareRev = %s", getVersionAsString(device_info.firmwareRev).c_str()); 
 }
 
-std::string SbgDevice::getSbgVersionDecoded(uint32 sbg_version_enc) const
+std::string SbgDevice::getVersionAsString(uint32 sbg_version_enc) const
 {
   char version[32];
   sbgVersionToStringEncoded(sbg_version_enc, version, 32);
@@ -132,44 +165,26 @@ std::string SbgDevice::getSbgVersionDecoded(uint32 sbg_version_enc) const
 
 void SbgDevice::initPublishers(void)
 {
-  m_message_publisher_.initPublishers(m_p_node_, m_config_store_.getOutputConfiguration());
+  m_message_publisher_.initPublishers(m_p_node_, m_config_store_);
 
   //
   // Check if the rate frequency has to be defined according to the defined publishers.
   //
-  if(m_config_store_.getRateFrequency() == 0)
+  if(m_config_store_.getReadingRateFrequency() == 0)
   {
-    m_rate_frequency_ = m_message_publisher_.getOutputFrequency();
+    m_rate_frequency_ = m_message_publisher_.getMaxOutputFrequency();
   }
   else
   {
-    m_rate_frequency_ = m_config_store_.getRateFrequency();
+    m_rate_frequency_ = m_config_store_.getReadingRateFrequency();
   }
 }
 
 void SbgDevice::configure(void)
 {
-  m_config_store_.configureComHandle(&m_com_handle_);
-
-  if (m_config_store_.isRebootNeeded())
+  if (m_config_store_.checkConfigWithRos())
   {
-    saveDeviceConfiguration();
-  }
-}
-
-void SbgDevice::saveDeviceConfiguration(void)
-{
-  SbgErrorCode error_code;
-
-  error_code = sbgEComCmdSettingsAction(&m_com_handle_, SBG_ECOM_SAVE_SETTINGS);
-
-  if (error_code != SBG_NO_ERROR)
-  {
-    ROS_ERROR("Unable to save the settings on the SBG device - %s", sbgErrorCodeToString(error_code));
-  }
-  else
-  {
-    ROS_INFO("SBG_DRIVER - Settings saved and device rebooted.");
+    m_config_applier_.applyConfiguration(m_config_store_, m_com_handle_);
   }
 }
 
@@ -245,8 +260,8 @@ bool SbgDevice::startMagCalibration(void)
   SbgEComMagCalibMode       mag_calib_mode;
   SbgEComMagCalibBandwidth  mag_calib_bandwidth;
 
-  mag_calib_mode      = m_config_store_.getMagCalibrationMode();
-  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
+  mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
+  mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
   
   error_code = sbgEComCmdMagStartCalib(&m_com_handle_, mag_calib_mode, mag_calib_bandwidth);
 
@@ -300,7 +315,7 @@ bool SbgDevice::uploadMagCalibrationToDevice(void)
     else
     {
       ROS_INFO("SBG DRIVER [Mag Calib] - Saving data to the device");
-      saveDeviceConfiguration();
+      m_config_applier_.saveConfiguration(m_com_handle_);
       return true;
     }
   }
@@ -319,8 +334,8 @@ void SbgDevice::displayMagCalibrationStatusResult(void) const
   SbgEComMagCalibMode         mag_calib_mode;
   SbgEComMagCalibBandwidth    mag_calib_bandwidth;
 
-  mag_calib_mode      = m_config_store_.getMagCalibrationMode();
-  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
+  mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
+  mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
 
   //
   // Check the magnetometers calibration status and display the warnings.
@@ -372,8 +387,8 @@ void SbgDevice::exportMagCalibrationResults(void) const
   ostringstream             mag_results_stream;
   string                    output_filename;
 
-  mag_calib_mode      = m_config_store_.getMagCalibrationMode();
-  mag_calib_bandwidth = m_config_store_.getMagCalibrationBandwidth();
+  mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
+  mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
   
   mag_results_stream << "SBG DRIVER [Mag Calib]" << endl;
   mag_results_stream << "======= Parameters =======" << endl;
@@ -409,7 +424,7 @@ void SbgDevice::exportMagCalibrationResults(void) const
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
 
-int SbgDevice::getDeviceRateFrequency(void) const
+uint32 SbgDevice::getUpdateFrequency(void) const
 {
   return m_rate_frequency_;
 }
