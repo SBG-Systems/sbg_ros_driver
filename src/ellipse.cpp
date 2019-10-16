@@ -550,7 +550,7 @@ bool Ellipse::set_cmd_gnss_model(){
   SbgEComModelInfo model_info;
   sbgEComCmdGnss1GetModelInfo(&m_comHandle, &model_info);
   if(model_info.id != m_gnssModelId){
-    sbgEComCmdMagSetModelId(&m_comHandle, m_gnssModelId);
+    sbgEComCmdGnss1SetModelId(&m_comHandle, m_gnssModelId);
     ROS_INFO("SBG DRIVER - [Param] gnss model");
     return true;
   }
