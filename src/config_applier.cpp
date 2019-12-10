@@ -414,7 +414,7 @@ void ConfigApplier::applyConfiguration(const ConfigStore& ref_config_store)
   configureGnssRejection(ref_config_store.getGnssRejection());
   configureOdometer(ref_config_store.getOdometerConf());
   configureOdometerLevelArm(ref_config_store.getOdometerLevelArms());
-  //configureOdometerRejection(ref_config_store.getOdometerRejection());
+  configureOdometerRejection(ref_config_store.getOdometerRejection());
 
   //
   // Configure the output, with all output defined in the store.

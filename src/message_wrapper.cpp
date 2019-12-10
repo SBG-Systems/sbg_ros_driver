@@ -1,4 +1,9 @@
+// File header
 #include "message_wrapper.h"
+
+// Eigen headers
+#include <Eigen/Core>
+#include <eigen_conversions/eigen_msg.h>
 
 using sbg::MessageWrapper;
 
@@ -19,7 +24,7 @@ m_first_valid_utc_(false)
 //- Internal methods                                                  -//
 //---------------------------------------------------------------------//
 
-const std_msgs::Header MessageWrapper::createRosHeader(uint32 device_timestamp) const
+const std_msgs::Header MessageWrapper::createRosHeader(uint32_t device_timestamp) const
 {
   std_msgs::Header header;
 
@@ -69,7 +74,7 @@ const std_msgs::Header MessageWrapper::createRosHeader(uint32 device_timestamp) 
   return header;
 }
 
-const ros::Time MessageWrapper::computeCorrectedRosTime(uint32 device_timestamp) const
+const ros::Time MessageWrapper::computeCorrectedRosTime(uint32_t device_timestamp) const
 {
   //
   // Convert the UTC time to epoch from the last received message.
@@ -82,14 +87,14 @@ const ros::Time MessageWrapper::computeCorrectedRosTime(uint32 device_timestamp)
   utc_to_epoch          = convertUtcTimeToEpoch(m_last_sbg_utc_);
   device_timestamp_diff = device_timestamp - m_last_sbg_utc_.time_stamp;
 
-  nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff) * 1e3;
+  nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff) * 1000;
 
   utc_to_epoch.fromNSec(nanoseconds);
 
   return utc_to_epoch;
 }
 
-const sbg_driver::SbgEkfStatus MessageWrapper::createEkfStatusMessage(uint32 ekf_status) const
+const sbg_driver::SbgEkfStatus MessageWrapper::createEkfStatusMessage(uint32_t ekf_status) const
 {
   sbg_driver::SbgEkfStatus ekf_status_message;
 
@@ -308,7 +313,7 @@ const ros::Time MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTi
   days        = 0;
   nanoseconds = 0;
 
-  for (uint16 yearIndex = 1970; yearIndex < ref_sbg_utc_msg.year; yearIndex++)
+  for (uint16_t yearIndex = 1970; yearIndex < ref_sbg_utc_msg.year; yearIndex++)
   {
     days += getNumberOfDaysInYear(yearIndex); 
   }
@@ -324,7 +329,7 @@ const ros::Time MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTi
   nanoseconds = (nanoseconds + ref_sbg_utc_msg.hour) * 60;
   nanoseconds = (nanoseconds + ref_sbg_utc_msg.min) * 60;
   nanoseconds = nanoseconds + ref_sbg_utc_msg.sec;
-  nanoseconds = nanoseconds * 1e9 + ref_sbg_utc_msg.nanosec;
+  nanoseconds = nanoseconds * 1000000000 + ref_sbg_utc_msg.nanosec;
 
   utc_to_epoch.fromNSec(nanoseconds);
 
@@ -350,10 +355,10 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
 
   ekf_euler_message.header      = createRosHeader(ref_log_ekf_euler.timeStamp);
   ekf_euler_message.time_stamp  = ref_log_ekf_euler.timeStamp;
+  ekf_euler_message.status      = createEkfStatusMessage(ref_log_ekf_euler.status);
 
-  ekf_euler_message.status    = createEkfStatusMessage(ref_log_ekf_euler.status);
-  ekf_euler_message.angle     = createRosVector3<float>(ref_log_ekf_euler.euler);
-  ekf_euler_message.accuracy  = createRosVector3<float>(ref_log_ekf_euler.eulerStdDev);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_euler.euler, 3).cast<double>(), ekf_euler_message.angle);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_euler.eulerStdDev, 3).cast<double>(), ekf_euler_message.accuracy);
 
   return ekf_euler_message;
 }
@@ -364,12 +369,12 @@ const sbg_driver::SbgEkfNav MessageWrapper::createSbgEkfNavMessage(const SbgLogE
 
   ekf_nav_message.header      = createRosHeader(ref_log_ekf_nav.timeStamp);
   ekf_nav_message.time_stamp  = ekf_nav_message.time_stamp;
+  ekf_nav_message.status      = createEkfStatusMessage(ref_log_ekf_nav.status);
+  ekf_nav_message.undulation  = ref_log_ekf_nav.undulation;
 
-  ekf_nav_message.status            = createEkfStatusMessage(ref_log_ekf_nav.status);
-  ekf_nav_message.velocity          = createRosVector3<float>(ref_log_ekf_nav.velocity);
-  ekf_nav_message.velocity_accuracy = createRosVector3<float>(ref_log_ekf_nav.velocityStdDev);
-  ekf_nav_message.position          = createRosVector3<double>(ref_log_ekf_nav.position);
-  ekf_nav_message.undulation        = ref_log_ekf_nav.undulation;
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_nav.velocity, 3).cast<double>(), ekf_nav_message.velocity);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_nav.velocityStdDev, 3).cast<double>(), ekf_nav_message.velocity_accuracy);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3d>(ref_log_ekf_nav.position, 3).cast<double>(), ekf_nav_message.position);
 
   return ekf_nav_message;
 }
@@ -380,13 +385,11 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
 
   ekf_quat_message.header       = createRosHeader(ref_log_ekf_quat.timeStamp);
   ekf_quat_message.time_stamp   = ref_log_ekf_quat.timeStamp;
-
   ekf_quat_message.status       = createEkfStatusMessage(ref_log_ekf_quat.status);
-  ekf_quat_message.quaternion.x = ref_log_ekf_quat.quaternion[1];
-  ekf_quat_message.quaternion.y = ref_log_ekf_quat.quaternion[2];
-  ekf_quat_message.quaternion.z = ref_log_ekf_quat.quaternion[3];
-  ekf_quat_message.quaternion.w = ref_log_ekf_quat.quaternion[0];
-  ekf_quat_message.accuracy     = createRosVector3<float>(ref_log_ekf_quat.eulerStdDev);
+  Eigen::Quaterniond ekf_quat   = Eigen::Quaterniond(ref_log_ekf_quat.quaternion[0], ref_log_ekf_quat.quaternion[1], ref_log_ekf_quat.quaternion[2], ref_log_ekf_quat.quaternion[3]);
+
+  tf::quaternionEigenToMsg(ekf_quat, ekf_quat_message.quaternion);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_quat.eulerStdDev, 3).cast<double>(), ekf_quat_message.accuracy);
 
   return ekf_quat_message;
 }
@@ -467,13 +470,13 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
 
   gps_vel_message.header      = createRosHeader(ref_log_gps_vel.timeStamp);
   gps_vel_message.time_stamp  = ref_log_gps_vel.timeStamp;
-
   gps_vel_message.status      = createGpsVelStatusMessage(ref_log_gps_vel);
   gps_vel_message.gps_tow     = ref_log_gps_vel.timeOfWeek;
-  gps_vel_message.vel         = createRosVector3<float>(ref_log_gps_vel.velocity);
-  gps_vel_message.vel_acc     = createRosVector3<float>(ref_log_gps_vel.velocityAcc);
   gps_vel_message.course      = ref_log_gps_vel.course;
   gps_vel_message.course_acc  = ref_log_gps_vel.courseAcc;
+
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_gps_vel.velocity, 3).cast<double>(), gps_vel_message.vel);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_gps_vel.velocityAcc, 3).cast<double>(), gps_vel_message.vel_acc);
 
   return gps_vel_message;
 }
@@ -484,13 +487,13 @@ const sbg_driver::SbgImuData MessageWrapper::createSbgImuDataMessage(const SbgLo
 
   imu_data_message.header     = createRosHeader(ref_log_imu_data.timeStamp);
   imu_data_message.time_stamp = ref_log_imu_data.timeStamp;
+  imu_data_message.imu_status = createImuStatusMessage(ref_log_imu_data);
+  imu_data_message.temp       = ref_log_imu_data.temperature;
 
-  imu_data_message.imu_status   = createImuStatusMessage(ref_log_imu_data);
-  imu_data_message.accel        = createRosVector3<float>(ref_log_imu_data.accelerometers);
-  imu_data_message.gyro         = createRosVector3<float>(ref_log_imu_data.gyroscopes);
-  imu_data_message.temp         = ref_log_imu_data.temperature;
-  imu_data_message.delta_vel    = createRosVector3<float>(ref_log_imu_data.deltaVelocity);
-  imu_data_message.delta_angle  = createRosVector3<float>(ref_log_imu_data.deltaAngle);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.accelerometers, 3).cast<double>(), imu_data_message.accel);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.gyroscopes, 3).cast<double>(), imu_data_message.gyro);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.deltaVelocity, 3).cast<double>(), imu_data_message.delta_vel);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.deltaAngle, 3).cast<double>(), imu_data_message.delta_angle);
 
   return imu_data_message;
 }
@@ -501,10 +504,10 @@ const sbg_driver::SbgMag MessageWrapper::createSbgMagMessage(const SbgLogMag& re
 
   mag_message.header      = createRosHeader(ref_log_mag.timeStamp);
   mag_message.time_stamp  = ref_log_mag.timeStamp;
+  mag_message.status      = createMagStatusMessage(ref_log_mag);
 
-  mag_message.mag     = createRosVector3<float>(ref_log_mag.magnetometers);
-  mag_message.accel   = createRosVector3<float>(ref_log_mag.accelerometers);
-  mag_message.status  = createMagStatusMessage(ref_log_mag);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_mag.magnetometers, 3).cast<double>(), mag_message.mag);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_mag.accelerometers, 3).cast<double>(), mag_message.accel); 
 
   return mag_message;
 }
@@ -551,13 +554,13 @@ const sbg_driver::SbgShipMotion MessageWrapper::createSbgShipMotionMessage(const
 {
   sbg_driver::SbgShipMotion ship_motion_message;
 
-  ship_motion_message.header        = createRosHeader(ref_log_ship_motion.timeStamp);
-  ship_motion_message.time_stamp    = ref_log_ship_motion.timeStamp;
+  ship_motion_message.header      = createRosHeader(ref_log_ship_motion.timeStamp);
+  ship_motion_message.time_stamp  = ref_log_ship_motion.timeStamp;
+  ship_motion_message.status      = createShipMotionStatusMessage(ref_log_ship_motion);
 
-  ship_motion_message.ship_motion   = createRosVector3<float>(ref_log_ship_motion.shipMotion);
-  ship_motion_message.acceleration  = createRosVector3<float>(ref_log_ship_motion.shipAccel);
-  ship_motion_message.velocity      = createRosVector3<float>(ref_log_ship_motion.shipVel);
-  ship_motion_message.status        = createShipMotionStatusMessage(ref_log_ship_motion);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ship_motion.shipMotion, 3).cast<double>(), ship_motion_message.ship_motion);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ship_motion.shipAccel, 3).cast<double>(), ship_motion_message.acceleration);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ship_motion.shipVel, 3).cast<double>(), ship_motion_message.velocity); 
 
   return ship_motion_message;
 }

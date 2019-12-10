@@ -91,6 +91,8 @@ SbgDevice::~SbgDevice(void)
 
 SbgErrorCode SbgDevice::onLogReceivedCallback(SbgEComHandle* p_handle, SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData* p_log_data, void* p_user_arg)
 {
+  assert(p_user_arg);
+
   SbgDevice *p_sbg_device;
   p_sbg_device = (SbgDevice*)(p_user_arg);
 
@@ -445,7 +447,7 @@ void SbgDevice::exportMagCalibrationResults(void) const
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
 
-uint32 SbgDevice::getUpdateFrequency(void) const
+uint32_t SbgDevice::getUpdateFrequency(void) const
 {
   return m_rate_frequency_;
 }

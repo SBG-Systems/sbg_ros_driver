@@ -33,12 +33,12 @@ private:
 
   std::string                 m_uart_port_name_;
   SbgEComOutputPort           m_output_port_;
-  uint32                      m_uart_baud_rate_;
+  uint32_t                    m_uart_baud_rate_;
   bool                        m_serial_communication_;
  
   sbgIpAddress                m_sbg_ip_address_;
-  uint32                      m_out_port_address_;
-  uint32                      m_in_port_address_;
+  uint32_t                    m_out_port_address_;
+  uint32_t                    m_in_port_address_;
   bool                        m_upd_communication_;
 
   bool                        m_configure_through_ros_;
@@ -66,7 +66,7 @@ private:
 
   std::vector<SbgLogOutput>   m_output_modes_;
   bool                        m_ros_standard_output_;
-  uint32                      m_rate_frequency_;
+  uint32_t                    m_rate_frequency_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -198,7 +198,7 @@ public:
    * 
    * \return                      UART serial baudrate.
    */
-  uint32 getBaudRate(void) const;
+  uint32_t getBaudRate(void) const;
 
   /*!
    * Get the output port of the device.
@@ -226,14 +226,14 @@ public:
    * 
    * \return                      Output port.
    */
-  uint32 getOutputPortAddress(void) const;
+  uint32_t getOutputPortAddress(void) const;
 
   /*!
    * Get the input port.
    * 
    * \return                      Input port.
    */
-  uint32 getInputPortAddress(void) const;
+  uint32_t getInputPortAddress(void) const;
 
   /*!
    * Get the initial conditions configuration.
@@ -360,7 +360,7 @@ public:
    * 
    * \return                      Rate frequency parameter (in Hz).
    */
-  uint32 getReadingRateFrequency(void) const;
+  uint32_t getReadingRateFrequency(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

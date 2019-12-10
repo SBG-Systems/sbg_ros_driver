@@ -32,7 +32,7 @@ void ConfigStore::loadCommunicationParameters(const ros::NodeHandle& ref_node_ha
     m_serial_communication_ = true;
     ref_node_handle.param<std::string>("uartConf/portName", m_uart_port_name_, "/dev/ttyUSB0");
 
-    m_uart_baud_rate_ = getParameter<uint32>(ref_node_handle, "uartConf/baudRate", 0);
+    m_uart_baud_rate_ = getParameter<uint32_t>(ref_node_handle, "uartConf/baudRate", 0);
     m_output_port_    = getParameter<SbgEComOutputPort>(ref_node_handle, "uartConf/portID", SBG_ECOM_OUTPUT_PORT_A);
   }
   else if (ref_node_handle.hasParam("ipConf"))
@@ -42,8 +42,8 @@ void ConfigStore::loadCommunicationParameters(const ros::NodeHandle& ref_node_ha
 
     m_upd_communication_  = true;
     m_sbg_ip_address_     = sbgNetworkIpFromString(ip_address.c_str());
-    m_out_port_address_   = getParameter<uint32>(ref_node_handle, "ipConf/out_port", 0);
-    m_in_port_address_    = getParameter<uint32>(ref_node_handle, "ipConf/in_port", 0);
+    m_out_port_address_   = getParameter<uint32_t>(ref_node_handle, "ipConf/out_port", 0);
+    m_in_port_address_    = getParameter<uint32_t>(ref_node_handle, "ipConf/in_port", 0);
   }
   else
   {
@@ -57,9 +57,9 @@ void ConfigStore::loadSensorParameters(const ros::NodeHandle& ref_node_handle)
   ref_node_handle.param<double>("sensorParameters/initLong", m_init_condition_conf_.longitude, -4.472119);
   ref_node_handle.param<double>("sensorParameters/initAlt", m_init_condition_conf_.altitude, 100);
 
-  m_init_condition_conf_.year     = getParameter<uint16>(ref_node_handle, "sensorParameters/year", 2018);
-  m_init_condition_conf_.month    = getParameter<uint8>(ref_node_handle, "sensorParameters/year", 03);
-  m_init_condition_conf_.day      = getParameter<uint8>(ref_node_handle, "sensorParameters/year", 10);
+  m_init_condition_conf_.year     = getParameter<uint16_t>(ref_node_handle, "sensorParameters/year", 2018);
+  m_init_condition_conf_.month    = getParameter<uint8_t>(ref_node_handle, "sensorParameters/year", 03);
+  m_init_condition_conf_.day      = getParameter<uint8_t>(ref_node_handle, "sensorParameters/year", 10);
 
   m_motion_profile_model_info_.id = getParameter<uint32>(ref_node_handle, "sensorParameters/motionProfile", SBG_ECOM_MOTION_PROFILE_GENERAL_PURPOSE);
 }
@@ -87,7 +87,7 @@ void ConfigStore::loadAidingAssignementParameters(const ros::NodeHandle& ref_nod
 
 void ConfigStore::loadMagnetometersParameters(const ros::NodeHandle& ref_node_handle)
 {
-  m_mag_model_info_.id                = getParameter<uint32>(ref_node_handle, "magnetometer/magnetometerModel", SBG_ECOM_MAG_MODEL_NORMAL);
+  m_mag_model_info_.id                = getParameter<uint32_t>(ref_node_handle, "magnetometer/magnetometerModel", SBG_ECOM_MAG_MODEL_NORMAL);
   m_mag_rejection_conf_.magneticField = getParameter<SbgEComRejectionMode>(ref_node_handle, "magnetometer/magnetometerRejectMode", SBG_ECOM_AUTOMATIC_MODE);
 
   m_mag_calib_mode_       = getParameter<SbgEComMagCalibMode>(ref_node_handle, "magnetometer/calibration/mode", SBG_ECOM_MAG_CALIB_MODE_2D);
@@ -96,7 +96,7 @@ void ConfigStore::loadMagnetometersParameters(const ros::NodeHandle& ref_node_ha
 
 void ConfigStore::loadGnssParameters(const ros::NodeHandle& ref_node_handle)
 {
-  m_gnss_model_info_.id = getParameter<uint32>(ref_node_handle, "gnss/gnss_model_id", SBG_ECOM_GNSS_MODEL_NMEA);
+  m_gnss_model_info_.id = getParameter<uint32_t>(ref_node_handle, "gnss/gnss_model_id", SBG_ECOM_GNSS_MODEL_NMEA);
 
   ref_node_handle.param<float>("gnss/leverArmX", m_gnss_alignement_info_.leverArmX, 0.0f);
   ref_node_handle.param<float>("gnss/leverArmY", m_gnss_alignement_info_.leverArmY, 0.0f);
@@ -118,7 +118,7 @@ void ConfigStore::loadOdometerParameters(const ros::NodeHandle& ref_node_handle)
   ref_node_handle.param<float>("odom/leverArmY", m_odometer_level_arm_(1), 0.0f);
   ref_node_handle.param<float>("odom/leverArmZ", m_odometer_level_arm_(2), 0.0f);
 
-  m_odometer_conf_.gainError          = getParameter<uint8>(ref_node_handle, "odom/gain_error", 0.1);
+  m_odometer_conf_.gainError          = getParameter<uint8_t>(ref_node_handle, "odom/gain_error", 0.1);
   m_odometer_rejection_conf_.velocity = getParameter<SbgEComRejectionMode>(ref_node_handle, "odom/rejectMode", SBG_ECOM_AUTOMATIC_MODE);
 }
 
@@ -172,12 +172,12 @@ sbgIpAddress ConfigStore::getIpAddress(void) const
   return m_sbg_ip_address_;
 }
 
-uint32 ConfigStore::getOutputPortAddress(void) const
+uint32_t ConfigStore::getOutputPortAddress(void) const
 {
   return m_out_port_address_;
 }
 
-uint32 ConfigStore::getInputPortAddress(void) const
+uint32_t ConfigStore::getInputPortAddress(void) const
 {
   return m_in_port_address_;
 }
@@ -267,7 +267,7 @@ bool ConfigStore::checkRosStandardMessages(void) const
   return m_ros_standard_output_;
 }
 
-uint32 ConfigStore::getReadingRateFrequency(void) const
+uint32_t ConfigStore::getReadingRateFrequency(void) const
 {
   return m_rate_frequency_;
 }
@@ -308,5 +308,5 @@ void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
   loadOutputConfiguration(ref_node_handle, "output/log_pressure", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_PRESSURE);
 
   ref_node_handle.param<bool>("output/ros_standard", m_ros_standard_output_, false);
-  m_rate_frequency_ = getParameter<uint32>(ref_node_handle, "output/frequency", 0);
+  m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "output/frequency", 0);
 }

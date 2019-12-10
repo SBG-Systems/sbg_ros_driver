@@ -57,7 +57,7 @@ private:
    * \param[in] device_timestamp    SBG device timestamp (in microseconds).
    * \return                        ROS header message.
    */
-  const std_msgs::Header createRosHeader(uint32 device_timestamp) const;
+  const std_msgs::Header createRosHeader(uint32_t device_timestamp) const;
 
   /*!
    * Compute corrected ROS time for the device timestamp.
@@ -65,26 +65,7 @@ private:
    * \param[in] device_timestamp    SBG device timestamp (in microseconds).
    * \return                        ROS time.
    */
-  const ros::Time computeCorrectedRosTime(uint32 device_timestamp) const;
-
-  /*!
-   * Create a ROS Vector3 from a numeric array.
-   * 
-   * \template  T                   Numeric template type.
-   * \param[in] p_float_array       Array of X, Y, Z components.
-   * \return                        ROS Vector3.
-   */
-  template <typename T>
-  const geometry_msgs::Vector3 createRosVector3(const T* p_array) const
-  {
-    geometry_msgs::Vector3 vector_message;
-
-    vector_message.x = p_array[0];
-    vector_message.y = p_array[1];
-    vector_message.z = p_array[2];
-
-    return vector_message;
-  }
+  const ros::Time computeCorrectedRosTime(uint32_t device_timestamp) const;
 
   /*!
    * Create SBG-ROS Ekf status message.
@@ -92,7 +73,7 @@ private:
    * \param[in] ekf_status          SBG Ekf status.
    * \return                        Ekf status message.
    */
-  const sbg_driver::SbgEkfStatus createEkfStatusMessage(uint32 ekf_status) const;
+  const sbg_driver::SbgEkfStatus createEkfStatusMessage(uint32_t ekf_status) const;
 
   /*!
    * Create SBG-ROS GPS Position status message.

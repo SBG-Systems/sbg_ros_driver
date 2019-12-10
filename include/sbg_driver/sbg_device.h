@@ -43,7 +43,7 @@ private:
   MessagePublisher        m_message_publisher_;
   ConfigStore             m_config_store_;
 
-  uint32                  m_rate_frequency_;
+  uint32_t                m_rate_frequency_;
 
   bool                    m_mag_calibration_ongoing_;
   bool                    m_mag_calibration_done_;
@@ -195,7 +195,7 @@ public:
    * 
    * \return                      Device frequency to read the logs (in Hz).
    */
-  uint32 getUpdateFrequency(void) const;
+  uint32_t getUpdateFrequency(void) const;
 
   //---------------------------------------------------------------------//
   //- Public  methods                                                   -//
