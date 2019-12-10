@@ -38,19 +38,19 @@
  */
 typedef struct _SbgLogImuRawData
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	status;						/*!< IMU status bitmask. */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	status;						/*!< IMU status bitmask. */
 	
-	int32	rawAccelerometers[3];		/*!< X,Y,Z raw accelerometers signed data. No scale factor defined. */
-	int32	rawGyroscopes[3];			/*!< X,Y,Z raw gyroscopes signed data. No scale factor defined. */
-	int32	rawMagnetometers[3];		/*!< X,Y,Z raw magnetometers signed data. No scale factor defined. */
+	int32_t	rawAccelerometers[3];		/*!< X,Y,Z raw accelerometers signed data. No scale factor defined. */
+	int32_t	rawGyroscopes[3];			/*!< X,Y,Z raw gyroscopes signed data. No scale factor defined. */
+	int32_t	rawMagnetometers[3];		/*!< X,Y,Z raw magnetometers signed data. No scale factor defined. */
 
-	int32	rawTempAccels[3];			/*!< X,Y,Z raw accelerometers temperature signed data. No scale factor defined. */
-	int32	rawTempGyros[3];			/*!< X,Y,Z raw gyroscopes temperature signed data. No scale factor defined. */
-	int32	rawTempMags[3];				/*!< X,Y,Z raw magnetometers temperature signed data. No scale factor defined. */
+	int32_t	rawTempAccels[3];			/*!< X,Y,Z raw accelerometers temperature signed data. No scale factor defined. */
+	int32_t	rawTempGyros[3];			/*!< X,Y,Z raw gyroscopes temperature signed data. No scale factor defined. */
+	int32_t	rawTempMags[3];				/*!< X,Y,Z raw magnetometers temperature signed data. No scale factor defined. */
 	
-	int32	rawAuxValues[3];			/*!< Spare raw sensor values for specifics needs. */
-	int32	rawTempAuxValues[3];		/*!< Spare raw sensor temperature values for specifics needs. */
+	int32_t	rawAuxValues[3];			/*!< Spare raw sensor values for specifics needs. */
+	int32_t	rawTempAuxValues[3];		/*!< Spare raw sensor temperature values for specifics needs. */
 } SbgLogImuRawData;
 
 //----------------------------------------------------------------------//

@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogDvl.h"
+﻿#include "sbgEComBinaryLogDvl.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseDvlData(SbgStreamBuffer *pInputStream, SbgLogDvlData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -28,9 +25,9 @@ SbgErrorCode sbgEComBinaryLogParseDvlData(SbgStreamBuffer *pInputStream, SbgLogD
 	pOutputData->velocity[1]		= sbgStreamBufferReadFloatLE(pInputStream);
 	pOutputData->velocity[2]		= sbgStreamBufferReadFloatLE(pInputStream);
 
-	pOutputData->velocityStdDev[0]	= sbgStreamBufferReadFloatLE(pInputStream);
-	pOutputData->velocityStdDev[1]	= sbgStreamBufferReadFloatLE(pInputStream);
-	pOutputData->velocityStdDev[2]	= sbgStreamBufferReadFloatLE(pInputStream);
+	pOutputData->velocityQuality[0]	= sbgStreamBufferReadFloatLE(pInputStream);
+	pOutputData->velocityQuality[1]	= sbgStreamBufferReadFloatLE(pInputStream);
+	pOutputData->velocityQuality[2]	= sbgStreamBufferReadFloatLE(pInputStream);
 
 	//
 	// Return if any error has occurred while parsing the frame
@@ -46,9 +43,6 @@ SbgErrorCode sbgEComBinaryLogParseDvlData(SbgStreamBuffer *pInputStream, SbgLogD
  */
 SbgErrorCode sbgEComBinaryLogWriteDvlData(SbgStreamBuffer *pOutputStream, const SbgLogDvlData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -62,9 +56,9 @@ SbgErrorCode sbgEComBinaryLogWriteDvlData(SbgStreamBuffer *pOutputStream, const 
 	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocity[1]);
 	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocity[2]);
 
-	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocityStdDev[0]);
-	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocityStdDev[1]);
-	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocityStdDev[2]);
+	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocityQuality[0]);
+	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocityQuality[1]);
+	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->velocityQuality[2]);
 
 	//
 	// Return if any error has occurred while writing the frame

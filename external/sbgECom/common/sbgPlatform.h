@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgPlatform.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		17 March 2015
@@ -22,31 +22,26 @@
  *	IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
  *	PARTICULAR PURPOSE.
  */
-#ifndef __SBG_PLATFORM_H__
-#define __SBG_PLATFORM_H__
+#ifndef SBG_PLATFORM_H
+#define SBG_PLATFORM_H
 
-#include "../sbgTypes.h"
-#include "../sbgErrorCodes.h"
-#include "../sbgDebug.h"
+// System headers
+#include <stdint.h>
+
+// Local headers
+#include "sbgDefines.h"
+#include "sbgDebug.h"
+#include "sbgErrorCodes.h"
 
 //----------------------------------------------------------------------//
 //- Add here any additional includes you want to share                 -//
 //----------------------------------------------------------------------//
 
-// We would like to use the standard C library
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #ifdef _WIN32
 #include <direct.h>
-#else
+#elif defined(__unix__)
 #include <unistd.h>
 #endif
-
-// We need the standard assert header as we use it to implement the SBG_ASSERT macro
-#include <assert.h>
 
 //----------------------------------------------------------------------//
 //- Specific timing methods to reimplement for your platform           -//
@@ -56,13 +51,13 @@
  *	Returns the current time in ms.
  *	\return				The current time in ms.
  */
-uint32 sbgGetTime(void);
+SBG_COMMON_LIB_API uint32_t sbgGetTime(void);
 
 /*!
  *	Sleep for the specified number of ms.
  *	\param[in]	ms		Number of millisecondes to wait.
  */
-void sbgSleep(uint32 ms);
+SBG_COMMON_LIB_API void sbgSleep(uint32_t ms);
 
 //----------------------------------------------------------------------//
 //- Specific logging methods to reimplement for your platform          -//
@@ -74,11 +69,12 @@ void sbgSleep(uint32 ms);
  *	\param[in]	pFileName					File name where the error occurred.
  *	\param[in]	pFunctionName				Function name where the error occurred.
  *	\param[in]	line						Line number where the error occurred.
- *	\param[in]	logType						Define if we have an error, a warning, an info or a verbose log.
+ *	\param[in]	pCategory					Category for this log or "None" if no category has been specified.
+ *	\param[in]	logType						Define if we have an error, a warning, an info or a debug log.
  *	\param[in]	errorCode					The error code associated with the message.
  *	\param[in]	pFormat						The error message that will be used with the variable list of arguments.
  */
-void sbgPlatformDebugLogMsg(const char *pFileName, const char *pFunctionName, uint32 line, SbgDebugLogType logType, SbgErrorCode errorCode, const char *pFormat, ...);
+SBG_COMMON_LIB_API void sbgPlatformDebugLogMsg(const char *pFileName, const char *pFunctionName, uint32_t line, const char *pCategory, SbgDebugLogType logType, SbgErrorCode errorCode, const char *pFormat, ...);
 
 //----------------------------------------------------------------------//
 //- Errors and warning managment                                       -//
@@ -90,4 +86,4 @@ void sbgPlatformDebugLogMsg(const char *pFileName, const char *pFunctionName, ui
  */
 #define SBG_PLATFORM_ASSERT(expression)		assert((expression))
 
-#endif	/* __SBG_PLATFORM_H__ */
+#endif	/* SBG_PLATFORM_H */

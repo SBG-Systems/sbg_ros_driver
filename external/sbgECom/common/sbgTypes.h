@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgTypes.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		17 March 2015
@@ -19,44 +19,37 @@
  *	IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
  *	PARTICULAR PURPOSE.
  */
-#ifndef __SBG_TYPES_H__
-#define __SBG_TYPES_H__
+#ifndef SBG_TYPES_H
+#define SBG_TYPES_H
+
+// Standard headers
+#include <stdint.h>
 
 //----------------------------------------------------------------------//
 //- Limits definitions                                                 -//
 //----------------------------------------------------------------------//
-#define SBG_MIN_INT_8					(-128)
-#define SBG_MAX_INT_8					(127)
-#define SBG_HALF_UINT_8					(128)
-#define SBG_MAX_UINT_8					(255)
-
-#define SBG_MIN_INT_16					(-32768)
-#define SBG_MAX_INT_16					(32767)
-#define SBG_HALF_UINT_16				(32768)
-#define SBG_MAX_UINT_16					(65535)
-
 #define SBG_MIN_INT_24					(-8388608l)
 #define SBG_MAX_INT_24					(8388607l)
-#define SBG_HALF_UINT_24				(8388608ul)
-#define SBG_MAX_UINT_24					(16777216ul)
+#define SBG_MAX_UINT_24					(16777215ul)
 
-#define SBG_MIN_INT_32					(-2147483647l - 1)
-#define SBG_MAX_INT_32					(2147483647l)
-#define SBG_HALF_UINT_32				(2147483648ul)
-#define SBG_MAX_UINT_32					(4294967295ul)
+#define SBG_MIN_INT_40					(-549755813887ll - 1)
+#define SBG_MAX_INT_40					(549755813887ll)
+#define SBG_MAX_UINT_40					(1099511627775ull)	
 
-#define SBG_MIN_INT_64					(-9223372036854775807ll - 1)
-#define SBG_MAX_INT_64					(9223372036854775807ll)
-#define SBG_HALF_UINT_64				(9223372036854775808ull)
-#define SBG_MAX_UINT_64					(0xFFFFFFFFFFFFFFFFull)
+#define SBG_MIN_INT_48					(-140737488355327ll - 1)
+#define SBG_MAX_INT_48					(140737488355327ll)
+#define SBG_MAX_UINT_48					(281474976710655ull)	
+
+#define SBG_MIN_INT_56					(-36028797018963967ll - 1)
+#define SBG_MAX_INT_56					(36028797018963967ll)
+#define SBG_MAX_UINT_56					(72057594037927935ull)	
 
 //----------------------------------------------------------------------//
-//- Scalar types definitions                                           -//
+//- DEPRECATED: Scalar types definitions                               -//
 //----------------------------------------------------------------------//
 typedef unsigned	char			uint8;		//  8 bits
 typedef unsigned	short			uint16;		// 16 bits
 typedef unsigned	int				uint32;		// 32 bits
-typedef unsigned	int				bool32;		// Boolean that has a fixed size of 32 bits.
 typedef unsigned	long long int	uint64;		// 64 bits
 
 typedef signed		char			int8;		//  8 bits
@@ -64,68 +57,87 @@ typedef signed		short			int16;		// 16 bits
 typedef signed		int				int32;		// 32 bits
 typedef signed		long long int	int64;		// 64 bits
 
+
 //----------------------------------------------------------------------//
 //- Misc types definitions                                             -//
 //----------------------------------------------------------------------//
-typedef uint32						sbgIpAddress;					/*!< Define an IP v4 address stored in 4 bytes. The format is A.B.C.D, each component is 8 bits and stored in Big Endian. */
+typedef uint32_t						sbgIpAddress;					/*!< Define an IP v4 address stored in 4 bytes. The format is A.B.C.D, each component is 8 bits and stored in Big Endian. */
 
 //------------------------------------------------------------------//
 //- Type punning safe conversion unions                            -//
 //------------------------------------------------------------------//
 
 /*!
- * Used to get a uint32 from a uint8 array.
+ * Used to get a uint32_t from a uint8_t array.
  */
 typedef union _Uint8PtrToUint32Ptr
 {
-	uint8	*m_pointerUint8;				/*!< Set the address used to access the uint32. */
-	uint32	*m_pointerUint32;				/*!< Store the unint32 value. */
+	uint8_t		*m_pointerUint8;				/*!< Set the address used to access the uint32_t. */
+	uint32_t	*m_pointerUint32;				/*!< Store the unint32 value. */
 } Uint8PtrToUint32Ptr;
 
 /*!
- * Union used to convert a buffer or 2 unit8 two's complement values to a int16
+ * Union used to convert a buffer or 2 unit8 two's complement values to a int16_t
  */
 typedef union _Uint8ToInt16
 {
-	int16	value;
-	uint8	buffer[2];
+	int16_t		value;
+	uint8_t		buffer[2];
 } Uint8ToInt16;
 
 /*!
- * Union used to convert a buffer or 2 unit8 values to a uint16
+ * Union used to convert a buffer or 2 unit8 values to a uint16_t
  */
 typedef union _Uint8ToUint16
 {
-	uint16	value;
-	uint8	buffer[2];
+	uint16_t	value;
+	uint8_t		buffer[2];
 } Uint8ToUint16;
 
 /*!
- * Union used to convert a buffer or 4 unit8 two's complement values to a int32
+ * Union used to convert a buffer or 4 unit8 two's complement values to a int32_t
  */
 typedef union _Uint8ToInt32
 {
-	int32	value;
-	uint8	buffer[4];
+	int32_t		value;
+	uint8_t		buffer[4];
 } Uint8ToInt32;
 
 /*!
- * Union used to convert a buffer or 4 unit8 values to a uint32
+ * Union used to convert a buffer or 4 unit8 values to a uint32_t
  */
 typedef union _Uint8ToUint32
 {
-	uint32	value;
-	uint8	buffer[4];
+	uint32_t	value;
+	uint8_t		buffer[4];
 } Uint8ToUint32;
+
+/*!
+ * Union used to convert a buffer or 8 unit8 two's complement values to a int64_t
+ */
+typedef union _Uint8ToInt64
+{
+	int64_t		value;
+	uint8_t		buffer[8];
+} Uint8ToInt64;
+
+/*!
+ * Union used to convert a buffer or 8 unit8 values to a uint64_t
+ */
+typedef union _Uint8ToUint64
+{
+	uint64_t	value;
+	uint8_t		buffer[8];
+} Uint8ToUint64;
 
 /*!
  * Union that allows type punning (access to a floating point number bits)
  */
 typedef union _FloatNint
 {
-	float valF;
-	int32 valI;
-	uint32 valU;
+	float		valF;
+	int32_t		valI;
+	uint32_t	valU;
 } FloatNint;
 
 /*!
@@ -133,9 +145,9 @@ typedef union _FloatNint
  */
 typedef union _DoubleNint
 {
-	double valF;
-	uint64 valU;
-	int64 valI;
+	double		valF;
+	uint64_t	valU;
+	int64_t		valI;
 } DoubleNint;
 
 /*!
@@ -143,8 +155,8 @@ typedef union _DoubleNint
  */
 typedef struct _Split64
 {
-	uint32 high;
-	uint32 low;
+	uint32_t	high;
+	uint32_t	low;
 } Split64;
 
 /*!
@@ -152,9 +164,9 @@ typedef struct _Split64
  */
 typedef struct _DateStructure
 {
-	uint16	year;
-	uint8	month;
-	uint8	day;
+	uint16_t	year;
+	uint8_t		month;
+	uint8_t		day;
 } DateStructure;
 
-#endif	/* __SBG_TYPES_H__ */
+#endif	/* SBG_TYPES_H */

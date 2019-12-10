@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogOdometer.h"
+﻿#include "sbgEComBinaryLogOdometer.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseOdometerData(SbgStreamBuffer *pInputStream, SbgLogOdometerData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -40,9 +37,6 @@ SbgErrorCode sbgEComBinaryLogParseOdometerData(SbgStreamBuffer *pInputStream, Sb
  */
 SbgErrorCode sbgEComBinaryLogWriteOdometerData(SbgStreamBuffer *pOutputStream, const SbgLogOdometerData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

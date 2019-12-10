@@ -31,12 +31,12 @@
  */
 typedef enum _SbgEComModulePortAssignment
 {
-	SBG_ECOM_MODULE_PORT_B		= 1,		/*!< Module connected on PORT_B */
-	SBG_ECOM_MODULE_PORT_C		= 2,		/*!< Module connected on PORT_C */
-	SBG_ECOM_MODULE_PORT_D		= 3,		/*!< Module connected on PORT_D */
-	SBG_ECOM_MODULE_PORT_E		= 4,		/*!< Module connected on PORT_E */
-	SBG_ECOM_MODULE_INTERNAL	= 5,		/*!< Module is connected internally */
-	SBG_ECOM_MODULE_DISABLED	= 0xFF		/*!< Module is disabled */
+	SBG_ECOM_MODULE_PORT_B		= 1,		/*!< Module connected on PORT_B. */
+	SBG_ECOM_MODULE_PORT_C		= 2,		/*!< Module connected on PORT_C. */
+	SBG_ECOM_MODULE_PORT_D		= 3,		/*!< Module connected on PORT_D. */
+	SBG_ECOM_MODULE_PORT_E		= 4,		/*!< Module connected on PORT_E. */
+	SBG_ECOM_MODULE_INTERNAL	= 5,		/*!< Module is connected internally. */
+	SBG_ECOM_MODULE_DISABLED	= 0xFF		/*!< Module is disabled. */
 } SbgEComModulePortAssignment;
 
 /*!
@@ -44,14 +44,14 @@ typedef enum _SbgEComModulePortAssignment
  */
 typedef enum _SbgEComModuleSyncAssignment
 {
-	SBG_ECOM_MODULE_SYNC_DISABLED	= 0,		/*!< Module is disabled */
-	SBG_ECOM_MODULE_SYNC_IN_A		= 1,		/*!< Synchronization is done using SYNC_IN_A pin */
-	SBG_ECOM_MODULE_SYNC_IN_B		= 2,		/*!< Synchronization is done using SYNC_IN_B pin */
-	SBG_ECOM_MODULE_SYNC_IN_C		= 3,		/*!< Synchronization is done using SYNC_IN_C pin */
-	SBG_ECOM_MODULE_SYNC_IN_D		= 4,		/*!< Synchronization is done using SYNC_IN_D pin */
-	SBG_ECOM_MODULE_SYNC_INTERNAL	= 5,		/*!< Synchronization is internal */
-	SBG_ECOM_MODULE_SYNC_OUT_A		= 6,		/*!< Synchronization signal is output on SYNC_OUT_A */
-	SBG_ECOM_MODULE_SYNC_OUT_B		= 7,		/*!< Synchronization signal is output on SYNC_OUT_B */
+	SBG_ECOM_MODULE_SYNC_DISABLED	= 0,		/*!< Module is disabled. */
+	SBG_ECOM_MODULE_SYNC_IN_A		= 1,		/*!< Synchronization is done using SYNC_IN_A pin. */
+	SBG_ECOM_MODULE_SYNC_IN_B		= 2,		/*!< Synchronization is done using SYNC_IN_B pin. */
+	SBG_ECOM_MODULE_SYNC_IN_C		= 3,		/*!< Synchronization is done using SYNC_IN_C pin. */
+	SBG_ECOM_MODULE_SYNC_IN_D		= 4,		/*!< Synchronization is done using SYNC_IN_D pin. */
+	SBG_ECOM_MODULE_SYNC_INTERNAL	= 5,		/*!< Synchronization is internal. */
+	SBG_ECOM_MODULE_SYNC_OUT_A		= 6,		/*!< Synchronization signal is output on SYNC_OUT_A. */
+	SBG_ECOM_MODULE_SYNC_OUT_B		= 7,		/*!< Synchronization signal is output on SYNC_OUT_B. */
 } SbgEComModuleSyncAssignment;
 
 /*!
@@ -61,7 +61,8 @@ typedef enum _SbgEComOdometerPinAssignment
 {
 	SBG_ECOM_MODULE_ODO_DISABLED	= 0,		/*!< Odometer is disabled. */
 	SBG_ECOM_MODULE_ODO_A			= 1,		/*!< Odometer connected only to ODO_A (unidirectional).. */
-	SBG_ECOM_MODULE_ODO_A_B			= 2			/*!< Odometer connected to both ODO_A (signal A) and ODO_B (Signal B or direction) for bidirectional odometer.. */
+	SBG_ECOM_MODULE_ODO_A_B			= 2,		/*!< Odometer connected to both ODO_A (signal A) and ODO_B (Signal B or direction) for bidirectional odometer.. */
+	SBG_ECOM_MODULE_ODO_CAN			= 3,		/*!< Vehicle odometer using CAN (OBD-II). */
 } SbgEComOdometerPinAssignment;
 
 /*! 
@@ -75,7 +76,7 @@ typedef enum _SbgEComMotionProfileStdIds
 	SBG_ECOM_MOTION_PROFILE_AIRPLANE			= 4,		/*!< For fixed wings aircraft */
 	SBG_ECOM_MOTION_PROFILE_HELICOPTER			= 5,		/*!< For rotary wing aircraft */
 	SBG_ECOM_MOTION_PROFILE_UAV_ROTARY_WING		= 7,		/*!< For rotary wing UAVs that have low dynamics */
-	SBG_ECOM_MOTION_PROFILE_HEAVY_MACHINERY		= 8			/*!< For vibrating applications with low dynamics and no specific travel direction */
+	SBG_ECOM_MOTION_PROFILE_HEAVY_MACHINERY		= 8,		/*!< For vibrating applications with low dynamics and no specific travel direction */
 } SbgEComMotionProfileStdIds;
 
 //----------------------------------------------------------------------//
@@ -89,7 +90,10 @@ typedef struct _SbgEComAidingAssignConf
 {
 	SbgEComModulePortAssignment		gps1Port;			/*!< GNSS module port assignment. */
 	SbgEComModuleSyncAssignment		gps1Sync;			/*!< GNSS module sync assignment. */
+	SbgEComModulePortAssignment		dvlPort;			/*!< Port on which the DVL is connected */
+	SbgEComModuleSyncAssignment		dvlSync;			/*!< Optional sync signal that could be used to time stamp the DVL data. */
 	SbgEComModulePortAssignment		rtcmPort;			/*!< RTCM input port assignment for IGNG-N DGPS. */
+	SbgEComModulePortAssignment		airDataPort;		/*!< Port on which Air Data aiding is connected. */
 	SbgEComOdometerPinAssignment	odometerPinsConf;	/*!< Odometer module pin assignment. */
 } SbgEComAidingAssignConf;
 
@@ -113,9 +117,9 @@ typedef struct _SbgEComInitConditionConf
 	double				latitude;					/*!< Initial latitude in ° */
 	double				longitude;					/*!< Initial longitude in ° */
 	double				altitude;					/*!< Initial altitude above MSL in meters */
-	uint16				year;						/*!< Initial Year */
-	uint8				month;						/*!< Initial month */
-	uint8				day;						/*!< Initial day */
+	uint16_t				year;						/*!< Initial Year */
+	uint8_t				month;						/*!< Initial month */
+	uint8_t				day;						/*!< Initial day */
 } SbgEComInitConditionConf;
 
 //----------------------------------------------------------------------//
@@ -123,15 +127,17 @@ typedef struct _SbgEComInitConditionConf
 //----------------------------------------------------------------------//
 
 /*!
- *	Set a Motion profile ID
+ *	Set a Motion profile ID.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[id]	id							Motion profile ID to set
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdSensorSetMotionProfileId(SbgEComHandle *pHandle, uint32 id);
+SbgErrorCode sbgEComCmdSensorSetMotionProfileId(SbgEComHandle *pHandle, uint32_t id);
 
 /*!
  *	Retrieve Motion profile information.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[out]	pMotionProfileInfo			Pointer to a SbgEComModelInfo to contain the current motion profile info.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
@@ -139,18 +145,8 @@ SbgErrorCode sbgEComCmdSensorSetMotionProfileId(SbgEComHandle *pHandle, uint32 i
 SbgErrorCode sbgEComCmdSensorGetMotionProfileInfo(SbgEComHandle *pHandle, SbgEComModelInfo *pMotionProfileInfo);
 
 /*!
- *  DEPRECATED FUNCTION. Please use sbgEComCmdSensorSetMotionProfileId instead
- *	Set the motion profile (as a raw buffer) to use by the device.
- *	The new configuration will only be applied after SBG_ECOM_CMD_SETTINGS_ACTION (01) command is issued, with SBG_ECOM_SAVE_SETTINGS parameter.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	pBuffer						Read only buffer containing the motion profile buffer.
- *	\param[in]	size						Size of the buffer.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SBG_DEPRECATED(SbgErrorCode sbgEComCmdSensorSetMotionProfile(SbgEComHandle *pHandle, const void *pBuffer, uint32 size));
-
-/*!
  *	Retrieve the initial conditions settings.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[out]	pConf						Pointer to a SbgEComInitConditionConf to contain the current initial conditions settings.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
@@ -159,6 +155,7 @@ SbgErrorCode sbgEComCmdSensorGetInitCondition(SbgEComHandle *pHandle, SbgEComIni
 
 /*!
  *	Set the initial condition configuration.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[in]	pConf						Pointer to a SbgEComInitConditionConf containing the new initial condition configuration.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
@@ -167,6 +164,7 @@ SbgErrorCode sbgEComCmdSensorSetInitCondition(SbgEComHandle *pHandle, const SbgE
 
 /*!
  *	Retrieve the assignment of the aiding sensors.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[out]	pConf						Pointer to a SbgEComAidingAssignConf to contain the current assignment of the aiding sensors.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
@@ -175,6 +173,7 @@ SbgErrorCode sbgEComCmdSensorGetAidingAssignment(SbgEComHandle *pHandle, SbgECom
 
 /*!
  *	Set the assignment of the aiding sensors.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[out]	pConf						Pointer to a SbgEComAidingAssignConf containing the new assignment of the aiding sensors.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
@@ -183,6 +182,7 @@ SbgErrorCode sbgEComCmdSensorSetAidingAssignment(SbgEComHandle *pHandle, const S
 
 /*!
  *	Retrieve the alignment and lever arm configuration of the sensor.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[out]	pAlignConf					Pointer to a SbgEComSensorAlignmentInfo struct to hold alignment configuration of the sensor.
  *	\param[out] leverArm					Pointer to a table to contain lever arm X, Y, Z components in meters.
@@ -192,6 +192,7 @@ SbgErrorCode sbgEComCmdSensorGetAlignmentAndLeverArm(SbgEComHandle *pHandle, Sbg
 
 /*!
  *	Set the alignment and lever arm configuration of the sensor.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[in]	pAlignConf					Pointer to a SbgEComSensorAlignmentInfo struct holding alignment configuration for the sensor.
  *	\param[in]  leverArm					Pointer to a table containing lever arm X, Y, Z components in meters.

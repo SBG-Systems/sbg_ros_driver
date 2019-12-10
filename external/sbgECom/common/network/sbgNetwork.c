@@ -11,13 +11,13 @@
  * \param[out]	pBuffer						Pointer on an allocated buffer than can hold ip address as a string.
  * \param[in]	maxSize						Maximum number of chars that can be stored in pBuffer including the NULL char.
  */
-void sbgNetworkIpToString(sbgIpAddress ipAddr, char *pBuffer, size_t maxSize)
+SBG_COMMON_LIB_API void sbgNetworkIpToString(sbgIpAddress ipAddr, char *pBuffer, size_t maxSize)
 {
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pBuffer);
-	SBG_ASSERT(maxSize >= 16);
+	assert(pBuffer);
+	assert(maxSize >= 16);
 
 	SBG_UNUSED_PARAMETER(maxSize);
 
@@ -32,18 +32,18 @@ void sbgNetworkIpToString(sbgIpAddress ipAddr, char *pBuffer, size_t maxSize)
  * \param[in]	pBuffer						IP address as a string of the form A.B.C.D
  * \return									IP address parsed from the string or 0.0.0.0 if the IP is invalid.
  */
-sbgIpAddress sbgNetworkIpFromString(const char *pBuffer)
+SBG_COMMON_LIB_API sbgIpAddress sbgNetworkIpFromString(const char *pBuffer)
 {
-	int32	ipAddrA;
-	int32	ipAddrB;
-	int32	ipAddrC;
-	int32	ipAddrD;
-	int32	numReadParams;
+	int32_t	ipAddrA;
+	int32_t	ipAddrB;
+	int32_t	ipAddrC;
+	int32_t	ipAddrD;
+	int32_t	numReadParams;
 
 	//
 	// Check input arguments
 	//
-	SBG_ASSERT(pBuffer);
+	assert(pBuffer);
 
 	//
 	// Parse input arguments
@@ -58,7 +58,7 @@ sbgIpAddress sbgNetworkIpFromString(const char *pBuffer)
 		//
 		// Ip address correctly parsed, return it
 		//
-		return sbgIpAddr((uint8)ipAddrA, (uint8)ipAddrB, (uint8)ipAddrC, (uint8)ipAddrD);
+		return sbgIpAddr((uint8_t)ipAddrA, (uint8_t)ipAddrB, (uint8_t)ipAddrC, (uint8_t)ipAddrD);
 	}
 	else
 	{
@@ -75,13 +75,13 @@ sbgIpAddress sbgNetworkIpFromString(const char *pBuffer)
 
 /*!
 * Check if an IpV4 netmask is valid, the mask should be contiguous (1111 followed by 0)
-* \param[in]	netmask							The netmask stored in an uint32 (host endianness).
+* \param[in]	netmask							The netmask stored in an uint32_t (host endianness).
 * \return										true if the netmask is valid ie contiguous.
 */
-bool sbgIpNetMaskValid(sbgIpAddress netmask)
+SBG_COMMON_LIB_API bool sbgIpNetMaskValid(sbgIpAddress netmask)
 {
-	uint32	y;
-	uint32	z;
+	uint32_t	y;
+	uint32_t	z;
 
 	//
 	// First test that the netmask is not zero, if yes, it's valid

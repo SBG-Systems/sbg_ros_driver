@@ -57,8 +57,8 @@ typedef enum _SbgEComAxisDirection
  */
 typedef struct _SbgEComModelInfo
 {
-	uint32	id;									/*!< Identifier of the model */
-	uint32	revision;							/*!< Revision of the model */
+	uint32_t	id;									/*!< Identifier of the model */
+	uint32_t	revision;							/*!< Revision of the model */
 } SbgEComModelInfo;
 
 //----------------------------------------------------------------------//
@@ -82,7 +82,7 @@ typedef struct _SbgEComModelInfo
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  *										SBG_TIME_OUT if the command hasn't been received withint the specified time out.
  */
-SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize, uint32 timeOut);
+SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8_t *pMsgClass, uint8_t *pMsg, void *pData, size_t *pSize, size_t maxSize, uint32_t timeOut);
 
 /*!
  *	Wait for a specific command to be received given a time out.
@@ -101,7 +101,7 @@ SbgErrorCode sbgEComReceiveAnyCmd(SbgEComHandle *pHandle, uint8 *pMsgClass, uint
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  *										SBG_TIME_OUT if the command hasn't been received withint the specified time out.
  */
-SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pData, size_t *pSize, size_t maxSize, uint32 timeOut);
+SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, void *pData, size_t *pSize, size_t maxSize, uint32_t timeOut);
 
 //----------------------------------------------------------------------//
 //- ACK related commands  operations                                   -//
@@ -109,46 +109,61 @@ SbgErrorCode sbgEComReceiveCmd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg
 
 /*!
  * Wait for an ACK for a specified amount of time.
+ *
  * \param[in]	pHandle						A valid sbgECom handle.
  * \param[in]	msgClass					The message class that we want to check
  * \param[in]	msg							The message ID that we want to check
  * \param[in]	timeOut						Time out in ms during which we can receive the ACK.
  * \return									SBG_NO_ERROR if the ACK has been received.
  */
-SbgErrorCode sbgEComWaitForAck(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, uint32 timeOut);
+SbgErrorCode sbgEComWaitForAck(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, uint32_t timeOut);
 
 /*!
  * Send an ACK for a specific command with an associated error code.
+ *
  * \param[in]	pHandle						A valid sbgECom handle.
  * \param[in]	msgClass					The message class that we want to send
  * \param[in]	msg							The message ID that we want to send.
  * \param[in]	cmdError					The associated error code.
  * \return									SBG_NO_ERROR if the ACK has been sent.
  */
-SbgErrorCode sbgEComSendAck(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, SbgErrorCode cmdError);
+SbgErrorCode sbgEComSendAck(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, SbgErrorCode cmdError);
 
 //----------------------------------------------------------------------//
 //- Generic command definitions                                        -//
 //----------------------------------------------------------------------//
 
 /*!
- *	Generic function to set an error model ID
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	msgClass					Original message class
-*	\param[in]	msg							Original message ID
- *	\param[out]	modelId						Model ID to use
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
+ * Generic function to set an error model ID
+ *
+ * \param[in]	pHandle						A valid sbgECom handle.
+ * \param[in]	msgClass					Original message class
+ * \param[in]	msg							Original message ID
+ * \param[in]	modelId						Model ID to set
+ * \return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGenericSetModelId(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, uint32 modelId);
+SbgErrorCode sbgEComCmdGenericSetModelId(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, uint32_t modelId);
 
 /*!
- *	Generic function to retrieve error model information.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	msgClass					Original message class
-*	\param[in]	msg							Original message ID
- *	\param[out]	pMotionProfileInfo			Pointer to a SbgEComModelInfo to contain model info.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
+ * Generic function to get an error model ID
+ *
+ * \param[in]	pHandle						A valid sbgECom handle.
+ * \param[in]	msgClass					Original message class
+ * \param[in]	msg							Original message ID
+ * \param[out]	pModelId					Returns the currently used model ID.
+ * \return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdGenericGetModelInfo(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, SbgEComModelInfo *pModelInfo);
+SbgErrorCode sbgEComCmdGenericGetModelId(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, uint32_t *pModelId);
+
+/*!
+ * Generic function to retrieve error model information.
+ *
+ * \param[in]	pHandle						A valid sbgECom handle.
+ * \param[in]	msgClass					Original message class
+ * \param[in]	msg							Original message ID
+ * \param[out]	pMotionProfileInfo			Pointer to a SbgEComModelInfo to contain model info.
+ * \return									SBG_NO_ERROR if the command has been executed successfully.
+ */
+SbgErrorCode sbgEComCmdGenericGetModelInfo(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, SbgEComModelInfo *pModelInfo);
 
 #endif

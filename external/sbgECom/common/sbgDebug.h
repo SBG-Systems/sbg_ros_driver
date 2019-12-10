@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgDebug.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		17 March 2015
@@ -20,10 +20,15 @@
  *	IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
  *	PARTICULAR PURPOSE.
  */
-#ifndef __SBG_DEBUG_H__
-#define __SBG_DEBUG_H__
+#ifndef SBG_DEBUG_H
+#define SBG_DEBUG_H
 
-#include "platform/sbgConfig.h"
+// Local headers
+#include "sbgDefines.h"
+
+#ifndef SBG_DEBUG_LOG_CATEGORY
+	#define SBG_DEBUG_LOG_CATEGORY		("None")
+#endif
 
 //----------------------------------------------------------------------//
 //- Errors and warning definitions                                     -//
@@ -37,7 +42,7 @@ typedef enum _SbgDebugLogType
 	SBG_DEBUG_LOG_TYPE_ERROR,					/*!< The message to log is an error. */
 	SBG_DEBUG_LOG_TYPE_WARNING,					/*!< The message to log is a warning. */
 	SBG_DEBUG_LOG_TYPE_INFO,					/*!< The message to log is an information. */
-	SBG_DEBUG_LOG_TYPE_VERBOSE					/*!< The message to log is a verbose information. */
+	SBG_DEBUG_LOG_TYPE_DEBUG					/*!< The message to log is a debug information. */
 } SbgDebugLogType;
 
 //----------------------------------------------------------------------//
@@ -45,24 +50,16 @@ typedef enum _SbgDebugLogType
 //----------------------------------------------------------------------//
 
 /*!
- *	Run time assert that is raised if the expression is false.
- *	\param[in]	expression						The boolean expression to test, the execution is interrupted if the expression is evaluated as false.
- */
-#if SBG_CONFIG_ENABLE_ASSERT == SBG_ENABLE
-	#define SBG_ASSERT(expression)				SBG_PLATFORM_ASSERT(expression)
-#else
-	#define SBG_ASSERT(expression)				((void)(expression))
-#endif
-
-/*!
  *	Log an error with its associated message.
  *	\param[in]	errorCode						The error code that has thrown this error.
  *	\param[in]	format							String litteral for the associated error message (you can use printf like string formating).
  */
-#if SBG_CONFIG_ENABLE_LOG_ERROR == SBG_ENABLE
-	#define SBG_LOG_ERROR(errorCode, format, ...)		sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_TYPE_ERROR, errorCode, format, ##__VA_ARGS__)
+#define SBG_LOG_ERROR_CALL(errorCode, format, ...)		sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_CATEGORY, SBG_DEBUG_LOG_TYPE_ERROR, errorCode, format, ##__VA_ARGS__)
+
+#if SBG_CONFIG_ENABLE_LOG_ERROR == 1
+	#define	SBG_LOG_ERROR								SBG_LOG_ERROR_CALL
 #else
-	#define SBG_LOG_ERROR(errorCode, format, ...)		((void)0)
+	#define SBG_LOG_ERROR(format, ...)					((void)sizeof(SBG_LOG_ERROR_CALL(format, ## __VA_ARGS__)))
 #endif
 
 /*!
@@ -70,29 +67,72 @@ typedef enum _SbgDebugLogType
  *	\param[in]	errorCode						The error code that has thrown this warning.
  *	\param[in]	format							String litteral for the associated warning message (you can use printf like string formating).
  */
-#if SBG_CONFIG_ENABLE_LOG_WARNING == SBG_ENABLE
-	#define SBG_LOG_WARNING(errorCode, format, ...)		sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_TYPE_WARNING, errorCode, format, ##__VA_ARGS__)
+#define SBG_LOG_WARNING_CALL(errorCode, format, ...)	sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_CATEGORY, SBG_DEBUG_LOG_TYPE_WARNING, errorCode, format, ##__VA_ARGS__)
+
+#if SBG_CONFIG_ENABLE_LOG_WARNING == 1
+	#define	SBG_LOG_WARNING								SBG_LOG_WARNING_CALL
 #else
-	#define SBG_LOG_WARNING(errorCode, format, ...)		((void)0)
+	#define SBG_LOG_WARNING(format, ...)				((void)sizeof(SBG_LOG_WARNING_CALL(format, ## __VA_ARGS__)))
 #endif
 
 /*!
  *	Log an information message.
  *	\param[in]	format							String litteral for the information message (you can use printf like string formating).
  */
-#if SBG_CONFIG_ENABLE_LOG_INFO == SBG_ENABLE
-	#define SBG_LOG_INFO(format, ...)					sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_TYPE_INFO, SBG_NO_ERROR, format, ##__VA_ARGS__)
+#define SBG_LOG_INFO_CALL(format, ...)					sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_CATEGORY, SBG_DEBUG_LOG_TYPE_INFO, SBG_NO_ERROR, format, ##__VA_ARGS__)
+
+#if SBG_CONFIG_ENABLE_LOG_INFO == 1
+	#define	SBG_LOG_INFO								SBG_LOG_INFO_CALL
 #else
-	#define SBG_LOG_INFO(format, ...)					((void)0)
-#endif
-/*!
- *	Log an information message only in verbose mode
- *	\param[in]	format							String litteral for the information message (you can use printf like string formating).
- */
-#if SBG_CONFIG_ENABLE_LOG_VERBOSE == SBG_ENABLE
-	#define SBG_LOG_VERBOSE(format, ...)				sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_TYPE_VERBOSE, SBG_NO_ERROR, format, ##__VA_ARGS__)
-#else
-	#define SBG_LOG_VERBOSE(format, ...)				((void)0)
+	#define SBG_LOG_INFO(format, ...)					((void)sizeof(SBG_LOG_INFO_CALL(format, ## __VA_ARGS__)))
 #endif
 
-#endif	/* __SBG_DEBUG_H__ */
+/*!
+ *	Log an information message only in debug mode
+ *	\param[in]	format							String litteral for the information message (you can use printf like string formating).
+ */
+#define SBG_LOG_DEBUG_CALL(format, ...)					sbgPlatformDebugLogMsg((const char*)__BASE_FILE__, (const char*)__FUNCTION__, __LINE__, SBG_DEBUG_LOG_CATEGORY, SBG_DEBUG_LOG_TYPE_DEBUG, SBG_NO_ERROR, format, ##__VA_ARGS__)
+
+#if SBG_CONFIG_ENABLE_LOG_DEBUG == 1
+	#define	SBG_LOG_DEBUG								SBG_LOG_DEBUG_CALL
+#else
+	#define SBG_LOG_DEBUG(format, ...)					((void)sizeof(SBG_LOG_DEBUG_CALL(format, ## __VA_ARGS__)))
+#endif
+
+//----------------------------------------------------------------------//
+//- Inline functions                                                   -//
+//----------------------------------------------------------------------//
+
+/*!
+ * Convert a log type into a string representation.
+ *
+ * \param[in]	logType						Log type.
+ * \return									String representation for the given log type.
+ */
+SBG_INLINE const char *sbgDebugLogTypeToStr(SbgDebugLogType logType)
+{
+	const char				*pString;
+
+	switch (logType)
+	{
+	case SBG_DEBUG_LOG_TYPE_ERROR:
+		pString = "error";
+		break;
+	case SBG_DEBUG_LOG_TYPE_WARNING:
+		pString = "warning";
+		break;
+	case SBG_DEBUG_LOG_TYPE_INFO:
+		pString = "info";
+		break;
+	case SBG_DEBUG_LOG_TYPE_DEBUG:
+		pString = "debug";
+		break;
+	default:
+		pString = "unknown";
+		break;
+	}
+
+	return pString;
+}
+
+#endif	/* SBG_DEBUG_H */

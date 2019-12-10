@@ -103,7 +103,7 @@ typedef enum _SbgEComOutputMonitoringPoint
  */
 typedef struct _SbgEComLegacyConf
 {
-	uint32					mask;		/*!< Legacy output bit mask. */
+	uint32_t					mask;		/*!< Legacy output bit mask. */
 	SbgEComLegacyFormat		format;		/*!< Format of the output. */
 	SbgEComLegacyEndian		endian;		/*!< Endianness of the output. */
 	SbgEComOutputMode		mode;		/*!< Mode of output. */
@@ -164,7 +164,7 @@ SbgErrorCode sbgEComCmdOutputClassSetEnable(SbgEComHandle *pHandle, SbgEComOutpu
  *	\param[out]	pExtended					TRUE if the user id uses the extended format.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdCanOutputGetConf(SbgEComHandle *pHandle, SbgECanMessageId internalId, SbgEComOutputMode *pMode, uint32 *pUserId, bool *pExtended);
+SbgErrorCode sbgEComCmdCanOutputGetConf(SbgEComHandle *pHandle, SbgECanMessageId internalId, SbgEComOutputMode *pMode, uint32_t *pUserId, bool *pExtended);
 
 /*!
  *	Set the configuration of one the message on the CAN interface
@@ -175,7 +175,7 @@ SbgErrorCode sbgEComCmdCanOutputGetConf(SbgEComHandle *pHandle, SbgECanMessageId
  *	\param[in]	extended					TRUE if the user id uses the extended format.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdCanOutputSetConf(SbgEComHandle *pHandle, SbgECanMessageId internalId, SbgEComOutputMode mode, uint32 userId, bool extended);
+SbgErrorCode sbgEComCmdCanOutputSetConf(SbgEComHandle *pHandle, SbgECanMessageId internalId, SbgEComOutputMode mode, uint32_t userId, bool extended);
 
 /*!
  *	Retrieve the configuration of one the message on one of the output interfaces.

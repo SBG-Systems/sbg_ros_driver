@@ -1,4 +1,4 @@
-#include "sbgEComProtocol.h"
+﻿#include "sbgEComProtocol.h"
 #include <crc/sbgCrc.h>
 
 //----------------------------------------------------------------------//
@@ -15,9 +15,6 @@ SbgErrorCode sbgEComProtocolInit(SbgEComProtocol *pHandle, SbgInterface *pInterf
 {
 	SbgErrorCode	errorCode = SBG_NO_ERROR;
 	
-	//
-	// Check input parameters
-	//
 	assert(pHandle);
 	assert(pInterface);
 		
@@ -37,9 +34,6 @@ SbgErrorCode sbgEComProtocolInit(SbgEComProtocol *pHandle, SbgInterface *pInterf
  */
 SbgErrorCode sbgEComProtocolClose(SbgEComProtocol *pHandle)
 {
-	//
-	// Check input arguments
-	//
 	assert(pHandle);
 
 	//
@@ -63,16 +57,13 @@ SbgErrorCode sbgEComProtocolClose(SbgEComProtocol *pHandle)
  * \param[in]	size					Size in bytes of the data payload (less than 4086).
  * \return								SBG_NO_ERROR if the frame has been sent.
  */
-SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, size_t size)
+SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8_t msgClass, uint8_t msg, const void *pData, size_t size)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		outputStream;
-	uint16				frameCrc;
+	uint16_t			frameCrc;
 
-	//
-	// Check input arguments
-	//
 	assert(pHandle);
 
 	if ( (size <= SBG_ECOM_MAX_PAYLOAD_SIZE) && ( ((size > 0) && (pData)) || (size == 0) ) )
@@ -97,7 +88,7 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
 		//
 		// Write the length field
 		//
-		sbgStreamBufferWriteUint16LE(&outputStream, (uint16)size);
+		sbgStreamBufferWriteUint16LE(&outputStream, (uint16_t)size);
 
 		//
 		// Write the payload part
@@ -107,7 +98,7 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
 		//
 		// Compute the CRC, we skip the two sync chars
 		//
-		frameCrc = sbgCrc16Compute(((uint8*)sbgStreamBufferGetLinkedBuffer(&outputStream)) + 2, sbgStreamBufferGetLength(&outputStream) - 2);
+		frameCrc = sbgCrc16Compute(((uint8_t*)sbgStreamBufferGetLinkedBuffer(&outputStream)) + 2, sbgStreamBufferGetLength(&outputStream) - 2);
 
 		//
 		// Write the CRC
@@ -149,23 +140,20 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
  *										SBG_NULL_POINTER if an input parameter is NULL.<br>
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  */
-SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize)
+SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8_t *pMsgClass, uint8_t *pMsg, void *pData, size_t *pSize, size_t maxSize)
 {
 	SbgErrorCode		errorCode = SBG_NOT_READY;
 	SbgStreamBuffer		inputStream;
 	bool				syncFound;
 	size_t				payloadSize = 0;
-	uint16				frameCrc;
-	uint16				computedCrc;
+	uint16_t			frameCrc;
+	uint16_t			computedCrc;
 	size_t				i;
 	size_t				numBytesRead;
-	uint8				receivedMsgClass;
-	uint8				receivedMsg;
+	uint8_t				receivedMsgClass;
+	uint8_t				receivedMsg;
 	size_t				payloadOffset;
 
-	//
-	// Check input arguments
-	//
 	assert(pHandle);
 	
 	// 
@@ -264,7 +252,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
 			//
 			// Skip both the Sync 1 and Sync 2 chars
 			//
-			sbgStreamBufferSeek(&inputStream, sizeof(uint8)*2, SB_SEEK_CUR_INC);
+			sbgStreamBufferSeek(&inputStream, sizeof(uint8_t)*2, SB_SEEK_CUR_INC);
 
 			//
 			// Read the command
@@ -275,7 +263,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
 			//
 			// Read the payload size
 			//
-			payloadSize = (uint16)sbgStreamBufferReadUint16LE(&inputStream);
+			payloadSize = (uint16_t)sbgStreamBufferReadUint16LE(&inputStream);
 
 			//
 			// Check that the payload size is valid
@@ -329,7 +317,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
 					//
 					// Compute the CRC of the received frame (Skip SYNC 1 and SYNC 2 chars)
 					//
-					computedCrc = sbgCrc16Compute(((uint8*)sbgStreamBufferGetLinkedBuffer(&inputStream)) + 2, payloadSize + 4);
+					computedCrc = sbgCrc16Compute(((uint8_t*)sbgStreamBufferGetLinkedBuffer(&inputStream)) + 2, payloadSize + 4);
 						
 					//
 					// Check if the received frame has a valid CRC
@@ -470,11 +458,8 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
  *										This value should be passed to sbgEComFinalizeFrameGeneration for correct operations.
  * \return								SBG_NO_ERROR in case of good operation.
  */
-SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 msgClass, uint8 msg, size_t *pStreamCursor)
+SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8_t msgClass, uint8_t msg, size_t *pStreamCursor)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pStreamCursor);
 
@@ -498,7 +483,7 @@ SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 m
 	//
 	// For now, we don't know the payload size so skip it
 	//
-	return sbgStreamBufferSeek(pOutputStream, sizeof(uint16), SB_SEEK_CUR_INC);
+	return sbgStreamBufferSeek(pOutputStream, sizeof(uint16_t), SB_SEEK_CUR_INC);
 }
 
 /*!
@@ -516,11 +501,8 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream, size
 	SbgErrorCode	errorCode;
 	size_t			payloadSize;	
 	size_t			currentPos;
-	uint16			frameCrc;
+	uint16_t			frameCrc;
 
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 
 	//
@@ -556,7 +538,7 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream, size
 			//
 			// Write the payload size
 			//
-			sbgStreamBufferWriteUint16LE(pOutputStream, (uint16)payloadSize);
+			sbgStreamBufferWriteUint16LE(pOutputStream, (uint16_t)payloadSize);
 
 			//
 			// Go back to the previous position
@@ -566,7 +548,7 @@ SbgErrorCode sbgEComFinalizeFrameGeneration(SbgStreamBuffer *pOutputStream, size
 			//
 			// Compute the 16 bits CRC on the whole frame except Sync 1 and Sync 2
 			//
-			frameCrc = sbgCrc16Compute((uint8*)sbgStreamBufferGetLinkedBuffer(pOutputStream) + streamCursor + 2, payloadSize + 4);
+			frameCrc = sbgCrc16Compute((uint8_t*)sbgStreamBufferGetLinkedBuffer(pOutputStream) + streamCursor + 2, payloadSize + 4);
 
 			//
 			// Append the CRC

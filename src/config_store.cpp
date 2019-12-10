@@ -98,12 +98,14 @@ void ConfigStore::loadGnssParameters(const ros::NodeHandle& ref_node_handle)
 {
   m_gnss_model_info_.id = getParameter<uint32_t>(ref_node_handle, "gnss/gnss_model_id", SBG_ECOM_GNSS_MODEL_NMEA);
 
-  ref_node_handle.param<float>("gnss/leverArmX", m_gnss_alignement_info_.leverArmX, 0.0f);
-  ref_node_handle.param<float>("gnss/leverArmY", m_gnss_alignement_info_.leverArmY, 0.0f);
-  ref_node_handle.param<float>("gnss/leverArmZ", m_gnss_alignement_info_.leverArmZ, 0.0f);
-  ref_node_handle.param<float>("gnss/pitchOffset", m_gnss_alignement_info_.pitchOffset, 0.0f);
-  ref_node_handle.param<float>("gnss/yawOffset", m_gnss_alignement_info_.yawOffset, 0.0f);
-  ref_node_handle.param<float>("gnss/antennaDistance", m_gnss_alignement_info_.antennaDistance, 0.0f);
+  ref_node_handle.param<float>("gnss/primaryLeverArmX", m_gnss_installation_.leverArmPrimary[0], 0.0f);
+  ref_node_handle.param<float>("gnss/primaryLeverArmY", m_gnss_installation_.leverArmPrimary[1], 0.0f);
+  ref_node_handle.param<float>("gnss/primaryLeverArmZ", m_gnss_installation_.leverArmPrimary[2], 0.0f);
+  ref_node_handle.param<bool>("gnss/primaryLeverPrecise", m_gnss_installation_.leverArmPrimaryPrecise, true);
+  ref_node_handle.param<float>("gnss/secondaryLeverArmX", m_gnss_installation_.leverArmSecondary[0], 0.0f);
+  ref_node_handle.param<float>("gnss/secondaryLeverArmY", m_gnss_installation_.leverArmSecondary[1], 0.0f);
+  ref_node_handle.param<float>("gnss/secondaryLeverArmZ", m_gnss_installation_.leverArmSecondary[2], 0.0f);
+  m_gnss_installation_.leverArmSecondaryMode = getParameter<SbgEComGnssInstallationMode>(ref_node_handle, "gnss/secondaryLeverMode", SBG_ECOM_GNSS_INSTALLATION_MODE_SINGLE);
 
   m_gnss_rejection_conf_.position = getParameter<SbgEComRejectionMode>(ref_node_handle, "gnss/posRejectMode", SBG_ECOM_AUTOMATIC_MODE);
   m_gnss_rejection_conf_.velocity = getParameter<SbgEComRejectionMode>(ref_node_handle, "gnss/velRejectMode", SBG_ECOM_AUTOMATIC_MODE);
@@ -232,9 +234,9 @@ const SbgEComModelInfo &ConfigStore::getGnssModel(void) const
   return m_gnss_model_info_;
 }
 
-const SbgEComGnssAlignmentInfo &ConfigStore::getGnssAlignement(void) const
+const SbgEComGnssInstallation &ConfigStore::getGnssInstallation(void) const
 {
-  return m_gnss_alignement_info_;
+  return m_gnss_installation_;
 }
 
 const SbgEComGnssRejectionConf &ConfigStore::getGnssRejection(void) const
@@ -305,7 +307,6 @@ void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
   loadOutputConfiguration(ref_node_handle, "output/log_event_c", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_C);
   loadOutputConfiguration(ref_node_handle, "output/log_event_d", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_D);
   loadOutputConfiguration(ref_node_handle, "output/log_event_e", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_E);
-  loadOutputConfiguration(ref_node_handle, "output/log_pressure", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_PRESSURE);
 
   ref_node_handle.param<bool>("output/ros_standard", m_ros_standard_output_, false);
   m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "output/frequency", 0);

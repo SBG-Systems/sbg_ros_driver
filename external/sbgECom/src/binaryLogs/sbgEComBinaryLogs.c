@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogs.h"
+﻿#include "sbgEComBinaryLogs.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 
 //----------------------------------------------------------------------//
@@ -18,9 +18,6 @@ SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, cons
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		inputStream;
 
-	//
-	// Check input parameters
-	//
 	assert(pPayload);
 	assert(payloadSize > 0);
 	assert(pOutputData);
@@ -96,17 +93,22 @@ SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, cons
 		case SBG_ECOM_LOG_DVL_WATER_TRACK:
 			errorCode = sbgEComBinaryLogParseDvlData(&inputStream, &pOutputData->dvlData);
 			break;
-		case SBG_ECOM_LOG_PRESSURE:
-			errorCode = sbgEComBinaryLogParsePressureData(&inputStream, &pOutputData->pressureData);
+		case SBG_ECOM_LOG_AIR_DATA:
+			errorCode = sbgEComBinaryLogParseAirData(&inputStream, &pOutputData->airData);
 			break;
 		case SBG_ECOM_LOG_USBL:
 			errorCode = sbgEComBinaryLogParseUsblData(&inputStream, &pOutputData->usblData);
+			break;
+		case SBG_ECOM_LOG_DEPTH:
+			errorCode = sbgEComBinaryLogParseDepth(&inputStream, &pOutputData->depthData);
 			break;
 		case SBG_ECOM_LOG_EVENT_A:
 		case SBG_ECOM_LOG_EVENT_B:
 		case SBG_ECOM_LOG_EVENT_C:
 		case SBG_ECOM_LOG_EVENT_D:
 		case SBG_ECOM_LOG_EVENT_E:
+		case SBG_ECOM_LOG_EVENT_OUT_A:
+		case SBG_ECOM_LOG_EVENT_OUT_B:
 			errorCode = sbgEComBinaryLogParseEvent(&inputStream, &pOutputData->eventMarker);
 			break;
 		case SBG_ECOM_LOG_DEBUG_0:
@@ -117,6 +119,9 @@ SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, cons
 			break;
 		case SBG_ECOM_LOG_IMU_RAW_DATA:
 			errorCode = sbgEComBinaryLogParseImuRawData(&inputStream, &pOutputData->imuRawData);
+			break;
+		case SBG_ECOM_LOG_DIAG:
+			errorCode = sbgEComBinaryLogParseDiagData(&inputStream, &pOutputData->diagData);
 			break;
 		default:
 			//
@@ -153,10 +158,10 @@ SbgErrorCode sbgEComBinaryLogParse(SbgEComClass msgClass, SbgEComMsgId msg, cons
 	else
 	{
 		//
-		// Unhandled message class
+		// Un-handled message class
 		//
 		errorCode = SBG_ERROR;
 	}
-	
+
 	return errorCode;
 }

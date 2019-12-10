@@ -38,14 +38,14 @@
  */
 typedef struct _SbgEComDeviceInfo
 {
-	uint8	productCode[SBG_ECOM_INFO_PRODUCT_CODE_LENGTH];	/*!< Human readable Product Code. */
-	uint32	serialNumber;									/*!< Device serial number */
-	uint32	calibationRev;									/*!< Calibration data revision */
-	uint16	calibrationYear;								/*!< Device Calibration Year */
-	uint8	calibrationMonth;								/*!< Device Calibration Month */
-	uint8	calibrationDay;									/*!< Device Calibration Day */
-	uint32	hardwareRev;									/*!< Device hardware revision */
-	uint32	firmwareRev;									/*!< Firmware revision */
+	uint8_t	productCode[SBG_ECOM_INFO_PRODUCT_CODE_LENGTH];	/*!< Human readable Product Code. */
+	uint32_t	serialNumber;									/*!< Device serial number */
+	uint32_t	calibationRev;									/*!< Calibration data revision */
+	uint16_t	calibrationYear;								/*!< Device Calibration Year */
+	uint8_t	calibrationMonth;								/*!< Device Calibration Month */
+	uint8_t	calibrationDay;									/*!< Device Calibration Day */
+	uint32_t	hardwareRev;									/*!< Device hardware revision */
+	uint32_t	firmwareRev;									/*!< Firmware revision */
 } SbgEComDeviceInfo;
 
 //----------------------------------------------------------------------//

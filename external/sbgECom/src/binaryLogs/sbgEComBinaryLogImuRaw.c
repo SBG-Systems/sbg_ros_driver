@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogImuRaw.h"
+﻿#include "sbgEComBinaryLogImuRaw.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseImuRawData(SbgStreamBuffer *pInputStream, SbgLogImuRawData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -70,9 +67,6 @@ SbgErrorCode sbgEComBinaryLogParseImuRawData(SbgStreamBuffer *pInputStream, SbgL
  */
 SbgErrorCode sbgEComBinaryLogWriteImuRawData(SbgStreamBuffer *pOutputStream, const SbgLogImuRawData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

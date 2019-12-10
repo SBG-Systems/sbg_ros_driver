@@ -1,4 +1,4 @@
-#include "sbgEComCmdMag.h"
+﻿#include "sbgEComCmdMag.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 #include "transfer/sbgEComTransfer.h"
 
@@ -12,7 +12,7 @@
  *	\param[in]	id							Magnetometer model ID to set
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdMagSetModelId(SbgEComHandle *pHandle, uint32 id)
+SbgErrorCode sbgEComCmdMagSetModelId(SbgEComHandle *pHandle, uint32_t id)
 {
 	//
 	// Call generic function with specific command name
@@ -35,23 +35,6 @@ SbgErrorCode sbgEComCmdMagGetModelInfo(SbgEComHandle *pHandle, SbgEComModelInfo 
 }
 
 /*!
- *  DEPRECATED FUNCTION. Please use sbgEComCmdMagSetModelId instead
- *	Set the error model for the magnetometer.
- *	The new configuration will only be applied after SBG_ECOM_CMD_SETTINGS_ACTION (01) command is issued, with SBG_ECOM_SAVE_SETTINGS parameter.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	pBuffer						Read only buffer containing the error model buffer.
- *	\param[in]	size						Size of the buffer.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SbgErrorCode sbgEComCmdMagSetModel(SbgEComHandle *pHandle, const void *pBuffer, uint32 size)
-{
-	//
-	// Call function that handle data transfer
-	//
-	return sbgEComTransferSend(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_SET_MODEL, pBuffer, size);
-}
-
-/*!
  *	Send a command that set the magnetometers calibration parameters.
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[in]	offset						Magnetometers calibration offset vector.
@@ -62,110 +45,38 @@ SbgErrorCode sbgEComCmdMagSetCalibData(SbgEComHandle *pHandle, const float offse
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outputStream;
-	uint8				payload[12*sizeof(float)];
-	uint32				trial;
-	uint32				i;
+	uint8_t				payload[12*sizeof(float)];
+	uint32_t			trial;
+	uint32_t			i;
+
+	assert(pHandle);
+	assert(offset);
+	assert(matrix);
 
 	//
-	// Test that the protocol handle is valid
+	// Initialize a stream buffer to write the command payload
 	//
-	if (pHandle)
+	errorCode = sbgStreamBufferInitForWrite(&outputStream, payload, sizeof(payload));
+
+	//
+	// Write the offset vector
+	//
+	sbgStreamBufferWriteFloatLE(&outputStream, offset[0]);
+	sbgStreamBufferWriteFloatLE(&outputStream, offset[1]);
+	sbgStreamBufferWriteFloatLE(&outputStream, offset[2]);
+
+	//
+	// Write the matrix
+	//
+	for (i = 0; i < 9; i++)
 	{
-		//
-		// Initialize a stream buffer to write the command payload
-		//
-		errorCode = sbgStreamBufferInitForWrite(&outputStream, payload, sizeof(payload));
-
-		//
-		// Write the offset vector
-		//
-		sbgStreamBufferWriteFloatLE(&outputStream, offset[0]);
-		sbgStreamBufferWriteFloatLE(&outputStream, offset[1]);
-		sbgStreamBufferWriteFloatLE(&outputStream, offset[2]);
-
-		//
-		// Write the matrix
-		//
-		for (i = 0; i < 9; i++)
-		{
-			sbgStreamBufferWriteFloatLE(&outputStream, matrix[i]);
-		}
-
-		//
-		// Make sure that the stream buffer has been initialized
-		//
-		if (errorCode == SBG_NO_ERROR)
-		{
-			//
-			// Send the command three times
-			//
-			for (trial = 0; trial < pHandle->numTrials; trial++)
-			{
-				//
-				// Send the command
-				//
-				errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SET_MAG_CALIB, payload, sbgStreamBufferGetLength(&outputStream));
-
-				//
-				// Make sure that the command has been sent
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// Try to read the device answer for 500 ms
-					//
-					errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SET_MAG_CALIB, pHandle->cmdDefaultTimeOut);
-
-					//
-					// Test if we have received a valid ACK
-					//
-					if (errorCode == SBG_NO_ERROR)
-					{
-						//
-						// The command has been executed successfully so return
-						//
-						break;
-					}
-				}
-				else
-				{
-					//
-					// We have a write error so exit the try loop
-					//
-					break;
-				}
-			}
-		}
-	}
-	else
-	{
-		//
-		// Invalid protocol handle.
-		//
-		errorCode = SBG_NULL_POINTER;
+		sbgStreamBufferWriteFloatLE(&outputStream, matrix[i]);
 	}
 
-	return errorCode;
-}
-
-/*!
- *	Retrieve the rejection configuration of the magnetometer module.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[out]	pRejectConf					Pointer to a SbgEComMagRejectionConf struct to hold rejection configuration of the magnetometer module.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SbgErrorCode sbgEComCmdMagGetRejection(SbgEComHandle *pHandle, SbgEComMagRejectionConf *pRejectConf)
-{
-	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
-	SbgStreamBuffer		inputStream;
-
 	//
-	// Test that the input pointer are valid
+	// Make sure that the stream buffer has been initialized
 	//
-	if ((pHandle) && (pRejectConf))
+	if (errorCode == SBG_NO_ERROR)
 	{
 		//
 		// Send the command three times
@@ -173,9 +84,9 @@ SbgErrorCode sbgEComCmdMagGetRejection(SbgEComHandle *pHandle, SbgEComMagRejecti
 		for (trial = 0; trial < pHandle->numTrials; trial++)
 		{
 			//
-			// Send the command only since this is a no-payload command
+			// Send the command
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, NULL, 0);
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SET_MAG_CALIB, payload, sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -185,93 +96,7 @@ SbgErrorCode sbgEComCmdMagGetRejection(SbgEComHandle *pHandle, SbgEComMagRejecti
 				//
 				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
-
-				//
-				// Test if we have received frame was OK
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// Initialize stream buffer to read parameters
-					//
-					sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
-
-					//
-					// Read parameters
-					//
-					pRejectConf->magneticField = (SbgEComRejectionMode)sbgStreamBufferReadUint8LE(&inputStream);
-
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
-				//
-				// We have a write error so exit the try loop
-				//
-				break;
-			}
-		}
-	}
-	else
-	{
-		//
-		// Null pointer.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
-	return errorCode;
-}
-
-/*!
- *	Set the rejection configuration of the magnetometer module.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	pRejectConf					Pointer to a SbgEComMagRejectionConf struct holding rejection configuration for the magnetometer module.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SbgErrorCode sbgEComCmdMagSetRejection(SbgEComHandle *pHandle, const SbgEComMagRejectionConf *pRejectConf)
-{
-	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
-	SbgStreamBuffer		outputStream;
-
-	//
-	// Test that the input pointer are valid
-	//
-	if ((pHandle) && (pRejectConf))
-	{
-		//
-		// Send the command three times
-		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
-		{
-			//
-			// Init stream buffer for output
-			// Build payload
-			//
-			sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
-			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)pRejectConf->magneticField);
-
-			//
-			// Send the payload over ECom
-			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
-
-			//
-			// Make sure that the command has been sent
-			//
-			if (errorCode == SBG_NO_ERROR)
-			{
-				//
-				// Try to read the device answer for 500 ms
-				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, pHandle->cmdDefaultTimeOut);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SET_MAG_CALIB, pHandle->cmdDefaultTimeOut);
 
 				//
 				// Test if we have received a valid ACK
@@ -293,14 +118,143 @@ SbgErrorCode sbgEComCmdMagSetRejection(SbgEComHandle *pHandle, const SbgEComMagR
 			}
 		}
 	}
-	else
+	
+	return errorCode;
+}
+
+/*!
+ *	Retrieve the rejection configuration of the magnetometer module.
+ *	\param[in]	pHandle						A valid sbgECom handle.
+ *	\param[out]	pRejectConf					Pointer to a SbgEComMagRejectionConf struct to hold rejection configuration of the magnetometer module.
+ *	\return									SBG_NO_ERROR if the command has been executed successfully.
+ */
+SbgErrorCode sbgEComCmdMagGetRejection(SbgEComHandle *pHandle, SbgEComMagRejectionConf *pRejectConf)
+{
+	SbgErrorCode		errorCode = SBG_NO_ERROR;
+	uint32_t			trial;
+	size_t				receivedSize;
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	SbgStreamBuffer		inputStream;
+
+	assert(pHandle);
+	assert(pRejectConf);
+
+	//
+	// Send the command three times
+	//
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Invalid protocol handle.
+		// Send the command only since this is a no-payload command
 		//
-		errorCode = SBG_NULL_POINTER;
-	}
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, NULL, 0);
 
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
+		{
+			//
+			// Try to read the device answer for 500 ms
+			//
+			errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+
+			//
+			// Test if we have received frame was OK
+			//
+			if (errorCode == SBG_NO_ERROR)
+			{
+				//
+				// Initialize stream buffer to read parameters
+				//
+				sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
+
+				//
+				// Read parameters
+				//
+				pRejectConf->magneticField = (SbgEComRejectionMode)sbgStreamBufferReadUint8LE(&inputStream);
+
+				//
+				// The command has been executed successfully so return
+				//
+				break;
+			}
+		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
+	}
+	
+	return errorCode;
+}
+
+/*!
+ *	Set the rejection configuration of the magnetometer module.
+ *	\param[in]	pHandle						A valid sbgECom handle.
+ *	\param[in]	pRejectConf					Pointer to a SbgEComMagRejectionConf struct holding rejection configuration for the magnetometer module.
+ *	\return									SBG_NO_ERROR if the command has been executed successfully.
+ */
+SbgErrorCode sbgEComCmdMagSetRejection(SbgEComHandle *pHandle, const SbgEComMagRejectionConf *pRejectConf)
+{
+	SbgErrorCode		errorCode = SBG_NO_ERROR;
+	uint32_t			trial;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	SbgStreamBuffer		outputStream;
+
+	assert(pHandle);
+	assert(pRejectConf);
+
+	//
+	// Send the command three times
+	//
+	for (trial = 0; trial < pHandle->numTrials; trial++)
+	{
+		//
+		// Init stream buffer for output
+		// Build payload
+		//
+		sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+		sbgStreamBufferWriteUint8LE(&outputStream, (uint8_t)pRejectConf->magneticField);
+
+		//
+		// Send the payload over ECom
+		//
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
+		{
+			//
+			// Try to read the device answer for 500 ms
+			//
+			errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_MAGNETOMETER_REJECT_MODE, pHandle->cmdDefaultTimeOut);
+
+			//
+			// Test if we have received a valid ACK
+			//
+			if (errorCode == SBG_NO_ERROR)
+			{
+				//
+				// The command has been executed successfully so return
+				//
+				break;
+			}
+		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
+	}
+	
 	return errorCode;
 }
 
@@ -321,102 +275,26 @@ SbgErrorCode sbgEComCmdMagStartCalib(SbgEComHandle *pHandle, SbgEComMagCalibMode
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outputStream;
-	uint8				payload[2];
-	uint32				trial;
+	uint8_t				payload[2];
+	uint32_t			trial;
+
+	assert(pHandle);
+	
+	//
+	// Initialize a stream buffer to write the command payload
+	//
+	errorCode = sbgStreamBufferInitForWrite(&outputStream, payload, sizeof(payload));
 
 	//
-	// Test that the protocol handle is valid
+	// Write the calibration mode and bandwith
 	//
-	if (pHandle)
-	{
-		//
-		// Initialize a stream buffer to write the command payload
-		//
-		errorCode = sbgStreamBufferInitForWrite(&outputStream, payload, sizeof(payload));
-
-		//
-		// Write the calibration mode and bandwith
-		//
-		sbgStreamBufferWriteUint8LE(&outputStream, (uint8)mode);
-		sbgStreamBufferWriteUint8LE(&outputStream, (uint8)bandwidth);
+	sbgStreamBufferWriteUint8LE(&outputStream, (uint8_t)mode);
+	sbgStreamBufferWriteUint8LE(&outputStream, (uint8_t)bandwidth);
 		
-		//
-		// Make sure that the stream buffer has been initialized
-		//
-		if (errorCode == SBG_NO_ERROR)
-		{
-			//
-			// Send the command three times
-			//
-			for (trial = 0; trial < pHandle->numTrials; trial++)
-			{
-				//
-				// Send the command
-				//
-				errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_START_MAG_CALIB, payload, sbgStreamBufferGetLength(&outputStream));
-
-				//
-				// Make sure that the command has been sent
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// Try to read the device answer for 500 ms
-					//
-					errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_START_MAG_CALIB, pHandle->cmdDefaultTimeOut);
-
-					//
-					// Test if we have received a valid ACK
-					//
-					if (errorCode == SBG_NO_ERROR)
-					{
-						//
-						// The command has been executed successfully so return
-						//
-						break;
-					}
-				}
-				else
-				{
-					//
-					// We have a write error so exit the try loop
-					//
-					break;
-				}
-			}
-		}
-	}
-	else
-	{
-		//
-		// Invalid protocol handle.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
-	return errorCode;
-}
-
-/*!
- *	This command computes a magnetic calibration solution based on the magnetic field logged since the last call to the command SBG_ECOM_CMD_START_MAG_CALIB (15).
- *	As soon as the computations are done, the device will answer with quality indicators, status flags and if possible a valid magnetic calibration matrix and offset.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[out]	pCalibResults				Pointer on a SbgEComMagCalibResults structure that can hold onboard magnetic calibration results and status.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SbgErrorCode sbgEComCmdMagComputeCalib(SbgEComHandle *pHandle, SbgEComMagCalibResults *pCalibResults)
-{
-	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
-	SbgStreamBuffer		inputStream;
-	uint32				i;
-
 	//
-	// Test that the input pointer are valid
+	// Make sure that the stream buffer has been initialized
 	//
-	if ((pHandle) && (pCalibResults))
+	if (errorCode == SBG_NO_ERROR)
 	{
 		//
 		// Send the command three times
@@ -424,9 +302,9 @@ SbgErrorCode sbgEComCmdMagComputeCalib(SbgEComHandle *pHandle, SbgEComMagCalibRe
 		for (trial = 0; trial < pHandle->numTrials; trial++)
 		{
 			//
-			// Send the command only since this is a no-payload command
+			// Send the command
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_COMPUTE_MAG_CALIB, NULL, 0);
+			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_START_MAG_CALIB, payload, sbgStreamBufferGetLength(&outputStream));
 
 			//
 			// Make sure that the command has been sent
@@ -434,57 +312,15 @@ SbgErrorCode sbgEComCmdMagComputeCalib(SbgEComHandle *pHandle, SbgEComMagCalibRe
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 5 s because the onboard magnetic computation can take some time
+				// Try to read the device answer for 500 ms
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_COMPUTE_MAG_CALIB, receivedBuffer, &receivedSize, sizeof(receivedBuffer), 5000);
+				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_START_MAG_CALIB, pHandle->cmdDefaultTimeOut);
 
 				//
-				// Test if we have received the correct command
+				// Test if we have received a valid ACK
 				//
 				if (errorCode == SBG_NO_ERROR)
 				{
-					//
-					// Initialize stream buffer to read parameters
-					//
-					sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
-
-					//
-					// Read quality and status parameters
-					//
-					pCalibResults->quality			= (SbgEComMagCalibQuality)sbgStreamBufferReadUint8LE(&inputStream);
-					pCalibResults->confidence		= (SbgEComMagCalibConfidence)sbgStreamBufferReadUint8LE(&inputStream);
-					pCalibResults->advancedStatus	= sbgStreamBufferReadUint16LE(&inputStream);
-
-					pCalibResults->beforeMeanError	= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->beforeStdError	= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->beforeMaxError	= sbgStreamBufferReadFloatLE(&inputStream);
-
-					pCalibResults->afterMeanError	= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->afterStdError	= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->afterMaxError	= sbgStreamBufferReadFloatLE(&inputStream);
-
-					pCalibResults->meanAccuracy		= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->stdAccuracy		= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->maxAccuracy		= sbgStreamBufferReadFloatLE(&inputStream);
-
-					pCalibResults->numPoints		= sbgStreamBufferReadUint16LE(&inputStream);
-					pCalibResults->maxNumPoints		= sbgStreamBufferReadUint16LE(&inputStream);
-
-					//
-					// Read the computed hard iron offset vector
-					//
-					pCalibResults->offset[0]		= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->offset[1]		= sbgStreamBufferReadFloatLE(&inputStream);
-					pCalibResults->offset[2]		= sbgStreamBufferReadFloatLE(&inputStream);
-
-					//
-					// Read the computed soft iron matrix
-					//
-					for (i = 0; i < 9; i++)
-					{
-						pCalibResults->matrix[i]	= sbgStreamBufferReadFloatLE(&inputStream);
-					}
-
 					//
 					// The command has been executed successfully so return
 					//
@@ -500,12 +336,109 @@ SbgErrorCode sbgEComCmdMagComputeCalib(SbgEComHandle *pHandle, SbgEComMagCalibRe
 			}
 		}
 	}
-	else
+	
+	return errorCode;
+}
+
+/*!
+ *	This command computes a magnetic calibration solution based on the magnetic field logged since the last call to the command SBG_ECOM_CMD_START_MAG_CALIB (15).
+ *	As soon as the computations are done, the device will answer with quality indicators, status flags and if possible a valid magnetic calibration matrix and offset.
+ *	\param[in]	pHandle						A valid sbgECom handle.
+ *	\param[out]	pCalibResults				Pointer on a SbgEComMagCalibResults structure that can hold onboard magnetic calibration results and status.
+ *	\return									SBG_NO_ERROR if the command has been executed successfully.
+ */
+SbgErrorCode sbgEComCmdMagComputeCalib(SbgEComHandle *pHandle, SbgEComMagCalibResults *pCalibResults)
+{
+	SbgErrorCode		errorCode = SBG_NO_ERROR;
+	uint32_t			trial;
+	size_t				receivedSize;
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	SbgStreamBuffer		inputStream;
+	uint32_t			i;
+
+	assert(pHandle);
+	assert(pCalibResults);
+
+	//
+	// Send the command three times
+	//
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Null pointer.
+		// Send the command only since this is a no-payload command
 		//
-		errorCode = SBG_NULL_POINTER;
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_COMPUTE_MAG_CALIB, NULL, 0);
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
+		{
+			//
+			// Try to read the device answer for 5 s because the onboard magnetic computation can take some time
+			//
+			errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_COMPUTE_MAG_CALIB, receivedBuffer, &receivedSize, sizeof(receivedBuffer), 5000);
+
+			//
+			// Test if we have received the correct command
+			//
+			if (errorCode == SBG_NO_ERROR)
+			{
+				//
+				// Initialize stream buffer to read parameters
+				//
+				sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
+
+				//
+				// Read quality and status parameters
+				//
+				pCalibResults->quality			= (SbgEComMagCalibQuality)sbgStreamBufferReadUint8LE(&inputStream);
+				pCalibResults->confidence		= (SbgEComMagCalibConfidence)sbgStreamBufferReadUint8LE(&inputStream);
+				pCalibResults->advancedStatus	= sbgStreamBufferReadUint16LE(&inputStream);
+
+				pCalibResults->beforeMeanError	= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->beforeStdError	= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->beforeMaxError	= sbgStreamBufferReadFloatLE(&inputStream);
+
+				pCalibResults->afterMeanError	= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->afterStdError	= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->afterMaxError	= sbgStreamBufferReadFloatLE(&inputStream);
+
+				pCalibResults->meanAccuracy		= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->stdAccuracy		= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->maxAccuracy		= sbgStreamBufferReadFloatLE(&inputStream);
+
+				pCalibResults->numPoints		= sbgStreamBufferReadUint16LE(&inputStream);
+				pCalibResults->maxNumPoints		= sbgStreamBufferReadUint16LE(&inputStream);
+
+				//
+				// Read the computed hard iron offset vector
+				//
+				pCalibResults->offset[0]		= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->offset[1]		= sbgStreamBufferReadFloatLE(&inputStream);
+				pCalibResults->offset[2]		= sbgStreamBufferReadFloatLE(&inputStream);
+
+				//
+				// Read the computed soft iron matrix
+				//
+				for (i = 0; i < 9; i++)
+				{
+					pCalibResults->matrix[i]	= sbgStreamBufferReadFloatLE(&inputStream);
+				}
+
+				//
+				// The command has been executed successfully so return
+				//
+				break;
+			}
+		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
 
 	return errorCode;

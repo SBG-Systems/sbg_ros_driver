@@ -22,6 +22,8 @@
 
 #include <sbgCommon.h>
 #include "sbgEComCmdAdvanced.h"
+#include "sbgEComCmdAirData.h"
+#include "sbgEComCmdDvl.h"
 #include "sbgEComCmdEthernet.h"
 #include "sbgEComCmdEvent.h"
 #include "sbgEComCmdFeatures.h"

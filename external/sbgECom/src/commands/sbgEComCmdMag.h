@@ -111,7 +111,7 @@ typedef struct _SbgEComMagCalibResults
 {
 	SbgEComMagCalibQuality		quality;					/*!< General magnetic calibration quality indicator. */
 	SbgEComMagCalibConfidence	confidence;					/*!< Confidence indicator that should be read to interpret the quality indicator. */
-	uint16						advancedStatus;				/*!< Set of bit masks used to report advanced information on the magnetic calibration status.*/
+	uint16_t						advancedStatus;				/*!< Set of bit masks used to report advanced information on the magnetic calibration status.*/
 
 	float						beforeMeanError;			/*!< Mean magnetic field norm error observed before calibration. */
 	float						beforeStdError;				/*!< Standard deviation of the magnetic field norm error observed before calibration. */
@@ -125,8 +125,8 @@ typedef struct _SbgEComMagCalibResults
 	float						stdAccuracy;				/*!< Standard deviation of the expected heading accuracy in radians. */
 	float						maxAccuracy;				/*!< Maximum expected heading accuracy in radians. */
 
-	uint16						numPoints;					/*!< Number of magnetic field points stored internally and used to compute the magnetic calibration. */
-	uint16						maxNumPoints;				/*!< Maximum number of magnetic field points that can be stored internally. */
+	uint16_t						numPoints;					/*!< Number of magnetic field points stored internally and used to compute the magnetic calibration. */
+	uint16_t						maxNumPoints;				/*!< Maximum number of magnetic field points that can be stored internally. */
 	float						offset[3];					/*!< Computed Hard Iron correction vector offset. */
 	float						matrix[9];					/*!< Computed Hard & Soft Iron correction matrix. */
 } SbgEComMagCalibResults;
@@ -141,7 +141,7 @@ typedef struct _SbgEComMagCalibResults
  *	\param[in]	id							Magnetometer model ID to set
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdMagSetModelId(SbgEComHandle *pHandle, uint32 id);
+SbgErrorCode sbgEComCmdMagSetModelId(SbgEComHandle *pHandle, uint32_t id);
 
 /*!
  *	Retrieve magnetometer error model information.
@@ -150,17 +150,6 @@ SbgErrorCode sbgEComCmdMagSetModelId(SbgEComHandle *pHandle, uint32 id);
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
 SbgErrorCode sbgEComCmdMagGetModelInfo(SbgEComHandle *pHandle, SbgEComModelInfo *pModelInfo);
-
-/*!
- *  DEPRECATED FUNCTION. Please use sbgEComCmdMagSetModelId instead
- *	Set the error model for the magnetometer.
- *	The new configuration will only be applied after SBG_ECOM_CMD_SETTINGS_ACTION (01) command is issued, with SBG_ECOM_SAVE_SETTINGS parameter.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	pBuffer						Read only buffer containing the error model buffer.
- *	\param[in]	size						Size of the buffer.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SBG_DEPRECATED(SbgErrorCode sbgEComCmdMagSetModel(SbgEComHandle *pHandle, const void *pBuffer, uint32 size));
 
 /*!
  *	Retrieve the rejection configuration of the magnetometer module.

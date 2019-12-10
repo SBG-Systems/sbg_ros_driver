@@ -1,4 +1,4 @@
-#include "sbgEComCmdLicense.h"
+﻿#include "sbgEComCmdLicense.h"
 #include "transfer/sbgEComTransfer.h"
 
 //----------------------------------------------------------------------//
@@ -16,7 +16,11 @@
 SbgErrorCode sbgEComCmdLicenseApply(SbgEComHandle *pHandle, const void *pBuffer, size_t size)
 {
 	SbgErrorCode	errorCode;
-	uint32			currentTimeOut;
+	uint32_t		currentTimeOut;
+
+	assert(pHandle);
+	assert(pBuffer);
+	assert(size > 0);
 
 	//
 	// Define a time out of 10s to let enough time for the GNSS receiver to apply the license

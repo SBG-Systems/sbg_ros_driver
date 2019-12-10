@@ -22,7 +22,10 @@
 
 #include <sbgCommon.h>
 #include "../sbgEComIds.h"
+#include "sbgEComBinaryLogAirData.h"
 #include "sbgEComBinaryLogDebug.h"
+#include "sbgEComBinaryLogDepth.h"
+#include "sbgEComBinaryLogDiag.h"
 #include "sbgEComBinaryLogDvl.h"
 #include "sbgEComBinaryLogEkf.h"
 #include "sbgEComBinaryLogEvent.h"
@@ -31,7 +34,6 @@
 #include "sbgEComBinaryLogImuRaw.h"
 #include "sbgEComBinaryLogMag.h"
 #include "sbgEComBinaryLogOdometer.h"
-#include "sbgEComBinaryLogPressure.h"
 #include "sbgEComBinaryLogShipMotion.h"
 #include "sbgEComBinaryLogStatus.h"
 #include "sbgEComBinaryLogUsbl.h"
@@ -62,12 +64,14 @@ typedef union _SbgBinaryLogData
 	SbgLogMag				magData;			/*!< Stores data for the SBG_ECOM_LOG_MAG message. */
 	SbgLogMagCalib			magCalibData;		/*!< Stores data for the SBG_ECOM_LOG_MAG_CALIB message. */
 	SbgLogDvlData			dvlData;			/*!< Stores data for the SBG_ECOM_LOG_DVL_BOTTOM_TRACK message. */
-	SbgLogPressureData		pressureData;		/*!< Stores data for the SBG_ECOM_LOG_PRESSURE message. */
+	SbgLogAirData			airData;			/*!< Stores data for the SBG_ECOM_LOG_AIR_DATA message. */
 	SbgLogUsblData			usblData;			/*!< Stores data for the SBG_ECOM_LOG_USBL message. */
+	SbgLogDepth				depthData;			/*!< Stores data for the SBG_ECOM_LOG_DEPTH message */
 	SbgLogEvent				eventMarker;		/*!< Stores data for the SBG_ECOM_LOG_EVENT_# message. */
 	SbgLogDebugData			debugData;			/*!< Stores debug information */
 	SbgLogImuRawData		imuRawData;			/*!< Stores data for the SBG_ECOM_LOG_IMU_RAW_DATA message. */
 	SbgLogFastImuData		fastImuData;		/*!< Stores Fast Imu Data for 1KHz output */
+	SbgLogDiagData			diagData;			/*!< Stores data for the SBG_ECOM_LOG_DIAG message. */
 } SbgBinaryLogData;
 
 //----------------------------------------------------------------------//

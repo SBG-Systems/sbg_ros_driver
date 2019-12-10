@@ -45,8 +45,8 @@
  */
 typedef struct _SbgLogUsblData
 {
-	uint32	timeStamp;				/*!< Time in us since the sensor power up. */
-	uint16	status;					/*!< USBL system status bitmask. */
+	uint32_t	timeStamp;				/*!< Time in us since the sensor power up. */
+	uint16_t	status;					/*!< USBL system status bitmask. */
 
 	double	latitude;				/*!< Latitude in degrees, positive north. */
 	double	longitude;				/*!< Longitude in degrees, positive east. */

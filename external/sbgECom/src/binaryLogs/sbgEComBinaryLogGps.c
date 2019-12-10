@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogGps.h"
+﻿#include "sbgEComBinaryLogGps.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseGpsVelData(SbgStreamBuffer *pInputStream, SbgLogGpsVel *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -47,9 +44,6 @@ SbgErrorCode sbgEComBinaryLogParseGpsVelData(SbgStreamBuffer *pInputStream, SbgL
  */
 SbgErrorCode sbgEComBinaryLogWriteGpsVelData(SbgStreamBuffer *pOutputStream, const SbgLogGpsVel *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -81,9 +75,6 @@ SbgErrorCode sbgEComBinaryLogWriteGpsVelData(SbgStreamBuffer *pOutputStream, con
  */
 SbgErrorCode sbgEComBinaryLogParseGpsPosData(SbgStreamBuffer *pInputStream, SbgLogGpsPos *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -137,9 +128,6 @@ SbgErrorCode sbgEComBinaryLogParseGpsPosData(SbgStreamBuffer *pInputStream, SbgL
  */
 SbgErrorCode sbgEComBinaryLogWriteGpsPosData(SbgStreamBuffer *pOutputStream, const SbgLogGpsPos *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -181,9 +169,6 @@ SbgErrorCode sbgEComBinaryLogWriteGpsPosData(SbgStreamBuffer *pOutputStream, con
  */
 SbgErrorCode sbgEComBinaryLogParseGpsHdtData(SbgStreamBuffer *pInputStream, SbgLogGpsHdt *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -199,6 +184,18 @@ SbgErrorCode sbgEComBinaryLogParseGpsHdtData(SbgStreamBuffer *pInputStream, SbgL
 	pOutputData->pitchAccuracy		= sbgStreamBufferReadFloatLE(pInputStream);
 
 	//
+	// The baseline field have been added in version 2.0
+	//
+	if (sbgStreamBufferGetSpace(pInputStream) > 0)
+	{
+		pOutputData->baseline		= sbgStreamBufferReadFloatLE(pInputStream);
+	}
+	else
+	{
+		pOutputData->baseline		= 0.0f;
+	}
+
+	//
 	// Return if any error has occurred while parsing the frame
 	//
 	return sbgStreamBufferGetLastError(pInputStream);
@@ -212,9 +209,6 @@ SbgErrorCode sbgEComBinaryLogParseGpsHdtData(SbgStreamBuffer *pInputStream, SbgL
  */
 SbgErrorCode sbgEComBinaryLogWriteGpsHdtData(SbgStreamBuffer *pOutputStream, const SbgLogGpsHdt *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -228,6 +222,7 @@ SbgErrorCode sbgEComBinaryLogWriteGpsHdtData(SbgStreamBuffer *pOutputStream, con
 	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->headingAccuracy);
 	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->pitch);
 	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->pitchAccuracy);
+	sbgStreamBufferWriteFloatLE(pOutputStream, pInputData->baseline);
 
 	//
 	// Return if any error has occurred while writing the frame
@@ -246,9 +241,6 @@ SbgErrorCode sbgEComBinaryLogParseGpsRawData(SbgStreamBuffer *pInputStream, SbgL
 	SbgErrorCode	errorCode = SBG_NO_ERROR;
 	size_t			payloadSize;
 
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -290,9 +282,6 @@ SbgErrorCode sbgEComBinaryLogParseGpsRawData(SbgStreamBuffer *pInputStream, SbgL
  */
 SbgErrorCode sbgEComBinaryLogWriteGpsRawData(SbgStreamBuffer *pOutputStream, const SbgLogGpsRaw *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

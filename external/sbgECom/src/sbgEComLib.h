@@ -49,6 +49,7 @@ extern "C" {
 #include "protocol/sbgEComProtocol.h"
 #include "binaryLogs/sbgEComBinaryLogs.h"
 #include "sbgEComVersion.h"
+#include "sbgEComGetVersion.h"
 
 //----------------------------------------------------------------------//
 //- Footer (close extern C block)                                      -//

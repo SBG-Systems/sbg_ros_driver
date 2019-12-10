@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgErrorCodes.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		17 March 2015
@@ -17,9 +17,10 @@
  *	IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
  *	PARTICULAR PURPOSE.
  */
-#ifndef __SBG_ERROR_CODES_H__
-#define __SBG_ERROR_CODES_H__
+#ifndef SBG_ERROR_CODES_H
+#define SBG_ERROR_CODES_H
 
+// Local headers
 #include "sbgDefines.h"
 
 //----------------------------------------------------------------------//
@@ -52,7 +53,7 @@ typedef enum _SbgErrorCode
 	SBG_CALIB_MAG_POINTS_NOT_IN_A_PLANE,	/*!< 2D calibration procedure could not be performed. */
 
 	SBG_DEVICE_NOT_FOUND,					/*!< A device couldn't be founded or opened PC only error code */
-	SBG_OPERATION_CANCELLED,				/*!< An operation was cancelled.  PC only error code*/
+	SBG_OPERATION_CANCELLED,				/*!< An operation was canceled.  PC only error code*/
 	SBG_NOT_CONTINUOUS_FRAME,				/*!< We have received a frame that isn't a continuous one. PC only error code*/
 
 	SBG_INCOMPATIBLE_HARDWARE,				/*!< Hence valid; the command cannot be executed because of hardware incompatibility */
@@ -68,7 +69,7 @@ typedef enum _SbgErrorCode
  * \param[in]	errorCode					The errorCode to convert to a string.
  * \return									Read only corresponding string.
  */
-SBG_INLINE const char *sbgErrorCodeToString(SbgErrorCode errorCode)
+static inline const char *sbgErrorCodeToString(SbgErrorCode errorCode)
 {
 	/*!
 	 *	Array of string litterals that should be exactly ordered as the SbgErrorCode enum.
@@ -98,7 +99,8 @@ SBG_INLINE const char *sbgErrorCodeToString(SbgErrorCode errorCode)
 		"SBG_INVALID_VERSION"
 	};
 
+	assert(errorCode < SBG_ARRAY_SIZE(sbgErrorCodeString));
 	return sbgErrorCodeString[errorCode];
 }
 
-#endif	/* __SBG_ERROR_CODES_H__ */
+#endif	/* SBG_ERROR_CODES_H */

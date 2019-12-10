@@ -47,8 +47,8 @@
  */
 typedef struct _SbgLogShipMotionData
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	status;						/*!< Ship Motion data status bitmask */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	status;						/*!< Ship Motion data status bitmask */
 	float	mainHeavePeriod;			/*!< Main heave period in seconds. */
 	float	shipMotion[3];				/*!< Surge, sway and heave in meters. */
 	float	shipAccel[3];				/*!< Surge, sway and heave ship Acceleration in m.s^-2. */

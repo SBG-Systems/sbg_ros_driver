@@ -1,6 +1,6 @@
 /*!
  *	\file		sbgEComBinaryLogDvl.h
- *  \author		SBG Systems (Raphael Siryani)
+ *  \author		SBG Systems
  *	\date		05 June 2013
  *
  *	\brief		This file is used to parse received DVL binary logs.
@@ -42,10 +42,11 @@
  */
 typedef struct _SbgLogDvlData
 {
-	uint32	timeStamp;				/*!< Time in us since the sensor power up. */
-	uint16	status;					/*!< DVL status bitmask. */
+	uint32_t	timeStamp;				/*!< Time in us since the sensor power up. */
+	uint16_t	status;					/*!< DVL status bitmask. */
 	float	velocity[3];			/*!< X, Y, Z velocities in m.s^-1 expressed in the DVL instrument frame. */
-	float	velocityStdDev[3];		/*!< X, Y, Z velocities standard deviation in m.s^-1. */
+	float	velocityQuality[3];		/*!< X, Y, Z velocities quality indicators as provided by the DVL sensor and expressed in m.s^-1.
+										 WARNING: This is typically just a residual information and not a real standard deviation. */
 } SbgLogDvlData;
 
 //----------------------------------------------------------------------//

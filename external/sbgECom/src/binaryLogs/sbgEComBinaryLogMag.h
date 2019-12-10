@@ -52,8 +52,8 @@
  */
 typedef struct _SbgLogMag
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	status;						/*!< Magnetometer status bitmask. */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	status;						/*!< Magnetometer status bitmask. */
 	float	magnetometers[3];			/*!< X, Y, Z magnetometer data in A.U. */
 	float	accelerometers[3];			/*!< X, Y, Z accelerometers in m.s^-2. */
 } SbgLogMag;
@@ -63,9 +63,9 @@ typedef struct _SbgLogMag
  */
 typedef struct _SbgLogMagCalib
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	reserved;					/*!< Reserved for future use. */
-	uint8	magData[16];				/*!< Magnetometers calibration data. */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	reserved;					/*!< Reserved for future use. */
+	uint8_t	magData[16];				/*!< Magnetometers calibration data. */
 } SbgLogMagCalib;
 
 //----------------------------------------------------------------------//

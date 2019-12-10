@@ -56,7 +56,6 @@ add_message_files(FILES
   SbgStatusGeneral.msg
   SbgEkfQuat.msg
   SbgGpsVel.msg
-  SbgPressure.msg
   SbgStatus.msg
   SbgEvent.msg
   SbgImuStatus.msg

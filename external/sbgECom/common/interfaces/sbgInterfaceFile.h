@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgInterfaceFile.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		01 April 2013
@@ -18,8 +18,8 @@
  *	PARTICULAR PURPOSE.
  */
 
-#ifndef __SBG_INTERFACE_FILE_H__
-#define __SBG_INTERFACE_FILE_H__
+#ifndef SBG_INTERFACE_FILE_H
+#define SBG_INTERFACE_FILE_H
 
 //----------------------------------------------------------------------//
 //- Header (open extern C block)                                       -//
@@ -48,7 +48,7 @@ extern "C" {
  *	\param[in]	filePath						File path to open.
  *	\return										SBG_NO_ERROR if the interface has been created.
  */
-SbgErrorCode sbgInterfaceFileOpen(SbgInterface *pHandle, const char *filePath);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileOpen(SbgInterface *pHandle, const char *filePath);
 
 /*!
  *	Open a file as an interface for write only operations.
@@ -56,28 +56,28 @@ SbgErrorCode sbgInterfaceFileOpen(SbgInterface *pHandle, const char *filePath);
  *	\param[in]	filePath						File path to open.
  *	\return										SBG_NO_ERROR if the interface has been created.
  */
-SbgErrorCode sbgInterfaceFileWriteOpen(SbgInterface *pHandle, const char *filePath);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileWriteOpen(SbgInterface *pHandle, const char *filePath);
 
 /*!
  *	Destroy an interface initialized using sbgInterfaceFileOpen.
  *	\param[in]	pInterface						Valid handle on an initialized interface.
  *	\return										SBG_NO_ERROR if the interface has been closed and released.
  */
-SbgErrorCode sbgInterfaceFileClose(SbgInterface *pHandle);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileClose(SbgInterface *pHandle);
 
 /*!
  *	Returns the file size in bytes.
  *	\param[in]	pInterface						Valid handle on an initialized interface.
  *	\return										The file size in bytes.
  */
-size_t sbgInterfaceFileGetSize(SbgInterface *pHandle);
+SBG_COMMON_LIB_API size_t sbgInterfaceFileGetSize(SbgInterface *pHandle);
 
 /*!
  *	Returns the current cursor position in the file in bytes.
  *	\param[in]	pInterface						Valid handle on an initialized interface.
  *	\return										The current cursor position in bytes.
  */
-size_t sbgInterfaceFileGetCursor(const SbgInterface *pHandle);
+SBG_COMMON_LIB_API size_t sbgInterfaceFileGetCursor(const SbgInterface *pHandle);
 
 //----------------------------------------------------------------------//
 //- Internal interfaces write/read implementations                     -//
@@ -90,17 +90,24 @@ size_t sbgInterfaceFileGetCursor(const SbgInterface *pHandle);
  * \param[in]	bytesToWrite							Number of bytes we would like to write.
  * \return												SBG_NO_ERROR if all bytes have been written successfully.
  */
-SbgErrorCode sbgInterfaceFileWrite(SbgInterface *pHandle, const void *pBuffer, size_t bytesToWrite);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileWrite(SbgInterface *pHandle, const void *pBuffer, size_t bytesToWrite);
 
 /*!
  * Try to read some data from an interface.
  * \param[in]	pHandle									Valid handle on an initialized interface.
  * \param[in]	pBuffer									Pointer on an allocated buffer that can hold at least bytesToRead bytes of data.
- * \param[out]	pReadBytes								Pointer on an uint32 used to return the number of read bytes.
+ * \param[out]	pReadBytes								Pointer on an uint32_t used to return the number of read bytes.
  * \param[in]	bytesToRead								Number of bytes we would like to read.
  * \return												SBG_NO_ERROR if no error occurs, please check the number of received bytes.
  */
-SbgErrorCode sbgInterfaceFileRead(SbgInterface *pHandle, void *pBuffer, size_t *pReadBytes, size_t bytesToRead);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileRead(SbgInterface *pHandle, void *pBuffer, size_t *pReadBytes, size_t bytesToRead);
+
+/*!
+ * Make an interface flush all pending input or output data.
+ * \param[in]	pHandle									Valid handle on an initialized interface.
+ * \return												SBG_NO_ERROR if successful.
+ */
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileFlush(SbgInterface *pHandle);
 
 /*!
  * Fake write function for read only interfaces
@@ -109,17 +116,17 @@ SbgErrorCode sbgInterfaceFileRead(SbgInterface *pHandle, void *pBuffer, size_t *
  * \param[in]	bytesToWrite							Number of bytes we would like to write.
  * \return												SBG_NO_ERROR if all bytes have been written successfully.
  */
-SbgErrorCode sbgInterfaceFileWriteFake(SbgInterface *pHandle, const void *pBuffer, size_t bytesToWrite);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileWriteFake(SbgInterface *pHandle, const void *pBuffer, size_t bytesToWrite);
 
 /*!
  * Fake read function for write only interfaces
  * \param[in]	pHandle									Valid handle on an initialized interface.
  * \param[in]	pBuffer									Pointer on an allocated buffer that can hold at least bytesToRead bytes of data.
- * \param[out]	pReadBytes								Pointer on an uint32 used to return the number of read bytes.
+ * \param[out]	pReadBytes								Pointer on an uint32_t used to return the number of read bytes.
  * \param[in]	bytesToRead								Number of bytes we would like to read.
  * \return												SBG_NO_ERROR if no error occurs, please check the number of received bytes.
  */
-SbgErrorCode sbgInterfaceFileReadFake(SbgInterface *pHandle, void *pBuffer, size_t *pReadBytes, size_t bytesToRead);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceFileReadFake(SbgInterface *pHandle, void *pBuffer, size_t *pReadBytes, size_t bytesToRead);
 
 //----------------------------------------------------------------------//
 //- Footer (close extern C block)                                      -//
@@ -128,4 +135,4 @@ SbgErrorCode sbgInterfaceFileReadFake(SbgInterface *pHandle, void *pBuffer, size
 }
 #endif
 
-#endif /* __INTERFACE_SERIAL_H__ */
+#endif /* SBG_INTERFACE_FILE_H */

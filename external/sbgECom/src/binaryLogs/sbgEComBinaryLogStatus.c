@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogStatus.h"
+﻿#include "sbgEComBinaryLogStatus.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseStatusData(SbgStreamBuffer *pInputStream, SbgLogStatusData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -32,7 +29,7 @@ SbgErrorCode sbgEComBinaryLogParseStatusData(SbgStreamBuffer *pInputStream, SbgL
 	//
 	// Test if we have a additional information such as uptime (since version 1.7)
 	//
-	if (sbgStreamBufferGetSpace(pInputStream) >= sizeof(uint32))
+	if (sbgStreamBufferGetSpace(pInputStream) >= sizeof(uint32_t))
 	{
 		//
 		// Read the additional information
@@ -61,9 +58,6 @@ SbgErrorCode sbgEComBinaryLogParseStatusData(SbgStreamBuffer *pInputStream, SbgL
  */
 SbgErrorCode sbgEComBinaryLogWriteStatusData(SbgStreamBuffer *pOutputStream, const SbgLogStatusData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

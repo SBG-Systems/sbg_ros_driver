@@ -32,7 +32,6 @@
 #include "sbg_driver/SbgGpsRaw.h"
 #include "sbg_driver/SbgOdoVel.h"
 #include "sbg_driver/SbgEvent.h"
-#include "sbg_driver/SbgPressure.h"
 
 namespace sbg
 {
@@ -304,14 +303,6 @@ public:
   const sbg_driver::SbgOdoVel createSbgOdoVelMessage(const SbgLogOdometerData& ref_log_odo) const;
 
   /*!
-   * Create a SBG-ROS pressure message.
-   * 
-   * \param[in] ref_log_pressure    SBG Pressure log.
-   * \return                        Pressure message.
-   */
-  const sbg_driver::SbgPressure createSbgPressureMessage(const SbgLogPressureData& ref_log_pressure) const;
-
-  /*!
    * Create a SBG-ROS Shipmotion message.
    * 
    * \param[in] ref_log_ship_motion SBG Ship motion log.
@@ -359,14 +350,6 @@ public:
    * \return                        ROS standard Mag message.
    */
   const sensor_msgs::MagneticField createRosMagneticMessage(const sbg_driver::SbgMag& ref_sbg_mag_msg) const;
-
-  /*!
-   * Create a ROS standard FluidPressure message from SBG message.
-   * 
-   * \param[in] ref_sbg_press_msg   SBG-ROS Fluid message.
-   * \return                        ROS standard FuildPressure message.
-   */
-  const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgPressure& ref_sbg_press_msg) const;
 
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.

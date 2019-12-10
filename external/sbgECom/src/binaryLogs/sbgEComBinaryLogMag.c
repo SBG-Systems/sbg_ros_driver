@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogMag.h"
+﻿#include "sbgEComBinaryLogMag.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseMagData(SbgStreamBuffer *pInputStream, SbgLogMag *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -46,9 +43,6 @@ SbgErrorCode sbgEComBinaryLogParseMagData(SbgStreamBuffer *pInputStream, SbgLogM
  */
 SbgErrorCode sbgEComBinaryLogWriteMagData(SbgStreamBuffer *pOutputStream, const SbgLogMag *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -80,9 +74,6 @@ SbgErrorCode sbgEComBinaryLogWriteMagData(SbgStreamBuffer *pOutputStream, const 
  */
 SbgErrorCode sbgEComBinaryLogParseMagCalibData(SbgStreamBuffer *pInputStream, SbgLogMagCalib *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -106,9 +97,6 @@ SbgErrorCode sbgEComBinaryLogParseMagCalibData(SbgStreamBuffer *pInputStream, Sb
  */
 SbgErrorCode sbgEComBinaryLogWriteMagCalibData(SbgStreamBuffer *pOutputStream, const SbgLogMagCalib *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

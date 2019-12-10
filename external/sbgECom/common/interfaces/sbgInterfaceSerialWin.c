@@ -1,4 +1,4 @@
-#include "sbgInterfaceSerial.h"
+﻿#include "sbgInterfaceSerial.h"
 #include <windows.h>
 
 //----------------------------------------------------------------------//
@@ -65,10 +65,7 @@ SbgErrorCode sbgInterfaceSerialCreate(SbgInterface *pHandle, const char *deviceN
 	uint32 deviceNum;
 	HANDLE hSerialDevice;
 
-	//
-	//	Test input argument
-	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Extract device number
@@ -206,10 +203,7 @@ SbgErrorCode sbgInterfaceSerialDestroy(SbgInterface *pHandle)
 {
 	HANDLE pSerialDevice;
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Get the internal serial handle
@@ -238,10 +232,7 @@ SbgErrorCode sbgInterfaceSerialFlush(SbgInterface *pHandle)
 	uint8			dummyBuffer[256];
 	size_t			numBytesRead;
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Get the internal serial handle
@@ -297,10 +288,7 @@ SbgErrorCode sbgInterfaceSerialChangeBaudrate(SbgInterface *pHandle, uint32 baud
 	DCB				comState;
 	char			errorMsg[256];
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Get the internal serial handle
@@ -366,11 +354,8 @@ SbgErrorCode sbgInterfaceSerialWrite(SbgInterface *pHandle, const void *pBuffer,
 	HANDLE pSerialDevice;
 	char errorMsg[256];
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pBuffer);
+	assert(pHandle);
+	assert(pBuffer);
 
 	//
 	// Get the internal serial handle
@@ -419,12 +404,9 @@ SbgErrorCode sbgInterfaceSerialRead(SbgInterface *pHandle, void *pBuffer, size_t
 	char errorMsg[256];
 	DWORD bytesRead;
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pBuffer);
-	SBG_ASSERT(pReadBytes);
+	assert(pHandle);
+	assert(pBuffer);
+	assert(pReadBytes);
 
 	//
 	// Get the internal serial handle

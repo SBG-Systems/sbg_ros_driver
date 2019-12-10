@@ -1,11 +1,11 @@
-/*!
+﻿/*!
  *	\file		sbgNetwork.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		15 September 2015
  *
  *	\brief		Useful methods for Network handling such as ip addresses.
  *
- *	IP v4 address is stored in memory with a uint32.
+ *	IP v4 address is stored in memory with a uint32_t.
  *	Each address component A.B.C.D is stored in 8 bits using the network
  *	endianess ie Big Endian.
  *
@@ -32,8 +32,8 @@
  *	PARTICULAR PURPOSE.
  */
 
-#ifndef __SBG_NETWORK_H__
-#define __SBG_NETWORK_H__
+#ifndef SBG_NETWORK_H
+#define SBG_NETWORK_H
 
 //----------------------------------------------------------------------//
 //- Header (open extern C block)                                       -//
@@ -62,7 +62,7 @@ extern "C" {
  * \param[in]	d				Last 8 bits IP address.
  * \return						An initialized IP address object.
  */
-SBG_INLINE sbgIpAddress sbgIpAddr(uint8 a, uint8 b, uint8 c, uint8 d)
+SBG_INLINE sbgIpAddress sbgIpAddr(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {
 #if SBG_CONFIG_BIG_ENDIAN == 1
 	return (a << 24) | (b << 16) | (c << 8) | d;
@@ -76,12 +76,12 @@ SBG_INLINE sbgIpAddress sbgIpAddr(uint8 a, uint8 b, uint8 c, uint8 d)
  * \param[in]	ipAddr				An sbgIpAddress to convert.
  * \return							The A field of the IP address.
  */
-SBG_INLINE uint8 sbgIpAddrGetA(sbgIpAddress ipAddr)
+SBG_INLINE uint8_t sbgIpAddrGetA(sbgIpAddress ipAddr)
 {
 #if SBG_CONFIG_BIG_ENDIAN == 1
-	return (uint8)((ipAddr & 0xFF000000) >> 24);
+	return (uint8_t)((ipAddr & 0xFF000000) >> 24);
 #else
-	return (uint8)((ipAddr & 0x000000FF));
+	return (uint8_t)((ipAddr & 0x000000FF));
 #endif
 }
 
@@ -90,12 +90,12 @@ SBG_INLINE uint8 sbgIpAddrGetA(sbgIpAddress ipAddr)
 * \param[in]	ipAddr				An sbgIpAddress to convert.
 * \return							The B field of the IP address.
 */
-SBG_INLINE uint8 sbgIpAddrGetB(sbgIpAddress ipAddr)
+SBG_INLINE uint8_t sbgIpAddrGetB(sbgIpAddress ipAddr)
 {
 #if SBG_CONFIG_BIG_ENDIAN == 1
-	return (uint8)((ipAddr & 0x00FF0000) >> 16);
+	return (uint8_t)((ipAddr & 0x00FF0000) >> 16);
 #else
-	return (uint8)((ipAddr & 0x0000FF00) >> 8);
+	return (uint8_t)((ipAddr & 0x0000FF00) >> 8);
 #endif
 }
 
@@ -104,12 +104,12 @@ SBG_INLINE uint8 sbgIpAddrGetB(sbgIpAddress ipAddr)
 * \param[in]	ipAddr				An sbgIpAddress to convert.
 * \return							The C field of the IP address.
 */
-SBG_INLINE uint8 sbgIpAddrGetC(sbgIpAddress ipAddr)
+SBG_INLINE uint8_t sbgIpAddrGetC(sbgIpAddress ipAddr)
 {
 #if SBG_CONFIG_BIG_ENDIAN == 1
-	return (uint8)((ipAddr & 0x0000FF00) >> 8);
+	return (uint8_t)((ipAddr & 0x0000FF00) >> 8);
 #else
-	return (uint8)((ipAddr & 0x00FF0000) >> 16);
+	return (uint8_t)((ipAddr & 0x00FF0000) >> 16);
 #endif
 }
 
@@ -118,12 +118,12 @@ SBG_INLINE uint8 sbgIpAddrGetC(sbgIpAddress ipAddr)
 * \param[in]	ipAddr				An sbgIpAddress to convert.
 * \return							The D field of the IP address.
 */
-SBG_INLINE uint8 sbgIpAddrGetD(sbgIpAddress ipAddr)
+SBG_INLINE uint8_t sbgIpAddrGetD(sbgIpAddress ipAddr)
 {
 #if SBG_CONFIG_BIG_ENDIAN == 1
-	return (uint8)((ipAddr & 0x000000FF));
+	return (uint8_t)((ipAddr & 0x000000FF));
 #else
-	return (uint8)((ipAddr & 0xFF000000) >> 24);
+	return (uint8_t)((ipAddr & 0xFF000000) >> 24);
 #endif
 }
 
@@ -137,14 +137,14 @@ SBG_INLINE uint8 sbgIpAddrGetD(sbgIpAddress ipAddr)
  * \param[out]	pBuffer						Pointer on an allocated buffer than can hold ip address as a string.
  * \param[in]	maxSize						Maximum number of chars that can be stored in pBuffer including the NULL char.
  */
-void sbgNetworkIpToString(sbgIpAddress ipAddr, char *pBuffer, size_t maxSize);
+SBG_COMMON_LIB_API void sbgNetworkIpToString(sbgIpAddress ipAddr, char *pBuffer, size_t maxSize);
 
 /*!
  * Convert an ip address stored in a string of the form A.B.C.D to an sbgIpAddress object.
  * \param[in]	pBuffer						IP address as a string of the form A.B.C.D
  * \return									IP address parsed from the string or 0.0.0.0 if the IP is invalid.
  */
-sbgIpAddress sbgNetworkIpFromString(const char *pBuffer);
+SBG_COMMON_LIB_API sbgIpAddress sbgNetworkIpFromString(const char *pBuffer);
 
 //----------------------------------------------------------------------//
 //- IP operations                                                      -//
@@ -152,8 +152,8 @@ sbgIpAddress sbgNetworkIpFromString(const char *pBuffer);
 
 /*!
  * Given an ip address and the netmask, returns the network part (ip & subnetMask)
- * \param[in]	ipAddress						The ip address stored in an uint32 (host endianness).
- * \param[in]	netmask							The netmask stored in an uint32 (host endianness).
+ * \param[in]	ipAddress						The ip address stored in an uint32_t (host endianness).
+ * \param[in]	netmask							The netmask stored in an uint32_t (host endianness).
  * \return										The network part of the ip address.
  */
 SBG_INLINE sbgIpAddress sbgIpGetNetworkAddr(sbgIpAddress ipAddress, sbgIpAddress netmask)
@@ -163,8 +163,8 @@ SBG_INLINE sbgIpAddress sbgIpGetNetworkAddr(sbgIpAddress ipAddress, sbgIpAddress
 
 /*!
  * Given an ip address and the netmask, returns the host part (ip & ~subnetMask)
- * \param[in]	ipAddress						The ip address stored in an uint32 (host endianness).
- * \param[in]	netmask							The netmask stored in an uint32 (host endianness).
+ * \param[in]	ipAddress						The ip address stored in an uint32_t (host endianness).
+ * \param[in]	netmask							The netmask stored in an uint32_t (host endianness).
  * \return										The host part of the ip address.
  */
 SBG_INLINE sbgIpAddress sbgIpGetHostAddr(sbgIpAddress ipAddress, sbgIpAddress netmask)
@@ -195,7 +195,7 @@ SBG_INLINE bool sbgIpAddressIsUnspecified(sbgIpAddress ipAddress)
 
 /*!
  * Check if an IpV4 address is valid. The ip address format is A.B.C.D and A should respect 0 < A < 224
- * \param[in]	ipAddress						The ip address stored in an uint32 (host endianness).
+ * \param[in]	ipAddress						The ip address stored in an uint32_t (host endianness).
  * \return										true if the ip address is valid ie contiguous.
  */
 SBG_INLINE bool sbgIpAddressValid(sbgIpAddress ipAddress)
@@ -221,8 +221,8 @@ SBG_INLINE bool sbgIpAddressValid(sbgIpAddress ipAddress)
 
 /*!
  * Given an ip address and the netmask, returns true if this ip address is within the subnet.
- * \param[in]	ipAddress						The ip address stored in an uint32 (host endianness).
- * \param[in]	netmask							The netmask stored in an uint32 (host endianness).
+ * \param[in]	ipAddress						The ip address stored in an uint32_t (host endianness).
+ * \param[in]	netmask							The netmask stored in an uint32_t (host endianness).
  * \return										true if this ip address is within the subnet or false otherwise.
  */
 SBG_INLINE sbgIpAddress sbgIpAddrWithinSubnet(sbgIpAddress ipAddress, sbgIpAddress netmask)
@@ -261,10 +261,10 @@ SBG_INLINE bool sbgIpAddrIsSameNetwork(sbgIpAddress firstIpAddr, sbgIpAddress se
 
 /*!
  * Check if an IpV4 netmask is valid, the mask should be contiguous (1111 followed by 0)
- * \param[in]	netmask							The netmask stored in an uint32 (host endianness).
+ * \param[in]	netmask							The netmask stored in an uint32_t (host endianness).
  * \return										true if the netmask is valid ie contiguous.
  */
-bool sbgIpNetMaskValid(sbgIpAddress netmask);
+SBG_COMMON_LIB_API bool sbgIpNetMaskValid(sbgIpAddress netmask);
 
 //----------------------------------------------------------------------//
 //- Footer (close extern C block)                                      -//
@@ -273,4 +273,4 @@ bool sbgIpNetMaskValid(sbgIpAddress netmask);
 }
 #endif
 
-#endif /* __SBG_NETWORK_H__ */
+#endif /* SBG_NETWORK_H */

@@ -535,21 +535,6 @@ const sbg_driver::SbgOdoVel MessageWrapper::createSbgOdoVelMessage(const SbgLogO
   return odo_vel_message;
 }
 
-const sbg_driver::SbgPressure MessageWrapper::createSbgPressureMessage(const SbgLogPressureData& ref_log_pressure) const
-{
-  sbg_driver::SbgPressure pressure_message;
-
-  pressure_message.header       = createRosHeader(ref_log_pressure.timeStamp);
-  pressure_message.time_stamp   = ref_log_pressure.timeStamp;
-
-  pressure_message.valid_pressure = (ref_log_pressure.status & SBG_ECOM_PRESSURE_PRESSURE_VALID) != 0;
-  pressure_message.valid_altitude = (ref_log_pressure.status & SBG_ECOM_PRESSURE_HEIGHT_VALID) != 0;
-  pressure_message.pressure       = ref_log_pressure.pressure;
-  pressure_message.altitude       = ref_log_pressure.height;
-
-  return pressure_message;
-}
-
 const sbg_driver::SbgShipMotion MessageWrapper::createSbgShipMotionMessage(const SbgLogShipMotionData& ref_log_ship_motion) const
 {
   sbg_driver::SbgShipMotion ship_motion_message;
@@ -650,17 +635,6 @@ const sensor_msgs::MagneticField MessageWrapper::createRosMagneticMessage(const 
   magnetic_message.magnetic_field = ref_sbg_mag_msg.mag;
 
   return magnetic_message;
-}
-
-const sensor_msgs::FluidPressure MessageWrapper::createRosFluidPressureMessage(const sbg_driver::SbgPressure& ref_sbg_press_msg) const
-{
-  sensor_msgs::FluidPressure fluid_pressure_message;
-
-  fluid_pressure_message.header         = createRosHeader(ref_sbg_press_msg.time_stamp);
-  fluid_pressure_message.fluid_pressure = ref_sbg_press_msg.pressure;
-  fluid_pressure_message.variance       = 0;
-
-  return fluid_pressure_message;
 }
 
 const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgImuData& ref_p_sbg_imu_msg) const

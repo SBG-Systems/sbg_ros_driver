@@ -1,4 +1,4 @@
-#include "sbgEComCmdFeatures.h"
+﻿#include "sbgEComCmdFeatures.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 
 //----------------------------------------------------------------------//
@@ -14,79 +14,69 @@
 SbgErrorCode sbgEComCmdGetFeatures(SbgEComHandle *pHandle, SbgEComFeatures *pFeatures)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
+	uint32_t			trial;
 	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
+	assert(pHandle);
+	assert(pFeatures);
+
 	//
-	// Test that the input pointers are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pFeatures))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Send the command only since this is a no-payload command
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_FEATURES, NULL, 0);
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Send the command only since this is a no-payload command
+			// Try to read the device answer for 500 ms
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_FEATURES, NULL, 0);
+			errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_FEATURES, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
 
 			//
-			// Make sure that the command has been sent
+			// Test if we have received a SBG_ECOM_CMD_GPS_FEATURES command
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
+				// Initialize stream buffer to read parameters
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_FEATURES, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
 
 				//
-				// Test if we have received a SBG_ECOM_CMD_GPS_FEATURES command
+				// Read parameters
 				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// Initialize stream buffer to read parameters
-					//
-					sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
+				pFeatures->sensorFeaturesMask	=  sbgStreamBufferReadUint32LE(&inputStream);
+				pFeatures->gnssType				= (SbgEComGnssType)sbgStreamBufferReadUint8LE(&inputStream);
+				pFeatures->gnssUpdateRate		= sbgStreamBufferReadUint8LE(&inputStream);
+				pFeatures->gnssSignalsMask		= sbgStreamBufferReadUint32LE(&inputStream);
+				pFeatures->gnssFeaturesMask		= sbgStreamBufferReadUint32LE(&inputStream);
+				sbgStreamBufferReadBuffer(&inputStream, pFeatures->gnssProductCode, 32*sizeof(char));
+				sbgStreamBufferReadBuffer(&inputStream, pFeatures->gnssSerialNumber, 32*sizeof(char));
 
-					//
-					// Read parameters
-					//
-					pFeatures->sensorFeaturesMask	=  sbgStreamBufferReadUint32LE(&inputStream);
-					pFeatures->gnssType				= (SbgEComGnssType)sbgStreamBufferReadUint8LE(&inputStream);
-					pFeatures->gnssUpdateRate		= sbgStreamBufferReadUint8LE(&inputStream);
-					pFeatures->gnssSignalsMask		= sbgStreamBufferReadUint32LE(&inputStream);
-					pFeatures->gnssFeaturesMask		= sbgStreamBufferReadUint32LE(&inputStream);
-					sbgStreamBufferReadBuffer(&inputStream, pFeatures->gnssProductCode, 32*sizeof(char));
-					sbgStreamBufferReadBuffer(&inputStream, pFeatures->gnssSerialNumber, 32*sizeof(char));
-
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
 				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Null pointer
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }

@@ -53,7 +53,7 @@ typedef enum _SbgEComPortMode
 {
 	SBG_ECOM_UART_MODE_OFF = 0,		/*!< This interface is turned OFF. */
 	SBG_ECOM_UART_MODE_232 = 1,		/*!< This interface is using RS-232 communications. */
-	SBG_ECOM_UART_MODE_422 = 2		/*!< This interface is using RS-422 communications. */
+	SBG_ECOM_UART_MODE_422 = 2,		/*!< This interface is using RS-422 communications. */
 } SbgEComPortMode;
 
 //----------------------------------------------------------------------//
@@ -65,8 +65,8 @@ typedef enum _SbgEComPortMode
  */
 typedef struct _SbgEComInterfaceConf
 {
-	uint32				baudRate;	/*!< The baud rate of the interface */
-	SbgEComPortMode		mode;		/*!< The mode of the interface */
+	uint32_t				baudRate;	/*!< The baud rate of the interface. */
+	SbgEComPortMode		mode;		/*!< The mode of the interface. */
 } SbgEComInterfaceConf;
 
 //----------------------------------------------------------------------//
@@ -88,8 +88,19 @@ typedef enum _SbgEComCanBitRate
 	SBG_ECOM_CAN_BITRATE_250 		= 250,			/*!< 250Kb/s. */
 	SBG_ECOM_CAN_BITRATE_500 		= 500,			/*!< 500Kb/s. */
 	SBG_ECOM_CAN_BITRATE_750 		= 750,			/*!< 750Kb/s. */
-	SBG_ECOM_CAN_BITRATE_1000 		= 1000			/*!< 1Mb/s. */
+	SBG_ECOM_CAN_BITRATE_1000 		= 1000,			/*!< 1Mb/s. */
 } SbgEComCanBitRate;
+
+/*!
+ * Enum containing the list of different CAN modes
+ */
+typedef enum _SbgEComCanMode
+{
+	SBG_ECOM_CAN_MODE_UNDEFINED		= 0,	/*!< CAN Mode undefined. */
+	SBG_ECOM_CAN_MODE_SPY			= 1,	/*!< Only listening on the CAN bus and doesn't sent anything (even RX ACK bit). */
+	SBG_ECOM_CAN_MODE_NORMAL		= 2, 	/*!< The device is allowed to both send and receive over the CAN bus. */
+	SBG_ECOM_CAN_NR_MODE
+} SbgEComCanMode;
 
 //----------------------------------------------------------------------//
 //- Interface commands                                                 -//
@@ -97,6 +108,7 @@ typedef enum _SbgEComCanBitRate
 
 /*!
  *	Retrieve the configuration of one of the interfaces.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[in]	interfaceId					The interface from which the configuration is to be retrieved.
  *	\param[out]	pConf						Pointer to a SbgEComInterfaceConf struct to hold configuration of the interface.
@@ -106,6 +118,7 @@ SbgErrorCode sbgEComCmdInterfaceGetUartConf(SbgEComHandle *pHandle, SbgEComPortI
 
 /*!
  *	Set the configuration of one of the interfaces.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[in]	interfaceId					The interface from which the configuration is to be retrieved.
  *	\param[in]	pConf						Pointer to a SbgEComInterfaceConf struct that holds the new configuration for the interface.
@@ -115,18 +128,22 @@ SbgErrorCode sbgEComCmdInterfaceSetUartConf(SbgEComHandle *pHandle, SbgEComPortI
 
 /*!
  *	Retrieve the configuration of the CAN interface.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[out]	pBitRate					The bitrate of the CAN interface.
+ *  \param[out] pCanMode                    Mode of the CAN interface.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdInterfaceGetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate *pBitrate);
+SbgErrorCode sbgEComCmdInterfaceGetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate *pBitrate, SbgEComCanMode *pMode);
 
 /*!
  *	Set the configuration of the CAN interface.
+ *
  *	\param[in]	pHandle						A valid sbgECom handle.
  *	\param[in]	bitRate						The bitrate of the CAN interface.
+ *  \param[in] pCanMode                    Mode of the CAN interface.
  *	\return									SBG_NO_ERROR if the command has been executed successfully.
  */
-SbgErrorCode sbgEComCmdInterfaceSetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate bitrate);
+SbgErrorCode sbgEComCmdInterfaceSetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate bitrate, SbgEComCanMode mode);
 
 #endif

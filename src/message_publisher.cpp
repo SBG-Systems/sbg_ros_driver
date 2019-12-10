@@ -151,9 +151,6 @@ std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) co
 
     case SBG_ECOM_LOG_EVENT_E:
     return "sbg/eventE";
-
-    case SBG_ECOM_LOG_PRESSURE:
-    return "sbg/pressure";
   }
 }
 
@@ -266,11 +263,6 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
 
         break;
 
-      case SBG_ECOM_LOG_PRESSURE:
-
-        m_sbgPressure_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgPressure>(ref_output_topic, m_max_mesages_);
-        break;
-
       case SBG_ECOM_LOG_USBL:
       case SBG_ECOM_LOG_DEBUG_0:
       case SBG_ECOM_LOG_IMU_RAW_DATA:
@@ -309,15 +301,6 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   else
   {
     ROS_WARN("SBG_DRIVER - [Publisher] SBG Mag data output are not configured, the standard Magnetic publisher can not be defined.");
-  }
-
-  if (m_sbgPressure_pub_)
-  {
-    m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_mesages_);
-  }
-  else
-  {
-    ROS_WARN("SBG_DRIVER - [Publisher] SBG Pressure data output are not configured, the standard FluidPressure publisher can not be defined.");
   }
 
   if (m_sbgEkfNav_pub_)
@@ -398,17 +381,7 @@ void MessagePublisher::publishMagData(const SbgBinaryLogData &ref_sbg_log)
 
 void MessagePublisher::publishFluidPressureData(const SbgBinaryLogData &ref_sbg_log)
 {
-  sbg_driver::SbgPressure sbg_pressure_message;
-  sbg_pressure_message = m_message_wrapper_.createSbgPressureMessage(ref_sbg_log.pressureData);
-
-  if (m_sbgPressure_pub_)
-  {
-    m_sbgPressure_pub_.publish(sbg_pressure_message);
-  }
-  if (m_fluid_pub_)
-  {
-    m_fluid_pub_.publish(sbg_pressure_message);
-  }
+  //
 }
 
 void MessagePublisher::publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_log)
@@ -650,11 +623,6 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
     case SBG_ECOM_LOG_DVL_BOTTOM_TRACK:
     case SBG_ECOM_LOG_DVL_WATER_TRACK:
     case SBG_ECOM_LOG_SHIP_MOTION_HP:
-      break;
-
-    case SBG_ECOM_LOG_PRESSURE:
-
-      publishFluidPressureData(ref_sbg_log);
       break;
 
     case SBG_ECOM_LOG_USBL:

@@ -117,11 +117,11 @@ private:
   void configureGnssModel(const SbgEComModelInfo& ref_gnss_model);
 
   /*!
-   * Configure the Gnss alignement.
+   * Configure the Gnss installation.
    * 
-   * \param[in] ref_gnss_alignement         Gnss alignement configuration to apply.
+   * \param[in] ref_gnss_installation       Gnss installation configuration to apply.
    */
-  void configureGnssAlignement(const SbgEComGnssAlignmentInfo& ref_gnss_alignement);
+  void configureGnssInstallation(const SbgEComGnssInstallation& ref_gnss_installation);
 
   /*!
    * Configure the Gnss rejection.

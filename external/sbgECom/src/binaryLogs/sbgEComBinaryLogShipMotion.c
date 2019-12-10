@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogShipMotion.h"
+﻿#include "sbgEComBinaryLogShipMotion.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseShipMotionData(SbgStreamBuffer *pInputStream, SbgLogShipMotionData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -82,9 +79,6 @@ SbgErrorCode sbgEComBinaryLogParseShipMotionData(SbgStreamBuffer *pInputStream, 
  */
 SbgErrorCode sbgEComBinaryLogWriteShipMotionData(SbgStreamBuffer *pOutputStream, const SbgLogShipMotionData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

@@ -66,6 +66,11 @@
 #define SBG_ECOM_GPS_HDT_STATUS_SHIFT		(0u)					/*!< Shift used to extract the GPS HDT status part. */
 #define SBG_ECOM_GPS_HDT_STATUS_MASK		(0x0000003Fu)			/*!< Mask used to keep only the GPS HDT status part. */
 
+/*!
+ * GPS HDT status bitmasks
+ */
+#define SBG_ECOM_GPS_HDT_BASELINE_VALID		(0x0001 << 6)			/*!< Set to 1 if the baseline length field is filled and valid. */
+
 //----------------------------------------------------------------------//
 //- Log GPS RAW const definitions                                      -//
 //----------------------------------------------------------------------//
@@ -152,20 +157,20 @@ typedef enum _SbgEComGpsHdtStatus
 
 /*!
  * Method used to read GPS velocity status from a status field.
- * \param[in]	status				Status uint32 value to extract the velocity status from it.
+ * \param[in]	status				Status uint32_t value to extract the velocity status from it.
  * \return							The extracted velocity status.
  */
-SBG_INLINE SbgEComGpsVelStatus sbgEComLogGpsVelGetStatus(uint32 status)
+SBG_INLINE SbgEComGpsVelStatus sbgEComLogGpsVelGetStatus(uint32_t status)
 {
 	return (SbgEComGpsVelStatus)((status >> SBG_ECOM_GPS_VEL_STATUS_SHIFT) & SBG_ECOM_GPS_VEL_STATUS_MASK);
 }
 
 /*!
  * Method used to read GPS velocity type from a status field.
- * \param[in]	status				Status uint32 value to extract the velocity type from it.
+ * \param[in]	status				Status uint32_t value to extract the velocity type from it.
  * \return							The extracted velocity type.
  */
-SBG_INLINE SbgEComGpsVelType sbgEComLogGpsVelGetType(uint32 status)
+SBG_INLINE SbgEComGpsVelType sbgEComLogGpsVelGetType(uint32_t status)
 {
 	return (SbgEComGpsVelType)((status >> SBG_ECOM_GPS_VEL_TYPE_SHIFT) & SBG_ECOM_GPS_VEL_TYPE_MASK);
 }
@@ -176,13 +181,13 @@ SBG_INLINE SbgEComGpsVelType sbgEComLogGpsVelGetType(uint32 status)
  * \param[in]	type				The velocity type to set.
  * \return							The build GpsVelData status field.
  */
-SBG_INLINE uint32 sbgEComLogGpsVelBuildStatus(SbgEComGpsVelStatus status, SbgEComGpsVelType type)
+SBG_INLINE uint32_t sbgEComLogGpsVelBuildStatus(SbgEComGpsVelStatus status, SbgEComGpsVelType type)
 {
 	//
 	// Create the combined status field
 	//
-	return	((((uint32)status)&SBG_ECOM_GPS_VEL_STATUS_MASK) << SBG_ECOM_GPS_VEL_STATUS_SHIFT) |
-			((((uint32)type)&SBG_ECOM_GPS_VEL_TYPE_MASK) << SBG_ECOM_GPS_VEL_TYPE_SHIFT);
+	return	((((uint32_t)status)&SBG_ECOM_GPS_VEL_STATUS_MASK) << SBG_ECOM_GPS_VEL_STATUS_SHIFT) |
+			((((uint32_t)type)&SBG_ECOM_GPS_VEL_TYPE_MASK) << SBG_ECOM_GPS_VEL_TYPE_SHIFT);
 }
 
 //----------------------------------------------------------------------//
@@ -191,20 +196,20 @@ SBG_INLINE uint32 sbgEComLogGpsVelBuildStatus(SbgEComGpsVelStatus status, SbgECo
 
 /*!
  * Method used to read GPS position status from a status field.
- * \param[in]	status				Status uint32 value to extract the position status from it.
+ * \param[in]	status				Status uint32_t value to extract the position status from it.
  * \return							The extracted position status.
  */
-SBG_INLINE SbgEComGpsPosStatus sbgEComLogGpsPosGetStatus(uint32 status)
+SBG_INLINE SbgEComGpsPosStatus sbgEComLogGpsPosGetStatus(uint32_t status)
 {
 	return (SbgEComGpsPosStatus)((status >> SBG_ECOM_GPS_POS_STATUS_SHIFT) & SBG_ECOM_GPS_POS_STATUS_MASK);
 }
 
 /*!
  * Method used to read GPS position type from a status field.
- * \param[in]	status				Status uint32 value to extract the position type from it.
+ * \param[in]	status				Status uint32_t value to extract the position type from it.
  * \return							The extracted position type.
  */
-SBG_INLINE SbgEComGpsPosType sbgEComLogGpsPosGetType(uint32 status)
+SBG_INLINE SbgEComGpsPosType sbgEComLogGpsPosGetType(uint32_t status)
 {
 	return (SbgEComGpsPosType)((status >> SBG_ECOM_GPS_POS_TYPE_SHIFT) & SBG_ECOM_GPS_POS_TYPE_MASK);
 }
@@ -216,13 +221,13 @@ SBG_INLINE SbgEComGpsPosType sbgEComLogGpsPosGetType(uint32 status)
  * \param[in]	masks				Bit mask to set.
  * \return							The build GpsPosData status field.
  */
-SBG_INLINE uint32 sbgEComLogGpsPosBuildStatus(SbgEComGpsPosStatus status, SbgEComGpsPosType type, uint32 masks)
+SBG_INLINE uint32_t sbgEComLogGpsPosBuildStatus(SbgEComGpsPosStatus status, SbgEComGpsPosType type, uint32_t masks)
 {
 	//
 	// Create the combined status field
 	//
-	return	((((uint32)status)&SBG_ECOM_GPS_POS_STATUS_MASK) << SBG_ECOM_GPS_POS_STATUS_SHIFT) |
-			((((uint32)type)&SBG_ECOM_GPS_POS_TYPE_MASK) << SBG_ECOM_GPS_POS_TYPE_SHIFT) | masks;
+	return	((((uint32_t)status)&SBG_ECOM_GPS_POS_STATUS_MASK) << SBG_ECOM_GPS_POS_STATUS_SHIFT) |
+			((((uint32_t)type)&SBG_ECOM_GPS_POS_TYPE_MASK) << SBG_ECOM_GPS_POS_TYPE_SHIFT) | masks;
 }
 
 //----------------------------------------------------------------------//
@@ -231,10 +236,10 @@ SBG_INLINE uint32 sbgEComLogGpsPosBuildStatus(SbgEComGpsPosStatus status, SbgECo
 
 /*!
  * Method used to read GPS HDT status from a status field.
- * \param[in]	status				Status uint32 value to extract the HDT status from it.
+ * \param[in]	status				Status uint32_t value to extract the HDT status from it.
  * \return							The extracted position status.
  */
-SBG_INLINE SbgEComGpsHdtStatus sbgEComLogGpsHdtGetStatus(uint32 status)
+SBG_INLINE SbgEComGpsHdtStatus sbgEComLogGpsHdtGetStatus(uint32_t status)
 {
 	return (SbgEComGpsHdtStatus)((status >> SBG_ECOM_GPS_HDT_STATUS_SHIFT) & SBG_ECOM_GPS_HDT_STATUS_MASK);
 }
@@ -245,12 +250,12 @@ SBG_INLINE SbgEComGpsHdtStatus sbgEComLogGpsHdtGetStatus(uint32 status)
  * \param[in]	masks				Bit mask to set.
  * \return							The build GpsPosData status field.
  */
-SBG_INLINE uint32 sbgEComLogGpsHdtBuildStatus(SbgEComGpsHdtStatus status, uint32 masks)
+SBG_INLINE uint32_t sbgEComLogGpsHdtBuildStatus(SbgEComGpsHdtStatus status, uint32_t masks)
 {
 	//
 	// Create the combined status field
 	//
-	return	((((uint32)status)&SBG_ECOM_GPS_HDT_STATUS_MASK) << SBG_ECOM_GPS_HDT_STATUS_SHIFT) | masks;
+	return	((((uint32_t)status)&SBG_ECOM_GPS_HDT_STATUS_MASK) << SBG_ECOM_GPS_HDT_STATUS_SHIFT) | masks;
 }
 
 //----------------------------------------------------------------------//
@@ -262,9 +267,9 @@ SBG_INLINE uint32 sbgEComLogGpsHdtBuildStatus(SbgEComGpsHdtStatus status, uint32
  */
 typedef struct _SbgLogGpsVel
 {
-	uint32			timeStamp;				/*!< Time in us since the sensor power up. */
-	uint32			status;					/*!< GPS velocity status, type and bitmask. */
-	uint32			timeOfWeek;				/*!< GPS time of week in ms. */
+	uint32_t			timeStamp;				/*!< Time in us since the sensor power up. */
+	uint32_t			status;					/*!< GPS velocity status, type and bitmask. */
+	uint32_t			timeOfWeek;				/*!< GPS time of week in ms. */
 	float			velocity[3];			/*!< GPS North, East, Down velocity in m.s^-1. */
 	float			velocityAcc[3];			/*!< GPS North, East, Down velocity 1 sigma accuracy in m.s^-1. */
 	float			course;					/*!< Track ground course in degrees. */
@@ -276,9 +281,9 @@ typedef struct _SbgLogGpsVel
  */
 typedef struct _SbgLogGpsPos
 {
-	uint32			timeStamp;				/*!< Time in us since the sensor power up. */
-	uint32			status;					/*!< GPS position status, type and bitmask. */
-	uint32			timeOfWeek;				/*!< GPS time of week in ms. */
+	uint32_t			timeStamp;				/*!< Time in us since the sensor power up. */
+	uint32_t			status;					/*!< GPS position status, type and bitmask. */
+	uint32_t			timeOfWeek;				/*!< GPS time of week in ms. */
 	double			latitude;				/*!< Latitude in degrees, positive north. */
 	double			longitude;				/*!< Longitude in degrees, positive east. */
 	double			altitude;				/*!< Altitude above Mean Sea Level in meters. */
@@ -286,9 +291,9 @@ typedef struct _SbgLogGpsPos
 	float			latitudeAccuracy;		/*!< 1 sigma latitude accuracy in meters. */
 	float			longitudeAccuracy;		/*!< 1 sigma longitude accuracy in meters. */
 	float			altitudeAccuracy;		/*!< 1 sigma altitude accuracy in meters. */
-	uint8			numSvUsed;				/*!< Number of space vehicles used to compute the solution (since version 1.4). */
-	uint16			baseStationId;			/*!< Base station id for differential corrections (0-4095). Set to 0xFFFF if differential corrections are not used (since version 1.4). */
-	uint16			differentialAge;		/*!< Differential correction age in 0.01 seconds. Set to 0XFFFF if differential corrections are not used (since version 1.4). */
+	uint8_t			numSvUsed;				/*!< Number of space vehicles used to compute the solution (since version 1.4). */
+	uint16_t			baseStationId;			/*!< Base station id for differential corrections (0-4095). Set to 0xFFFF if differential corrections are not used (since version 1.4). */
+	uint16_t			differentialAge;		/*!< Differential correction age in 0.01 seconds. Set to 0XFFFF if differential corrections are not used (since version 1.4). */
 } SbgLogGpsPos;
 
 /*!
@@ -296,13 +301,14 @@ typedef struct _SbgLogGpsPos
  */
 typedef struct _SbgLogGpsHdt
 {
-	uint32			timeStamp;				/*!< Time in us since the sensor power up. */
-	uint16			status;					/*!< GPS HDT status, type and bitmask. */
-	uint32			timeOfWeek;				/*!< GPS time of week in ms. */
+	uint32_t			timeStamp;				/*!< Time in us since the sensor power up. */
+	uint16_t			status;					/*!< GPS HDT status, type and bitmask. */
+	uint32_t			timeOfWeek;				/*!< GPS time of week in ms. */
 	float			heading;				/*!< GPS true heading in degrees. */
 	float			headingAccuracy;		/*!< 1 sigma GPS true heading accuracy in degrees. */
 	float			pitch;					/*!< GPS pitch angle measured from the master to the rover in degrees. */
 	float			pitchAccuracy;			/*!< 1 signa GPS pitch angle accuarcy in degrees. */
+	float			baseline;				/*!< The distance between the main and aux antenna in meters. */
 } SbgLogGpsHdt;
 
 /*!
@@ -310,7 +316,7 @@ typedef struct _SbgLogGpsHdt
  */
 typedef struct _SbgLogGpsRaw
 {
-	uint8			rawBuffer[SBG_ECOM_GPS_RAW_MAX_BUFFER_SIZE];	/*!< Buffer that contains raw GPS data. */
+	uint8_t			rawBuffer[SBG_ECOM_GPS_RAW_MAX_BUFFER_SIZE];	/*!< Buffer that contains raw GPS data. */
 	size_t			bufferSize;										/*!< Raw buffer size in bytes. */
 } SbgLogGpsRaw;
 

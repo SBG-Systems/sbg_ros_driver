@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogEkf.h"
+﻿#include "sbgEComBinaryLogEkf.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseEkfEulerData(SbgStreamBuffer *pInputStream, SbgLogEkfEulerData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -47,9 +44,6 @@ SbgErrorCode sbgEComBinaryLogParseEkfEulerData(SbgStreamBuffer *pInputStream, Sb
  */
 SbgErrorCode sbgEComBinaryLogWriteEkfEulerData(SbgStreamBuffer *pOutputStream, const SbgLogEkfEulerData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -82,9 +76,6 @@ SbgErrorCode sbgEComBinaryLogWriteEkfEulerData(SbgStreamBuffer *pOutputStream, c
  */
 SbgErrorCode sbgEComBinaryLogParseEkfQuatData(SbgStreamBuffer *pInputStream, SbgLogEkfQuatData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -118,9 +109,6 @@ SbgErrorCode sbgEComBinaryLogParseEkfQuatData(SbgStreamBuffer *pInputStream, Sbg
  */
 SbgErrorCode sbgEComBinaryLogWriteEkfQuatData(SbgStreamBuffer *pOutputStream, const SbgLogEkfQuatData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -154,9 +142,6 @@ SbgErrorCode sbgEComBinaryLogWriteEkfQuatData(SbgStreamBuffer *pOutputStream, co
  */
 SbgErrorCode sbgEComBinaryLogParseEkfNavData(SbgStreamBuffer *pInputStream, SbgLogEkfNavData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -199,9 +184,6 @@ SbgErrorCode sbgEComBinaryLogParseEkfNavData(SbgStreamBuffer *pInputStream, SbgL
  */
 SbgErrorCode sbgEComBinaryLogWriteEkfNavData(SbgStreamBuffer *pOutputStream, const SbgLogEkfNavData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

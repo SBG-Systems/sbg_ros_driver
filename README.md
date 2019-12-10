@@ -18,6 +18,7 @@ User can install the sbg_ros_driver through the standard ROS installation system
 ### Building from sources
 #### Dependencies
 * [Robot Operating System (ROS)](http://wiki.ros.org/)
+* SBG communication protocol sbgECom, v1.11.920-stable (full compatible with firmwares from 1.7.x).
 
 #### Building
 1. Clone the repository (use a Release version)

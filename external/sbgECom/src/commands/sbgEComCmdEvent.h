@@ -103,7 +103,7 @@ typedef enum _SbgEComSyncOutPolarity
 typedef struct _SbgEComSyncInConf
 {
 	SbgEComSyncInSensitivity	sensitivity;	/*!< Sensitivity of the sync in. */
-	int32						delay;			/*!< Delay to take into account for the sync in. (in us)*/
+	int32_t						delay;			/*!< Delay to take into account for the sync in. (in us)*/
 } SbgEComSyncInConf;
 
 /*!
@@ -113,7 +113,7 @@ typedef struct _SbgEComSyncOutConf
 {
 	SbgEComSyncOutFunction		outputFunction;	/*!< Output function of the sync out pin */
 	SbgEComSyncOutPolarity		polarity;		/*!< Polarity of the sync out. */
-	uint32						duration;		/*!< Pulse width for the sync out (in ns). */
+	uint32_t						duration;		/*!< Pulse width for the sync out (in ns). */
 } SbgEComSyncOutConf;
 
 //----------------------------------------------------------------------//

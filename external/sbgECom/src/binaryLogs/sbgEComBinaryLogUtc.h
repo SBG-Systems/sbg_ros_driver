@@ -71,7 +71,7 @@ typedef enum _SbgEComClockUtcStatus
  * \param[in]	status				Status field to extract the clock status from it.
  * \return							The extracted clock status.
  */
-SBG_INLINE SbgEComClockStatus sbgEComLogUtcGetClockStatus(uint16 status)
+SBG_INLINE SbgEComClockStatus sbgEComLogUtcGetClockStatus(uint16_t status)
 {
 	return (SbgEComClockStatus)((status >> SBG_ECOM_CLOCK_STATUS_SHIFT) & SBG_ECOM_CLOCK_STATUS_MASK);
 }
@@ -81,7 +81,7 @@ SBG_INLINE SbgEComClockStatus sbgEComLogUtcGetClockStatus(uint16 status)
  * \param[in]	status				Status field to extract the UTC time status from it.
  * \return							The extracted UTC time status.
  */
-SBG_INLINE SbgEComClockUtcStatus sbgEComLogUtcGetClockUtcStatus(uint16 status)
+SBG_INLINE SbgEComClockUtcStatus sbgEComLogUtcGetClockUtcStatus(uint16_t status)
 {
 	return (SbgEComClockUtcStatus)((status >> SBG_ECOM_CLOCK_UTC_STATUS_SHIFT) & SBG_ECOM_CLOCK_UTC_STATUS_MASK);
 }
@@ -93,13 +93,13 @@ SBG_INLINE SbgEComClockUtcStatus sbgEComLogUtcGetClockUtcStatus(uint16 status)
  * \param[in]	masks				Bit mask to set.
  * \return							The build clock status field.
  */
-SBG_INLINE uint16 sbgEComLogUtcBuildClockStatus(SbgEComClockStatus clockStatus, SbgEComClockUtcStatus utcStatus, uint16 masks)
+SBG_INLINE uint16_t sbgEComLogUtcBuildClockStatus(SbgEComClockStatus clockStatus, SbgEComClockUtcStatus utcStatus, uint16_t masks)
 {
 	//
 	// Create the combined status field
 	//
-	return	((((uint16)clockStatus)&SBG_ECOM_CLOCK_STATUS_MASK) << SBG_ECOM_CLOCK_STATUS_SHIFT) |
-			((((uint16)utcStatus)&SBG_ECOM_CLOCK_UTC_STATUS_MASK) << SBG_ECOM_CLOCK_UTC_STATUS_SHIFT) | masks;
+	return	((((uint16_t)clockStatus)&SBG_ECOM_CLOCK_STATUS_MASK) << SBG_ECOM_CLOCK_STATUS_SHIFT) |
+			((((uint16_t)utcStatus)&SBG_ECOM_CLOCK_UTC_STATUS_MASK) << SBG_ECOM_CLOCK_UTC_STATUS_SHIFT) | masks;
 }
 
 //----------------------------------------------------------------------//
@@ -111,16 +111,16 @@ SBG_INLINE uint16 sbgEComLogUtcBuildClockStatus(SbgEComClockStatus clockStatus, 
  */
 typedef struct _SbgLogUtcData
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	status;						/*!< UTC time and clock status information */
-	uint16	year;						/*!< Year for example: 2013. */
-	int8	month;						/*!< Month in year [1 .. 12]. */
-	int8	day;						/*!< Day in month [1 .. 31]. */
-	int8	hour;						/*!< Hour in day [0 .. 23]. */
-	int8	minute;						/*!< Minute in hour [0 .. 59]. */
-	int8	second;						/*!< Second in minute [0 .. 60]. (60 is used only when a leap second is added) */
-	int32	nanoSecond;					/*!< Nanosecond of current second in ns. */
-	uint32	gpsTimeOfWeek;				/*!< GPS time of week in ms. */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	status;						/*!< UTC time and clock status information */
+	uint16_t	year;						/*!< Year for example: 2013. */
+	int8_t	month;						/*!< Month in year [1 .. 12]. */
+	int8_t	day;						/*!< Day in month [1 .. 31]. */
+	int8_t	hour;						/*!< Hour in day [0 .. 23]. */
+	int8_t	minute;						/*!< Minute in hour [0 .. 59]. */
+	int8_t	second;						/*!< Second in minute [0 .. 60]. (60 is used only when a leap second is added) */
+	int32_t	nanoSecond;					/*!< Nanosecond of current second in ns. */
+	uint32_t	gpsTimeOfWeek;				/*!< GPS time of week in ms. */
 } SbgLogUtcData;
 
 //----------------------------------------------------------------------//

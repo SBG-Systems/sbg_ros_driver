@@ -57,7 +57,7 @@ private:
   SbgEComMagCalibBandwidth    m_mag_calib_bandwidth_;
 
   SbgEComModelInfo            m_gnss_model_info_;
-  SbgEComGnssAlignmentInfo    m_gnss_alignement_info_;
+  SbgEComGnssInstallation     m_gnss_installation_;
   SbgEComGnssRejectionConf    m_gnss_rejection_conf_;
 
   SbgEComOdoConf              m_odometer_conf_;
@@ -306,11 +306,11 @@ public:
   const SbgEComModelInfo &getGnssModel(void) const;
 
   /*!
-   * Get the Gnss aligment configuration.
+   * Get the Gnss installation configuration.
    * 
-   * \return                                Gnss alignement configuration.
+   * \return                                Gnss installation configuration.
    */
-  const SbgEComGnssAlignmentInfo &getGnssAlignement(void) const;
+  const SbgEComGnssInstallation &getGnssInstallation(void) const;
 
   /*!
    * Get the Gnss rejection configuration.

@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgDefines.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		17 March 2015
@@ -17,8 +17,46 @@
  *	IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
  *	PARTICULAR PURPOSE.
  */
-#ifndef __SBG_DEFINES_H__
-#define __SBG_DEFINES_H__
+#ifndef SBG_DEFINES_H
+#define SBG_DEFINES_H
+
+// Standard headers
+#include <assert.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <time.h>
+
+//
+// XXX If NDEBUG is defined, most libraries define assert() as ((void)0), which may
+// cause "defined but not used" warnings. Redefine assert() in a way that safely
+// prevents this warning, i.e. without triggering the expression side effects.
+//
+#ifdef NDEBUG
+#undef assert
+#define assert(expression) ((void)sizeof(expression))
+#endif // NDEBUG
+
+/*!
+ * Macro used to handle export and import methods of the sbgCommon library
+ */
+#ifdef _MSC_VER
+	#if defined(SBG_COMMON_LIB_API_EXPORT)
+		#define SBG_COMMON_LIB_API __declspec(dllexport)
+	#elif defined(SBG_COMMON_LIB_API_IMPORT)
+		#define SBG_COMMON_LIB_API __declspec(dllimport)
+	#else
+		#define SBG_COMMON_LIB_API
+	#endif
+#else
+	#define SBG_COMMON_LIB_API
+#endif
 
 //----------------------------------------------------------------------//
 //- Global definitions                                                 -//
@@ -59,6 +97,60 @@
 	#define SBG_ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
 #endif
 
+#ifndef SBG_STRLEN
+	#define SBG_STRLEN(s)		(sizeof(s) - 1)
+#endif
+
+#ifndef SBG_CONTAINER_OF
+	#define SBG_CONTAINER_OF(ptr, type, member)		((type *)((char *)(ptr) - offsetof(type, member)))
+#endif
+
+#ifndef SBG_LIKELY
+	#if defined(__GNUC__)
+		#define SBG_LIKELY(expr)		__builtin_expect((bool)(expr), true)
+	#else
+		#define SBG_LIKELY(expr)		(expr)
+	#endif
+#endif
+
+#ifndef SBG_UNLIKELY
+	#if defined(__GNUC__)
+		#define SBG_UNLIKELY(expr)		__builtin_expect((bool)(expr), false)
+	#else
+		#define SBG_UNLIKELY(expr)		(expr)
+	#endif
+#endif
+
+/*!
+ * XXX Visual C (not C++) doesn't provide anything to implement typeof(). As a result,
+ * This macro is private and shouldn't be relied on.
+ */
+#ifndef __SBG_TYPEOF
+	#ifdef __cplusplus
+		#define __SBG_TYPEOF(x)			decltype(x)
+	#elif defined(__GNUC__)
+		#define __SBG_TYPEOF(x)			typeof(x)
+	#elif defined(__TI_COMPILER_VERSION__)
+		#define __SBG_TYPEOF(x)			typeof(x)
+	#endif
+#endif
+
+#ifndef SBG_CONST_CAST_AA
+	#ifdef __SBG_TYPEOF
+		#define SBG_CONST_CAST_AA(x)	((const __SBG_TYPEOF((x)[0][0])(*)[SBG_ARRAY_SIZE((x)[0])])(x))
+	#else
+		#define SBG_CONST_CAST_AA(x)	x
+	#endif
+#endif
+
+#ifndef SBG_CONST_CAST_PP
+	#ifdef __SBG_TYPEOF
+		#define SBG_CONST_CAST_PP(x)	((const __SBG_TYPEOF(**(x))**)(x))
+	#else
+		#define SBG_CONST_CAST_PP(x)	x
+	#endif
+#endif
+
 /*!
  *	__BASE_FILE__ is gcc specific
  */
@@ -81,14 +173,14 @@
 #endif
 
 //----------------------------------------------------------------------//
-//- Compiller definitions                                              -//
+//- Compiler definitions                                               -//
 //----------------------------------------------------------------------//
 
 /*!
  *	Macro used to abstract the compiler specific inline keyword.
  */
 #ifndef SBG_INLINE
-	#if defined(_WIN32) || defined(WIN32)
+	#if defined(_MSC_VER)
 		#define SBG_INLINE			__inline
 	#else
 		#define SBG_INLINE          static inline
@@ -102,6 +194,20 @@
 	#define SBG_UNUSED_PARAMETER(x)		(void)(x)
 #endif
 
+/*!
+ * The fallthrough attribute is used to avoid compiler warning in swith case statements
+ * when an intentional break is missing
+ */
+#ifndef SBG_FALLTHROUGH
+	#if __cplusplus >= 201703L
+		#define SBG_FALLTHROUGH			[[fallthrough]]					/* introduced in C++ 17 */
+	#elif defined(__GNUC__)
+		#define SBG_FALLTHROUGH			__attribute__ ((fallthrough))
+	#else
+		#define SBG_FALLTHROUGH
+	#endif
+#endif
+
 //----------------------------------------------------------------------//
 //- Macro used to defined packed structures                            -//
 //----------------------------------------------------------------------//
@@ -111,6 +217,8 @@
  * All structures defined after this macro will be packed.
  */
 #ifdef __GNUC__
+	#define SBG_BEGIN_PACKED()
+#elif defined(__TI_COMPILER_VERSION__)
 	#define SBG_BEGIN_PACKED()
 #elif defined(_MSC_VER)
 	#define SBG_BEGIN_PACKED()	__pragma(pack(push, 1))
@@ -123,6 +231,8 @@
  */
 #ifdef __GNUC__
 	#define SBG_PACKED			__attribute__((packed))
+#elif defined(__TI_COMPILER_VERSION__)
+	#define SBG_PACKED			__attribute__((packed))
 #elif defined(_MSC_VER)
 	#define SBG_PACKED
 #else
@@ -133,6 +243,8 @@
  * This macro is used to close the section of packed structures and return to the default packing.
  */
 #ifdef __GNUC__
+	#define SBG_END_PACKED()
+#elif defined(__TI_COMPILER_VERSION__)
 	#define SBG_END_PACKED()
 #elif defined(_MSC_VER)
 	#define SBG_END_PACKED()		__pragma(pack(pop))
@@ -148,6 +260,8 @@
  *	Macro used to indicate that a function is deprecated.
  */
 #ifdef __GNUC__
+	#define SBG_DEPRECATED(func) func __attribute__ ((deprecated))
+#elif defined(__TI_COMPILER_VERSION__)
 	#define SBG_DEPRECATED(func) func __attribute__ ((deprecated))
 #elif defined(_MSC_VER)
 	#define SBG_DEPRECATED(func) __declspec(deprecated) func
@@ -180,6 +294,16 @@
 #endif
 
 /*!
+ *	Returns the absolute value of x.
+ *
+ *	\param[in]	x					Signed integer value.
+ *	\return							The absolute value of x.
+ */
+#ifndef sbgAbs
+	#define sbgAbs(x)				(((x) < 0) ? -(x) : (x))
+#endif
+
+/*!
  *	Returns the maximum between a and b
  *	\param[in]	a					First operand.
  *	\param[in]	b					Second operand.
@@ -208,6 +332,15 @@
  */
 #ifndef sbgClamp
 	#define sbgClamp(value, minValue, maxValue)            (((value) < (minValue))?(minValue): ((value) > (maxValue)?maxValue:value))
+#endif
+
+/*!
+ * Integer division with a result rounded up.
+ * \param[in]	n					Dividend.
+ * \param[in]	d					Divisor.
+ */
+#ifndef sbgDivCeil
+	#define sbgDivCeil(n, d)		(((n) + (d) - 1) / (d))
 #endif
 
 /*!

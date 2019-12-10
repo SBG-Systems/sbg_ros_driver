@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgSplitBuffer.h
  *  \author		SBG Systems (Maxime Renaudet)
  *	\date		19 November 2013
@@ -18,8 +18,8 @@
  *	PARTICULAR PURPOSE.
  */
 
-#ifndef __SBG_SPLIT_BUFFER_H__
-#define __SBG_SPLIT_BUFFER_H__
+#ifndef SBG_SPLIT_BUFFER_H
+#define SBG_SPLIT_BUFFER_H
 
 #include <sbgCommon.h>
 
@@ -39,7 +39,7 @@ extern "C" {
  */
 typedef struct _SbgSplitBuffer
 {
-	uint8	*pLinkedBuffer;					/*!< Pointer on the buffer that needs to be split */
+	uint8_t	*pLinkedBuffer;					/*!< Pointer on the buffer that needs to be split */
 	size_t	 linkedBufferSize;				/*!< Size of the original buffer */
 	size_t	 subBufferSize;					/*!< The size of the sub buffers */
 	size_t	 subBufferNbr;					/*!< The number of sub buffers in this split buffer */
@@ -61,12 +61,12 @@ SBG_INLINE void sbgSplitBufferInitForRead(SbgSplitBuffer *pSplitBuffer, const vo
 	//
 	//	Test input arguments
 	//
-	SBG_ASSERT(pSplitBuffer);
+	assert(pSplitBuffer);
 
 	//
 	// Initialize split buffer parameters
 	//
-	pSplitBuffer->pLinkedBuffer = (uint8*)pBuffer;
+	pSplitBuffer->pLinkedBuffer = (uint8_t*)pBuffer;
 	pSplitBuffer->linkedBufferSize = bufferSize;
 	pSplitBuffer->subBufferSize = subBufferSize;
 
@@ -88,12 +88,12 @@ SBG_INLINE void sbgSplitBufferInitForWrite(SbgSplitBuffer *pSplitBuffer, void *p
 	//
 	//	Test input arguments
 	//
-	SBG_ASSERT(pSplitBuffer);
+	assert(pSplitBuffer);
 
 	//
 	// Initialize split buffer parameters
 	//
-	pSplitBuffer->pLinkedBuffer = (uint8*)pBuffer;
+	pSplitBuffer->pLinkedBuffer = (uint8_t*)pBuffer;
 	pSplitBuffer->linkedBufferSize = bufferSize;
 	pSplitBuffer->subBufferSize = subBufferSize;
 
@@ -113,7 +113,7 @@ SBG_INLINE size_t sbgSplitBufferGetSubBufferNbr(const SbgSplitBuffer *pSplitBuff
 	//
 	//	Test input arguments
 	//
-	SBG_ASSERT(pSplitBuffer);
+	assert(pSplitBuffer);
 
 	//
 	// Return subBufferNbr parameter
@@ -132,7 +132,7 @@ SBG_INLINE void *sbgSplitBufferGetSubBuffer(const SbgSplitBuffer *pSplitBuffer, 
 	//
 	//	Test input arguments
 	//
-	SBG_ASSERT(pSplitBuffer);
+	assert(pSplitBuffer);
 
 	//
 	// Test input parameters
@@ -142,7 +142,7 @@ SBG_INLINE void *sbgSplitBufferGetSubBuffer(const SbgSplitBuffer *pSplitBuffer, 
 		//
 		// Return pointer to buffer
 		//
-		return ((uint8*)pSplitBuffer->pLinkedBuffer + pSplitBuffer->subBufferSize*subBufferIdx);
+		return ((uint8_t*)pSplitBuffer->pLinkedBuffer + pSplitBuffer->subBufferSize*subBufferIdx);
 	}
 	else
 	{
@@ -164,7 +164,7 @@ SBG_INLINE size_t sbgSplitBufferGetSubBufferOffset(const SbgSplitBuffer *pSplitB
 	//
 	//	Test input arguments
 	//
-	SBG_ASSERT(pSplitBuffer);
+	assert(pSplitBuffer);
 
 	//
 	// Test input parameters
@@ -198,7 +198,7 @@ SBG_INLINE size_t sbgSplitBufferGetSubBufferSize(const SbgSplitBuffer *pSplitBuf
 	//
 	//	Test input arguments
 	//
-	SBG_ASSERT(pSplitBuffer);
+	assert(pSplitBuffer);
 
 	//
 	// Test input parameters
@@ -237,4 +237,4 @@ SBG_INLINE size_t sbgSplitBufferGetSubBufferSize(const SbgSplitBuffer *pSplitBuf
 }
 #endif
 
-#endif
+#endif /* SBG_SPLIT_BUFFER_H */

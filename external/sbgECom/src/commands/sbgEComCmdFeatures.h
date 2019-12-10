@@ -88,11 +88,11 @@ typedef enum _SbgEComGnssType
  */
 typedef struct _SbgEComFeatures
 {
-	uint32			sensorFeaturesMask;			/*!< The different measurement capabilities of this unit */
+	uint32_t			sensorFeaturesMask;			/*!< The different measurement capabilities of this unit */
 	SbgEComGnssType gnssType;					/*!< The type of GNSS receiver used (brand and model) */
-	uint8			gnssUpdateRate;				/*!< The actual GNSS update rate */
-	uint32			gnssSignalsMask;			/*!< GNSS receiver signals tracking */
-	uint32			gnssFeaturesMask;			/*!< GNSS receiver computation and output features */
+	uint8_t			gnssUpdateRate;				/*!< The actual GNSS update rate */
+	uint32_t			gnssSignalsMask;			/*!< GNSS receiver signals tracking */
+	uint32_t			gnssFeaturesMask;			/*!< GNSS receiver computation and output features */
 	char			gnssProductCode[32];		/*!< String containing the GNSS receiver product code (“\0” if unknown) */
 	char			gnssSerialNumber[32];		/*!< String containing the GNSS receiver serial number (“\0” if unknown) */
 } SbgEComFeatures;

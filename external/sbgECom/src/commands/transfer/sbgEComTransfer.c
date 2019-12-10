@@ -1,4 +1,4 @@
-#include "sbgEComTransfer.h"
+﻿#include "sbgEComTransfer.h"
 #include "../sbgEComCmdCommon.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 #include <splitBuffer/sbgSplitBuffer.h>
@@ -15,16 +15,13 @@
  * \param[in] size						Total size of the upload.
  * \return								SBG_NO_ERROR when the transfer was initiated successfully.
  */
-static SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t size)
+static SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, size_t size)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		streamBuffer;
-	uint8				outputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
-	uint32				i;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
+	uint32_t			i;
 
-	//
-	// Check input parameter
-	//
 	assert(pHandle);
 
 	//
@@ -81,16 +78,13 @@ static SbgErrorCode sbgEComTransferSendInit(SbgEComHandle *pHandle, uint8 msgCla
  * \param[in] packetSize				The size of this packet.
  * \return								SBG_NO_ERROR if the packet was sent and acknowledged by the device.
  */
-static SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, size_t offset, size_t packetSize)
+static SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, const void *pBuffer, size_t offset, size_t packetSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		streamBuffer;
-	uint8				outputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
-	uint32				i;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
+	uint32_t			i;
 	
-	//
-	// Check input parameters
-	//
 	assert(pHandle);
 	assert(pBuffer);
 	assert(packetSize > 0);
@@ -147,16 +141,13 @@ static SbgErrorCode sbgEComTransferSendData(SbgEComHandle *pHandle, uint8 msgCla
  * \param[in] msg						Original protocol message id asking for transfer.
  * \return								SBG_NO_ERROR when the transfer ended successfully.
  */
-static SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg)
+static SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
-	uint8				outputBuffer[sizeof(uint16)];
-	uint32				i;
+	uint8_t				outputBuffer[sizeof(uint16_t)];
+	uint32_t			i;
 
-	//
-	// Check input parameter
-	//
 	assert(pHandle);
 	
 	//
@@ -210,23 +201,20 @@ static SbgErrorCode sbgEComTransferSendEnd(SbgEComHandle *pHandle, uint8 msgClas
  * \param[out] pSize					Size of the transfer initiated, returned from the device.
  * \return								SBG_NO_ERROR when the transfer initiated successfully.
  */
-static SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, size_t *pSize)
+static SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, size_t *pSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
 	SbgStreamBuffer		inStreamBuffer;
-	uint8				inputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
-	uint8				outputBuffer[sizeof(uint16)];
-	uint8				receivedMsgClass;
-	uint8				receivedMsg;
-	uint16				transferCmd;
+	uint8_t				inputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
+	uint8_t				outputBuffer[sizeof(uint16_t)];
+	uint8_t				receivedMsgClass;
+	uint8_t				receivedMsg;
+	uint16_t			transferCmd;
 	size_t				inputSize;
 	size_t				transferSize;
-	uint32				i;
+	uint32_t			i;
 
-	//
-	// Check input parameter
-	//
 	assert(pHandle);
 
 	//
@@ -323,23 +311,20 @@ static SbgErrorCode sbgEComTransferReceiveInit(SbgEComHandle *pHandle, uint8 msg
  * \param[in] packetSize				The size of the data asked to the device.
  * \return								SBG_NO_ERROR if the packet was successfully received.
  */
-static SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, size_t offset, size_t packetSize)
+static SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, void *pBuffer, size_t offset, size_t packetSize)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
 	SbgStreamBuffer		inStreamBuffer;
-	uint8				outputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
-	uint8				inputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
-	uint16				transferCmd;
-	uint8				receivedMsgClass;
-	uint8				receivedMsg;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
+	uint8_t				inputBuffer[SBG_ECOM_MAX_PAYLOAD_SIZE];
+	uint16_t				transferCmd;
+	uint8_t				receivedMsgClass;
+	uint8_t				receivedMsg;
 	size_t				rcvdOffset;
 	size_t				inputSize;
-	uint32				i;
+	uint32_t				i;
 
-	//
-	// Check input parameters
-	//
 	assert(pHandle);
 	assert(pBuffer);
 	assert(packetSize > 0);
@@ -397,12 +382,12 @@ static SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msg
 					// The data is at the offset asked
 					// And the size corresponds
 					//
-					if ( (transferCmd == SBG_ECOM_TRANSFER_DATA) && (offset == rcvdOffset) && (packetSize == (inputSize - (sizeof(uint16) + sizeof(uint32)))) )
+					if ( (transferCmd == SBG_ECOM_TRANSFER_DATA) && (offset == rcvdOffset) && (packetSize == (inputSize - (sizeof(uint16_t) + sizeof(uint32_t)))) )
 					{
 						//
 						// Read then all the buffer
 						//
-						sbgStreamBufferReadBuffer(&inStreamBuffer, pBuffer, inputSize - (sizeof(uint16) + sizeof(uint32)));
+						sbgStreamBufferReadBuffer(&inStreamBuffer, pBuffer, inputSize - (sizeof(uint16_t) + sizeof(uint32_t)));
 
 						//
 						// No need for other trials, exit loop
@@ -431,16 +416,13 @@ static SbgErrorCode sbgEComTransferReceiveData(SbgEComHandle *pHandle, uint8 msg
  * \param[in] msg						Original protocol message id asking for transfer.
  * \return								SBG_NO_ERROR when the transfer ended successfully.
  */
-static SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg)
+static SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgStreamBuffer		outStreamBuffer;
-	uint8				outputBuffer[sizeof(uint16)];
-	uint32				i;
+	uint8_t				outputBuffer[sizeof(uint16_t)];
+	uint32_t			i;
 
-	//
-	// Check input parameter
-	//
 	assert(pHandle);
 	
 	//
@@ -499,15 +481,12 @@ static SbgErrorCode sbgEComTransferReceiveEnd(SbgEComHandle *pHandle, uint8 msgC
  * \param[in]	size					The size of the buffer.
  * \return								SBG_NO_ERROR in case of a successful upload.
  */
-SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, const void *pBuffer, size_t size)
+SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, const void *pBuffer, size_t size)
 {
 	SbgErrorCode	errorCode = SBG_NO_ERROR;
 	SbgSplitBuffer	splitBuffer;
 	size_t			i;
 
-	//
-	// Check input parameters
-	//
 	assert(pHandle);
 	assert(pBuffer);
 	assert(size > 0);
@@ -587,16 +566,13 @@ SbgErrorCode sbgEComTransferSend(SbgEComHandle *pHandle, uint8 msgClass, uint8 m
  * \param[in]	size					The size of the buffer.
  * \return								SBG_NO_ERROR in case of a successful download.
  */
-SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8 msgClass, uint8 msg, void *pBuffer, size_t *pActualSize, size_t bufferSize)
+SbgErrorCode sbgEComTransferReceive(SbgEComHandle *pHandle, uint8_t msgClass, uint8_t msg, void *pBuffer, size_t *pActualSize, size_t bufferSize)
 {
 	SbgErrorCode	errorCode = SBG_NO_ERROR;
 	SbgSplitBuffer	splitBuffer;
 	size_t			transferSize;
 	size_t			i;
 
-	//
-	// Check input parameters
-	//
 	assert(pHandle);
 	assert(pBuffer);
 	assert(pActualSize);

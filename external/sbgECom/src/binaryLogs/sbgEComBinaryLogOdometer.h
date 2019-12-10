@@ -27,7 +27,11 @@
 //- Log odometer status definitions                                    -//
 //----------------------------------------------------------------------//
 
-#define	SBG_ECOM_ODO_REAL_MEAS			(0x00000001 << 0)			/*!< Set to 1 if this log comes from a real pulse measurement or from a timeout. */
+/*!
+ * Odometer / velocity status mask definitions.
+ */
+#define SBG_ECOM_ODO_REAL_MEAS				(0x0001 << 0)			/*!< Set to 1 if this log comes from a real pulse measurement or from a timeout. */
+#define SBG_ECOM_ODO_TIME_SYNC				(0x0001 << 1)			/*!< Set to 1 if the velocity information is correctly time synchronized. */
 
 //----------------------------------------------------------------------//
 //- Log structure definitions                                          -//
@@ -38,8 +42,8 @@
  */
 typedef struct _SbgLogOdometerData
 {
-	uint32	timeStamp;				/*!< Time in us since the sensor power up. */
-	uint16	status;					/*!< Odometer velocity status bitmask. */
+	uint32_t	timeStamp;				/*!< Time in us since the sensor power up. */
+	uint16_t	status;					/*!< Odometer velocity status bitmask. */
 	float	velocity;				/*!< Velocity in m.s^-1 in the odometer direction. */
 } SbgLogOdometerData;
 

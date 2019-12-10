@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------//
 
 /*!< CRC table used to compute a 16 bit CRC with the polynom 0x8408. */
-static const uint16 crc16LookupTable[256] = {
+static const uint16_t crc16LookupTable[256] = {
 	0x0000,0x1189,0x2312,0x329B,0x4624,0x57AD,0x6536,0x74BF,0x8C48,0x9DC1,0xAF5A,0xBED3,0xCA6C,0xDBE5,0xE97E,0xF8F7,
 	0x1081,0x0108,0x3393,0x221A,0x56A5,0x472C,0x75B7,0x643E,0x9CC9,0x8D40,0xBFDB,0xAE52,0xDAED,0xCB64,0xF9FF,0xE876,
 	0x2102,0x308B,0x0210,0x1399,0x6726,0x76AF,0x4434,0x55BD,0xAD4A,0xBCC3,0x8E58,0x9FD1,0xEB6E,0xFAE7,0xC87C,0xD9F5,
@@ -24,7 +24,7 @@ static const uint16 crc16LookupTable[256] = {
 	0xF78F,0xE606,0xD49D,0xC514,0xB1AB,0xA022,0x92B9,0x8330,0x7BC7,0x6A4E,0x58D5,0x495C,0x3DE3,0x2C6A,0x1EF1,0x0F78};
 
 /*!< CRC table used to compute an Ethernet 32 bit CRC using the normal polynom 0x04C11DB7. */
-static const uint32 crc32EthernetTable[256] =
+static const uint32_t crc32EthernetTable[256] =
 {
   0x00000000,
   0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
@@ -88,12 +88,12 @@ static const uint32 crc32EthernetTable[256] =
  *	Initialize the 32 bit CRC computation system.
  *	\param[in]	pInstance				Pointer on an allocated but non initialized Crc32 object.
  */
-void sbgCrc32Initialize(SbgCrc32 *pInstance)
+SBG_COMMON_LIB_API void sbgCrc32Initialize(SbgCrc32 *pInstance)
 {
 	//
 	// Test input argument
 	//
-	SBG_ASSERT(pInstance);
+	assert(pInstance);
 
 	*pInstance = 0xFFFFFFFF;
 }
@@ -105,21 +105,21 @@ void sbgCrc32Initialize(SbgCrc32 *pInstance)
  *	\param[in]	pData					Read only pointer on the data buffer to compute CRC on.
  *	\param[in]	dataSize				Data size in bytes of the buffer, has to be greater or equals to 4.
  */
-void sbgCrc32Update(SbgCrc32 *pInstance, const void *pData, size_t dataSize)
+SBG_COMMON_LIB_API void sbgCrc32Update(SbgCrc32 *pInstance, const void *pData, size_t dataSize)
 {
-	const uint8		*pBuffer = (const uint8*)pData;
-	uint32			 byte;
+	const uint8_t		*pBuffer = (const uint8_t*)pData;
+	uint32_t			 byte;
 	size_t			 i;
 	size_t			 dataSizeCorrected;
 	size_t			 numBytesLeft;
+	size_t			 index;
 
 	//
 	// Test input arguments
 	//
-	SBG_ASSERT(pInstance);
-	SBG_ASSERT(pData);
-	SBG_ASSERT(dataSize >= 4);
-
+	assert(pInstance);
+	assert(pData);
+	
 	//
 	// Compute the data size that corresponds to complete uinht32 and how many bytes remains
 	//
@@ -131,9 +131,14 @@ void sbgCrc32Update(SbgCrc32 *pInstance, const void *pData, size_t dataSize)
 	for (i = 0; i < dataSizeCorrected; i++)
 	{
 		//
+		// We have to get index in reversed order per 4 bytes
+		//
+		index = i ^ 0x03;
+
+		//
 		// Get the current byte value
 		//
-		byte = pBuffer[i ^ 0x03];
+		byte = pBuffer[index];
 
 		//
 		// Update the CRC value
@@ -147,9 +152,14 @@ void sbgCrc32Update(SbgCrc32 *pInstance, const void *pData, size_t dataSize)
 	for (i = 0; i < numBytesLeft; i++)
 	{
 		//
+		// We have to get index in reversed order per 4 bytes
+		//
+		index = (dataSizeCorrected-1) + (numBytesLeft - i);
+
+		//
 		// Get the current byte value
 		//
-		byte = pBuffer[dataSizeCorrected + (i ^ (numBytesLeft - 1))];
+		byte = pBuffer[index];
 
 		//
 		// Update the CRC value
@@ -165,7 +175,7 @@ void sbgCrc32Update(SbgCrc32 *pInstance, const void *pData, size_t dataSize)
  *	\param[in]	dataSize				Data size in bytes of the buffer, has to be greater or equals to 4.
  *	\return								The computed CRC.
  */
-uint32 sbgCrc32Compute(const void *pData, size_t dataSize)
+SBG_COMMON_LIB_API uint32_t sbgCrc32Compute(const void *pData, size_t dataSize)
 {
 	SbgCrc32 crcInst;
 
@@ -193,12 +203,12 @@ uint32 sbgCrc32Compute(const void *pData, size_t dataSize)
  *	Initialize the 16 bit CRC computation system.
  *	\param[in]	pInstance				Pointer on an allocated but non initialized Crc16 object.
  */
-void sbgCrc16Initialize(SbgCrc16 *pInstance)
+SBG_COMMON_LIB_API void sbgCrc16Initialize(SbgCrc16 *pInstance)
 {
 	//
 	// Test input argument
 	//
-	SBG_ASSERT(pInstance);
+	assert(pInstance);
 
 	*pInstance = 0;
 }
@@ -209,17 +219,17 @@ void sbgCrc16Initialize(SbgCrc16 *pInstance)
  *	\param[in]	pData					Read only pointer on the data buffer to compute CRC on.
  *	\param[in]	dataSize				Data size in bytes of the buffer.
  */
-void sbgCrc16Update(SbgCrc16 *pInstance, const void *pData, size_t dataSize)
+SBG_COMMON_LIB_API void sbgCrc16Update(SbgCrc16 *pInstance, const void *pData, size_t dataSize)
 {
-	const uint8 *pBuffer = (const uint8*)pData;
-	uint8 index;
+	const uint8_t *pBuffer = (const uint8_t*)pData;
+	uint8_t index;
 	size_t i;
 
 	//
 	// Test input arguments
 	//
-	SBG_ASSERT(pInstance);
-	SBG_ASSERT(pData);
+	assert(pInstance);
+	assert(pData);
 
     //
     // For each byte in our buffer
@@ -240,7 +250,7 @@ void sbgCrc16Update(SbgCrc16 *pInstance, const void *pData, size_t dataSize)
  *	\param[in]	dataSize				Data size in bytes of the buffer.
  *	\return								The computed CRC.
  */
-uint16 sbgCrc16Compute(const void *pData, size_t dataSize)
+SBG_COMMON_LIB_API uint16_t sbgCrc16Compute(const void *pData, size_t dataSize)
 {
 	SbgCrc16 crcInst;
 
@@ -259,4 +269,3 @@ uint16 sbgCrc16Compute(const void *pData, size_t dataSize)
 	//
 	return sbgCrc16Get(&crcInst);
 }
-

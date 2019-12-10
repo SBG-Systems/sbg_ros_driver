@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgInterfaceSerial.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		06 February 2013
@@ -18,8 +18,8 @@
  *	PARTICULAR PURPOSE.
  */
 
-#ifndef __SBG_INTERFACE_SERIAL_H__
-#define __SBG_INTERFACE_SERIAL_H__
+#ifndef SBG_INTERFACE_SERIAL_H
+#define SBG_INTERFACE_SERIAL_H
 
 //----------------------------------------------------------------------//
 //- Header (open extern C block)                                       -//
@@ -51,21 +51,14 @@ extern "C" {
  *	\param[in]	baudRate						Serial interface baud rate in bps.
  *	\return										SBG_NO_ERROR if the interface has been created.
  */
-SbgErrorCode sbgInterfaceSerialCreate(SbgInterface *pHandle, const char *deviceName, uint32 baudRate);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceSerialCreate(SbgInterface *pHandle, const char *deviceName, uint32_t baudRate);
 
 /*!
  *	Destroy an interface initialized using sbgInterfaceSerialCreate.
  *	\param[in]	pInterface						Valid handle on an initialized interface.
  *	\return										SBG_NO_ERROR if the interface has been closed and released.
  */
-SbgErrorCode sbgInterfaceSerialDestroy(SbgInterface *pHandle);
-
-/*!
- * Flush the RX and TX buffers (remove all old data)
- * \param[in]	handle				Valid handle on an initialized interface.
- * \return							SBG_NO_ERROR if everything is OK
- */
-SbgErrorCode sbgInterfaceSerialFlush(SbgInterface *pHandle);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceSerialDestroy(SbgInterface *pHandle);
 
 /*!
  * Change the serial interface baud rate immediatly.
@@ -73,7 +66,7 @@ SbgErrorCode sbgInterfaceSerialFlush(SbgInterface *pHandle);
  * \param[in]	baudRate			The new baudrate to apply in bps.
  * \return							SBG_NO_ERROR if everything is OK
  */
-SbgErrorCode sbgInterfaceSerialChangeBaudrate(SbgInterface *pHandle, uint32 baudRate);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceSerialChangeBaudrate(SbgInterface *pHandle, uint32_t baudRate);
 
 //----------------------------------------------------------------------//
 //- Internal interfaces write/read implementations                     -//
@@ -86,17 +79,24 @@ SbgErrorCode sbgInterfaceSerialChangeBaudrate(SbgInterface *pHandle, uint32 baud
  * \param[in]	bytesToWrite							Number of bytes we would like to write.
  * \return												SBG_NO_ERROR if all bytes have been written successfully.
  */
-SbgErrorCode sbgInterfaceSerialWrite(SbgInterface *pHandle, const void *pBuffer, size_t bytesToWrite);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceSerialWrite(SbgInterface *pHandle, const void *pBuffer, size_t bytesToWrite);
 
 /*!
  * Try to read some data from an interface.
  * \param[in]	pHandle									Valid handle on an initialized interface.
  * \param[in]	pBuffer									Pointer on an allocated buffer that can hold at least bytesToRead bytes of data.
- * \param[out]	pReadBytes								Pointer on an uint32 used to return the number of read bytes.
+ * \param[out]	pReadBytes								Pointer on an uint32_t used to return the number of read bytes.
  * \param[in]	bytesToRead								Number of bytes we would like to read.
  * \return												SBG_NO_ERROR if no error occurs, please check the number of received bytes.
  */
-SbgErrorCode sbgInterfaceSerialRead(SbgInterface *pHandle, void *pBuffer, size_t *pReadBytes, size_t bytesToRead);
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceSerialRead(SbgInterface *pHandle, void *pBuffer, size_t *pReadBytes, size_t bytesToRead);
+
+/*!
+ * Flush the RX and TX buffers (remove all old data)
+ * \param[in]	handle				Valid handle on an initialized interface.
+ * \return							SBG_NO_ERROR if everything is OK
+ */
+SBG_COMMON_LIB_API SbgErrorCode sbgInterfaceSerialFlush(SbgInterface *pHandle);
 
 //----------------------------------------------------------------------//
 //- Footer (close extern C block)                                      -//
@@ -105,4 +105,4 @@ SbgErrorCode sbgInterfaceSerialRead(SbgInterface *pHandle, void *pBuffer, size_t
 }
 #endif
 
-#endif /* __INTERFACE_SERIAL_H__ */
+#endif /* SBG_INTERFACE_SERIAL_H */

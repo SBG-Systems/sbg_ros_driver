@@ -138,8 +138,7 @@ magnetometer:
 
 
 # GNSS configuration
-# Note: Pitch and Yaw offsets as well as antenna distance parameters should only be considered in
-# case of dual antenna GNSS receiver. It can be left to 0 otherwise.
+# Note: Secondary level arms should only be considered in case of dual antenna GNSS receiver. It can be left to 0 otherwise.
 gnss:
   # Gnss Model Id
   # 101 Used on Ellipse-N to setup the internal GNSS in GPS+GLONASS
@@ -150,18 +149,28 @@ gnss:
   # 107 Used on Ellipse-D by default
   gnss_model_id: 102
 
-  #GNSS antenna lever arm in IMU X axis (m)
-  leverArmX: 0
-  #GNSS antenna lever arm in IMU Y axis (m)
-  leverArmY: 0
-  #GNSS antenna lever arm in IMU Z axis (m)
-  leverArmZ: 0
-  #Pitch offset for dual antenna GNSS (rad)
-  pitchOffset: 0
-  #Yaw offset for dual antenna GNSS (rad)
-  yawOffset: 0
-  #Distance between two GNSS antennas (m)
-  antennaDistance: 0
+  #GNSS primary antenna lever arm in IMU X axis (m)
+  primaryLeverArmX: 0
+  #GNSS primary antenna lever arm in IMU Y axis (m)
+  primaryLeverArmY: 0
+  #GNSS primary antenna lever arm in IMU Z axis (m)
+  primaryLeverArmZ: 0
+  #GNSS primary antenna precise. Set to true if the primary lever arm has been accurately entered and doesn't need online re-estimation.
+  primaryLeverPrecise: true
+
+  #GNSS secondary antenna lever arm in IMU X axis (m)
+  secondaryLeverArmX: 0
+  #GNSS secondary antenna lever arm in IMU Y axis (m)
+  secondaryLeverArmY: 0
+  #GNSS secondary antenna lever arm in IMU Z axis (m)
+  secondaryLeverArmZ: 0
+
+  # Secondary antenna operating mode.
+  # 1 The GNSS will be used in single antenna mode only and the secondary lever arm is not used.
+  # 2 [Reserved] The GNSS dual antenna information will be used but the secondary lever arm is not known.
+  # 3 The GNSS dual antenna information will be used and we have a rough guess for the secondary lever arm.
+  # 4 The GNSS dual antenna information will be used and the secondary lever arm is accurately entered and doesn't need online re-estimation.
+  secondaryLeverMode: 1
 
   # Rejection mode for position
   # 0 Measurement is not taken into account

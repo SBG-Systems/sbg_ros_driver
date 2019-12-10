@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogImu.h"
+ï»¿#include "sbgEComBinaryLogImu.h"
 
 //----------------------------------------------------------------------//
 //- Getter / helpers                                                   -//
@@ -33,9 +33,9 @@ float sbgLogImuShortGetDeltaVelocity(const SbgLogImuShort *pImuShort, size_t idx
 }
 
 /*!
- * Return from an IMU Short log, the temperature in °C
+ * Return from an IMU Short log, the temperature in Â°C
  * \param[in]	pImuShort					Input IMU short message instance.
- * \return									The converted temperature in °C
+ * \return									The converted temperature in Â°C
  */
 float sbgLogImuShortGetTemperature(const SbgLogImuShort *pImuShort)
 {
@@ -56,9 +56,6 @@ float sbgLogImuShortGetTemperature(const SbgLogImuShort *pImuShort)
  */
 SbgErrorCode sbgEComBinaryLogParseImuData(SbgStreamBuffer *pInputStream, SbgLogImuData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -100,9 +97,6 @@ SbgErrorCode sbgEComBinaryLogParseImuData(SbgStreamBuffer *pInputStream, SbgLogI
  */
 SbgErrorCode sbgEComBinaryLogWriteImuData(SbgStreamBuffer *pOutputStream, const SbgLogImuData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -144,9 +138,6 @@ SbgErrorCode sbgEComBinaryLogWriteImuData(SbgStreamBuffer *pOutputStream, const 
 */
 SbgErrorCode sbgEComBinaryLogParseImuShort(SbgStreamBuffer *pInputStream, SbgLogImuShort *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -180,9 +171,6 @@ SbgErrorCode sbgEComBinaryLogParseImuShort(SbgStreamBuffer *pInputStream, SbgLog
 */
 SbgErrorCode sbgEComBinaryLogWriteImuShort(SbgStreamBuffer *pOutputStream, const SbgLogImuShort *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -216,9 +204,6 @@ SbgErrorCode sbgEComBinaryLogWriteImuShort(SbgStreamBuffer *pOutputStream, const
  */
 SbgErrorCode sbgEComBinaryLogParseFastImuData(SbgStreamBuffer *pInputStream, SbgLogFastImuData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -250,9 +235,6 @@ SbgErrorCode sbgEComBinaryLogParseFastImuData(SbgStreamBuffer *pInputStream, Sbg
  */
 SbgErrorCode sbgEComBinaryLogWriteFastImuData(SbgStreamBuffer *pOutputStream, const SbgLogFastImuData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 
@@ -262,13 +244,13 @@ SbgErrorCode sbgEComBinaryLogWriteFastImuData(SbgStreamBuffer *pOutputStream, co
 	sbgStreamBufferWriteUint32LE(pOutputStream, pInputData->timeStamp);
 	sbgStreamBufferWriteUint16LE(pOutputStream, pInputData->status);
 				
-	sbgStreamBufferWriteInt16LE(pOutputStream, (int16)(pInputData->accelerometers[0] * 100.0f));
-	sbgStreamBufferWriteInt16LE(pOutputStream, (int16)(pInputData->accelerometers[1] * 100.0f));
-	sbgStreamBufferWriteInt16LE(pOutputStream, (int16)(pInputData->accelerometers[2] * 100.0f));
+	sbgStreamBufferWriteInt16LE(pOutputStream, (int16_t)(pInputData->accelerometers[0] * 100.0f));
+	sbgStreamBufferWriteInt16LE(pOutputStream, (int16_t)(pInputData->accelerometers[1] * 100.0f));
+	sbgStreamBufferWriteInt16LE(pOutputStream, (int16_t)(pInputData->accelerometers[2] * 100.0f));
 		
-	sbgStreamBufferWriteInt16LE(pOutputStream, (int16)(pInputData->gyroscopes[0] * 1000.0f));
-	sbgStreamBufferWriteInt16LE(pOutputStream, (int16)(pInputData->gyroscopes[1] * 1000.0f));
-	sbgStreamBufferWriteInt16LE(pOutputStream, (int16)(pInputData->gyroscopes[2] * 1000.0f));
+	sbgStreamBufferWriteInt16LE(pOutputStream, (int16_t)(pInputData->gyroscopes[0] * 1000.0f));
+	sbgStreamBufferWriteInt16LE(pOutputStream, (int16_t)(pInputData->gyroscopes[1] * 1000.0f));
+	sbgStreamBufferWriteInt16LE(pOutputStream, (int16_t)(pInputData->gyroscopes[2] * 1000.0f));
 
 	//
 	// Return if any error has occurred while writing the frame

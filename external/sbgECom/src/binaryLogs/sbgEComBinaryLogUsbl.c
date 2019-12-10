@@ -1,4 +1,4 @@
-#include "sbgEComBinaryLogUsbl.h"
+﻿#include "sbgEComBinaryLogUsbl.h"
 
 //----------------------------------------------------------------------//
 //- Operations                                                         -//
@@ -12,9 +12,6 @@
  */
 SbgErrorCode sbgEComBinaryLogParseUsblData(SbgStreamBuffer *pInputStream, SbgLogUsblData *pOutputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pOutputData);
 
@@ -47,9 +44,6 @@ SbgErrorCode sbgEComBinaryLogParseUsblData(SbgStreamBuffer *pInputStream, SbgLog
  */
 SbgErrorCode sbgEComBinaryLogWriteUsblData(SbgStreamBuffer *pOutputStream, const SbgLogUsblData *pInputData)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pInputData);
 

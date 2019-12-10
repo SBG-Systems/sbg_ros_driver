@@ -1,4 +1,4 @@
-#include "sbgEComCmdSettings.h"
+﻿#include "sbgEComCmdSettings.h"
 #include "transfer/sbgEComTransfer.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 
@@ -18,65 +18,54 @@
 SbgErrorCode sbgEComCmdSettingsAction(SbgEComHandle *pHandle, SbgEComSettingsAction action)
 {
 	SbgErrorCode	errorCode = SBG_NO_ERROR;
-	uint32			trial;
-	uint8			outputBuffer[1];
+	uint32_t		trial;
+	uint8_t			outputBuffer[1];
 	SbgStreamBuffer	outputStream;
 
+	assert(pHandle);
+	
 	//
-	// Test that the protocol handle is valid
+	// Send the command three times
 	//
-	if (pHandle)
-	{
+	for (trial = 0; trial < pHandle->numTrials; trial++)
+	{	
 		//
-		// Send the command three times
+		// Send the command and the action as a 1-byte payload
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
-		{	
+		sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+		sbgStreamBufferWriteUint8(&outputStream, action);
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
+		{
 			//
-			// Send the command and the action as a 1-byte payload
+			// Try to read the device answer for 500 ms
 			//
-			sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
-			sbgStreamBufferWriteUint8(&outputStream, action);
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+			errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, pHandle->cmdDefaultTimeOut);
 
 			//
-			// Make sure that the command has been sent
+			// Test if we have received a valid ACK
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
-				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_SETTINGS_ACTION, pHandle->cmdDefaultTimeOut);
-
-				//
-				// Test if we have received a valid ACK
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
-				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Invalid protocol handle.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }
 

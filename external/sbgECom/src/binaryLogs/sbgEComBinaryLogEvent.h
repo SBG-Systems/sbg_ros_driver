@@ -45,12 +45,12 @@
  */
 typedef struct _SbgLogEvent
 {
-	uint32	timeStamp;					/*!< Measurement time since the sensor power up. */
-	uint16	status;						/*!< Events status bitmask. */
-	uint16	timeOffset0;				/*!< Time offset for the second received event. */
-	uint16	timeOffset1;				/*!< Time offset for the third received event. */
-	uint16	timeOffset2;				/*!< Time offset for the fourth received event. */
-	uint16	timeOffset3;				/*!< Time offset for the fifth received event. */
+	uint32_t	timeStamp;					/*!< Measurement time since the sensor power up. */
+	uint16_t	status;						/*!< Events status bitmask. */
+	uint16_t	timeOffset0;				/*!< Time offset for the second received event. */
+	uint16_t	timeOffset1;				/*!< Time offset for the third received event. */
+	uint16_t	timeOffset2;				/*!< Time offset for the fourth received event. */
+	uint16_t	timeOffset3;				/*!< Time offset for the fifth received event. */
 } SbgLogEvent;
 
 //----------------------------------------------------------------------//

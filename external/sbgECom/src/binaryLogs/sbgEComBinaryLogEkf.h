@@ -55,9 +55,10 @@
 #define SBG_ECOM_SOL_USER_VEL_USED			(0x00000001u << 22)		/*!< Set to 1 if user Position is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_USER_HEADING_USED		(0x00000001u << 23)		/*!< Set to 1 if user Course is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_USBL_USED				(0x00000001u << 24)		/*!< Set to 1 if USBL / LBL is used in solution (data used and valid since 3s). */
-#define SBG_ECOM_SOL_PRESSURE_USED			(0x00000001u << 25)		/*!< Set to 1 if pressure (depth or altimeter) is used in solution (data used and valid since 3s). */
+#define SBG_ECOM_SOL_AIR_DATA_USED			(0x00000001u << 25)		/*!< Set to 1 if AirData (altimeter and/or true airspeed) is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_ZUPT_USED				(0x00000001u << 26)		/*!< Set to 1 if a ZUPT is used in solution (data used and valid since 3s). */
 #define SBG_ECOM_SOL_ALIGN_VALID			(0x00000001u << 27)		/*!< Set to 1 if sensor alignment and calibration parameters are valid */
+#define SBG_ECOM_SOL_DEPTH_USED				(0x00000001u << 28)		/*!< Set to 1 if Depth sensor (for subsea navigation) is used in solution (data used and valid since 3s). */
 
 /*!
  * Solution filter mode enum.
@@ -77,10 +78,10 @@ typedef enum _SbgEComSolutionMode
 
 /*!
  * Method used to read the solution mode from a solution status field.
- * \param[in]	status				Status uint32 value to extract the solution mode from it.
+ * \param[in]	status				Status uint32_t value to extract the solution mode from it.
  * \return							The extracted solution mode.
  */
-SBG_INLINE SbgEComSolutionMode sbgEComLogEkfGetSolutionMode(uint32 status)
+SBG_INLINE SbgEComSolutionMode sbgEComLogEkfGetSolutionMode(uint32_t status)
 {
 	return (SbgEComSolutionMode)((status >> SBG_ECOM_SOLUTION_MODE_SHIFT) & SBG_ECOM_SOLUTION_MODE_MASK);
 }
@@ -91,12 +92,12 @@ SBG_INLINE SbgEComSolutionMode sbgEComLogEkfGetSolutionMode(uint32 status)
  * \param[in]	masks				Bit mask to set.
  * \return							The build solution status field.
  */
-SBG_INLINE uint32 sbgEComLogEkfBuildSolutionStatus(SbgEComSolutionMode solutionMode, uint32 masks)
+SBG_INLINE uint32_t sbgEComLogEkfBuildSolutionStatus(SbgEComSolutionMode solutionMode, uint32_t masks)
 {
 	//
 	// Create the combined status field
 	//
-	return	((((uint32)solutionMode)&SBG_ECOM_SOLUTION_MODE_MASK) << SBG_ECOM_SOLUTION_MODE_SHIFT) | masks;
+	return	((((uint32_t)solutionMode)&SBG_ECOM_SOLUTION_MODE_MASK) << SBG_ECOM_SOLUTION_MODE_SHIFT) | masks;
 }
 
 
@@ -109,10 +110,10 @@ SBG_INLINE uint32 sbgEComLogEkfBuildSolutionStatus(SbgEComSolutionMode solutionM
  */
 typedef struct _SbgLogEkfEulerData
 {
-	uint32	timeStamp;				/*!< Time in us since the sensor power up. */
+	uint32_t	timeStamp;				/*!< Time in us since the sensor power up. */
 	float	euler[3];				/*!< Roll, Pitch and Yaw angles in rad. */
 	float	eulerStdDev[3];			/*!< Roll, Pitch and Yaw angles 1 sigma standard deviation in rad. */
-	uint32	status;					/*!< EKF solution status bitmask and enum. */
+	uint32_t	status;					/*!< EKF solution status bitmask and enum. */
 } SbgLogEkfEulerData;
 
 /*!
@@ -120,10 +121,10 @@ typedef struct _SbgLogEkfEulerData
  */
 typedef struct _SbgLogEkfQuatData
 {
-	uint32	timeStamp;				/*!< Time in us since the sensor power up. */
+	uint32_t	timeStamp;				/*!< Time in us since the sensor power up. */
 	float	quaternion[4];			/*!< Orientation quaternion stored in W, X, Y, Z form. */
 	float	eulerStdDev[3];			/*!< Roll, Pitch and Yaw angles 1 sigma standard deviation in rad. */
-	uint32	status;					/*!< EKF solution status bitmask and enum. */
+	uint32_t	status;					/*!< EKF solution status bitmask and enum. */
 } SbgLogEkfQuatData;
 
 /*!
@@ -131,14 +132,14 @@ typedef struct _SbgLogEkfQuatData
  */
 typedef struct _SbgLogEkfNavData
 {
-	uint32	timeStamp;				/*!< Time in us since the sensor power up. */
+	uint32_t	timeStamp;				/*!< Time in us since the sensor power up. */
 	float	velocity[3];			/*!< North, East, Down velocity in m.s^-1. */
 	float	velocityStdDev[3];		/*!< North, East, Down velocity 1 sigma standard deviation in m.s^-1. */
 	double	position[3];			/*!< Latitude, Longitude in degrees positive North and East.
 										 Altitude above Mean Sea Level in meters. */
 	float	undulation;				/*!< Altitude difference between the geoid and the Ellipsoid in meters (Height above Ellipsoid = altitude + undulation). */
 	float	positionStdDev[3];		/*!< Latitude, longitude and altitude 1 sigma standard deviation in meters. */
-	uint32	status;					/*!< EKF solution status bitmask and enum. */
+	uint32_t	status;					/*!< EKF solution status bitmask and enum. */
 } SbgLogEkfNavData;
 
 //----------------------------------------------------------------------//

@@ -1,4 +1,4 @@
-#include "sbgEComCmdEthernet.h"
+﻿#include "sbgEComCmdEthernet.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 
 //----------------------------------------------------------------------//
@@ -13,16 +13,13 @@
  */
 static SbgErrorCode sbgEComEthernetConfWrite(SbgStreamBuffer *pOutputStream, const SbgEComEthernetConf *pEthernetConf)
 {
-	//
-	// Check input arguments
-	//
 	assert(pOutputStream);
 	assert(pEthernetConf);
 
 	//
 	// Build payload
 	//
-	sbgStreamBufferWriteUint8LE(pOutputStream, (uint8)pEthernetConf->mode);
+	sbgStreamBufferWriteUint8LE(pOutputStream, (uint8_t)pEthernetConf->mode);
 	sbgStreamBufferWriteUint32LE(pOutputStream, pEthernetConf->ipAddress);
 	sbgStreamBufferWriteUint32LE(pOutputStream, pEthernetConf->netmask);
 	sbgStreamBufferWriteUint32LE(pOutputStream, pEthernetConf->gateway);
@@ -43,9 +40,6 @@ static SbgErrorCode sbgEComEthernetConfWrite(SbgStreamBuffer *pOutputStream, con
  */
 static SbgErrorCode sbgEComEthernetConfParse(SbgStreamBuffer *pInputStream, SbgEComEthernetConf *pEthernetConf)
 {
-	//
-	// Check input arguments
-	//
 	assert(pInputStream);
 	assert(pEthernetConf);
 
@@ -80,14 +74,11 @@ static SbgErrorCode sbgEComEthernetConfParse(SbgStreamBuffer *pInputStream, SbgE
 SbgErrorCode sbgEComEthernetGetConf(SbgEComHandle *pHandle, SbgEComEthernetConf *pEthernetConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
+	uint32_t			trial;
 	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
-	//
-	// Check input arguments
-	//
 	assert(pHandle);
 	assert(pEthernetConf);
 
@@ -153,13 +144,10 @@ SbgErrorCode sbgEComEthernetGetConf(SbgEComHandle *pHandle, SbgEComEthernetConf 
 SbgErrorCode sbgEComEthernetSetConf(SbgEComHandle *pHandle, const SbgEComEthernetConf *pEthernetConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint32_t			trial;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		outputStream;
 
-	//
-	// Check input arguments
-	//
 	assert(pHandle);
 	assert(pEthernetConf);
 		
@@ -230,14 +218,11 @@ SbgErrorCode sbgEComEthernetSetConf(SbgEComHandle *pHandle, const SbgEComEtherne
 SbgErrorCode sbgEComEthernetInfo(SbgEComHandle *pHandle, SbgEComEthernetConf *pEthernetConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
+	uint32_t			trial;
 	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
-	//
-	// Check input arguments
-	//
 	assert(pHandle);
 	assert(pEthernetConf);
 

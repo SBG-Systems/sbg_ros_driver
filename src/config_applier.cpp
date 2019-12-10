@@ -223,30 +223,34 @@ void ConfigApplier::configureGnssModel(const SbgEComModelInfo& ref_gnss_model)
   }
 }
 
-void ConfigApplier::configureGnssAlignement(const SbgEComGnssAlignmentInfo& ref_gnss_alignement)
+void ConfigApplier::configureGnssInstallation(const SbgEComGnssInstallation& ref_gnss_installation)
 {
   //
   // Get the Gnss level arm, and compare with the loaded parameters.
   // If the level arms are different, update the device with the loaded parameters.
   //
-  SbgEComGnssAlignmentInfo  gnss_alignement;
-  SbgErrorCode              error_code;
-  Eigen::Vector3f           gnss_device;
-  Eigen::Vector3f           gnss_config;
+  SbgEComGnssInstallation gnss_installation;
+  SbgErrorCode            error_code;
+  Eigen::Vector3f         gnss_device_primary;
+  Eigen::Vector3f         gnss_device_secondary;
+  Eigen::Vector3f         gnss_config_primary;
+  Eigen::Vector3f         gnss_config_secondary;
 
-  error_code = sbgEComCmdGnss1GetLeverArmAlignment(&m_ref_sbg_com_handle, &gnss_alignement);
+  error_code = sbgEComCmdGnss1InstallationGet(&m_ref_sbg_com_handle, &gnss_installation);
 
   checkConfigurationGet(error_code, std::string("Gnss level arms"));
 
-  gnss_device = Eigen::Vector3f(gnss_alignement.leverArmX, gnss_alignement.leverArmY, gnss_alignement.leverArmZ);
-  gnss_config = Eigen::Vector3f(ref_gnss_alignement.leverArmX, ref_gnss_alignement.leverArmY, ref_gnss_alignement.leverArmZ);
+  gnss_device_primary   = Eigen::Vector3f(gnss_installation.leverArmPrimary[0], gnss_installation.leverArmPrimary[1], gnss_installation.leverArmPrimary[2]);
+  gnss_device_secondary = Eigen::Vector3f(gnss_installation.leverArmSecondary[0], gnss_installation.leverArmSecondary[1], gnss_installation.leverArmSecondary[2]);
+  gnss_config_primary   = Eigen::Vector3f(ref_gnss_installation.leverArmPrimary[0], ref_gnss_installation.leverArmPrimary[1], ref_gnss_installation.leverArmPrimary[2]);
+  gnss_config_secondary = Eigen::Vector3f(ref_gnss_installation.leverArmSecondary[0], ref_gnss_installation.leverArmSecondary[1], ref_gnss_installation.leverArmSecondary[2]);
 
-  if (!areEquals(gnss_alignement.antennaDistance, ref_gnss_alignement.antennaDistance)
-  || (gnss_device != gnss_config)
-  || !areEquals(gnss_alignement.pitchOffset, ref_gnss_alignement.pitchOffset)
-  || !areEquals(gnss_alignement.yawOffset, ref_gnss_alignement.yawOffset))
+  if ((gnss_device_primary != gnss_config_primary)
+  || (gnss_device_secondary != gnss_config_secondary)
+  || (gnss_installation.leverArmPrimaryPrecise != ref_gnss_installation.leverArmPrimaryPrecise)
+  || (gnss_installation.leverArmSecondaryMode != ref_gnss_installation.leverArmSecondaryMode))
   {
-    error_code = sbgEComCmdGnss1SetLeverArmAlignment(&m_ref_sbg_com_handle, &ref_gnss_alignement);
+    error_code = sbgEComCmdGnss1InstallationSet(&m_ref_sbg_com_handle, &ref_gnss_installation);
 
     checkConfigurationApplied(error_code, std::string("Gnss level arms"));
   }
@@ -410,7 +414,7 @@ void ConfigApplier::applyConfiguration(const ConfigStore& ref_config_store)
   configureMagModel(ref_config_store.getMagnetometerModel());
   configureMagRejection(ref_config_store.getMagnetometerRejection());
   configureGnssModel(ref_config_store.getGnssModel());
-  configureGnssAlignement(ref_config_store.getGnssAlignement());
+  configureGnssInstallation(ref_config_store.getGnssInstallation());
   configureGnssRejection(ref_config_store.getGnssRejection());
   configureOdometer(ref_config_store.getOdometerConf());
   configureOdometerLevelArm(ref_config_store.getOdometerLevelArms());

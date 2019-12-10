@@ -1,4 +1,4 @@
-#include "sbgEComCmdAdvanced.h"
+﻿#include "sbgEComCmdAdvanced.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 
 //----------------------------------------------------------------------//
@@ -14,74 +14,64 @@
 SbgErrorCode sbgEComCmdAdvancedGetConf(SbgEComHandle *pHandle, SbgEComAdvancedConf *pConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
+	uint32_t			trial;
 	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
+	assert(pHandle);
+	assert(pConf);
+
 	//
-	// Test that the input pointers are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pConf))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Send the command without payload since this is a no-payload command
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, NULL, 0);
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Send the command without payload since this is a no-payload command
+			// Try to read the device answer for 500 ms
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, NULL, 0);
+			errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
 
 			//
-			// Make sure that the command has been sent
+			// Test if we have received a SBG_ECOM_CMD_ADVANCED_CONF command
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
+				// Initialize stream buffer to read parameters
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
 
 				//
-				// Test if we have received a SBG_ECOM_CMD_ADVANCED_CONF command
+				// Read parameters
 				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// Initialize stream buffer to read parameters
-					//
-					sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
+				pConf->timeReference = (SbgEComTimeReferenceSrc)sbgStreamBufferReadUint8LE(&inputStream);
 
-					//
-					// Read parameters
-					//
-					pConf->timeReference = (SbgEComTimeReferenceSrc)sbgStreamBufferReadUint8LE(&inputStream);
-
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
 				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Null pointer
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }
 
@@ -94,73 +84,63 @@ SbgErrorCode sbgEComCmdAdvancedGetConf(SbgEComHandle *pHandle, SbgEComAdvancedCo
 SbgErrorCode sbgEComCmdAdvancedSetConf(SbgEComHandle *pHandle, const SbgEComAdvancedConf *pConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint32_t			trial;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		outputStream;
 
+	assert(pHandle);
+	assert(pConf);
+	
 	//
-	// Test that the input pointer are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pConf))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Init stream buffer for output
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+
+		//
+		// Build payload
+		//
+		sbgStreamBufferWriteUint8LE(&outputStream, (uint8_t)pConf->timeReference);
+
+		//
+		// Send the payload over ECom
+		//
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Init stream buffer for output
+			// Try to read the device answer for 500 ms
 			//
-			sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+			errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, pHandle->cmdDefaultTimeOut);
 
 			//
-			// Build payload
-			//
-			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)pConf->timeReference);
-
-			//
-			// Send the payload over ECom
-			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
-
-			//
-			// Make sure that the command has been sent
+			// Test if we have received a valid ACK
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
-				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_ADVANCED_CONF, pHandle->cmdDefaultTimeOut);
-
-				//
-				// Test if we have received a valid ACK
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
-				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Null pointer.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }
 
@@ -174,79 +154,69 @@ SbgErrorCode sbgEComCmdAdvancedSetConf(SbgEComHandle *pHandle, const SbgEComAdva
 SbgErrorCode sbgEComCmdAdvancedGetThresholds(SbgEComHandle *pHandle, SbgEComValidityThresholds *pConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
+	uint32_t			trial;
 	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
+	assert(pHandle);
+	assert(pConf);
+		
 	//
-	// Test that the input pointers are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pConf))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Send the command without payload since this is a no-payload command
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, NULL, 0);
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Send the command without payload since this is a no-payload command
+			// Try to read the device answer for 500 ms
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, NULL, 0);
+			errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
 
 			//
-			// Make sure that the command has been sent
+			// Test if we have received a SBG_ECOM_CMD_VALIDITY_THRESHOLDS command
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
+				// Initialize stream buffer to read parameters
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
 
 				//
-				// Test if we have received a SBG_ECOM_CMD_VALIDITY_THRESHOLDS command
+				// Read parameters and check payload consistency
 				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// Initialize stream buffer to read parameters
-					//
-					sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
+				pConf->positionThreshold = sbgStreamBufferReadFloatLE(&inputStream);
+				pConf->velocityThreshold = sbgStreamBufferReadFloatLE(&inputStream);
+				pConf->attitudeThreshold = sbgStreamBufferReadFloatLE(&inputStream);
+				pConf->headingThreshold = sbgStreamBufferReadFloatLE(&inputStream);
 
-					//
-					// Read parameters and check payload consistency
-					//
-					pConf->positionThreshold = sbgStreamBufferReadFloatLE(&inputStream);
-					pConf->velocityThreshold = sbgStreamBufferReadFloatLE(&inputStream);
-					pConf->attitudeThreshold = sbgStreamBufferReadFloatLE(&inputStream);
-					pConf->headingThreshold = sbgStreamBufferReadFloatLE(&inputStream);
+				errorCode = sbgStreamBufferGetLastError(&inputStream);
 
-					errorCode = sbgStreamBufferGetLastError(&inputStream);
-
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
 				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Null pointer
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }
 /*!
@@ -258,75 +228,65 @@ SbgErrorCode sbgEComCmdAdvancedGetThresholds(SbgEComHandle *pHandle, SbgEComVali
 SbgErrorCode sbgEComCmdAdvancedSetThresholds(SbgEComHandle *pHandle, const SbgEComValidityThresholds *pConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint32_t			trial;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		outputStream;
 
+	assert(pHandle);
+	assert(pConf);
+		
 	//
-	// Test that the input pointer are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pConf))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Init stream buffer for output
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+
+		//
+		// Build payload
+		//
+		sbgStreamBufferWriteFloatLE(&outputStream, pConf->positionThreshold);
+		sbgStreamBufferWriteFloatLE(&outputStream, pConf->velocityThreshold);
+		sbgStreamBufferWriteFloatLE(&outputStream, pConf->attitudeThreshold);
+		sbgStreamBufferWriteFloatLE(&outputStream, pConf->headingThreshold);
+
+		//
+		// Send the payload over ECom
+		//
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Init stream buffer for output
+			// Try to read the device answer for 500 ms
 			//
-			sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+			errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, pHandle->cmdDefaultTimeOut);
 
 			//
-			// Build payload
-			//
-			sbgStreamBufferWriteFloatLE(&outputStream, pConf->positionThreshold);
-			sbgStreamBufferWriteFloatLE(&outputStream, pConf->velocityThreshold);
-			sbgStreamBufferWriteFloatLE(&outputStream, pConf->attitudeThreshold);
-			sbgStreamBufferWriteFloatLE(&outputStream, pConf->headingThreshold);
-
-			//
-			// Send the payload over ECom
-			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
-
-			//
-			// Make sure that the command has been sent
+			// Test if we have received a valid ACK
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
-				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_VALIDITY_THRESHOLDS, pHandle->cmdDefaultTimeOut);
-
-				//
-				// Test if we have received a valid ACK
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
-				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Null pointer.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }

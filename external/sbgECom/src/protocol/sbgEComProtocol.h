@@ -50,7 +50,7 @@
 typedef struct _SbgEComProtocol
 {
 	SbgInterface		*pLinkedInterface;							/*!< Associated interface used by the protocol to read/write bytes. */
-	uint8				 rxBuffer[SBG_ECOM_MAX_BUFFER_SIZE];		/*!< The reception buffer. */
+	uint8_t				 rxBuffer[SBG_ECOM_MAX_BUFFER_SIZE];		/*!< The reception buffer. */
 	size_t				 rxBufferSize;								/*!< The current reception buffer size in bytes. */
 } SbgEComProtocol;
 
@@ -82,7 +82,7 @@ SbgErrorCode sbgEComProtocolClose(SbgEComProtocol *pHandle);
  * \param[in]	size					Size in bytes of the data payload (less than 4086).
  * \return								SBG_NO_ERROR if the frame has been sent.
  */
-SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8 msg, const void *pData, size_t size);
+SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8_t msgClass, uint8_t msg, const void *pData, size_t size);
 
 /*!
  * Try to receive a frame from the device and returns the cmd, data and size of data field.
@@ -98,7 +98,7 @@ SbgErrorCode sbgEComProtocolSend(SbgEComProtocol *pHandle, uint8 msgClass, uint8
  *										SBG_NULL_POINTER if an input parameter is NULL.<br>
  *										SBG_BUFFER_OVERFLOW if the received frame payload couldn't fit into the pData buffer.
  */
-SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, uint8 *pMsg, void *pData, size_t *pSize, size_t maxSize);
+SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8_t *pMsgClass, uint8_t *pMsg, void *pData, size_t *pSize, size_t maxSize);
 
 //----------------------------------------------------------------------//
 //- Frame generation to stream buffer                                  -//
@@ -115,7 +115,7 @@ SbgErrorCode sbgEComProtocolReceive(SbgEComProtocol *pHandle, uint8 *pMsgClass, 
  *										This value should be passed to sbgEComFinalizeFrameGeneration for correct operations.
  * \return								SBG_NO_ERROR in case of good operation.
  */
-SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8 msgClass, uint8 msg, size_t *pStreamCursor);
+SbgErrorCode sbgEComStartFrameGeneration(SbgStreamBuffer *pOutputStream, uint8_t msgClass, uint8_t msg, size_t *pStreamCursor);
 
 /*!
  * Finalize an output stream that has been initialized with sbgEComStartFrameGeneration.

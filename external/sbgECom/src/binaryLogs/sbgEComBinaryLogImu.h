@@ -1,4 +1,4 @@
-/*!
+ï»¿/*!
  *	\file		sbgEComBinaryLogImu.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		25 February 2013
@@ -53,26 +53,26 @@
  */
 typedef struct _SbgLogImuData
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	status;						/*!< IMU status bitmask. */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	status;						/*!< IMU status bitmask. */
 	float	accelerometers[3];			/*!< X, Y, Z accelerometers in m.s^-2. */
 	float	gyroscopes[3];				/*!< X, Y, Z gyroscopes in rad.s^-1. */
-	float	temperature;				/*!< Internal temperature in °C. */	
+	float	temperature;				/*!< Internal temperature in Â°C. */	
 	float	deltaVelocity[3];			/*!< X, Y, Z delta velocity in m.s^-2. */
 	float	deltaAngle[3];				/*!< X, Y, Z delta angle in rad.s^-1. */
 } SbgLogImuData;
 
 /*!
  * Structure that stores data for the SBG_ECOM_LOG_IMU_SHORT message.
- * This message is only sent asynchrounously and is the prefered log for post processing.
+ * This message is only sent asynchronously and is the preferred log for post processing.
  */
 typedef struct _SbgLogImuShort
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	status;						/*!< IMU status bitmask. */
-	int32	deltaVelocity[3];			/*!< X, Y, Z delta velocity. Unit is 1048576 LSB for 1 m.s^-2. */
-	int32	deltaAngle[3];				/*!< X, Y, Z delta angle. Unit is 67108864 LSB for 1 rad.s^-1. */
-	int16	temperature;				/*!< IMU average temperature. Unit is 256 LSB for 1°C. */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	status;						/*!< IMU status bitmask. */
+	int32_t	deltaVelocity[3];			/*!< X, Y, Z delta velocity. Unit is 1048576 LSB for 1 m.s^-2. */
+	int32_t	deltaAngle[3];				/*!< X, Y, Z delta angle. Unit is 67108864 LSB for 1 rad.s^-1. */
+	int16_t	temperature;				/*!< IMU average temperature. Unit is 256 LSB for 1Â°C. */
 } SbgLogImuShort;
 
 /*!
@@ -80,8 +80,8 @@ typedef struct _SbgLogImuShort
  */
 typedef struct _SbgLogFastImuData
 {
-	uint32	timeStamp;					/*!< Time in us since the sensor power up. */
-	uint16	status;						/*!< IMU status bitmask. */
+	uint32_t	timeStamp;					/*!< Time in us since the sensor power up. */
+	uint16_t	status;						/*!< IMU status bitmask. */
 	float	accelerometers[3];			/*!< X, Y, Z accelerometers in m.s^-2. */
 	float	gyroscopes[3];				/*!< X, Y, Z gyroscopes in rad.s^-1. */
 } SbgLogFastImuData;
@@ -107,9 +107,9 @@ float sbgLogImuShortGetDeltaAngle(const SbgLogImuShort *pImuShort, size_t idx);
 float sbgLogImuShortGetDeltaVelocity(const SbgLogImuShort *pImuShort, size_t idx);
 
 /*!
- * Return from an IMU Short log, the temperature in °C
+ * Return from an IMU Short log, the temperature in Â°C
  * \param[in]	pImuShort					Input IMU short message instance.
- * \return									The converted temperature in °C
+ * \return									The converted temperature in Â°C
  */
 float sbgLogImuShortGetTemperature(const SbgLogImuShort *pImuShort);
 

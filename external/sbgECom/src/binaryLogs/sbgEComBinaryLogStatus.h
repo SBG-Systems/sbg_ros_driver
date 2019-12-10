@@ -100,8 +100,8 @@ typedef enum _SbgEComCanBusStatus
 #define SBG_ECOM_AIDING_ODO_RECV			(0x00000001u << 9)		/*!< Set to 1 when Odometer pulse is received. */
 #define SBG_ECOM_AIDING_DVL_RECV			(0x00000001u << 10)		/*!< Set to 1 when valid DVL data is received. */
 #define SBG_ECOM_AIDING_USBL_RECV			(0x00000001u << 11)		/*!< Set to 1 when valid USBL data is received. */
-#define SBG_ECOM_AIDING_EM_LOG_RECV			(0x00000001u << 12)		/*!< Set to 1 when valid EM Log data is received. */
-#define SBG_ECOM_AIDING_PRESSURE_RECV		(0x00000001u << 13)		/*!< Set to 1 when valid Pressure sensor data is received. */
+#define SBG_ECOM_AIDING_DEPTH_RECV			(0x00000001u << 12)		/*!< Set to 1 when valid Depth Log data is received. */
+#define SBG_ECOM_AIDING_AIR_DATA_RECV		(0x00000001u << 13)		/*!< Set to 1 when valid Air Data (altitude and/or true airspeed) is received. */
 #define SBG_ECOM_AIDING_USER_POS_RECV		(0x00000001u << 14)		/*!< Set to 1 when valid user position data is received. */
 #define SBG_ECOM_AIDING_USER_VEL_RECV		(0x00000001u << 15)		/*!< Set to 1 when valid user velocity data is received. */
 #define SBG_ECOM_AIDING_USER_HEADING_RECV	(0x00000001u << 16)		/*!< Set to 1 when valid user heading data is received. */
@@ -115,14 +115,14 @@ typedef enum _SbgEComCanBusStatus
  */
 typedef struct _SbgLogStatusData
 {
-	uint32	timeStamp;												/*!< Time in us since the sensor power up. */
-	uint16	generalStatus;											/*!< General status bitmask and enums. */
-	uint16	reserved1;												/*!< Reserved status field for future use */
-	uint32	comStatus;												/*!< Communication status bitmask and enums. */
-	uint32	aidingStatus;											/*!< Aiding equipments status bitmask and enums. */
-	uint32	reserved2;												/*!< Reserved status field for future use. */
-	uint16	reserved3;												/*!< Reserved status field for future use. */
-	uint32	uptime;													/*!< System uptime in seconds. */
+	uint32_t	timeStamp;												/*!< Time in us since the sensor power up. */
+	uint16_t	generalStatus;											/*!< General status bitmask and enums. */
+	uint16_t	reserved1;												/*!< Reserved status field for future use */
+	uint32_t	comStatus;												/*!< Communication status bitmask and enums. */
+	uint32_t	aidingStatus;											/*!< Aiding equipments status bitmask and enums. */
+	uint32_t	reserved2;												/*!< Reserved status field for future use. */
+	uint16_t	reserved3;												/*!< Reserved status field for future use. */
+	uint32_t	uptime;													/*!< System uptime in seconds. */
 } SbgLogStatusData;
 
 //----------------------------------------------------------------------//
@@ -134,7 +134,7 @@ typedef struct _SbgLogStatusData
  * \param[in]	status				Status field to extract the CAN bus status from it.
  * \return							The extracted CAN bus status.
  */
-SBG_INLINE SbgEComCanBusStatus sbgEComLogStatusGetCanStatus(uint32 status)
+SBG_INLINE SbgEComCanBusStatus sbgEComLogStatusGetCanStatus(uint32_t status)
 {
 	return (SbgEComCanBusStatus)((status >> SBG_ECOM_CAN_STATUS_SHIFT) & SBG_ECOM_CAN_STATUS_MASK);
 }
@@ -145,12 +145,12 @@ SBG_INLINE SbgEComCanBusStatus sbgEComLogStatusGetCanStatus(uint32 status)
  * \param[in]	masks				Bit mask to set.
  * \return							The build communication status field.
  */
-SBG_INLINE uint32 sbgEComLogStatusBuildCommunicationStatus(SbgEComCanBusStatus canStatus, uint32 masks)
+SBG_INLINE uint32_t sbgEComLogStatusBuildCommunicationStatus(SbgEComCanBusStatus canStatus, uint32_t masks)
 {
 	//
 	// Create the combined status field
 	//
-	return	((((uint32)canStatus)&SBG_ECOM_CAN_STATUS_MASK) << SBG_ECOM_CAN_STATUS_SHIFT) | masks;
+	return	((((uint32_t)canStatus)&SBG_ECOM_CAN_STATUS_MASK) << SBG_ECOM_CAN_STATUS_SHIFT) | masks;
 }
 
 //----------------------------------------------------------------------//

@@ -33,7 +33,6 @@ private:
   ros::Publisher          m_sbgEventC_pub_;
   ros::Publisher          m_sbgEventD_pub_;
   ros::Publisher          m_sbgEventE_pub_;
-  ros::Publisher          m_sbgPressure_pub_;
 
   ros::Publisher          m_imu_pub_;
   sbg_driver::SbgImuData  m_sbg_imu_message_;

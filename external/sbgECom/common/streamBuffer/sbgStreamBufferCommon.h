@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgStreamBufferCommon.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		02 January 2013
@@ -18,8 +18,8 @@
  *	PARTICULAR PURPOSE.
  */
 
-#ifndef __SBG_STREAM_BUFFER_COMMON_H__
-#define __SBG_STREAM_BUFFER_COMMON_H__
+#ifndef SBG_STREAM_BUFFER_COMMON_H
+#define SBG_STREAM_BUFFER_COMMON_H
 
 #include <sbgCommon.h>
 
@@ -36,58 +36,102 @@
 	 */
 	#define sbgStreamBufferReadUint16		sbgStreamBufferReadUint16BE
 	#define sbgStreamBufferReadInt16		sbgStreamBufferReadInt16BE
+
 	#define sbgStreamBufferReadUint24		sbgStreamBufferReadUint24BE
 	#define sbgStreamBufferReadInt24		sbgStreamBufferReadInt24BE
+
 	#define sbgStreamBufferReadUint32		sbgStreamBufferReadUint32BE
 	#define sbgStreamBufferReadInt32		sbgStreamBufferReadInt32BE
+
+	#define sbgStreamBufferReadUint40		sbgStreamBufferReadUint40BE
+	#define sbgStreamBufferReadInt40		sbgStreamBufferReadInt40BE
+
+	#define sbgStreamBufferReadUint48		sbgStreamBufferReadUint48BE
+	#define sbgStreamBufferReadInt48		sbgStreamBufferReadInt48BE
+
+	#define sbgStreamBufferReadUint56		sbgStreamBufferReadUint56BE
+	#define sbgStreamBufferReadInt56		sbgStreamBufferReadInt56BE
+
 	#define sbgStreamBufferReadUint64		sbgStreamBufferReadUint64BE
 	#define sbgStreamBufferReadInt64		sbgStreamBufferReadInt64BE
+
 	#define sbgStreamBufferReadSizeT32		sbgStreamBufferReadSizeT32BE
 	#define sbgStreamBufferReadSizeT64		sbgStreamBufferReadSizeT64BE
+
 	#define sbgStreamBufferReadFloat		sbgStreamBufferReadFloatBE
 	#define sbgStreamBufferReadDouble		sbgStreamBufferReadDoubleBE
  
 	#define sbgStreamBufferWriteUint16		sbgStreamBufferWriteUint16BE
 	#define sbgStreamBufferWriteInt16		sbgStreamBufferWriteInt16BE
+
 	#define sbgStreamBufferWriteUint24		sbgStreamBufferWriteUint24BE
 	#define sbgStreamBufferWriteInt24		sbgStreamBufferWriteInt24BE
+
 	#define sbgStreamBufferWriteUint32		sbgStreamBufferWriteUint32BE
 	#define sbgStreamBufferWriteInt32		sbgStreamBufferWriteInt32BE
+
 	#define sbgStreamBufferWriteUint64		sbgStreamBufferWriteUint64BE
 	#define sbgStreamBufferWriteInt64		sbgStreamBufferWriteInt64BE
+
 	#define sbgStreamBufferWriteSizeT32		sbgStreamBufferWriteSizeT32BE
 	#define sbgStreamBufferWriteSizeT64		sbgStreamBufferWriteSizeT64BE
+
 	#define sbgStreamBufferWriteFloat		sbgStreamBufferWriteFloatBE
 	#define sbgStreamBufferWriteDouble		sbgStreamBufferWriteDoubleBE
+
+	#define sbgStreamBufferReadString		sbgStreamBufferReadStringBE
+	#define sbgStreamBufferWriteString		sbgStreamBufferWriteStringBE
 #else
 	/*!
 	 *	The platform is a little endian one so default methods should use little endian byte order.
 	 */
 	#define sbgStreamBufferReadUint16		sbgStreamBufferReadUint16LE
 	#define sbgStreamBufferReadInt16		sbgStreamBufferReadInt16LE
+
 	#define sbgStreamBufferReadUint24		sbgStreamBufferReadUint24LE
 	#define sbgStreamBufferReadInt24		sbgStreamBufferReadInt24LE
+
 	#define sbgStreamBufferReadUint32		sbgStreamBufferReadUint32LE
 	#define sbgStreamBufferReadInt32		sbgStreamBufferReadInt32LE
+
+	#define sbgStreamBufferReadUint40		sbgStreamBufferReadUint40LE
+	#define sbgStreamBufferReadInt40		sbgStreamBufferReadInt40LE
+
+	#define sbgStreamBufferReadUint48		sbgStreamBufferReadUint48LE
+	#define sbgStreamBufferReadInt48		sbgStreamBufferReadInt48LE
+
+	#define sbgStreamBufferReadUint56		sbgStreamBufferReadUint56LE
+	#define sbgStreamBufferReadInt56		sbgStreamBufferReadInt56LE
+
 	#define sbgStreamBufferReadUint64		sbgStreamBufferReadUint64LE
 	#define sbgStreamBufferReadInt64		sbgStreamBufferReadInt64LE
+
 	#define sbgStreamBufferReadSizeT32		sbgStreamBufferReadSizeT32LE
 	#define sbgStreamBufferReadSizeT64		sbgStreamBufferReadSizeT64LE
+
 	#define sbgStreamBufferReadFloat		sbgStreamBufferReadFloatLE
 	#define sbgStreamBufferReadDouble		sbgStreamBufferReadDoubleLE
  
 	#define sbgStreamBufferWriteUint16		sbgStreamBufferWriteUint16LE
 	#define sbgStreamBufferWriteInt16		sbgStreamBufferWriteInt16LE
+
 	#define sbgStreamBufferWriteUint24		sbgStreamBufferWriteUint24LE
 	#define sbgStreamBufferWriteInt24		sbgStreamBufferWriteInt24LE
+
 	#define sbgStreamBufferWriteUint32		sbgStreamBufferWriteUint32LE
 	#define sbgStreamBufferWriteInt32		sbgStreamBufferWriteInt32LE
+
 	#define sbgStreamBufferWriteUint64		sbgStreamBufferWriteUint64LE
 	#define sbgStreamBufferWriteInt64		sbgStreamBufferWriteInt64LE
+
 	#define sbgStreamBufferWriteSizeT32		sbgStreamBufferWriteSizeT32LE
 	#define sbgStreamBufferWriteSizeT64		sbgStreamBufferWriteSizeT64LE
+
 	#define sbgStreamBufferWriteFloat		sbgStreamBufferWriteFloatLE
 	#define sbgStreamBufferWriteDouble		sbgStreamBufferWriteDoubleLE
+
+	#define sbgStreamBufferReadString		sbgStreamBufferReadStringLE
+	#define sbgStreamBufferWriteString		sbgStreamBufferWriteStringLE
 #endif
 
 /*!
@@ -96,18 +140,22 @@
  */
 #define sbgStreamBufferReadUint8LE		sbgStreamBufferReadUint8
 #define sbgStreamBufferReadInt8LE		sbgStreamBufferReadInt8
+#define sbgStreamBufferReadBooleanLE	sbgStreamBufferReadBoolean
 #define sbgStreamBufferReadBufferLE		sbgStreamBufferReadBuffer
 
 #define sbgStreamBufferWriteUint8LE		sbgStreamBufferWriteUint8
 #define sbgStreamBufferWriteInt8LE		sbgStreamBufferWriteInt8
+#define sbgStreamBufferWriteBooleanLE	sbgStreamBufferWriteBoolean
 #define sbgStreamBufferWriteBufferLE	sbgStreamBufferWriteBuffer
 
 #define sbgStreamBufferReadUint8BE		sbgStreamBufferReadUint8
 #define sbgStreamBufferReadInt8BE		sbgStreamBufferReadInt8
+#define sbgStreamBufferReadBooleanBE	sbgStreamBufferReadBoolean
 #define sbgStreamBufferReadBufferBE		sbgStreamBufferReadBuffer
 
 #define sbgStreamBufferWriteUint8BE		sbgStreamBufferWriteUint8
 #define sbgStreamBufferWriteInt8BE		sbgStreamBufferWriteInt8
+#define sbgStreamBufferWriteBooleanBE	sbgStreamBufferWriteBoolean
 #define sbgStreamBufferWriteBufferBE	sbgStreamBufferWriteBuffer
 
 //----------------------------------------------------------------------//
@@ -141,8 +189,8 @@ typedef struct _SbgStreamBuffer
 {
 	SbgSBMode			 modes;				/*!< Defines the stream buffer modes (read/write). */
 	size_t				 bufferSize;		/*!< Size in bytes of the linked buffer. */
-	uint8				*pBufferPtr;		/*!< Pointer to the buffer linked with this stream. */
-	uint8				*pCurrentPtr;		/*!< Current pointer within the buffer. */
+	uint8_t				*pBufferPtr;		/*!< Pointer to the buffer linked with this stream. */
+	uint8_t				*pCurrentPtr;		/*!< Current pointer within the buffer. */
 	SbgErrorCode		 errorCode;			/*!< Current error code on stream buffer. */
 } SbgStreamBuffer;
 
@@ -162,9 +210,8 @@ SBG_INLINE SbgErrorCode sbgStreamBufferInitForWrite(SbgStreamBuffer *pHandle, vo
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pLinkedBuffer);
-	SBG_ASSERT(bufferSize > 0);
+	assert(pHandle);
+	assert(pLinkedBuffer);
 	
 	//
 	// Initialize stream parameters
@@ -176,8 +223,8 @@ SBG_INLINE SbgErrorCode sbgStreamBufferInitForWrite(SbgStreamBuffer *pHandle, vo
 	//
 	// Initialize the buffer
 	//
-	pHandle->pBufferPtr = (uint8*)pLinkedBuffer;
-	pHandle->pCurrentPtr = (uint8*)pLinkedBuffer;
+	pHandle->pBufferPtr = (uint8_t*)pLinkedBuffer;
+	pHandle->pCurrentPtr = (uint8_t*)pLinkedBuffer;
 
 	//
 	// For now, we don't handle any error, maybe we could add checks in debug mode only
@@ -197,10 +244,9 @@ SBG_INLINE SbgErrorCode sbgStreamBufferInitForRead(SbgStreamBuffer *pHandle, con
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pLinkedBuffer);
-	SBG_ASSERT(bufferSize > 0);
-
+	assert(pHandle);
+	assert(pLinkedBuffer);
+	
 	//
 	// Initialize stream parameters
 	//
@@ -211,8 +257,8 @@ SBG_INLINE SbgErrorCode sbgStreamBufferInitForRead(SbgStreamBuffer *pHandle, con
 	//
 	// Initialize the buffer
 	//
-	pHandle->pBufferPtr = (uint8*)pLinkedBuffer;
-	pHandle->pCurrentPtr = (uint8*)pLinkedBuffer;
+	pHandle->pBufferPtr = (uint8_t*)pLinkedBuffer;
+	pHandle->pCurrentPtr = (uint8_t*)pLinkedBuffer;
 
 	//
 	// For now, we don't handle any error, maybe we could add checks in debug mode only
@@ -230,7 +276,7 @@ SBG_INLINE SbgErrorCode sbgStreamBufferGetLastError(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Return error code
@@ -247,7 +293,7 @@ SBG_INLINE void sbgStreamBufferClearLastError(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Return error code
@@ -268,7 +314,7 @@ SBG_INLINE size_t sbgStreamBufferGetSize(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Return the linked buffer size
@@ -280,7 +326,7 @@ SBG_INLINE size_t sbgStreamBufferGetSize(SbgStreamBuffer *pHandle)
  * Returns the length in bytes of this stream.
  * The length is computed using the current cursor position.
  * If no data has been read or written, this method will return 0.
- * If 4 uint32 has been written, it should return 16.
+ * If 4 uint32_t has been written, it should return 16.
  * \param[in]	pHandle					Valid handle on a stream buffer.
  * \return								The current cursor position in bytes.
  */
@@ -289,7 +335,7 @@ SBG_INLINE size_t sbgStreamBufferGetLength(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Return the number of bytes between the begin of the stream and the current pointer
@@ -309,7 +355,7 @@ SBG_INLINE size_t sbgStreamBufferGetSpace(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Return the space left in bytes
@@ -329,7 +375,7 @@ SBG_INLINE SbgErrorCode sbgStreamBufferSeek(SbgStreamBuffer *pHandle, size_t off
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Test if we haven't already an error
@@ -408,7 +454,7 @@ SBG_INLINE size_t sbgStreamBufferTell(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	return (size_t)pHandle->pCurrentPtr - (size_t)pHandle->pBufferPtr;
 }
@@ -423,7 +469,7 @@ SBG_INLINE void *sbgStreamBufferGetLinkedBuffer(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	return pHandle->pBufferPtr;
 }
@@ -438,7 +484,7 @@ SBG_INLINE void *sbgStreamBufferGetCursor(SbgStreamBuffer *pHandle)
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	return pHandle->pCurrentPtr;
 }
@@ -448,16 +494,16 @@ SBG_INLINE void *sbgStreamBufferGetCursor(SbgStreamBuffer *pHandle)
 //----------------------------------------------------------------------//
 
 /*!
- * Read an int8 from a stream buffer.
+ * Read an int8_t from a stream buffer.
  * \param[in]	pHandle				Valid stream buffer handle that supports read operations.
  * \return							The read value or 0 if we have an error.
  */
-SBG_INLINE int8 sbgStreamBufferReadInt8(SbgStreamBuffer *pHandle)
+SBG_INLINE int8_t sbgStreamBufferReadInt8(SbgStreamBuffer *pHandle)
 {
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Test if we haven't already an error
@@ -467,12 +513,12 @@ SBG_INLINE int8 sbgStreamBufferReadInt8(SbgStreamBuffer *pHandle)
 		//
 		// Test if we can access this item
 		//
-		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(int8))
+		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(int8_t))
 		{
 			//
 			// Read the byte
 			//
-			return *((int8*)(pHandle->pCurrentPtr++));
+			return *((int8_t*)(pHandle->pCurrentPtr++));
 		}
 		else
 		{
@@ -490,16 +536,16 @@ SBG_INLINE int8 sbgStreamBufferReadInt8(SbgStreamBuffer *pHandle)
 }
 
 /*!
- * Read an uint8 from a stream buffer.
+ * Read an uint8_t from a stream buffer.
  * \param[in]	pHandle				Valid stream buffer handle that supports read operations.
  * \return							The read value or 0 if we have an error.
  */
-SBG_INLINE uint8 sbgStreamBufferReadUint8(SbgStreamBuffer *pHandle)
+SBG_INLINE uint8_t sbgStreamBufferReadUint8(SbgStreamBuffer *pHandle)
 {
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Test if we haven't already an error
@@ -509,12 +555,12 @@ SBG_INLINE uint8 sbgStreamBufferReadUint8(SbgStreamBuffer *pHandle)
 		//
 		// Test if we can access this item
 		//
-		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(uint8))
+		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(uint8_t))
 		{
 			//
 			// Read the byte
 			//
-			return *((uint8*)(pHandle->pCurrentPtr++));
+			return *((uint8_t*)(pHandle->pCurrentPtr++));
 		}
 		else
 		{
@@ -532,6 +578,55 @@ SBG_INLINE uint8 sbgStreamBufferReadUint8(SbgStreamBuffer *pHandle)
 }
 
 /*!
+ * Read a boolean from a stream buffer.
+ * \param[in]	pHandle				Valid stream buffer handle that supports read operations.
+ * \return							The read value or false if we have an error.
+ */
+SBG_INLINE bool sbgStreamBufferReadBoolean(SbgStreamBuffer *pHandle)
+{
+	//
+	// Check input parameters
+	//
+	assert(pHandle);
+
+	//
+	// Test if we haven't already an error
+	//
+	if (pHandle->errorCode == SBG_NO_ERROR)
+	{
+		//
+		// Test if we can access this item
+		//
+		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(uint8_t))
+		{
+			//
+			// Read the byte and check if the value is different than zero or not
+			//
+			if (*((uint8_t*)(pHandle->pCurrentPtr++)))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			//
+			// We have a buffer overflow
+			//
+			pHandle->errorCode = SBG_BUFFER_OVERFLOW;
+		}
+	}
+	
+	//
+	// If we are here, it means we have an error so return false
+	//
+	return false;
+}
+
+/*!
  * Read a buffer from a stream buffer.
  * \param[in]	pHandle				Valid stream buffer handle that supports read operations.
  * \param[out]	pBuffer				Allocated buffer used to hold read data.
@@ -543,8 +638,8 @@ SBG_INLINE SbgErrorCode sbgStreamBufferReadBuffer(SbgStreamBuffer *pHandle, void
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT((pBuffer) || (numBytesToRead == 0));
+	assert(pHandle);
+	assert((pBuffer) || (numBytesToRead == 0));
 
 	//
 	// Test if we haven't already an error
@@ -583,17 +678,17 @@ SBG_INLINE SbgErrorCode sbgStreamBufferReadBuffer(SbgStreamBuffer *pHandle, void
 //----------------------------------------------------------------------//
 
 /*!
- * Write an int8 into a stream buffer
+ * Write an int8_t into a stream buffer
  * \param[in]	pHandle				Valid stream buffer handle that supports write operations.
  * \param[in]	value				The value to write.
  * \return							SBG_NO_ERROR if the value has been successfully written.
  */
-SBG_INLINE SbgErrorCode sbgStreamBufferWriteInt8(SbgStreamBuffer *pHandle, int8 value)
+SBG_INLINE SbgErrorCode sbgStreamBufferWriteInt8(SbgStreamBuffer *pHandle, int8_t value)
 {
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Test if we haven't already an error
@@ -603,12 +698,12 @@ SBG_INLINE SbgErrorCode sbgStreamBufferWriteInt8(SbgStreamBuffer *pHandle, int8 
 		//
 		// Test if we can access this item
 		//
-		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(int8))
+		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(int8_t))
 		{
 			//
 			// Write each byte
 			//
-			*(pHandle->pCurrentPtr++) = (int8)(value);
+			*(pHandle->pCurrentPtr++) = (int8_t)(value);
 		}
 		else
 		{
@@ -623,17 +718,17 @@ SBG_INLINE SbgErrorCode sbgStreamBufferWriteInt8(SbgStreamBuffer *pHandle, int8 
 }
 
 /*!
- * Write an uint8 into a stream buffer
+ * Write an uint8_t into a stream buffer
  * \param[in]	pHandle				Valid stream buffer handle that supports write operations.
  * \param[in]	value				The value to write.
  * \return							SBG_NO_ERROR if the value has been successfully written.
  */
-SBG_INLINE SbgErrorCode sbgStreamBufferWriteUint8(SbgStreamBuffer *pHandle, uint8 value)
+SBG_INLINE SbgErrorCode sbgStreamBufferWriteUint8(SbgStreamBuffer *pHandle, uint8_t value)
 {
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Test if we haven't already an error
@@ -643,12 +738,59 @@ SBG_INLINE SbgErrorCode sbgStreamBufferWriteUint8(SbgStreamBuffer *pHandle, uint
 		//
 		// Test if we can access this item
 		//
-		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(uint8))
+		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(uint8_t))
 		{
 			//
 			// Write each byte
 			//
-			*(pHandle->pCurrentPtr++) = (uint8)(value);
+			*(pHandle->pCurrentPtr++) = (uint8_t)(value);
+		}
+		else
+		{
+			//
+			// We are accessing a data that is outside the stream buffer
+			//
+			pHandle->errorCode = SBG_BUFFER_OVERFLOW;
+		}
+	}
+	
+	return pHandle->errorCode;
+}
+
+/*!
+ * Write a boolean into a stream buffer
+ * \param[in]	pHandle				Valid stream buffer handle that supports write operations.
+ * \param[in]	value				The value to write.
+ * \return							SBG_NO_ERROR if the value has been successfully written.
+ */
+SBG_INLINE SbgErrorCode sbgStreamBufferWriteBoolean(SbgStreamBuffer *pHandle, bool value)
+{
+	//
+	// Check input parameters
+	//
+	assert(pHandle);
+
+	//
+	// Test if we haven't already an error
+	//
+	if (pHandle->errorCode == SBG_NO_ERROR)
+	{
+		//
+		// Test if we can access this item
+		//
+		if (sbgStreamBufferGetSpace(pHandle) >= sizeof(uint8_t))
+		{
+			//
+			// Write the boolean as an uint8_t value (1 byte)
+			//
+			if (value)
+			{
+				*(pHandle->pCurrentPtr++) = 1;
+			}
+			else
+			{
+				*(pHandle->pCurrentPtr++) = 0;
+			}			
 		}
 		else
 		{
@@ -674,8 +816,8 @@ SBG_INLINE SbgErrorCode sbgStreamBufferWriteBuffer(SbgStreamBuffer *pHandle, con
 	//
 	// Check input parameters
 	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT((pBuffer) || (numBytesToWrite == 0));
+	assert(pHandle);
+	assert((pBuffer) || (numBytesToWrite == 0));
 
 	//
 	// Test if we haven't already an error
@@ -709,4 +851,4 @@ SBG_INLINE SbgErrorCode sbgStreamBufferWriteBuffer(SbgStreamBuffer *pHandle, con
 	return pHandle->errorCode;
 }
 
-#endif /* __SBG_STREAM_BUFFER_COMMON_H__ */
+#endif /* SBG_STREAM_BUFFER_COMMON_H */

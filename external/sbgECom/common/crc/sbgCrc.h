@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgCrc.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		15 January 2013
@@ -18,8 +18,8 @@
  *	PARTICULAR PURPOSE.
  */
 
-#ifndef __SBG_CRC_H__
-#define __SBG_CRC_H__
+#ifndef SBG_CRC_H
+#define SBG_CRC_H
 
 //----------------------------------------------------------------------//
 //- Header (open extern C block)                                       -//
@@ -35,10 +35,10 @@ extern "C" {
 //----------------------------------------------------------------------//
 
 /*!< Type used to compute a 32 bit Ethernet CRC. */
-typedef uint32 SbgCrc32;
+typedef uint32_t SbgCrc32;
 
 /*!< Type used to compute a 16 bit CRC. */
-typedef uint16 SbgCrc16;
+typedef uint16_t SbgCrc16;
 
 //----------------------------------------------------------------------//
 //- 32 bits Ethernet CRC                                               -//
@@ -48,7 +48,7 @@ typedef uint16 SbgCrc16;
  *	Initialize the 32 bit CRC computation system.
  *	\param[in]	pInstance				Pointer on an allocated but non initialized Crc32 object.
  */
-void sbgCrc32Initialize(SbgCrc32 *pInstance);
+SBG_COMMON_LIB_API void sbgCrc32Initialize(SbgCrc32 *pInstance);
 
 /*!
  *	Compute a 32 bit CRC using an Ethernet polynome.
@@ -57,14 +57,14 @@ void sbgCrc32Initialize(SbgCrc32 *pInstance);
  *	\param[in]	pData					Read only pointer on the data buffer to compute CRC on.
  *	\param[in]	dataSize				Data size in bytes of the buffer, has to be greater or equals to 4.
  */
-void sbgCrc32Update(SbgCrc32 *pInstance, const void *pData, size_t dataSize);
+SBG_COMMON_LIB_API void sbgCrc32Update(SbgCrc32 *pInstance, const void *pData, size_t dataSize);
 
 /*!
  *	Returns the computed 32 bit CRC value.
  *	\param[in]	pInstance				Read only pointer on a valid Crc32 object.
  *	\return								The computed CRC.
  */
-SBG_INLINE uint32 sbgCrc32Get(const SbgCrc32 *pInstance)
+SBG_INLINE uint32_t sbgCrc32Get(const SbgCrc32 *pInstance)
 {
 	return *pInstance;
 }
@@ -76,7 +76,7 @@ SBG_INLINE uint32 sbgCrc32Get(const SbgCrc32 *pInstance)
  *	\param[in]	dataSize				Data size in bytes of the buffer, has to be greater or equals to 4.
  *	\return								The computed CRC.
  */
-uint32 sbgCrc32Compute(const void *pData, size_t dataSize);
+SBG_COMMON_LIB_API uint32_t sbgCrc32Compute(const void *pData, size_t dataSize);
 
 //----------------------------------------------------------------------//
 //- CRC-16 operations                                                  -//
@@ -86,7 +86,7 @@ uint32 sbgCrc32Compute(const void *pData, size_t dataSize);
  *	Initialize the 16 bit CRC computation system.
  *	\param[in]	pInstance				Pointer on an allocated but non initialized Crc16 object.
  */
-void sbgCrc16Initialize(SbgCrc16 *pInstance);
+SBG_COMMON_LIB_API void sbgCrc16Initialize(SbgCrc16 *pInstance);
 
 /*!
  *	Compute a 16 bit CRC using an the polynome 0x8408.
@@ -94,14 +94,14 @@ void sbgCrc16Initialize(SbgCrc16 *pInstance);
  *	\param[in]	pData					Read only pointer on the data buffer to compute CRC on.
  *	\param[in]	dataSize				Data size in bytes of the buffer.
  */
-void sbgCrc16Update(SbgCrc16 *pInstance, const void *pData, size_t dataSize);
+SBG_COMMON_LIB_API void sbgCrc16Update(SbgCrc16 *pInstance, const void *pData, size_t dataSize);
 
 /*!
  *	Returns the computed 32 bit CRC value.
  *	\param[in]	pInstance				Read only pointer on a valid Crc16 object.
  *	\return								The computed CRC.
  */
-SBG_INLINE uint16 sbgCrc16Get(const SbgCrc16 *pInstance)
+SBG_INLINE uint16_t sbgCrc16Get(const SbgCrc16 *pInstance)
 {
 	return *pInstance;
 }
@@ -112,7 +112,7 @@ SBG_INLINE uint16 sbgCrc16Get(const SbgCrc16 *pInstance)
  *	\param[in]	dataSize				Data size in bytes of the buffer.
  *	\return								The computed CRC.
  */
-uint16 sbgCrc16Compute(const void *pData, size_t dataSize);
+SBG_COMMON_LIB_API uint16_t sbgCrc16Compute(const void *pData, size_t dataSize);
 
 //----------------------------------------------------------------------//
 //- Footer (close extern C block)                                      -//
@@ -121,4 +121,4 @@ uint16 sbgCrc16Compute(const void *pData, size_t dataSize);
 }
 #endif
 
-#endif
+#endif /* SBG_CRC_H */

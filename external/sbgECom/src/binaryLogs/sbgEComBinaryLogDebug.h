@@ -37,11 +37,11 @@
  */
 typedef struct _SbgLogDebugData
 {
-	uint32		 id;										/*!< Debug frame ID */
-	uint32		 offset;									/*!< Offset of the debug log */
-	uint32		 size;										/*!< Debug frame size */
-	uint32		 totalSize;									/*!< Total size of the debug log */
-	uint8		 data[SBG_ECOM_MAX_PAYLOAD_SIZE - 16];		/*!< Debug data */
+	uint32_t		 id;										/*!< Debug frame ID */
+	uint32_t		 offset;									/*!< Offset of the debug log */
+	uint32_t		 size;										/*!< Debug frame size */
+	uint32_t		 totalSize;									/*!< Total size of the debug log */
+	uint8_t		 data[SBG_ECOM_MAX_PAYLOAD_SIZE - 16];		/*!< Debug data */
 } SbgLogDebugData;
 
 //----------------------------------------------------------------------//

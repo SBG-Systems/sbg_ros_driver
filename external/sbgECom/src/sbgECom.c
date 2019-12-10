@@ -1,6 +1,4 @@
-#include "sbgECom.h"
-#include "sbgEComVersion.h"
-#include <version/sbgVersion.h>
+﻿#include "sbgECom.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 #include "commands/sbgEComCmdCommon.h"
 
@@ -30,7 +28,6 @@ SbgErrorCode sbgEComInit(SbgEComHandle *pHandle, SbgInterface *pInterface)
 		//
 		// Initialize the sbgECom handle
 		//
-		pHandle->pReceiveCallback		= NULL;
 		pHandle->pReceiveLogCallback	= NULL;
 		pHandle->pUserArg				= NULL;
 
@@ -89,11 +86,10 @@ SbgErrorCode sbgEComHandleOneLog(SbgEComHandle *pHandle)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
 	SbgBinaryLogData	logData;
-	uint8				receivedMsg;
-	uint8				receivedMsgClass;
-	uint16				receivedCmd;
+	uint8_t				receivedMsg;
+	uint8_t				receivedMsgClass;
 	size_t				payloadSize;
-	uint8				payloadData[SBG_ECOM_MAX_PAYLOAD_SIZE];
+	uint8_t				payloadData[SBG_ECOM_MAX_PAYLOAD_SIZE];
 
 	//
 	// Check input arguments
@@ -128,15 +124,7 @@ SbgErrorCode sbgEComHandleOneLog(SbgEComHandle *pHandle)
 				//
 				// Test if we have a valid callback to handle received logs
 				//
-				if (pHandle->pReceiveCallback)
-				{
-					//
-					// Call the binary log callback using the deprecated method
-					//
-					receivedCmd = SBG_ECOM_BUILD_ID(receivedMsgClass, receivedMsg);
-					errorCode = pHandle->pReceiveCallback(pHandle, (SbgEComCmdId)receivedCmd, &logData, pHandle->pUserArg);
-				}
-				else if (pHandle->pReceiveLogCallback)
+				if (pHandle->pReceiveLogCallback)
 				{
 					//
 					// Call the binary log callback using the new method
@@ -200,36 +188,6 @@ SbgErrorCode sbgEComHandle(SbgEComHandle *pHandle)
 /*!
  *	Define the callback that should be called each time a new binary log is received.
  *	\param[in]	pHandle							A valid sbgECom handle.
- *	\param[in]	pReceiveCallback				Pointer on the callback to call when a new log is received.
- *	\param[in]	pUserArg						Optional user argument that will be passed to the callback method.
- *	\return										SBG_NO_ERROR if the callback and user argument have been defined successfully.
- */
-SbgErrorCode sbgEComSetReceiveCallback(SbgEComHandle *pHandle, SbgEComReceiveFunc pReceiveCallback, void *pUserArg)
-{
-	SbgErrorCode errorCode = SBG_NO_ERROR;
-
-	//
-	// Test that we have a valid protocol handle
-	//
-	if (pHandle)
-	{
-		//
-		// Define the callback and the user argument
-		//
-		pHandle->pReceiveCallback = pReceiveCallback;
-		pHandle->pUserArg = pUserArg;
-	}
-	else
-	{
-		errorCode = SBG_NULL_POINTER;
-	}
-
-	return errorCode;
-}
-
-/*!
- *	Define the callback that should be called each time a new binary log is received.
- *	\param[in]	pHandle							A valid sbgECom handle.
  *	\param[in]	pReceiveLogCallback				Pointer on the callback to call when a new log is received.
  *	\param[in]	pUserArg						Optional user argument that will be passed to the callback method.
  *	\return										SBG_NO_ERROR if the callback and user argument have been defined successfully.
@@ -263,7 +221,7 @@ SbgErrorCode sbgEComSetReceiveLogCallback(SbgEComHandle *pHandle, SbgEComReceive
  * \parma[in]	numTrials						Number of trials when a command is sent (starting at 1).
  * \param[in]	cmdDefaultTimeOut				Default time out in milliseconds to wait to receive an answer from the device.
  */
-void sbgEComSetCmdTrialsAndTimeOut(SbgEComHandle *pHandle, uint32 numTrials, uint32 cmdDefaultTimeOut)
+void sbgEComSetCmdTrialsAndTimeOut(SbgEComHandle *pHandle, uint32_t numTrials, uint32_t cmdDefaultTimeOut)
 {
 	//
 	// Check input arguments
@@ -277,25 +235,6 @@ void sbgEComSetCmdTrialsAndTimeOut(SbgEComHandle *pHandle, uint32 numTrials, uin
 	//
 	pHandle->numTrials			= numTrials;
 	pHandle->cmdDefaultTimeOut	= cmdDefaultTimeOut;
-}
-
-/*!
- *	Returns an integer representing the version of the sbgCom library.
- *	\return										An integer representing the version of the sbgCom library.<br>
- *												Use #SBG_VERSION_GET_MAJOR, #SBG_VERSION_GET_MINOR, #SBG_VERSION_GET_REV and #SBG_VERSION_GET_BUILD.
- */
-uint32 sbgEComGetVersion(void)
-{
-	return SBG_E_COM_VERSION;
-}
-
-/*!
- *	Retreive the sbgCom library version as a string (1.0.0.0).
- *	\return										Null terminated string that contains the sbgCom library version.
- */
-const char *sbgEComGetVersionAsString(void)
-{
-	return SBG_E_COM_VERSION_STR;
 }
 
 /*!

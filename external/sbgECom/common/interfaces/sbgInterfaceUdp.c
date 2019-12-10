@@ -1,4 +1,4 @@
-#include "sbgInterfaceUdp.h"
+﻿#include "sbgInterfaceUdp.h"
 
 #ifdef WIN32
 	#include <winsock2.h>
@@ -162,10 +162,7 @@ SbgErrorCode sbgInterfaceUdpCreate(SbgInterface *pHandle, sbgIpAddress remoteAdd
 	SOCKADDR_IN			 bindAddress;
 	SOCKET				 newUdpSocket;
 	
-	//
-	// Test input arguments
-	//
-	SBG_ASSERT(pHandle);
+	assert(pHandle);
 
 	//
 	// Initialize the socket API
@@ -321,11 +318,8 @@ SbgErrorCode sbgInterfaceUdpDestroy(SbgInterface *pHandle)
 	SbgInterfaceUdp *pUdpHandle;
 	SOCKET udpSocket;
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pHandle->type == SBG_IF_TYPE_ETH_UDP);
+	assert(pHandle);
+	assert(pHandle->type == SBG_IF_TYPE_ETH_UDP);
 
 	//
 	// Get the UDP handle
@@ -380,11 +374,8 @@ SbgErrorCode sbgInterfaceUdpAllowBroadcast(SbgInterface *pHandle, bool allowBroa
 	SOCKET					 udpSocket;
 	uint32					 broadcastMode;
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pHandle->type == SBG_IF_TYPE_ETH_UDP);
+	assert(pHandle);
+	assert(pHandle->type == SBG_IF_TYPE_ETH_UDP);
 		
 	//
 	// Get the UDP handle
@@ -448,12 +439,9 @@ SbgErrorCode sbgInterfaceUdpWrite(SbgInterface *pHandle, const void *pBuffer, si
 	int partialWriteSize;
 	SOCKET udpSocket;
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pHandle->type == SBG_IF_TYPE_ETH_UDP);
-	SBG_ASSERT(pBuffer);
+	assert(pHandle);
+	assert(pHandle->type == SBG_IF_TYPE_ETH_UDP);
+	assert(pBuffer);
 
 	//
 	// Get the UDP handle
@@ -545,13 +533,10 @@ SbgErrorCode sbgInterfaceUdpRead(SbgInterface *pHandle, void *pBuffer, size_t *p
 	int retValue;
 	SOCKET udpSocket;
 
-	//
-	//	Test input arguments
-	//
-	SBG_ASSERT(pHandle);
-	SBG_ASSERT(pHandle->type == SBG_IF_TYPE_ETH_UDP);
-	SBG_ASSERT(pBuffer);
-	SBG_ASSERT(pReadBytes);
+	assert(pHandle);
+	assert(pHandle->type == SBG_IF_TYPE_ETH_UDP);
+	assert(pBuffer);
+	assert(pReadBytes);
 
 	//
 	// Get the UDP handle

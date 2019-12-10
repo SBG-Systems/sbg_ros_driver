@@ -1,13 +1,19 @@
+// File header
+#include "sbg_device.h"
+
+// Standard headers
 #include <iomanip>
 #include <fstream>
 #include <ctime>
 
+// Boost headers
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 
-#include "sbg_device.h"
+// SbgECom headers
+#include <version/sbgversion.h>
 
 using namespace std;
 using sbg::SbgDevice;

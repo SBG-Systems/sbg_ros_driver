@@ -1,327 +1,284 @@
-#include "sbgEComCmdInterface.h"
+﻿#include "sbgEComCmdInterface.h"
 #include <streamBuffer/sbgStreamBuffer.h>
 
 //----------------------------------------------------------------------//
 //- Interface commands                                                 -//
 //----------------------------------------------------------------------//
 
-/*!
- *	Retrieve the configuration of one of the interfaces.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	interfaceId					The interface from which the configuration is to be retrieved.
- *	\param[out]	pConf						Pointer to a SbgEComInterfaceConf struct to hold configuration of the interface.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
 SbgErrorCode sbgEComCmdInterfaceGetUartConf(SbgEComHandle *pHandle, SbgEComPortId interfaceId, SbgEComInterfaceConf *pConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
+	uint32_t			trial;
 	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
-	uint8				outputBuffer;
+	uint8_t				outputBuffer;
+
+	assert(pHandle);
+	assert(pConf);
 
 	//
-	// Test that the input pointer are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pConf))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Send the command and the interfaceId as a 1-byte payload
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		outputBuffer = (uint8_t)interfaceId;
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, &outputBuffer, sizeof(uint8_t));
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Send the command and the interfaceId as a 1-byte payload
+			// Try to read the device answer for 500 ms
 			//
-			outputBuffer = (uint8)interfaceId;
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, &outputBuffer, sizeof(uint8));
+			errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
 
 			//
-			// Make sure that the command has been sent
+			// Test if we have received correctly the answer
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
+				// Initialize stream buffer to read parameters
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
 
 				//
-				// Test if we have received correctly the answer
+				// Read parameters
+				// First is returned interfaceId, then baud rate and the mode at last.
 				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// Initialize stream buffer to read parameters
-					//
-					sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
+				interfaceId = (SbgEComPortId)sbgStreamBufferReadUint8LE(&inputStream);
+				pConf->baudRate = sbgStreamBufferReadUint32LE(&inputStream);
+				pConf->mode = (SbgEComPortMode)sbgStreamBufferReadUint8LE(&inputStream);
 
-					//
-					// Read parameters
-					// First is returned interfaceId, then baud rate and the mode at last.
-					//
-					interfaceId = (SbgEComPortId)sbgStreamBufferReadUint8LE(&inputStream);
-					pConf->baudRate = sbgStreamBufferReadUint32LE(&inputStream);
-					pConf->mode = (SbgEComPortMode)sbgStreamBufferReadUint8LE(&inputStream);
-
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
 				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Null pointer.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }
 
-/*!
- *	Set the configuration of one of the interfaces.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	interfaceId					The interface from which the configuration is to be retrieved.
- *	\param[in]	pConf						Pointer to a SbgEComInterfaceConf struct that holds the new configuration for the interface.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
 SbgErrorCode sbgEComCmdInterfaceSetUartConf(SbgEComHandle *pHandle, SbgEComPortId interfaceId, const SbgEComInterfaceConf *pConf)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	uint8				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint32_t			trial;
+	uint8_t				outputBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		outputStream;
 
+	assert(pHandle);
+	assert(pConf);
+
 	//
-	// Test that the input pointer are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pConf))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Init stream buffer for output
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+
+		//
+		// Build payload
+		//
+		sbgStreamBufferWriteUint8LE(&outputStream, (uint8_t)interfaceId);
+		sbgStreamBufferWriteUint32LE(&outputStream, pConf->baudRate);
+		sbgStreamBufferWriteUint8LE(&outputStream, (uint8_t)pConf->mode);
+
+		//
+		// Send the payload over ECom
+		//
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Init stream buffer for output
+			// Try to read the device answer for 500 ms
 			//
-			sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+			errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, pHandle->cmdDefaultTimeOut);
 
 			//
-			// Build payload
-			//
-			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)interfaceId);
-			sbgStreamBufferWriteUint32LE(&outputStream, pConf->baudRate);
-			sbgStreamBufferWriteUint8LE(&outputStream, (uint8)pConf->mode);
-
-			//
-			// Send the payload over ECom
-			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
-
-			//
-			// Make sure that the command has been sent
+			// Test if we have received a valid ACK
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
-				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_UART_CONF, pHandle->cmdDefaultTimeOut);
-
-				//
-				// Test if we have received a valid ACK
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
-				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Invalid protocol handle.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }
 
-/*!
- *	Retrieve the configuration the CAN interface.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[out]	pBitRate					The bitrate of the CAN interface.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SbgErrorCode sbgEComCmdInterfaceGetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate *pBitrate)
+SbgErrorCode sbgEComCmdInterfaceGetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate *pBitrate, SbgEComCanMode *pMode)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
+	uint32_t			trial;
 	size_t				receivedSize;
-	uint8				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
+	uint8_t				receivedBuffer[SBG_ECOM_MAX_BUFFER_SIZE];
 	SbgStreamBuffer		inputStream;
 
+	assert(pHandle);
+	assert(pBitrate);
+	assert(pMode);
+
 	//
-	// Test that the input pointer are valid
+	// Send the command three times
 	//
-	if ((pHandle) && (pBitrate))
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Send the command with no payload
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, NULL, 0);
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Send the command with no payload
+			// Try to read the device answer for 500 ms
 			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, NULL, 0);
+			errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
 
 			//
-			// Make sure that the command has been sent
+			// Test if we have received a SBG_ECOM_CMD_CAN_BUS_CONF command
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
+				// Initialize stream buffer to read parameters
 				//
-				errorCode = sbgEComReceiveCmd(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, receivedBuffer, &receivedSize, sizeof(receivedBuffer), pHandle->cmdDefaultTimeOut);
+				sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
 
 				//
-				// Test if we have received a SBG_ECOM_CMD_CAN_BUS_CONF command
+				// Read bit rate returned by the device
 				//
-				if (errorCode == SBG_NO_ERROR)
+				*pBitrate = (SbgEComCanBitRate)sbgStreamBufferReadUint16LE(&inputStream);
+
+				//
+				// Check if we can parse the CAN mode that has been introduced in sbgECom version 2.0
+				// 
+				if (sbgStreamBufferGetSpace(&inputStream) > 0)
 				{
 					//
-					// Initialize stream buffer to read parameters
+					// Read mode returned by the device
 					//
-					sbgStreamBufferInitForRead(&inputStream, receivedBuffer, receivedSize);
-
-					//
-					// Read bit rate returned by the device
-					//
-					*pBitrate = (SbgEComCanBitRate)sbgStreamBufferReadUint16LE(&inputStream);
-
-					//
-					// The command has been executed successfully so return
-					//
-					break;
+					*pMode = (SbgEComCanMode)sbgStreamBufferReadUint8(&inputStream);
 				}
-			}
-			else
-			{
+				else
+				{
+					//
+					// Default the mode to the behavior prior to CAN mode setting introduction
+					//
+					*pMode = SBG_ECOM_CAN_MODE_NORMAL;
+				}
+
 				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
-	else
-	{
-		//
-		// Null pointer.
-		//
-		errorCode = SBG_NULL_POINTER;
-	}
-
+	
 	return errorCode;
 }
 
-/*!
- *	Set the configuration of the CAN interface.
- *	\param[in]	pHandle						A valid sbgECom handle.
- *	\param[in]	bitRate						The bitrate of the CAN interface.
- *	\return									SBG_NO_ERROR if the command has been executed successfully.
- */
-SbgErrorCode sbgEComCmdInterfaceSetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate bitrate)
+SbgErrorCode sbgEComCmdInterfaceSetCanConf(SbgEComHandle *pHandle, SbgEComCanBitRate bitrate, SbgEComCanMode mode)
 {
 	SbgErrorCode		errorCode = SBG_NO_ERROR;
-	uint32				trial;
-	uint8				outputBuffer[2];
+	uint32_t			trial;
+	uint8_t				outputBuffer[3];
 	SbgStreamBuffer		outputStream;
+
+	assert(pHandle);
+	assert(bitrate <= UINT16_MAX);
+	assert(mode <= UINT8_MAX);
+
 	//
-	// Test that the input pointer are valid
+	// Build the command payload
 	//
-	if (pHandle)
+	sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
+	
+	sbgStreamBufferWriteUint16LE(&outputStream, (uint16_t)bitrate);
+	sbgStreamBufferWriteUint8(&outputStream, (uint8_t)mode);
+
+	//
+	// Send the command three times
+	//
+	for (trial = 0; trial < pHandle->numTrials; trial++)
 	{
 		//
-		// Send the command three times
+		// Send the payload over ECom
 		//
-		for (trial = 0; trial < pHandle->numTrials; trial++)
+		errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
+
+		//
+		// Make sure that the command has been sent
+		//
+		if (errorCode == SBG_NO_ERROR)
 		{
 			//
-			// Build the payload
+			// Try to read the device answer for 500 ms
 			//
-			sbgStreamBufferInitForWrite(&outputStream, outputBuffer, sizeof(outputBuffer));
-			sbgStreamBufferWriteUint16LE(&outputStream, bitrate);
+			errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, pHandle->cmdDefaultTimeOut);
 
 			//
-			// Send the payload over ECom
-			//
-			errorCode = sbgEComProtocolSend(&pHandle->protocolHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, sbgStreamBufferGetLinkedBuffer(&outputStream), sbgStreamBufferGetLength(&outputStream));
-
-			//
-			// Make sure that the command has been sent
+			// Test if we have received a valid ACK
 			//
 			if (errorCode == SBG_NO_ERROR)
 			{
 				//
-				// Try to read the device answer for 500 ms
-				//
-				errorCode = sbgEComWaitForAck(pHandle, SBG_ECOM_CLASS_LOG_CMD_0, SBG_ECOM_CMD_CAN_BUS_CONF, pHandle->cmdDefaultTimeOut);
-
-				//
-				// Test if we have received a valid ACK
-				//
-				if (errorCode == SBG_NO_ERROR)
-				{
-					//
-					// The command has been executed successfully so return
-					//
-					break;
-				}
-			}
-			else
-			{
-				//
-				// We have a write error so exit the try loop
+				// The command has been executed successfully so return
 				//
 				break;
 			}
 		}
-	}
-	else
-	{
-		//
-		// Invalid protocol handle.
-		//
-		errorCode = SBG_NULL_POINTER;
+		else
+		{
+			//
+			// We have a write error so exit the try loop
+			//
+			break;
+		}
 	}
 
 	return errorCode;

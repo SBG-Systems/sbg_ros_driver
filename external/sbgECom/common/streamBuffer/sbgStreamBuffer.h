@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  *	\file		sbgStreamBuffer.h
  *  \author		SBG Systems (Raphael Siryani)
  *	\date		02 January 2013
@@ -18,8 +18,8 @@
  *	PARTICULAR PURPOSE.
  */
 
-#ifndef __SBG_STREAM_BUFFER_H__
-#define __SBG_STREAM_BUFFER_H__
+#ifndef SBG_STREAM_BUFFER_H
+#define SBG_STREAM_BUFFER_H
 
 //----------------------------------------------------------------------//
 //- Header (open extern C block)                                       -//
@@ -38,4 +38,4 @@ extern "C" {
 }
 #endif
 
-#endif /* __SBG_STREAM_BUFFER_H__ */
+#endif /* SBG_STREAM_BUFFER_H */
