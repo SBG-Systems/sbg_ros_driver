@@ -7,6 +7,9 @@
 // ROS headers
 #include <ros/ros.h>
 
+// Eigen headers
+#include <Eigen/Core>
+
 namespace sbg
 {
 /*!
@@ -32,7 +35,7 @@ private:
   SbgEComOutputPort           m_output_port_;
   uint32                      m_uart_baud_rate_;
   bool                        m_serial_communication_;
-  
+ 
   sbgIpAddress                m_sbg_ip_address_;
   uint32                      m_out_port_address_;
   uint32                      m_in_port_address_;
@@ -44,7 +47,7 @@ private:
   SbgEComModelInfo            m_motion_profile_model_info_;
 
   SbgEComSensorAlignmentInfo  m_sensor_alignement_info_;
-  std::array<float, 3>        m_sensor_lever_arm_;
+  Eigen::Vector3f             m_sensor_lever_arm_;
 
   SbgEComAidingAssignConf     m_aiding_assignement_conf_;
 
@@ -58,7 +61,7 @@ private:
   SbgEComGnssRejectionConf    m_gnss_rejection_conf_;
 
   SbgEComOdoConf              m_odometer_conf_;
-  std::array<float, 3>        m_odometer_level_arm_;
+  Eigen::Vector3f             m_odometer_level_arm_;
   SbgEComOdoRejectionConf     m_odometer_rejection_conf_;
 
   std::vector<SbgLogOutput>   m_output_modes_;
@@ -258,7 +261,7 @@ public:
    * 
    * \return                                Sensor level arms X, Y, Z (in meters).
    */
-  const std::array<float, 3> &getSensorLevelArms(void) const;
+  const Eigen::Vector3f &getSensorLevelArms(void) const;
 
   /*!
    * Get the aiding assignement configuration.
@@ -328,7 +331,7 @@ public:
    * 
    * \return                                Odometer X,Y,Z level arms (in meters).
    */
-  const std::array<float, 3> &getOdometerLevelArms(void) const;
+  const Eigen::Vector3f &getOdometerLevelArms(void) const;
 
   /*!
    * Get the odometer rejection.

@@ -203,7 +203,8 @@ void SbgDevice::configure(void)
 {
   if (m_config_store_.checkConfigWithRos())
   {
-    m_config_applier_.applyConfiguration(m_config_store_, m_com_handle_);
+    ConfigApplier configApplier(m_com_handle_);
+    configApplier.applyConfiguration(m_config_store_);
   }
 }
 
@@ -334,7 +335,8 @@ bool SbgDevice::uploadMagCalibrationToDevice(void)
     else
     {
       ROS_INFO("SBG DRIVER [Mag Calib] - Saving data to the device");
-      m_config_applier_.saveConfiguration(m_com_handle_);
+      ConfigApplier configApplier(m_com_handle_);
+      configApplier.saveConfiguration();
       return true;
     }
   }

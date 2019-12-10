@@ -8,7 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   geometry_msgs
   message_generation
+  cmake_modules
+  eigen_conversions
 )
+
+find_package(Eigen3 REQUIRED)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -132,6 +136,7 @@ add_subdirectory(external/sbgECom)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/include/sbg_driver/
   ${PROJECT_SOURCE_DIR}/external/sbgECom/common
   ${PROJECT_SOURCE_DIR}/external/sbgECom/src

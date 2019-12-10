@@ -42,7 +42,6 @@ private:
   ros::NodeHandle&        m_ref_node_;
   MessagePublisher        m_message_publisher_;
   ConfigStore             m_config_store_;
-  ConfigApplier           m_config_applier_;
 
   uint32                  m_rate_frequency_;
 

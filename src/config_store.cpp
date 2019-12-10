@@ -72,9 +72,9 @@ void ConfigStore::loadImuAlignementParameters(const ros::NodeHandle& ref_node_ha
   ref_node_handle.param<float>("imuAlignementLeverArm/misRoll", m_sensor_alignement_info_.misRoll, 0.0f);
   ref_node_handle.param<float>("imuAlignementLeverArm/misPitch", m_sensor_alignement_info_.misPitch, 0.0f);
   ref_node_handle.param<float>("imuAlignementLeverArm/misYaw", m_sensor_alignement_info_.misYaw, 0.0f);
-  ref_node_handle.param<float>("imuAlignementLeverArm/leverArmX", m_sensor_lever_arm_[0], 0.0f);
-  ref_node_handle.param<float>("imuAlignementLeverArm/leverArmY", m_sensor_lever_arm_[1], 0.0f);
-  ref_node_handle.param<float>("imuAlignementLeverArm/leverArmZ", m_sensor_lever_arm_[2], 0.0f);
+  ref_node_handle.param<float>("imuAlignementLeverArm/leverArmX", m_sensor_lever_arm_(0), 0.0f);
+  ref_node_handle.param<float>("imuAlignementLeverArm/leverArmY", m_sensor_lever_arm_(1), 0.0f);
+  ref_node_handle.param<float>("imuAlignementLeverArm/leverArmZ", m_sensor_lever_arm_(2), 0.0f);
 }
 
 void ConfigStore::loadAidingAssignementParameters(const ros::NodeHandle& ref_node_handle)
@@ -114,9 +114,9 @@ void ConfigStore::loadOdometerParameters(const ros::NodeHandle& ref_node_handle)
 {
   ref_node_handle.param<float>("odom/gain", m_odometer_conf_.gain, 4800.0f);
   ref_node_handle.param<bool>("odom/direction", m_odometer_conf_.reverseMode, false);
-  ref_node_handle.param<float>("odom/leverArmX", m_odometer_level_arm_[0], 0.0f);
-  ref_node_handle.param<float>("odom/leverArmY", m_odometer_level_arm_[1], 0.0f);
-  ref_node_handle.param<float>("odom/leverArmZ", m_odometer_level_arm_[2], 0.0f);
+  ref_node_handle.param<float>("odom/leverArmX", m_odometer_level_arm_(0), 0.0f);
+  ref_node_handle.param<float>("odom/leverArmY", m_odometer_level_arm_(1), 0.0f);
+  ref_node_handle.param<float>("odom/leverArmZ", m_odometer_level_arm_(2), 0.0f);
 
   m_odometer_conf_.gainError          = getParameter<uint8>(ref_node_handle, "odom/gain_error", 0.1);
   m_odometer_rejection_conf_.velocity = getParameter<SbgEComRejectionMode>(ref_node_handle, "odom/rejectMode", SBG_ECOM_AUTOMATIC_MODE);
@@ -197,7 +197,7 @@ const SbgEComSensorAlignmentInfo &ConfigStore::getSensorAlignement(void) const
   return m_sensor_alignement_info_;
 }
 
-const std::array<float, 3> &ConfigStore::getSensorLevelArms(void) const
+const Eigen::Vector3f &ConfigStore::getSensorLevelArms(void) const
 {
   return m_sensor_lever_arm_;
 }
@@ -247,7 +247,7 @@ const SbgEComOdoConf &ConfigStore::getOdometerConf(void) const
   return m_odometer_conf_;
 }
 
-const std::array<float, 3> &ConfigStore::getOdometerLevelArms(void) const
+const Eigen::Vector3f &ConfigStore::getOdometerLevelArms(void) const
 {
   return m_odometer_level_arm_;
 }

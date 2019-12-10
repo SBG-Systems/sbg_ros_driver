@@ -10,8 +10,9 @@ using sbg::ConfigApplier;
 //- Constructor                                                       -//
 //---------------------------------------------------------------------//
 
-ConfigApplier::ConfigApplier(void):
-m_reboot_needed_(false)
+ConfigApplier::ConfigApplier(SbgEComHandle &ref_sbg_com_handle):
+m_reboot_needed_(false),
+m_ref_sbg_com_handle(ref_sbg_com_handle)
 {
 
 }
@@ -59,7 +60,7 @@ void ConfigApplier::checkConfigurationApplied(const SbgErrorCode& ref_sbg_error_
   }
 }
 
-void ConfigApplier::configureInitCondition(SbgEComHandle& ref_sbg_com_handle, const SbgEComInitConditionConf& ref_init_condition)
+void ConfigApplier::configureInitCondition(const SbgEComInitConditionConf& ref_init_condition)
 {
   //
   // Get the initial condition of the device, compare with the loaded parameters.
@@ -68,24 +69,24 @@ void ConfigApplier::configureInitCondition(SbgEComHandle& ref_sbg_com_handle, co
   SbgEComInitConditionConf  init_condition;
   SbgErrorCode              error_code;
 
-  error_code = sbgEComCmdSensorGetInitCondition(&ref_sbg_com_handle, &init_condition);
+  error_code = sbgEComCmdSensorGetInitCondition(&m_ref_sbg_com_handle, &init_condition);
 
   checkConfigurationGet(error_code, std::string("Init conditions"));
 
   if ((init_condition.year != ref_init_condition.year)
   ||  (init_condition.month != ref_init_condition.month)
   ||  (init_condition.day != ref_init_condition.day)
-  ||  (init_condition.altitude != ref_init_condition.altitude)
-  ||  (init_condition.latitude != ref_init_condition.latitude)
-  ||  (init_condition.longitude != ref_init_condition.longitude))
+  || !areEquals(init_condition.altitude, ref_init_condition.altitude)
+  || !areEquals(init_condition.latitude, ref_init_condition.latitude)
+  || !areEquals(init_condition.longitude, ref_init_condition.longitude))
   {
-    error_code = sbgEComCmdSensorSetInitCondition(&ref_sbg_com_handle, &ref_init_condition);
+    error_code = sbgEComCmdSensorSetInitCondition(&m_ref_sbg_com_handle, &ref_init_condition);
 
     checkConfigurationApplied(error_code, std::string("Init conditions"));
   }
 }
 
-void ConfigApplier::configureMotionProfile(SbgEComHandle& ref_sbg_com_handle, const SbgEComModelInfo& ref_motion_profile)
+void ConfigApplier::configureMotionProfile(const SbgEComModelInfo& ref_motion_profile)
 {
   //
   // Get the motion profile ID, and compare with the loaded one parameter.
@@ -94,19 +95,19 @@ void ConfigApplier::configureMotionProfile(SbgEComHandle& ref_sbg_com_handle, co
   SbgEComModelInfo  motion_profile;
   SbgErrorCode      error_code;
 
-  error_code = sbgEComCmdSensorGetMotionProfileInfo(&ref_sbg_com_handle, &motion_profile);
+  error_code = sbgEComCmdSensorGetMotionProfileInfo(&m_ref_sbg_com_handle, &motion_profile);
 
   checkConfigurationGet(error_code, std::string("Motion profile"));
 
   if (motion_profile.id != ref_motion_profile.id)
   {
-    error_code = sbgEComCmdSensorSetMotionProfileId(&ref_sbg_com_handle, ref_motion_profile.id);
+    error_code = sbgEComCmdSensorSetMotionProfileId(&m_ref_sbg_com_handle, ref_motion_profile.id);
 
     checkConfigurationApplied(error_code, std::string("Motion profile"));
   }
 }
 
-void ConfigApplier::configureImuAlignement(SbgEComHandle& ref_sbg_com_handle, const SbgEComSensorAlignmentInfo& ref_sensor_align, std::array<float, 3> level_arms)
+void ConfigApplier::configureImuAlignement(const SbgEComSensorAlignmentInfo& ref_sensor_align, const Eigen::Vector3f& ref_level_arms)
 {
   //
   // Get the IMU alignement and level arms, and compare with the parameters.
@@ -116,26 +117,26 @@ void ConfigApplier::configureImuAlignement(SbgEComHandle& ref_sbg_com_handle, co
   SbgEComSensorAlignmentInfo  sensor_alignement;
   float                       level_arms_device[3];
 
-  error_code = sbgEComCmdSensorGetAlignmentAndLeverArm(&ref_sbg_com_handle, &sensor_alignement, level_arms_device);
+  error_code = sbgEComCmdSensorGetAlignmentAndLeverArm(&m_ref_sbg_com_handle, &sensor_alignement, level_arms_device);
 
   checkConfigurationGet(error_code, std::string("IMU alignement"));
- 
-  if ((level_arms_device[0] != level_arms[0])
-  ||  (level_arms_device[1] != level_arms[1])
-  ||  (level_arms_device[2] != level_arms[2])
+
+  Eigen::Vector3f level_arms_vector = Eigen::Map<Eigen::Vector3f>(level_arms_device, 3);
+
+  if ((level_arms_vector != ref_level_arms)
   ||  (sensor_alignement.axisDirectionX != ref_sensor_align.axisDirectionX)
   ||  (sensor_alignement.axisDirectionY != ref_sensor_align.axisDirectionY)
-  ||  (sensor_alignement.misRoll != ref_sensor_align.misRoll)
-  ||  (sensor_alignement.misPitch != ref_sensor_align.misPitch)
-  ||  (sensor_alignement.misYaw != ref_sensor_align.misYaw))
+  || !areEquals(sensor_alignement.misRoll, ref_sensor_align.misRoll)
+  || !areEquals(sensor_alignement.misPitch, ref_sensor_align.misPitch)
+  || !areEquals(sensor_alignement.misYaw, ref_sensor_align.misYaw))
   {
-    error_code = sbgEComCmdSensorSetAlignmentAndLeverArm(&ref_sbg_com_handle, &ref_sensor_align, level_arms.data());
+    error_code = sbgEComCmdSensorSetAlignmentAndLeverArm(&m_ref_sbg_com_handle, &ref_sensor_align, level_arms_vector.data());
 
     checkConfigurationApplied(error_code, std::string("IMU alignement"));
   }
 }
 
-void ConfigApplier::configureAidingAssignement(SbgEComHandle& ref_sbg_com_handle, const SbgEComAidingAssignConf& ref_aiding_assign)
+void ConfigApplier::configureAidingAssignement(const SbgEComAidingAssignConf& ref_aiding_assign)
 {
   //
   // Get the aiding assignement, and compare with the loaded parameters.
@@ -144,7 +145,7 @@ void ConfigApplier::configureAidingAssignement(SbgEComHandle& ref_sbg_com_handle
   SbgEComAidingAssignConf aiding_assign;
   SbgErrorCode            error_code;
 
-  error_code = sbgEComCmdSensorGetAidingAssignment(&ref_sbg_com_handle, &aiding_assign);
+  error_code = sbgEComCmdSensorGetAidingAssignment(&m_ref_sbg_com_handle, &aiding_assign);
 
   checkConfigurationGet(error_code, std::string("Aiding assignement"));
 
@@ -153,13 +154,13 @@ void ConfigApplier::configureAidingAssignement(SbgEComHandle& ref_sbg_com_handle
   ||  (aiding_assign.odometerPinsConf != ref_aiding_assign.odometerPinsConf)
   ||  (aiding_assign.rtcmPort != ref_aiding_assign.rtcmPort))
   {
-    error_code = sbgEComCmdSensorSetAidingAssignment(&ref_sbg_com_handle, &aiding_assign);
+    error_code = sbgEComCmdSensorSetAidingAssignment(&m_ref_sbg_com_handle, &aiding_assign);
 
     checkConfigurationApplied(error_code, std::string("Aiding assignement"));
   }
 }
 
-void ConfigApplier::configureMagModel(SbgEComHandle& ref_sbg_com_handle, const SbgEComModelInfo& ref_mag_model)
+void ConfigApplier::configureMagModel(const SbgEComModelInfo& ref_mag_model)
 {
   //
   // Get the magnetometer model, and compare with the loaded parameter.
@@ -168,19 +169,19 @@ void ConfigApplier::configureMagModel(SbgEComHandle& ref_sbg_com_handle, const S
   SbgEComModelInfo  model_info;
   SbgErrorCode      error_code;
 
-  error_code = sbgEComCmdMagGetModelInfo(&ref_sbg_com_handle, &model_info);
+  error_code = sbgEComCmdMagGetModelInfo(&m_ref_sbg_com_handle, &model_info);
 
   checkConfigurationGet(error_code, std::string("Magnetometer model"));
 
   if (model_info.id != ref_mag_model.id)
   {
-    error_code = sbgEComCmdMagSetModelId(&ref_sbg_com_handle, ref_mag_model.id);
+    error_code = sbgEComCmdMagSetModelId(&m_ref_sbg_com_handle, ref_mag_model.id);
 
     checkConfigurationApplied(error_code, std::string("Magnetometer model"));
   }
 }
 
-void ConfigApplier::configureMagRejection(SbgEComHandle& ref_sbg_com_handle, const SbgEComMagRejectionConf& ref_mag_rejection)
+void ConfigApplier::configureMagRejection(const SbgEComMagRejectionConf& ref_mag_rejection)
 {
   //
   // Get the magnetometer rejection model, and compare with the loaded parameter.
@@ -189,19 +190,19 @@ void ConfigApplier::configureMagRejection(SbgEComHandle& ref_sbg_com_handle, con
   SbgEComMagRejectionConf mag_rejection;
   SbgErrorCode            error_code;
 
-  error_code = sbgEComCmdMagGetRejection(&ref_sbg_com_handle, &mag_rejection);
+  error_code = sbgEComCmdMagGetRejection(&m_ref_sbg_com_handle, &mag_rejection);
 
   checkConfigurationGet(error_code, std::string("Magnetometer rejection"));
 
   if (mag_rejection.magneticField != ref_mag_rejection.magneticField)
   {
-    error_code = sbgEComCmdMagSetRejection(&ref_sbg_com_handle, &ref_mag_rejection);
+    error_code = sbgEComCmdMagSetRejection(&m_ref_sbg_com_handle, &ref_mag_rejection);
 
     checkConfigurationApplied(error_code, std::string("Magnetometer rejection"));
   }
 }
 
-void ConfigApplier::configureGnssModel(SbgEComHandle& ref_sbg_com_handle, const SbgEComModelInfo& ref_gnss_model)
+void ConfigApplier::configureGnssModel(const SbgEComModelInfo& ref_gnss_model)
 {
   //
   // Get the Gnss model, and compare with the loaded model.
@@ -210,19 +211,19 @@ void ConfigApplier::configureGnssModel(SbgEComHandle& ref_sbg_com_handle, const 
   SbgEComModelInfo  model_info;
   SbgErrorCode      error_code;
 
-  error_code = sbgEComCmdGnss1GetModelInfo(&ref_sbg_com_handle, &model_info);
+  error_code = sbgEComCmdGnss1GetModelInfo(&m_ref_sbg_com_handle, &model_info);
 
   checkConfigurationGet(error_code, std::string("Gnss model"));
 
   if (model_info.id != ref_gnss_model.id)
   {
-    error_code = sbgEComCmdGnss1SetModelId(&ref_sbg_com_handle, ref_gnss_model.id);
+    error_code = sbgEComCmdGnss1SetModelId(&m_ref_sbg_com_handle, ref_gnss_model.id);
 
     checkConfigurationApplied(error_code, std::string("Gnss model"));
   }
 }
 
-void ConfigApplier::configureGnssAlignement(SbgEComHandle& ref_sbg_com_handle, const SbgEComGnssAlignmentInfo& ref_gnss_alignement)
+void ConfigApplier::configureGnssAlignement(const SbgEComGnssAlignmentInfo& ref_gnss_alignement)
 {
   //
   // Get the Gnss level arm, and compare with the loaded parameters.
@@ -230,25 +231,28 @@ void ConfigApplier::configureGnssAlignement(SbgEComHandle& ref_sbg_com_handle, c
   //
   SbgEComGnssAlignmentInfo  gnss_alignement;
   SbgErrorCode              error_code;
+  Eigen::Vector3f           gnss_device;
+  Eigen::Vector3f           gnss_config;
 
-  error_code = sbgEComCmdGnss1GetLeverArmAlignment(&ref_sbg_com_handle, &gnss_alignement);
+  error_code = sbgEComCmdGnss1GetLeverArmAlignment(&m_ref_sbg_com_handle, &gnss_alignement);
 
   checkConfigurationGet(error_code, std::string("Gnss level arms"));
 
-  if ((gnss_alignement.antennaDistance != ref_gnss_alignement.antennaDistance)
-  ||  (gnss_alignement.leverArmX != ref_gnss_alignement.leverArmX)
-  ||  (gnss_alignement.leverArmY != ref_gnss_alignement.leverArmY)
-  ||  (gnss_alignement.leverArmZ != ref_gnss_alignement.leverArmZ)
-  ||  (gnss_alignement.pitchOffset != ref_gnss_alignement.pitchOffset)
-  ||  (gnss_alignement.yawOffset != ref_gnss_alignement.yawOffset))
+  gnss_device = Eigen::Vector3f(gnss_alignement.leverArmX, gnss_alignement.leverArmY, gnss_alignement.leverArmZ);
+  gnss_config = Eigen::Vector3f(ref_gnss_alignement.leverArmX, ref_gnss_alignement.leverArmY, ref_gnss_alignement.leverArmZ);
+
+  if (!areEquals(gnss_alignement.antennaDistance, ref_gnss_alignement.antennaDistance)
+  || (gnss_device != gnss_config)
+  || !areEquals(gnss_alignement.pitchOffset, ref_gnss_alignement.pitchOffset)
+  || !areEquals(gnss_alignement.yawOffset, ref_gnss_alignement.yawOffset))
   {
-    error_code = sbgEComCmdGnss1SetLeverArmAlignment(&ref_sbg_com_handle, &ref_gnss_alignement);
+    error_code = sbgEComCmdGnss1SetLeverArmAlignment(&m_ref_sbg_com_handle, &ref_gnss_alignement);
 
     checkConfigurationApplied(error_code, std::string("Gnss level arms"));
   }
 }
 
-void ConfigApplier::configureGnssRejection(SbgEComHandle& ref_sbg_com_handle, const SbgEComGnssRejectionConf& ref_gnss_rejection)
+void ConfigApplier::configureGnssRejection(const SbgEComGnssRejectionConf& ref_gnss_rejection)
 {
   //
   // Get the Gnss rejection, and compare with the loaded parameters.
@@ -257,7 +261,7 @@ void ConfigApplier::configureGnssRejection(SbgEComHandle& ref_sbg_com_handle, co
   SbgEComGnssRejectionConf  rejection;
   SbgErrorCode              error_code;
 
-  error_code = sbgEComCmdGnss1GetRejection(&ref_sbg_com_handle, &rejection);
+  error_code = sbgEComCmdGnss1GetRejection(&m_ref_sbg_com_handle, &rejection);
 
   checkConfigurationGet(error_code, std::string("Gnss rejection"));
 
@@ -265,13 +269,13 @@ void ConfigApplier::configureGnssRejection(SbgEComHandle& ref_sbg_com_handle, co
   ||  (rejection.position != ref_gnss_rejection.position)
   ||  (rejection.velocity != ref_gnss_rejection.velocity))
   {
-    error_code = sbgEComCmdGnss1SetRejection(&ref_sbg_com_handle, &ref_gnss_rejection);
+    error_code = sbgEComCmdGnss1SetRejection(&m_ref_sbg_com_handle, &ref_gnss_rejection);
 
     checkConfigurationApplied(error_code, std::string("Gnss rejection"));
   }
 }
 
-void ConfigApplier::configureOdometer(SbgEComHandle& ref_sbg_com_handle, const SbgEComOdoConf& ref_odometer)
+void ConfigApplier::configureOdometer(const SbgEComOdoConf& ref_odometer)
 {
   //
   // Get the odometer configuration, and compare with the loaded parameters.
@@ -280,44 +284,44 @@ void ConfigApplier::configureOdometer(SbgEComHandle& ref_sbg_com_handle, const S
   SbgEComOdoConf  odom_conf;
   SbgErrorCode    error_code;
 
-  error_code = sbgEComCmdOdoGetConf(&ref_sbg_com_handle, &odom_conf);
+  error_code = sbgEComCmdOdoGetConf(&m_ref_sbg_com_handle, &odom_conf);
 
   checkConfigurationGet(error_code, std::string("Odometer"));
 
-  if ((odom_conf.gain != ref_odometer.gain)
+  if (!areEquals(odom_conf.gain, ref_odometer.gain)
   ||  (odom_conf.gainError != ref_odometer.gainError)
   ||  (odom_conf.reverseMode != ref_odometer.reverseMode))
   {
-    error_code = sbgEComCmdOdoSetConf(&ref_sbg_com_handle, &ref_odometer);
+    error_code = sbgEComCmdOdoSetConf(&m_ref_sbg_com_handle, &ref_odometer);
 
     checkConfigurationApplied(error_code, std::string("Odometer"));
   }
 }
 
-void ConfigApplier::configureOdometerLevelArm(SbgEComHandle& ref_sbg_com_handle, std::array<float, 3> odometer_level_arms)
+void ConfigApplier::configureOdometerLevelArm(const Eigen::Vector3f& odometer_level_arms)
 {
   //
   // Get the odometer level arm, and compare with the loaded parameters.
   // If the level arms are different, update the device with the loaded parameters.
   //
-  float         leverArm[3];
+  float         lever_arm[3];
   SbgErrorCode  error_code;
 
-  error_code = sbgEComCmdOdoGetLeverArm(&ref_sbg_com_handle, leverArm);
+  error_code = sbgEComCmdOdoGetLeverArm(&m_ref_sbg_com_handle, lever_arm);
 
   checkConfigurationGet(error_code, std::string("Odometer level arms"));
 
-  if ((leverArm[0] != odometer_level_arms[0])
-  || (leverArm[1] != odometer_level_arms[1])
-  || (leverArm[2] != odometer_level_arms[2]))
+  Eigen::Vector3f lever_arm_device = Eigen::Map<Eigen::Vector3f>(lever_arm, 3);
+
+  if (lever_arm_device != odometer_level_arms)
   {
-    error_code = sbgEComCmdOdoSetLeverArm(&ref_sbg_com_handle, odometer_level_arms.data());
+    error_code = sbgEComCmdOdoSetLeverArm(&m_ref_sbg_com_handle, odometer_level_arms.data());
 
     checkConfigurationApplied(error_code, std::string("Odometer level arms"));
   }
 }
 
-void ConfigApplier::configureOdometerRejection(SbgEComHandle& ref_sbg_com_handle, const SbgEComOdoRejectionConf& ref_odometer_rejection)
+void ConfigApplier::configureOdometerRejection(const SbgEComOdoRejectionConf& ref_odometer_rejection)
 {
   //
   // Get the odometer rejection mode, and compare with the loaded parameter.
@@ -326,19 +330,19 @@ void ConfigApplier::configureOdometerRejection(SbgEComHandle& ref_sbg_com_handle
   SbgEComOdoRejectionConf odom_rejection;
   SbgErrorCode            error_code;
 
-  error_code = sbgEComCmdOdoGetRejection(&ref_sbg_com_handle, &odom_rejection);
+  error_code = sbgEComCmdOdoGetRejection(&m_ref_sbg_com_handle, &odom_rejection);
 
   checkConfigurationGet(error_code, std::string("Odometer rejection"));
   
   if (odom_rejection.velocity != ref_odometer_rejection.velocity)
   {
-    error_code = sbgEComCmdOdoSetRejection(&ref_sbg_com_handle, &ref_odometer_rejection);
+    error_code = sbgEComCmdOdoSetRejection(&m_ref_sbg_com_handle, &ref_odometer_rejection);
 
     checkConfigurationApplied(error_code, std::string("Odometer rejection"));
   }
 }
 
-void ConfigApplier::configureOutput(SbgEComHandle& ref_sbg_com_handle, SbgEComOutputPort output_port, const ConfigStore::SbgLogOutput &ref_log_output)
+void ConfigApplier::configureOutput(SbgEComOutputPort output_port, const ConfigStore::SbgLogOutput &ref_log_output)
 {
   SbgErrorCode      error_code;
   SbgEComOutputMode current_output_mode;
@@ -347,7 +351,7 @@ void ConfigApplier::configureOutput(SbgEComHandle& ref_sbg_com_handle, SbgEComOu
   // Get the current output mode for the device and the selected log ID.
   // If output modes are different, udpate the device mode with the one loaded from the parameters.
   //
-  error_code = sbgEComCmdOutputGetConf(&ref_sbg_com_handle, output_port, ref_log_output.message_class, ref_log_output.message_id, &current_output_mode);
+  error_code = sbgEComCmdOutputGetConf(&m_ref_sbg_com_handle, output_port, ref_log_output.message_class, ref_log_output.message_id, &current_output_mode);
 
   if (error_code == SBG_INVALID_PARAMETER)
   {
@@ -366,7 +370,7 @@ void ConfigApplier::configureOutput(SbgEComHandle& ref_sbg_com_handle, SbgEComOu
   }
   else if (current_output_mode != ref_log_output.output_mode)
   {
-    error_code = sbgEComCmdOutputSetConf(&ref_sbg_com_handle, output_port, ref_log_output.message_class, ref_log_output.message_id, ref_log_output.output_mode);
+    error_code = sbgEComCmdOutputSetConf(&m_ref_sbg_com_handle, output_port, ref_log_output.message_class, ref_log_output.message_id, ref_log_output.output_mode);
     
     if (error_code != SBG_NO_ERROR)
     {
@@ -394,23 +398,23 @@ void ConfigApplier::configureOutput(SbgEComHandle& ref_sbg_com_handle, SbgEComOu
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
 
-void ConfigApplier::applyConfiguration(const ConfigStore& ref_config_store, SbgEComHandle& ref_sbg_com_handle)
+void ConfigApplier::applyConfiguration(const ConfigStore& ref_config_store)
 {
   //
   // Configure the connected device.
   //
-  configureInitCondition(ref_sbg_com_handle, ref_config_store.getInitialConditions());
-  configureMotionProfile(ref_sbg_com_handle, ref_config_store.getMotionProfile());
-  configureImuAlignement(ref_sbg_com_handle, ref_config_store.getSensorAlignement(), ref_config_store.getSensorLevelArms());
-  configureAidingAssignement(ref_sbg_com_handle, ref_config_store.getAidingAssignement());
-  configureMagModel(ref_sbg_com_handle, ref_config_store.getMagnetometerModel());
-  configureMagRejection(ref_sbg_com_handle, ref_config_store.getMagnetometerRejection());
-  configureGnssModel(ref_sbg_com_handle, ref_config_store.getGnssModel());
-  configureGnssAlignement(ref_sbg_com_handle, ref_config_store.getGnssAlignement());
-  configureGnssRejection(ref_sbg_com_handle, ref_config_store.getGnssRejection());
-  configureOdometer(ref_sbg_com_handle, ref_config_store.getOdometerConf());
-  configureOdometerLevelArm(ref_sbg_com_handle, ref_config_store.getOdometerLevelArms());
-  configureOdometerRejection(ref_sbg_com_handle, ref_config_store.getOdometerRejection());
+  configureInitCondition(ref_config_store.getInitialConditions());
+  configureMotionProfile(ref_config_store.getMotionProfile());
+  configureImuAlignement(ref_config_store.getSensorAlignement(), ref_config_store.getSensorLevelArms());
+  configureAidingAssignement(ref_config_store.getAidingAssignement());
+  configureMagModel(ref_config_store.getMagnetometerModel());
+  configureMagRejection(ref_config_store.getMagnetometerRejection());
+  configureGnssModel(ref_config_store.getGnssModel());
+  configureGnssAlignement(ref_config_store.getGnssAlignement());
+  configureGnssRejection(ref_config_store.getGnssRejection());
+  configureOdometer(ref_config_store.getOdometerConf());
+  configureOdometerLevelArm(ref_config_store.getOdometerLevelArms());
+  //configureOdometerRejection(ref_config_store.getOdometerRejection());
 
   //
   // Configure the output, with all output defined in the store.
@@ -419,7 +423,7 @@ void ConfigApplier::applyConfiguration(const ConfigStore& ref_config_store, SbgE
 
   for (const ConfigStore::SbgLogOutput& ref_output : ref_output_modes)
   {
-    configureOutput(ref_sbg_com_handle, ref_config_store.getOutputPort(), ref_output);
+    configureOutput(ref_config_store.getOutputPort(), ref_output);
   }
 
   //
@@ -427,15 +431,15 @@ void ConfigApplier::applyConfiguration(const ConfigStore& ref_config_store, SbgE
   //
   if (m_reboot_needed_)
   {
-    saveConfiguration(ref_sbg_com_handle);
+    saveConfiguration();
   }
 }
 
-void ConfigApplier::saveConfiguration(SbgEComHandle& ref_sbg_com_handle)
+void ConfigApplier::saveConfiguration(void)
 {
   SbgErrorCode error_code;
 
-  error_code = sbgEComCmdSettingsAction(&ref_sbg_com_handle, SBG_ECOM_SAVE_SETTINGS);
+  error_code = sbgEComCmdSettingsAction(&m_ref_sbg_com_handle, SBG_ECOM_SAVE_SETTINGS);
 
   if (error_code != SBG_NO_ERROR)
   {
