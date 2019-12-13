@@ -28,7 +28,7 @@ int main(int argc, char **argv)
   }
   catch (ros::Exception const& refE)
   {
-    ROS_ERROR("SBG_DRIVER - [Error] %s", refE.what());
+    ROS_ERROR("SBG_DRIVER - %s", refE.what());
   }
 
   return 0;

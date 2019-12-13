@@ -307,6 +307,8 @@ void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
   loadOutputConfiguration(ref_node_handle, "output/log_event_c", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_C);
   loadOutputConfiguration(ref_node_handle, "output/log_event_d", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_D);
   loadOutputConfiguration(ref_node_handle, "output/log_event_e", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_EVENT_E);
+  loadOutputConfiguration(ref_node_handle, "output/log_air_data", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_AIR_DATA);
+  loadOutputConfiguration(ref_node_handle, "output/log_imu_short", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_SHORT);
 
   ref_node_handle.param<bool>("output/ros_standard", m_ros_standard_output_, false);
   m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "output/frequency", 0);

@@ -29,7 +29,7 @@ void ConfigApplier::checkConfigurationGet(const SbgErrorCode& ref_sbg_error_code
   }
   else if (ref_sbg_error_code != SBG_NO_ERROR)
   {
-    std::string error_message("SBG_DRIVER - [Config] Unable to get the");
+    std::string error_message("[Config] Unable to get the ");
     error_message.append(ref_conf_title);
     error_message.append(" configuration : ");
     error_message.append(sbgErrorCodeToString(ref_sbg_error_code));
@@ -46,7 +46,7 @@ void ConfigApplier::checkConfigurationApplied(const SbgErrorCode& ref_sbg_error_
   }
   else if (ref_sbg_error_code != SBG_NO_ERROR)
   {
-    std::string error_message("SBG_DRIVER - [Config] Unable to set the");
+    std::string error_message("[Config] Unable to set the ");
     error_message.append(ref_conf_title);
     error_message.append(" configuration : ");
     error_message.append(sbgErrorCodeToString(ref_sbg_error_code));
@@ -363,7 +363,7 @@ void ConfigApplier::configureOutput(SbgEComOutputPort output_port, const ConfigS
   }
   else if (error_code != SBG_NO_ERROR)
   {
-    std::string error_message("SBG_DRIVER - [Config] Output is not available for this device : Class [");
+    std::string error_message("[Config] Unable to get output for the device : Class [");
     error_message.append(std::to_string(ref_log_output.message_class));
     error_message.append("] - Id [");
     error_message.append(std::to_string(ref_log_output.message_id));
@@ -378,7 +378,7 @@ void ConfigApplier::configureOutput(SbgEComOutputPort output_port, const ConfigS
     
     if (error_code != SBG_NO_ERROR)
     {
-      std::string error_message("SBG_DRIVER - [Config] Unable to set the output configuration : Class[");
+      std::string error_message("[Config] Unable to set the output configuration : Class[");
       error_message.append(std::to_string(ref_log_output.message_class));
       error_message.append("] - Id [");
       error_message.append(std::to_string(ref_log_output.message_id));

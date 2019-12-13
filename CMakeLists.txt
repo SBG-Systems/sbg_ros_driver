@@ -46,6 +46,8 @@ add_message_files(FILES
   SbgShipMotionStatus.msg
   SbgUtcTimeStatus.msg
 
+  SbgAirData.msg
+  SbgAirDataStatus.msg
   SbgEkfEuler.msg
   SbgGpsPos.msg
   SbgMag.msg
@@ -60,6 +62,7 @@ add_message_files(FILES
   SbgEvent.msg
   SbgImuStatus.msg
   SbgImuData.msg
+  SbgImuShort.msg
   SbgShipMotion.msg
   SbgUtcTime.msg
   SbgGpsHdt.msg

@@ -266,8 +266,10 @@ output:
   log_event_b: 0
   log_event_c: 0
   log_event_d: 0
-  # Barometric altimeter output
-  log_pressure: 0
+  # Air data
+  log_air_data: 0
+  # Short IMU data
+  log_imu_short: 0
 
   # Node frequency (Hz) (if set to 0, the node will decide the most appropriate frequency to run)
   frequency: 0

@@ -128,29 +128,38 @@ std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) co
   case SBG_ECOM_LOG_GPS1_POS:
     return "sbg/gps_pos";
 
-    case SBG_ECOM_LOG_GPS1_HDT:
+  case SBG_ECOM_LOG_GPS1_HDT:
     return "sbg/gps_hdt";
 
-    case SBG_ECOM_LOG_GPS1_RAW:
+  case SBG_ECOM_LOG_GPS1_RAW:
     return "sbg/gps_raw";
 
-    case SBG_ECOM_LOG_ODO_VEL:
+  case SBG_ECOM_LOG_ODO_VEL:
     return "sbg/odo_vel";
 
-    case SBG_ECOM_LOG_EVENT_A:
+  case SBG_ECOM_LOG_EVENT_A:
     return "sbg/eventA";
 
-    case SBG_ECOM_LOG_EVENT_B:
+  case SBG_ECOM_LOG_EVENT_B:
     return "sbg/eventB";
 
-    case SBG_ECOM_LOG_EVENT_C:
+  case SBG_ECOM_LOG_EVENT_C:
     return "sbg/eventC";
 
-    case SBG_ECOM_LOG_EVENT_D:
+  case SBG_ECOM_LOG_EVENT_D:
     return "sbg/eventD";
 
-    case SBG_ECOM_LOG_EVENT_E:
+  case SBG_ECOM_LOG_EVENT_E:
     return "sbg/eventE";
+
+  case SBG_ECOM_LOG_AIR_DATA:
+    return "sbg/air_data";
+
+  case SBG_ECOM_LOG_IMU_SHORT:
+    return "sbg/imu_short";
+
+  default:
+    return "undefined";
   }
 }
 
@@ -257,21 +266,17 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
         m_sbgEventE_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
         break;
 
-      case SBG_ECOM_LOG_DVL_BOTTOM_TRACK:
-      case SBG_ECOM_LOG_DVL_WATER_TRACK:
-      case SBG_ECOM_LOG_SHIP_MOTION_HP:
+      case SBG_ECOM_LOG_IMU_SHORT:
 
+        m_SbgImuShort_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuShort>(ref_output_topic, m_max_mesages_);
         break;
 
-      case SBG_ECOM_LOG_USBL:
-      case SBG_ECOM_LOG_DEBUG_0:
-      case SBG_ECOM_LOG_IMU_RAW_DATA:
-      case SBG_ECOM_LOG_DEBUG_1:
-      case SBG_ECOM_LOG_DEBUG_2:
-      case SBG_ECOM_LOG_DEBUG_3:
-      case SBG_ECOM_LOG_IMU_SHORT:
-      case SBG_ECOM_LOG_ECOM_NUM_MESSAGES:
+      case SBG_ECOM_LOG_AIR_DATA:
 
+        m_SbgAirData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgAirData>(ref_output_topic, m_max_mesages_);
+        break;
+
+      default:
         break;
     }
   }
@@ -282,6 +287,10 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   if (m_sbgImuData_pub_ && m_sbgEkfQuat_pub_)
   {
     m_imu_pub_ = ref_ros_node_handle.advertise<sensor_msgs::Imu>("imu/data", m_max_mesages_);
+  }
+  else
+  {
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG Imu and/or Quat output are not configured, the standard IMU can not be defined.");
   }
 
   if (m_sbgImuData_pub_)
@@ -302,6 +311,16 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   {
     ROS_WARN("SBG_DRIVER - [Publisher] SBG Mag data output are not configured, the standard Magnetic publisher can not be defined.");
   }
+
+  if (m_SbgAirData_pub_)
+  {
+    m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_mesages_);
+  }
+  else
+  {
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG AirData output are not configured, the standard FluidPressure publisher can not be defined.");
+  }
+
 
   if (m_sbgEkfNav_pub_)
   {
@@ -381,7 +400,17 @@ void MessagePublisher::publishMagData(const SbgBinaryLogData &ref_sbg_log)
 
 void MessagePublisher::publishFluidPressureData(const SbgBinaryLogData &ref_sbg_log)
 {
-  //
+  sbg_driver::SbgAirData sbg_air_data_message;
+  sbg_air_data_message = m_message_wrapper_.createSbgAirDataMessage(ref_sbg_log.airData);
+
+  if (m_SbgAirData_pub_)
+  {
+    m_SbgAirData_pub_.publish(sbg_air_data_message);
+  }
+  if (m_fluid_pub_)
+  {
+    m_fluid_pub_.publish(m_message_wrapper_.createRosFluidPressureMessage(sbg_air_data_message));
+  }
 }
 
 void MessagePublisher::publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_log)
@@ -620,20 +649,20 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
       }
       break;
 
-    case SBG_ECOM_LOG_DVL_BOTTOM_TRACK:
-    case SBG_ECOM_LOG_DVL_WATER_TRACK:
-    case SBG_ECOM_LOG_SHIP_MOTION_HP:
+    case SBG_ECOM_LOG_IMU_SHORT:
+
+      if (m_SbgImuShort_pub_)
+      {
+        m_SbgImuShort_pub_.publish(m_message_wrapper_.createSbgImuShortMessage(ref_sbg_log.imuShort));
+      }
       break;
 
-    case SBG_ECOM_LOG_USBL:
-    case SBG_ECOM_LOG_DEBUG_0:
-    case SBG_ECOM_LOG_IMU_RAW_DATA:
-    case SBG_ECOM_LOG_DEBUG_1:
-    case SBG_ECOM_LOG_DEBUG_2:
-    case SBG_ECOM_LOG_DEBUG_3:
-    case SBG_ECOM_LOG_IMU_SHORT:
-    case SBG_ECOM_LOG_ECOM_NUM_MESSAGES:
+    case SBG_ECOM_LOG_AIR_DATA:
 
+      publishFluidPressureData(ref_sbg_log);
+      break;
+
+    default:
       break;
     } 
   }
@@ -641,8 +670,8 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
   {
     switch (sbg_msg_id)
     {
-      case SBG_ECOM_LOG_FAST_IMU_DATA:
-      break;
+    default:
+      break;  
     }
   }
 }

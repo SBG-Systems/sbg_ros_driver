@@ -144,20 +144,20 @@ const sbg_driver::SbgGpsVelStatus MessageWrapper::createGpsVelStatusMessage(cons
   return gps_vel_status_message;
 }
 
-const sbg_driver::SbgImuStatus MessageWrapper::createImuStatusMessage(const SbgLogImuData& ref_log_imu) const
+const sbg_driver::SbgImuStatus MessageWrapper::createImuStatusMessage(uint16_t sbg_imu_status) const
 {
   sbg_driver::SbgImuStatus imu_status_message;
 
-  imu_status_message.imu_com              = (ref_log_imu.status & SBG_ECOM_IMU_COM_OK) != 0;
-  imu_status_message.imu_status           = (ref_log_imu.status & SBG_ECOM_IMU_STATUS_BIT) != 0 ;
-  imu_status_message.imu_accel_x          = (ref_log_imu.status & SBG_ECOM_IMU_ACCEL_X_BIT) != 0;
-  imu_status_message.imu_accel_y          = (ref_log_imu.status & SBG_ECOM_IMU_ACCEL_Y_BIT) != 0;
-  imu_status_message.imu_accel_z          = (ref_log_imu.status & SBG_ECOM_IMU_ACCEL_Z_BIT) != 0;
-  imu_status_message.imu_gyro_x           = (ref_log_imu.status & SBG_ECOM_IMU_GYRO_X_BIT) != 0;
-  imu_status_message.imu_gyro_y           = (ref_log_imu.status & SBG_ECOM_IMU_GYRO_Y_BIT) != 0;
-  imu_status_message.imu_gyro_z           = (ref_log_imu.status & SBG_ECOM_IMU_GYRO_Z_BIT) != 0;
-  imu_status_message.imu_accels_in_range  = (ref_log_imu.status & SBG_ECOM_IMU_ACCELS_IN_RANGE) != 0;
-  imu_status_message.imu_gyros_in_range   = (ref_log_imu.status & SBG_ECOM_IMU_GYROS_IN_RANGE) != 0;
+  imu_status_message.imu_com              = (sbg_imu_status & SBG_ECOM_IMU_COM_OK) != 0;
+  imu_status_message.imu_status           = (sbg_imu_status & SBG_ECOM_IMU_STATUS_BIT) != 0 ;
+  imu_status_message.imu_accel_x          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_X_BIT) != 0;
+  imu_status_message.imu_accel_y          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Y_BIT) != 0;
+  imu_status_message.imu_accel_z          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Z_BIT) != 0;
+  imu_status_message.imu_gyro_x           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_X_BIT) != 0;
+  imu_status_message.imu_gyro_y           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Y_BIT) != 0;
+  imu_status_message.imu_gyro_z           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Z_BIT) != 0;
+  imu_status_message.imu_accels_in_range  = (sbg_imu_status & SBG_ECOM_IMU_ACCELS_IN_RANGE) != 0;
+  imu_status_message.imu_gyros_in_range   = (sbg_imu_status & SBG_ECOM_IMU_GYROS_IN_RANGE) != 0;
 
   return imu_status_message;
 }
@@ -336,6 +336,20 @@ const ros::Time MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTi
   return utc_to_epoch;
 }
 
+const sbg_driver::SbgAirDataStatus MessageWrapper::createAirDataStatusMessage(const SbgLogAirData& ref_sbg_air_data) const
+{
+  sbg_driver::SbgAirDataStatus air_data_status_message;
+
+  air_data_status_message.is_delay_time         = (ref_sbg_air_data.status & SBG_ECOM_AIR_DATA_TIME_IS_DELAY) != 0;
+  air_data_status_message.pressure_valid        = (ref_sbg_air_data.status & SBG_ECOM_AIR_DATA_PRESSURE_ABS_VALID) != 0;
+  air_data_status_message.altitude_valid        = (ref_sbg_air_data.status & SBG_ECOM_AIR_DATA_ALTITUDE_VALID) != 0;
+  air_data_status_message.pressure_diff_valid   = (ref_sbg_air_data.status & SBG_ECOM_AIR_DATA_PRESSURE_DIFF_VALID) != 0;
+  air_data_status_message.air_speed_valid       = (ref_sbg_air_data.status & SBG_ECOM_AIR_DATA_AIRPSEED_VALID) != 0;
+  air_data_status_message.air_temperature_valid = (ref_sbg_air_data.status & SBG_ECOM_AIR_DATA_TEMPERATURE_VALID) != 0;
+
+  return air_data_status_message;
+}
+
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
@@ -487,7 +501,7 @@ const sbg_driver::SbgImuData MessageWrapper::createSbgImuDataMessage(const SbgLo
 
   imu_data_message.header     = createRosHeader(ref_log_imu_data.timeStamp);
   imu_data_message.time_stamp = ref_log_imu_data.timeStamp;
-  imu_data_message.imu_status = createImuStatusMessage(ref_log_imu_data);
+  imu_data_message.imu_status = createImuStatusMessage(ref_log_imu_data.status);
   imu_data_message.temp       = ref_log_imu_data.temperature;
 
   tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.accelerometers, 3).cast<double>(), imu_data_message.accel);
@@ -599,6 +613,37 @@ const sbg_driver::SbgUtcTime MessageWrapper::createSbgUtcTimeMessage(const SbgLo
   m_last_sbg_utc_ = utc_time_message;
 
   return utc_time_message;
+}
+
+const sbg_driver::SbgAirData MessageWrapper::createSbgAirDataMessage(const SbgLogAirData& ref_air_data_log) const
+{
+  sbg_driver::SbgAirData air_data_message;
+
+  air_data_message.header           = createRosHeader(ref_air_data_log.timeStamp);
+  air_data_message.time_stamp       = ref_air_data_log.timeStamp;
+  air_data_message.status           = createAirDataStatusMessage(ref_air_data_log);
+  air_data_message.pressure_abs     = ref_air_data_log.pressureAbs;
+  air_data_message.altitude         = ref_air_data_log.altitude;
+  air_data_message.pressure_diff    = ref_air_data_log.pressureDiff;
+  air_data_message.true_air_speed   = ref_air_data_log.trueAirspeed;
+  air_data_message.air_temperature  = ref_air_data_log.airTemperature;
+
+  return air_data_message;
+}
+
+const sbg_driver::SbgImuShort MessageWrapper::createSbgImuShortMessage(const SbgLogImuShort& ref_short_imu_log) const
+{
+  sbg_driver::SbgImuShort imu_short_message;
+
+  imu_short_message.header      = createRosHeader(ref_short_imu_log.timeStamp);
+  imu_short_message.time_stamp  = ref_short_imu_log.timeStamp;
+  imu_short_message.imu_status  = createImuStatusMessage(ref_short_imu_log.status);
+  imu_short_message.temperature = ref_short_imu_log.temperature;
+
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3i>(ref_short_imu_log.deltaVelocity, 3).cast<double>(), imu_short_message.delta_velocity);
+  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3i>(ref_short_imu_log.deltaAngle, 3).cast<double>(), imu_short_message.delta_angle);
+
+  return imu_short_message;
 }
 
 const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const
@@ -740,4 +785,15 @@ const sensor_msgs::NavSatFix MessageWrapper::createRosNavSatFixMessage(const sbg
   nav_sat_fix_message.position_covariance_type = nav_sat_fix_message.COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
   return nav_sat_fix_message;
+}
+
+const sensor_msgs::FluidPressure MessageWrapper::createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg) const
+{
+  sensor_msgs::FluidPressure fluid_pressure_message;
+
+  fluid_pressure_message.header         = createRosHeader(ref_sbg_air_msg.time_stamp);
+  fluid_pressure_message.fluid_pressure = ref_sbg_air_msg.pressure_abs;
+  fluid_pressure_message.variance       = 0;
+
+  return fluid_pressure_message;
 }

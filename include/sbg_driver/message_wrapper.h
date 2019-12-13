@@ -32,6 +32,8 @@
 #include "sbg_driver/SbgGpsRaw.h"
 #include "sbg_driver/SbgOdoVel.h"
 #include "sbg_driver/SbgEvent.h"
+#include "sbg_driver/SbgImuShort.h"
+#include "sbg_driver/SbgAirData.h"
 
 namespace sbg
 {
@@ -93,10 +95,10 @@ private:
   /*!
    * Create a SBG-ROS IMU status message.
    * 
-   * \param[in] ref_log_imu         SBG IMU data log.
+   * \param[in] sbg_imu_status      SBG IMU status.
    * \return                        IMU status message.
    */
-  const sbg_driver::SbgImuStatus createImuStatusMessage(const SbgLogImuData& ref_log_imu) const;
+  const sbg_driver::SbgImuStatus createImuStatusMessage(uint16_t sbg_imu_status) const;
 
   /*!
    * Create a SBG-ROS Magnetometer status message.
@@ -178,6 +180,14 @@ private:
    * \return                        Converted Epoch time (in s).
    */
   const ros::Time convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
+
+  /*!
+   * Create a SBG-ROS air data status message.
+   * 
+   * \param[in] ref_sbg_air_data    SBG AirData log.
+   * \return                        SBG-ROS air data status message.
+   */
+  const sbg_driver::SbgAirDataStatus createAirDataStatusMessage(const SbgLogAirData& ref_sbg_air_data) const;
  
 public:
 
@@ -327,6 +337,22 @@ public:
   const sbg_driver::SbgUtcTime createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc);
 
   /*!
+   * Create a SBG-ROS Air data message from a SBG log.
+   * 
+   * \param[in] ref_air_data_log    SBG AirData log.
+   * \return                        SBG-ROS airData message.
+   */
+  const sbg_driver::SbgAirData createSbgAirDataMessage(const SbgLogAirData& ref_air_data_log) const;
+
+  /*!
+   * Create a SBG-ROS Short Imu message.
+   * 
+   * \param[in] ref_short_imu_log   SBG Imu short log.
+   * \return                        SBG-ROS Imu short message.
+   */
+  const sbg_driver::SbgImuShort createSbgImuShortMessage(const SbgLogImuShort& ref_short_imu_log) const;
+
+  /*!
    * Create a ROS standard IMU message from SBG messages.
    * 
    * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
@@ -383,6 +409,14 @@ public:
    * \return                        ROS standard NavSatFix message.
    */
   const sensor_msgs::NavSatFix createRosNavSatFixMessage(const sbg_driver::SbgGpsPos& ref_sbg_gps_msg) const;
+
+  /*!
+   * Create a ROS standard FluidPressure message.
+   * 
+   * \param[in] ref_sbg_air_msg     SBG-ROS AirData message.
+   * \return                        ROS standard fluid pressure message.
+   */
+  const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg) const; 
 };
 }
 
