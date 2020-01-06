@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>sbg_driver</name>
-  <version>1.1.8</version>
+  <version>2.0.0</version>
   <description>The SBG ROS Driver package</description>
   <maintainer email="erwan.cabon@sbg-systems.com">Erwan Cabon</maintainer>
   <url>http://wiki.ros.org/sbg_driver</url>
