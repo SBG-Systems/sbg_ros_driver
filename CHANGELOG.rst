@@ -2,8 +2,17 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.0.0 (2019-09-05)
+2.0.0 (2020-01-06)
 ------------------
+* Fix integer type
+* Update sbgECom messages (AirData, ImuShort)
+* Update sbgECom library to 1.11.920-stable
+* Improve numeric type
+* Improve configuration applier
+* Improve error handling
+* Code improvement
+* Improve device configuration
+* Update changelog
 * Update and improve README.md
 * Update magnetic services
 * Improve message timestamping
