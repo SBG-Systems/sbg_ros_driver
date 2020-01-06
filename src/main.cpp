@@ -1,34 +1,34 @@
-#include "ros/ros.h"
-#include "ellipse.h"
+#include <sbg_device.h>
 
+using sbg::SbgDevice;
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "sbg_ellipse");
-  ros::NodeHandle n;
+  ros::init(argc, argv, "sbg_device");
+  ros::NodeHandle node_handle;
 
-  ROS_INFO("SBG DRIVER - Init node & load params");
-  Ellipse ellipse(&n);
-
-  ellipse.init_publishers();
-
-  ROS_INFO("SBG DRIVER - Ellipse connect");
-  ellipse.connect();
-
-  ROS_INFO("SBG DRIVER - Ellipse configure");
-  ellipse.configure();
-
-  ROS_INFO("SBG DRIVER - Init callback");
-  ellipse.init_callback();
-
-  ROS_INFO("SBG DRIVER - START RECEIVING DATA");
-  ros::Rate loop_rate(ellipse.m_rate_frequency);
-  while (ros::ok())
+  try
   {
-    ellipse.publish();
+    ROS_INFO("SBG DRIVER - Init node, load params and connect to the device.");
+    SbgDevice sbg_device(node_handle);
 
-    ros::spinOnce();
-    loop_rate.sleep();
+    ROS_INFO("SBG DRIVER - Initialize device for receiving data");
+    sbg_device.initDeviceForReceivingData();
+
+    ROS_INFO("SBG DRIVER - START RECEIVING DATA");
+    ros::Rate loop_rate(sbg_device.getUpdateFrequency() * 2);
+
+    while (ros::ok())
+    {
+      sbg_device.periodicHandle();
+      loop_rate.sleep();
+    }
+
+    return 0;
+  }
+  catch (ros::Exception const& refE)
+  {
+    ROS_ERROR("SBG_DRIVER - %s", refE.what());
   }
 
   return 0;

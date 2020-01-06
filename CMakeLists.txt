@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(sbg_driver)
 
-add_compile_options(-std=c++11)
-
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
@@ -10,7 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   geometry_msgs
   message_generation
+  cmake_modules
+  eigen_conversions
 )
+
+find_package(Eigen3 REQUIRED)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -44,6 +46,8 @@ add_message_files(FILES
   SbgShipMotionStatus.msg
   SbgUtcTimeStatus.msg
 
+  SbgAirData.msg
+  SbgAirDataStatus.msg
   SbgEkfEuler.msg
   SbgGpsPos.msg
   SbgMag.msg
@@ -54,11 +58,11 @@ add_message_files(FILES
   SbgStatusGeneral.msg
   SbgEkfQuat.msg
   SbgGpsVel.msg
-  SbgPressure.msg
   SbgStatus.msg
   SbgEvent.msg
   SbgImuStatus.msg
   SbgImuData.msg
+  SbgImuShort.msg
   SbgShipMotion.msg
   SbgUtcTime.msg
   SbgGpsHdt.msg
@@ -130,58 +134,45 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-add_subdirectory(sbgECom)
+add_subdirectory(external/sbgECom)
+
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/sbgECom/common
-  ${PROJECT_SOURCE_DIR}/sbgECom/src
+  ${EIGEN3_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/include/sbg_driver/
+  ${PROJECT_SOURCE_DIR}/external/sbgECom/common
+  ${PROJECT_SOURCE_DIR}/external/sbgECom/src
 )
-
-## Declare a C++ library
-# add_library(sbg
-#   src/${PROJECT_NAME}/sbg.cpp
-# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(sbg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+## Define common resources.
+set (SBG_COMMON_RESOURCES
+  src/config_applier.cpp
+  src/message_publisher.cpp
+  src/message_wrapper.cpp
+  src/config_store.cpp
+  src/sbg_device.cpp
+)
+
 ## Declare a C++ executable
-add_executable(ellipse
-  src/main.cpp
-  src/ellipse.cpp
-  src/ellipse_msg.cpp
-)
+add_executable(sbg_device ${SBG_COMMON_RESOURCES} src/main.cpp)
+add_dependencies(sbg_device ${sbg_driver_EXPORTED_TARGETS})
+target_compile_options(sbg_device PRIVATE -fpermissive)
 
-add_executable(ellipse_mag
-  src/ellipse_mag.cpp
-  src/ellipse.cpp
-  src/ellipse_msg.cpp
-)
-
-add_dependencies(ellipse ${sbg_driver_EXPORTED_TARGETS})
-add_dependencies(ellipse_mag ${sbg_driver_EXPORTED_TARGETS})
-
-target_compile_options(ellipse PRIVATE -fpermissive)
-target_compile_options(ellipse_mag PRIVATE -fpermissive)
-
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(sbg_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# add_dependencies(ellipse sbgECom)
+add_executable(sbg_device_mag ${SBG_COMMON_RESOURCES} src/main_mag.cpp)
+add_dependencies(sbg_device_mag ${sbg_driver_EXPORTED_TARGETS})
+target_compile_options(sbg_device_mag PRIVATE -fpermissive)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(ellipse
-   ${catkin_LIBRARIES}
-   sbgECom
-)
+target_link_libraries(sbg_device ${catkin_LIBRARIES} sbgECom)
+target_link_libraries(sbg_device_mag ${catkin_LIBRARIES} sbgECom)
 
-target_link_libraries(ellipse_mag
-   ${catkin_LIBRARIES}
-   sbgECom
-)
+set_property(TARGET sbg_device PROPERTY CXX_STANDARD 11)
+set_property(TARGET sbg_device_mag PROPERTY CXX_STANDARD 11)
 
 #############
 ## Install ##
@@ -198,19 +189,19 @@ target_link_libraries(ellipse_mag
 # )
 
 ## Mark executables and/or libraries for installation
- install(TARGETS ellipse ellipse_mag
+install(TARGETS sbg_device sbg_device_mag
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+)
 
 ## Mark cpp header files for installation
- install(DIRECTORY include/${PROJECT_NAME}/
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-   FILES_MATCHING PATTERN "*.h"
-   PATTERN ".svn" EXCLUDE
-   PATTERN ".git" EXCLUDE
- )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+  PATTERN ".git" EXCLUDE
+)
 
 # Mark other files for installation (e.g. launch and bag files, etc.)
 install(DIRECTORY launch/
