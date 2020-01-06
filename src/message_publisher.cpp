@@ -46,7 +46,7 @@ void MessagePublisher::updateMaxOutputFrequency(SbgEComOutputMode output_mode)
   }
 }
 
-uint32 MessagePublisher::getCorrespondingFrequency(SbgEComOutputMode output_mode) const
+uint32_t MessagePublisher::getCorrespondingFrequency(SbgEComOutputMode output_mode) const
 {
   switch (output_mode)
   {
@@ -467,7 +467,7 @@ void MessagePublisher::publishGpsPosData(const SbgBinaryLogData &ref_sbg_log)
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
 
-uint32 MessagePublisher::getMaxOutputFrequency(void) const
+uint32_t MessagePublisher::getMaxOutputFrequency(void) const
 {
   return getCorrespondingFrequency(m_output_mode_);
 }

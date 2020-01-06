@@ -154,7 +154,7 @@ const std::string &ConfigStore::getUartPortName(void) const
   return m_uart_port_name_;
 }
 
-uint32 ConfigStore::getBaudRate(void) const
+uint32_t ConfigStore::getBaudRate(void) const
 {
   return m_uart_baud_rate_;
 }

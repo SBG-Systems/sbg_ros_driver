@@ -70,7 +70,7 @@ private:
    * \param[in] output_mode             Output mode.
    * \return                            Output frequency (in Hz).
    */
-  uint32 getCorrespondingFrequency(SbgEComOutputMode output_mode) const;
+  uint32_t getCorrespondingFrequency(SbgEComOutputMode output_mode) const;
 
   /*!
    * Get the corresponding topic name output for the SBG output mode.
@@ -164,7 +164,7 @@ public:
    * 
    * \return                            Maixmal output frequency (in Hz).
    */
-  uint32 getMaxOutputFrequency(void) const;
+  uint32_t getMaxOutputFrequency(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
