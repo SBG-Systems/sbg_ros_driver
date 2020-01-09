@@ -13,7 +13,7 @@
 #include <boost/date_time/local_time/local_time.hpp>
 
 // SbgECom headers
-#include <version/sbgversion.h>
+#include <version/sbgVersion.h>
 
 using namespace std;
 using sbg::SbgDevice;
