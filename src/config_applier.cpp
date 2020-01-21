@@ -107,7 +107,7 @@ void ConfigApplier::configureMotionProfile(const SbgEComModelInfo& ref_motion_pr
   }
 }
 
-void ConfigApplier::configureImuAlignement(const SbgEComSensorAlignmentInfo& ref_sensor_align, const Eigen::Vector3f& ref_level_arms)
+void ConfigApplier::configureImuAlignement(const SbgEComSensorAlignmentInfo& ref_sensor_align, const sbg::SbgVector3<float>& ref_level_arms)
 {
   //
   // Get the IMU alignement and level arms, and compare with the parameters.
@@ -121,7 +121,7 @@ void ConfigApplier::configureImuAlignement(const SbgEComSensorAlignmentInfo& ref
 
   checkConfigurationGet(error_code, std::string("IMU alignement"));
 
-  Eigen::Vector3f level_arms_vector = Eigen::Map<Eigen::Vector3f>(level_arms_device, 3);
+  SbgVector3<float> level_arms_vector = SbgVector3<float>(level_arms_device, 3);
 
   if ((level_arms_vector != ref_level_arms)
   ||  (sensor_alignement.axisDirectionX != ref_sensor_align.axisDirectionX)
@@ -231,19 +231,19 @@ void ConfigApplier::configureGnssInstallation(const SbgEComGnssInstallation& ref
   //
   SbgEComGnssInstallation gnss_installation;
   SbgErrorCode            error_code;
-  Eigen::Vector3f         gnss_device_primary;
-  Eigen::Vector3f         gnss_device_secondary;
-  Eigen::Vector3f         gnss_config_primary;
-  Eigen::Vector3f         gnss_config_secondary;
+  SbgVector3<float>       gnss_device_primary;
+  SbgVector3<float>       gnss_device_secondary;
+  SbgVector3<float>       gnss_config_primary;
+  SbgVector3<float>       gnss_config_secondary;
 
   error_code = sbgEComCmdGnss1InstallationGet(&m_ref_sbg_com_handle, &gnss_installation);
 
   checkConfigurationGet(error_code, std::string("Gnss level arms"));
 
-  gnss_device_primary   = Eigen::Vector3f(gnss_installation.leverArmPrimary[0], gnss_installation.leverArmPrimary[1], gnss_installation.leverArmPrimary[2]);
-  gnss_device_secondary = Eigen::Vector3f(gnss_installation.leverArmSecondary[0], gnss_installation.leverArmSecondary[1], gnss_installation.leverArmSecondary[2]);
-  gnss_config_primary   = Eigen::Vector3f(ref_gnss_installation.leverArmPrimary[0], ref_gnss_installation.leverArmPrimary[1], ref_gnss_installation.leverArmPrimary[2]);
-  gnss_config_secondary = Eigen::Vector3f(ref_gnss_installation.leverArmSecondary[0], ref_gnss_installation.leverArmSecondary[1], ref_gnss_installation.leverArmSecondary[2]);
+  gnss_device_primary   = SbgVector3<float>(gnss_installation.leverArmPrimary, 3);
+  gnss_device_secondary = SbgVector3<float>(gnss_installation.leverArmSecondary, 3);
+  gnss_config_primary   = SbgVector3<float>(ref_gnss_installation.leverArmPrimary, 3);
+  gnss_config_secondary = SbgVector3<float>(ref_gnss_installation.leverArmSecondary, 3);
 
   if ((gnss_device_primary != gnss_config_primary)
   || (gnss_device_secondary != gnss_config_secondary)
@@ -302,7 +302,7 @@ void ConfigApplier::configureOdometer(const SbgEComOdoConf& ref_odometer)
   }
 }
 
-void ConfigApplier::configureOdometerLevelArm(const Eigen::Vector3f& odometer_level_arms)
+void ConfigApplier::configureOdometerLevelArm(const SbgVector3<float>& odometer_level_arms)
 {
   //
   // Get the odometer level arm, and compare with the loaded parameters.
@@ -315,11 +315,11 @@ void ConfigApplier::configureOdometerLevelArm(const Eigen::Vector3f& odometer_le
 
   checkConfigurationGet(error_code, std::string("Odometer level arms"));
 
-  Eigen::Vector3f lever_arm_device = Eigen::Map<Eigen::Vector3f>(lever_arm, 3);
+  SbgVector3<float> lever_arm_device = SbgVector3<float>(lever_arm, 3);
 
   if (lever_arm_device != odometer_level_arms)
   {
-    error_code = sbgEComCmdOdoSetLeverArm(&m_ref_sbg_com_handle, odometer_level_arms.data());
+    error_code = sbgEComCmdOdoSetLeverArm(&m_ref_sbg_com_handle, lever_arm_device.data());
 
     checkConfigurationApplied(error_code, std::string("Odometer level arms"));
   }

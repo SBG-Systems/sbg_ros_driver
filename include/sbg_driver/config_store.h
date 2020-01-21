@@ -7,8 +7,8 @@
 // ROS headers
 #include <ros/ros.h>
 
-// Eigen headers
-#include <Eigen/Core>
+// Project headers
+#include "sbg_vector3.h"
 
 namespace sbg
 {
@@ -47,7 +47,7 @@ private:
   SbgEComModelInfo            m_motion_profile_model_info_;
 
   SbgEComSensorAlignmentInfo  m_sensor_alignement_info_;
-  Eigen::Vector3f             m_sensor_lever_arm_;
+  SbgVector3<float>           m_sensor_lever_arm_;
 
   SbgEComAidingAssignConf     m_aiding_assignement_conf_;
 
@@ -61,7 +61,7 @@ private:
   SbgEComGnssRejectionConf    m_gnss_rejection_conf_;
 
   SbgEComOdoConf              m_odometer_conf_;
-  Eigen::Vector3f             m_odometer_level_arm_;
+  SbgVector3<float>           m_odometer_level_arm_;
   SbgEComOdoRejectionConf     m_odometer_rejection_conf_;
 
   std::vector<SbgLogOutput>   m_output_modes_;
@@ -259,9 +259,9 @@ public:
   /*!
    * Get the sensor level arms.
    * 
-   * \return                                Sensor level arms X, Y, Z (in meters).
+   * \return                                Sensor level arms vector (in meters).
    */
-  const Eigen::Vector3f &getSensorLevelArms(void) const;
+  const SbgVector3<float> &getSensorLevelArms(void) const;
 
   /*!
    * Get the aiding assignement configuration.
@@ -329,9 +329,9 @@ public:
   /*!
    * Get the odometer level arms.
    * 
-   * \return                                Odometer X,Y,Z level arms (in meters).
+   * \return                                Odometer level arms vector (in meters).
    */
-  const Eigen::Vector3f &getOdometerLevelArms(void) const;
+  const SbgVector3<float> &getOdometerLevelArms(void) const;
 
   /*!
    * Get the odometer rejection.
