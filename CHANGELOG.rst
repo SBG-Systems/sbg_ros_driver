@@ -2,8 +2,8 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.1 (2020-01-24)
+------------------
 * Improve vector handling
 * Fix include file (Issue `#26 <https://github.com/SBG-Systems/sbg_ros_driver/issues/26>`_)
 
