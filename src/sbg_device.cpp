@@ -99,6 +99,8 @@ SbgErrorCode SbgDevice::onLogReceivedCallback(SbgEComHandle* p_handle, SbgEComCl
 {
   assert(p_user_arg);
 
+  SBG_UNUSED_PARAMETER(p_handle);
+
   SbgDevice *p_sbg_device;
   p_sbg_device = (SbgDevice*)(p_user_arg);
 
@@ -218,6 +220,8 @@ void SbgDevice::configure(void)
 
 bool SbgDevice::processMagCalibration(std_srvs::Trigger::Request& ref_ros_request, std_srvs::Trigger::Response& ref_ros_response)
 {
+  SBG_UNUSED_PARAMETER(ref_ros_request);
+
   if (m_mag_calibration_ongoing_)
   {
     if (endMagCalibration())
@@ -255,6 +259,8 @@ bool SbgDevice::processMagCalibration(std_srvs::Trigger::Request& ref_ros_reques
 
 bool SbgDevice::saveMagCalibration(std_srvs::Trigger::Request& ref_ros_request, std_srvs::Trigger::Response& ref_ros_response)
 {
+  SBG_UNUSED_PARAMETER(ref_ros_request);
+
   if (m_mag_calibration_ongoing_)
   {
     ref_ros_response.success = false;
@@ -360,11 +366,9 @@ void SbgDevice::displayMagCalibrationStatusResult(void) const
   ROS_INFO("SBG DRIVER [Mag Calib] - Quality of the calibration %s", g_mag_calib_quality_[m_magCalibResults.quality].c_str());
   ROS_INFO("SBG DRIVER [Mag Calib] - Calibration results confidence %s", g_mag_calib_confidence_[m_magCalibResults.confidence].c_str());
 
-  SbgEComMagCalibMode         mag_calib_mode;
-  SbgEComMagCalibBandwidth    mag_calib_bandwidth;
+  SbgEComMagCalibMode mag_calib_mode;
 
-  mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
-  mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
+  mag_calib_mode = m_config_store_.getMagnetometerCalibMode();
 
   //
   // Check the magnetometers calibration status and display the warnings.

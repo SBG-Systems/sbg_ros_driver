@@ -10,8 +10,8 @@ using sbg::MessagePublisher;
 //---------------------------------------------------------------------//
 
 MessagePublisher::MessagePublisher(void):
-m_max_mesages_(10),
-m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED)
+m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED),
+m_max_mesages_(10)
 {
 
 }

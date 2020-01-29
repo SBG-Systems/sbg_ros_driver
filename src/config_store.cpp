@@ -11,9 +11,9 @@ using sbg::ConfigStore;
 //---------------------------------------------------------------------//
 
 ConfigStore::ConfigStore(void):
-m_configure_through_ros_(false),
 m_serial_communication_(false),
 m_upd_communication_(false),
+m_configure_through_ros_(false),
 m_ros_standard_output_(false)
 {
 
