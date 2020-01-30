@@ -1,0 +1,2 @@
+# Define the end of line behavior for Git, to avoid errors compatibility with Windows files.
+* text eol=lf

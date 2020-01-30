@@ -5,9 +5,6 @@
 #include <limits>
 #include <string>
 
-// Eigen headers
-#include <Eigen/Core>
-
 // Project headers
 #include <config_store.h>
 
@@ -26,23 +23,6 @@ private:
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
   //---------------------------------------------------------------------//
-
-  /*!
-   * Check if the two input numbers are equals, taking into account the machine precision (float/double).
-   * 
-   * \template  T                           Numeric template type.
-   * \param[in] firstValue                  First numeric value.
-   * \param[in] secondValue                 Second numeric value.
-   * \return                                True if the numbers are considered as equals.
-   */
-  template <typename T>
-  bool areEquals(T firstValue, T secondValue)
-  {
-    //
-    // The machine epsilon has to be scaled to the magnitude of the values used.
-    //
-    return std::fabs(firstValue - secondValue) <= (std::numeric_limits<T>::epsilon() * std::fabs(firstValue + secondValue));
-  }
 
   /*!
    * Check if the configuration getter worked properly.
@@ -86,7 +66,7 @@ private:
    * \param[in] ref_sensor_align            Sensor IMU alignement configuration to apply.
    * \param[in] ref_level_arms              X, Y, Z level arms to apply.
    */
-  void configureImuAlignement(const SbgEComSensorAlignmentInfo& ref_sensor_align, const Eigen::Vector3f& ref_level_arms);
+  void configureImuAlignement(const SbgEComSensorAlignmentInfo& ref_sensor_align, const SbgVector3<float>& ref_level_arms);
 
   /*!
    * Configure the aiding assignement.
@@ -142,7 +122,7 @@ private:
    * 
    * \param[in] odometer_level_arms         X,Y,Z odometer level arms to apply.
    */
-  void configureOdometerLevelArm(const Eigen::Vector3f& odometer_level_arms);
+  void configureOdometerLevelArm(const SbgVector3<float>& odometer_level_arms);
 
   /*!
    * Configure the odometer rejection.

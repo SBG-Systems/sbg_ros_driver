@@ -1,9 +1,8 @@
 // File header
 #include "message_wrapper.h"
 
-// Eigen headers
-#include <Eigen/Core>
-#include <eigen_conversions/eigen_msg.h>
+// Project headers
+#include <sbg_vector3.h>
 
 using sbg::MessageWrapper;
 
@@ -370,9 +369,8 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
   ekf_euler_message.header      = createRosHeader(ref_log_ekf_euler.timeStamp);
   ekf_euler_message.time_stamp  = ref_log_ekf_euler.timeStamp;
   ekf_euler_message.status      = createEkfStatusMessage(ref_log_ekf_euler.status);
-
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_euler.euler, 3).cast<double>(), ekf_euler_message.angle);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_euler.eulerStdDev, 3).cast<double>(), ekf_euler_message.accuracy);
+  ekf_euler_message.angle       = createGeometryVector3<float>(ref_log_ekf_euler.euler, 3);
+  ekf_euler_message.accuracy    = createGeometryVector3<float>(ref_log_ekf_euler.eulerStdDev, 3);
 
   return ekf_euler_message;
 }
@@ -381,29 +379,30 @@ const sbg_driver::SbgEkfNav MessageWrapper::createSbgEkfNavMessage(const SbgLogE
 {
   sbg_driver::SbgEkfNav ekf_nav_message;
 
-  ekf_nav_message.header      = createRosHeader(ref_log_ekf_nav.timeStamp);
-  ekf_nav_message.time_stamp  = ekf_nav_message.time_stamp;
-  ekf_nav_message.status      = createEkfStatusMessage(ref_log_ekf_nav.status);
-  ekf_nav_message.undulation  = ref_log_ekf_nav.undulation;
+  ekf_nav_message.header            = createRosHeader(ref_log_ekf_nav.timeStamp);
+  ekf_nav_message.time_stamp        = ekf_nav_message.time_stamp;
+  ekf_nav_message.status            = createEkfStatusMessage(ref_log_ekf_nav.status);
+  ekf_nav_message.undulation        = ref_log_ekf_nav.undulation;
 
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_nav.velocity, 3).cast<double>(), ekf_nav_message.velocity);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_nav.velocityStdDev, 3).cast<double>(), ekf_nav_message.velocity_accuracy);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3d>(ref_log_ekf_nav.position, 3).cast<double>(), ekf_nav_message.position);
+  ekf_nav_message.velocity          = createGeometryVector3<float>(ref_log_ekf_nav.velocity, 3);
+  ekf_nav_message.velocity_accuracy = createGeometryVector3<float>(ref_log_ekf_nav.velocityStdDev, 3);
+  ekf_nav_message.position          = createGeometryVector3<double>(ref_log_ekf_nav.position, 3);
 
   return ekf_nav_message;
 }
 
 const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLogEkfQuatData& ref_log_ekf_quat) const
 {
-  sbg_driver::SbgEkfQuat ekf_quat_message;
+  sbg_driver::SbgEkfQuat  ekf_quat_message;
 
   ekf_quat_message.header       = createRosHeader(ref_log_ekf_quat.timeStamp);
   ekf_quat_message.time_stamp   = ref_log_ekf_quat.timeStamp;
   ekf_quat_message.status       = createEkfStatusMessage(ref_log_ekf_quat.status);
-  Eigen::Quaterniond ekf_quat   = Eigen::Quaterniond(ref_log_ekf_quat.quaternion[0], ref_log_ekf_quat.quaternion[1], ref_log_ekf_quat.quaternion[2], ref_log_ekf_quat.quaternion[3]);
-
-  tf::quaternionEigenToMsg(ekf_quat, ekf_quat_message.quaternion);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ekf_quat.eulerStdDev, 3).cast<double>(), ekf_quat_message.accuracy);
+  ekf_quat_message.accuracy     = createGeometryVector3<float>(ref_log_ekf_quat.eulerStdDev, 3);
+  ekf_quat_message.quaternion.w = ref_log_ekf_quat.quaternion[0];
+  ekf_quat_message.quaternion.x = ref_log_ekf_quat.quaternion[1];
+  ekf_quat_message.quaternion.y = ref_log_ekf_quat.quaternion[2];
+  ekf_quat_message.quaternion.z = ref_log_ekf_quat.quaternion[3];
 
   return ekf_quat_message;
 }
@@ -488,40 +487,37 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
   gps_vel_message.gps_tow     = ref_log_gps_vel.timeOfWeek;
   gps_vel_message.course      = ref_log_gps_vel.course;
   gps_vel_message.course_acc  = ref_log_gps_vel.courseAcc;
-
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_gps_vel.velocity, 3).cast<double>(), gps_vel_message.vel);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_gps_vel.velocityAcc, 3).cast<double>(), gps_vel_message.vel_acc);
+  gps_vel_message.vel         = createGeometryVector3<float>(ref_log_gps_vel.velocity, 3);
+  gps_vel_message.vel_acc     = createGeometryVector3<float>(ref_log_gps_vel.velocityAcc, 3);
 
   return gps_vel_message;
 }
 
 const sbg_driver::SbgImuData MessageWrapper::createSbgImuDataMessage(const SbgLogImuData& ref_log_imu_data) const
 {
-  sbg_driver::SbgImuData imu_data_message;
+  sbg_driver::SbgImuData  imu_data_message;
 
-  imu_data_message.header     = createRosHeader(ref_log_imu_data.timeStamp);
-  imu_data_message.time_stamp = ref_log_imu_data.timeStamp;
-  imu_data_message.imu_status = createImuStatusMessage(ref_log_imu_data.status);
-  imu_data_message.temp       = ref_log_imu_data.temperature;
-
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.accelerometers, 3).cast<double>(), imu_data_message.accel);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.gyroscopes, 3).cast<double>(), imu_data_message.gyro);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.deltaVelocity, 3).cast<double>(), imu_data_message.delta_vel);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_imu_data.deltaAngle, 3).cast<double>(), imu_data_message.delta_angle);
+  imu_data_message.header       = createRosHeader(ref_log_imu_data.timeStamp);
+  imu_data_message.time_stamp   = ref_log_imu_data.timeStamp;
+  imu_data_message.imu_status   = createImuStatusMessage(ref_log_imu_data.status);
+  imu_data_message.temp         = ref_log_imu_data.temperature;
+  imu_data_message.accel        = createGeometryVector3<float>(ref_log_imu_data.accelerometers, 3);
+  imu_data_message.gyro         = createGeometryVector3<float>(ref_log_imu_data.gyroscopes, 3);
+  imu_data_message.delta_vel    = createGeometryVector3<float>(ref_log_imu_data.deltaVelocity, 3);
+  imu_data_message.delta_angle  = createGeometryVector3<float>(ref_log_imu_data.deltaAngle, 3);
 
   return imu_data_message;
 }
 
 const sbg_driver::SbgMag MessageWrapper::createSbgMagMessage(const SbgLogMag& ref_log_mag) const
 {
-  sbg_driver::SbgMag mag_message;
+  sbg_driver::SbgMag  mag_message;
 
   mag_message.header      = createRosHeader(ref_log_mag.timeStamp);
   mag_message.time_stamp  = ref_log_mag.timeStamp;
   mag_message.status      = createMagStatusMessage(ref_log_mag);
-
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_mag.magnetometers, 3).cast<double>(), mag_message.mag);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_mag.accelerometers, 3).cast<double>(), mag_message.accel); 
+  mag_message.mag         = createGeometryVector3<float>(ref_log_mag.magnetometers, 3);
+  mag_message.accel       = createGeometryVector3<float>(ref_log_mag.accelerometers, 3);
 
   return mag_message;
 }
@@ -553,13 +549,12 @@ const sbg_driver::SbgShipMotion MessageWrapper::createSbgShipMotionMessage(const
 {
   sbg_driver::SbgShipMotion ship_motion_message;
 
-  ship_motion_message.header      = createRosHeader(ref_log_ship_motion.timeStamp);
-  ship_motion_message.time_stamp  = ref_log_ship_motion.timeStamp;
-  ship_motion_message.status      = createShipMotionStatusMessage(ref_log_ship_motion);
-
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ship_motion.shipMotion, 3).cast<double>(), ship_motion_message.ship_motion);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ship_motion.shipAccel, 3).cast<double>(), ship_motion_message.acceleration);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3f>(ref_log_ship_motion.shipVel, 3).cast<double>(), ship_motion_message.velocity); 
+  ship_motion_message.header        = createRosHeader(ref_log_ship_motion.timeStamp);
+  ship_motion_message.time_stamp    = ref_log_ship_motion.timeStamp;
+  ship_motion_message.status        = createShipMotionStatusMessage(ref_log_ship_motion);
+  ship_motion_message.ship_motion   = createGeometryVector3<float>(ref_log_ship_motion.shipMotion, 3);
+  ship_motion_message.acceleration  = createGeometryVector3<float>(ref_log_ship_motion.shipAccel, 3);
+  ship_motion_message.velocity      = createGeometryVector3<float>(ref_log_ship_motion.shipVel, 3);
 
   return ship_motion_message;
 }
@@ -635,13 +630,12 @@ const sbg_driver::SbgImuShort MessageWrapper::createSbgImuShortMessage(const Sbg
 {
   sbg_driver::SbgImuShort imu_short_message;
 
-  imu_short_message.header      = createRosHeader(ref_short_imu_log.timeStamp);
-  imu_short_message.time_stamp  = ref_short_imu_log.timeStamp;
-  imu_short_message.imu_status  = createImuStatusMessage(ref_short_imu_log.status);
-  imu_short_message.temperature = ref_short_imu_log.temperature;
-
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3i>(ref_short_imu_log.deltaVelocity, 3).cast<double>(), imu_short_message.delta_velocity);
-  tf::vectorEigenToMsg(Eigen::Map<const Eigen::Vector3i>(ref_short_imu_log.deltaAngle, 3).cast<double>(), imu_short_message.delta_angle);
+  imu_short_message.header          = createRosHeader(ref_short_imu_log.timeStamp);
+  imu_short_message.time_stamp      = ref_short_imu_log.timeStamp;
+  imu_short_message.imu_status      = createImuStatusMessage(ref_short_imu_log.status);
+  imu_short_message.temperature     = ref_short_imu_log.temperature;
+  imu_short_message.delta_velocity  = createGeometryVector3<int32_t>(ref_short_imu_log.deltaVelocity, 3);
+  imu_short_message.delta_angle     = createGeometryVector3<int32_t>(ref_short_imu_log.deltaAngle, 3);
 
   return imu_short_message;
 }

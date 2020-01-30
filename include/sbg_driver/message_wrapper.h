@@ -53,6 +53,28 @@ private:
   //---------------------------------------------------------------------//
 
   /*!
+   * Create a geometry message Vector3 from a raw input vector.
+   * 
+   * \template  T                   Numeric template type.
+   * \param[in] p_array             Raw input vector.
+   * \param[in] array_size          Raw vector size, should be defined as 3.
+   * \return                        GeometryMsg Vector3.
+   */
+  template <typename T>
+  const geometry_msgs::Vector3 createGeometryVector3(const T* p_array, size_t array_size) const
+  {
+    assert(array_size == 3);
+
+    geometry_msgs::Vector3 geometry_vector;
+
+    geometry_vector.x = p_array[0];
+    geometry_vector.y = p_array[1];
+    geometry_vector.z = p_array[2];
+
+    return geometry_vector;
+  };
+
+  /*!
    * Create a ROS message header.
    * 
    * \param[in] device_timestamp    SBG device timestamp (in microseconds).
