@@ -2,11 +2,14 @@
 <package>
   <name>sbg_driver</name>
   <version>2.0.2</version>
-  <description>The SBG ROS Driver package</description>
-  <maintainer email="erwan.cabon@sbg-systems.com">Erwan Cabon</maintainer>
-  <url>http://wiki.ros.org/sbg_driver</url>
-
+  <description>
+    ROS driver package for communication with the SBG navigation systems.
+  </description>
+  <author>SBG Systems</author>
+  <maintainer email="remi.burtin@sbg-systems.com">Rémi Burtin</maintainer>
   <license>MIT</license>
+
+  <url type="website">http://wiki.ros.org/sbg_driver</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
