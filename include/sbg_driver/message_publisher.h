@@ -39,6 +39,8 @@ private:
   ros::Publisher          m_imu_pub_;
   sbg_driver::SbgImuData  m_sbg_imu_message_;
   sbg_driver::SbgEkfQuat  m_sbg_ekf_quat_message_;
+  sbg_driver::SbgEkfNav   m_sbg_ekf_nav_message_;
+  sbg_driver::SbgEkfEuler m_sbg_ekf_euler_message_;
 
   ros::Publisher          m_temp_pub_;
   ros::Publisher          m_mag_pub_;

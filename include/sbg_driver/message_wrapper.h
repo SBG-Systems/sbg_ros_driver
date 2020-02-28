@@ -406,7 +406,12 @@ public:
    * \param[in] ref_p_sbg_imu_msg   SBG-ROS IMU previous message.
    * \return                        ROS standard TwistStamped message.
    */
-  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgImuData& ref_p_sbg_imu_msg) const;
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+
+
+
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+
 
   /*!
    * Create a ROS standard PointStamped message from SBG messages.
