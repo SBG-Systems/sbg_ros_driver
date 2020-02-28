@@ -350,7 +350,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
 }
 
-void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log) // TODO
+void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
 {
   if (m_sbgImuData_pub_)
   {
@@ -363,13 +363,13 @@ void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log) // TO
   }
   if (m_velocity_pub_)
   {
-    if (m_sbg_ekf_quat_message_)
+    if (m_sbgEkfQuat_pub_)
     {
-      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_nav_message_, m_sbg_ekf_quat_message_, m_sbg_imu_message_));
+      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_quat_message_, m_sbg_ekf_nav_message_, m_sbg_imu_message_));
     }
-    else if (m_sbg_ekf_euler_message_)
+    else if (m_sbgEkfEuler_pub_)
     {
-      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_nav_message_, m_sbg_ekf_euler_message_, m_sbg_imu_message_));
+      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_euler_message_, m_sbg_ekf_nav_message_, m_sbg_imu_message_));
     }
   }
 
