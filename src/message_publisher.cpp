@@ -268,12 +268,12 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
 
       case SBG_ECOM_LOG_IMU_SHORT:
 
-        m_SbgImuShort_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuShort>(ref_output_topic, m_max_mesages_);
+        m_sbgImuShort_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuShort>(ref_output_topic, m_max_mesages_);
         break;
 
       case SBG_ECOM_LOG_AIR_DATA:
 
-        m_SbgAirData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgAirData>(ref_output_topic, m_max_mesages_);
+        m_sbgAirData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgAirData>(ref_output_topic, m_max_mesages_);
         break;
 
       default:
@@ -296,7 +296,6 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   if (m_sbgImuData_pub_)
   {
     m_temp_pub_     = ref_ros_node_handle.advertise<sensor_msgs::Temperature>("imu/temp", m_max_mesages_);
-    m_velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>("imu/velocity", m_max_mesages_);
   }
   else
   {
@@ -312,7 +311,20 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
     ROS_WARN("SBG_DRIVER - [Publisher] SBG Mag data output are not configured, the standard Magnetic publisher can not be defined.");
   }
 
-  if (m_SbgAirData_pub_)
+  //
+  // We need either Euler or quat angles, and we must have Nav and IMU data to
+  // compute Body and angular velocity.
+  //
+  if ((m_sbgEkfEuler_pub_ || m_sbgEkfQuat_pub_) && m_sbgEkfNav_pub_ && m_sbgImuData_pub_)
+  {
+    m_velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>("imu/velocity", m_max_mesages_);
+  }
+  else
+  {
+    ROS_WARN("SBG_DRIVER - [Publisher] SBG Imu, Nav or Angles data outputs are not configured, the standard Velocity publisher can not be defined.");
+  }
+
+  if (m_sbgAirData_pub_)
   {
     m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_mesages_);
   }
@@ -320,7 +332,6 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   {
     ROS_WARN("SBG_DRIVER - [Publisher] SBG AirData output are not configured, the standard FluidPressure publisher can not be defined.");
   }
-
 
   if (m_sbgEkfNav_pub_)
   {
@@ -361,6 +372,13 @@ void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
   {
     m_temp_pub_.publish(m_message_wrapper_.createRosTemperatureMessage(m_sbg_imu_message_));
   }
+
+  processRosImuMessage();
+  processRosVelMessage();
+}
+
+void MessagePublisher::processRosVelMessage(void)
+{
   if (m_velocity_pub_)
   {
     if (m_sbgEkfQuat_pub_)
@@ -372,8 +390,6 @@ void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
       m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_euler_message_, m_sbg_ekf_nav_message_, m_sbg_imu_message_));
     }
   }
-
-  processRosImuMessage();
 }
 
 void MessagePublisher::processRosImuMessage(void)
@@ -407,9 +423,9 @@ void MessagePublisher::publishFluidPressureData(const SbgBinaryLogData &ref_sbg_
   sbg_driver::SbgAirData sbg_air_data_message;
   sbg_air_data_message = m_message_wrapper_.createSbgAirDataMessage(ref_sbg_log.airData);
 
-  if (m_SbgAirData_pub_)
+  if (m_sbgAirData_pub_)
   {
-    m_SbgAirData_pub_.publish(sbg_air_data_message);
+    m_sbgAirData_pub_.publish(sbg_air_data_message);
   }
   if (m_fluid_pub_)
   {
@@ -429,6 +445,7 @@ void MessagePublisher::publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_
   {
     m_pos_ecef_pub_.publish(m_message_wrapper_.createRosPointStampedMessage(m_sbg_ekf_nav_message_));
   }
+  processRosVelMessage();
 }
 
 void MessagePublisher::publishUtcData(const SbgBinaryLogData &ref_sbg_log)
@@ -545,7 +562,8 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
       if (m_sbgEkfEuler_pub_)
       {
         m_sbg_ekf_euler_message_ = m_message_wrapper_.createSbgEkfEulerMessage(ref_sbg_log.ekfEulerData);
-	m_sbgEkfEuler_pub_.publish(m_sbg_ekf_euler_message_);
+		m_sbgEkfEuler_pub_.publish(m_sbg_ekf_euler_message_);
+		processRosVelMessage();
       }
       break;
 
@@ -556,6 +574,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
         m_sbg_ekf_quat_message_ = m_message_wrapper_.createSbgEkfQuatMessage(ref_sbg_log.ekfQuatData);
         m_sbgEkfQuat_pub_.publish(m_sbg_ekf_quat_message_);
         processRosImuMessage();
+		processRosVelMessage();
       }
       break;
 
@@ -655,9 +674,9 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
     case SBG_ECOM_LOG_IMU_SHORT:
 
-      if (m_SbgImuShort_pub_)
+      if (m_sbgImuShort_pub_)
       {
-        m_SbgImuShort_pub_.publish(m_message_wrapper_.createSbgImuShortMessage(ref_sbg_log.imuShort));
+        m_sbgImuShort_pub_.publish(m_message_wrapper_.createSbgImuShortMessage(ref_sbg_log.imuShort));
       }
       break;
 

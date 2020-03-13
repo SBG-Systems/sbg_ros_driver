@@ -33,8 +33,8 @@ private:
   ros::Publisher          m_sbgEventC_pub_;
   ros::Publisher          m_sbgEventD_pub_;
   ros::Publisher          m_sbgEventE_pub_;
-  ros::Publisher          m_SbgImuShort_pub_;
-  ros::Publisher          m_SbgAirData_pub_;
+  ros::Publisher          m_sbgImuShort_pub_;
+  ros::Publisher          m_sbgAirData_pub_;
 
   ros::Publisher          m_imu_pub_;
   sbg_driver::SbgImuData  m_sbg_imu_message_;
@@ -107,10 +107,15 @@ private:
   void publishIMUData(const SbgBinaryLogData &ref_sbg_log);
 
   /*!
+   * Process a ROS Velocity standard message.
+   */
+  void processRosVelMessage(void);
+
+  /*!
    * Process a ROS IMU standard message.
    */
   void processRosImuMessage(void);
-
+  
   /*!
    * Publish a received SBG Magnetic log.
    * 
