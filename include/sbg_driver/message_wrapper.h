@@ -5,6 +5,9 @@
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
 
+// Sbg header
+#include <sbg_matrix3.h>
+
 // ROS headers
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/PointStamped.h>
@@ -34,9 +37,6 @@
 #include "sbg_driver/SbgEvent.h"
 #include "sbg_driver/SbgImuShort.h"
 #include "sbg_driver/SbgAirData.h"
-
-// Project header
-#include <sbg_matrix3.h>
 
 namespace sbg
 {
@@ -214,22 +214,6 @@ private:
    */
   const sbg_driver::SbgAirDataStatus createAirDataStatusMessage(const SbgLogAirData& ref_sbg_air_data) const;
 
-  /*!
-   * Create a ROS standard TwistStamped message from SBG messages.
-   * 
-   * \param[in] ref_sbg_ekf_euler_msg	SBG-ROS Ekf Euler message.
-   * \return                        	Transposed DCM.
-   */
-  const sbg::SbgMatrix3<float> getTransposedDcm(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg) const;
-
-  /*!
-   * Create a ROS standard TwistStamped message from SBG messages.
-   * 
-   * \param[in] ref_sbg_ekf_quat_msg	SBG-ROS Ekf Quat message.
-   * \return                        	Transposed DCM.
-   */
-  const sbg::SbgMatrix3<float> getTransposedDcm(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg) const;
- 
 public:
 
   //---------------------------------------------------------------------//
@@ -362,15 +346,15 @@ public:
   const sbg_driver::SbgShipMotion createSbgShipMotionMessage(const SbgLogShipMotionData& ref_log_ship_motion) const;
 
   /*!
-   * Create a SBG-ROS status message from a SBG status log.
-   *
-   * \param[in] ref_log_status      SBG status log.
-   * \return                        Status message.
-   */
-  const sbg_driver::SbgStatus createSbgStatusMessage(const SbgLogStatusData& ref_log_status) const;
-
-  /*!
-   * Create a SBG-ROS UTC time message from a SBG UTC log.
+   * Create a SBG-ROS status message from a SBG status log.	
+   *                                                       	
+   * \param[in] ref_log_status      SBG status log.        	
+   * \return                        Status message.        	
+   */                                                      	
+  const sbg_driver::SbgStatus createSbgStatusMessage(const 	SbgLogStatusData& ref_log_status) const;
+                                                           	
+  /*!                                                      	
+   * Create a SBG-ROS UTC time message from a SBG UTC log. 	
    *
    * \param[in] ref_log_utc         SBG UTC log.
    * \return                        UTC time message.                  
@@ -422,8 +406,8 @@ public:
    * Create a ROS standard TwistStamped message from SBG messages.
    * 
    * \template  T                   	Euler or Quat message.
-   * \param[in] ref_sbg_ekf_nav_msg	SBG-ROS Ekf Nav message.
-   * \param[in] ref_sbg_imu_msg		SBG-ROS IMU message.
+   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
    * \return                        	ROS standard TwistStamped message.
    */
   template <typename T>
@@ -434,13 +418,15 @@ public:
     twist_stamped_message.header        = createRosHeader(ref_sbg_imu_msg.time_stamp);
     twist_stamped_message.twist.angular = ref_sbg_imu_msg.gyro;
 
-    const sbg::SbgMatrix3<float> tdcm = getTransposedDcm(ref_sbg_ekf_vel_msg);
+    sbg::SbgMatrix3f tdcm;
+	tdcm.makeTransposedDcm(ref_sbg_ekf_vel_msg);
 
-    twist_stamped_message.twist.linear.x = (ref_sbg_ekf_nav_msg.velocity.x * tdcm(0, 0)) + (ref_sbg_ekf_nav_msg.velocity.y * tdcm(0, 1)) + (ref_sbg_ekf_nav_msg.velocity.z * tdcm(0, 2)); 
-    twist_stamped_message.twist.linear.y = (ref_sbg_ekf_nav_msg.velocity.x * tdcm(1, 0)) + (ref_sbg_ekf_nav_msg.velocity.y * tdcm(1, 1)) + (ref_sbg_ekf_nav_msg.velocity.z * tdcm(1, 2)); 
-    twist_stamped_message.twist.linear.z = (ref_sbg_ekf_nav_msg.velocity.x * tdcm(2, 0)) + (ref_sbg_ekf_nav_msg.velocity.y * tdcm(2, 1)) + (ref_sbg_ekf_nav_msg.velocity.z * tdcm(2, 2)); 
+	const sbg::SbgVector3<float> res = tdcm.vectMult(sbg::SbgVector3<float>(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z));
 
-    return twist_stamped_message;
+    twist_stamped_message.twist.linear.x = res(0); 
+    twist_stamped_message.twist.linear.y = res(1); 
+    twist_stamped_message.twist.linear.z = res(2);
+	return twist_stamped_message;
   };
 
   /*!

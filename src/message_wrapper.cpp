@@ -676,51 +676,6 @@ const sensor_msgs::MagneticField MessageWrapper::createRosMagneticMessage(const 
   return magnetic_message;
 }
 
-
-const sbg::SbgMatrix3<float> MessageWrapper::getTransposedDcm(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg) const
-{
-  float cr = cosf(ref_sbg_ekf_euler_msg.angle.x);
-  float sr = sinf(ref_sbg_ekf_euler_msg.angle.x);
-  float cp = cosf(ref_sbg_ekf_euler_msg.angle.y);
-  float sp = sinf(ref_sbg_ekf_euler_msg.angle.y);
-  float cy = cosf(ref_sbg_ekf_euler_msg.angle.z);
-  float sy = sinf(ref_sbg_ekf_euler_msg.angle.z);
-
-  const sbg::SbgMatrix3<float> tdcm 
-  ( 
-	cp * cy 			, cp * sy			, -sp,
-        (sr * sp * cy) - (cr * sy)	, (sr * sp * sy) + (cr * cy)	, sr * cp,
-        (cr * sp * cy) + (sy * sr)	, (cr * sp * sy) - (sr * cy)	, cr * cp
-  );
-  return tdcm;
-}
-
-
-const sbg::SbgMatrix3<float> MessageWrapper::getTransposedDcm(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg) const
-{
-  float w = ref_sbg_ekf_quat_msg.quaternion.w;
-  float x = ref_sbg_ekf_quat_msg.quaternion.x;
-  float y = ref_sbg_ekf_quat_msg.quaternion.y;
-  float z = ref_sbg_ekf_quat_msg.quaternion.z;
-
-  float wx = w * x;
-  float wy = w * y;
-  float wz = w * z;
-  float xy = x * y;
-  float xz = x * z;
-  float yz = y * z;
-
-  const sbg::SbgMatrix3<float> tdcm 
-  ( 
-	(2 * powf(w, 2)) + (2 * powf(x, 2)) - 1	, (2 * xy) + (2 * wz)                     	, (2 * xz) - (2 * wy),
-        (2 * xy) - (2 * wz)	               	, (2 * powf(w, 2)) + (2 * powf(y, 2)) - 1 	, (2 * yz) + (2 * wx),
-        (2 * wy) + (2 * xz)                    	, (2 * yz) - (2 * wx)	                 	, (2 * powf(w, 2)) + (2 * powf(z, 2)) - 1
-  );
-
-  return tdcm;
-}
-
-
 const geometry_msgs::PointStamped MessageWrapper::createRosPointStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_msg) const
 {
   geometry_msgs::PointStamped point_stamped_message;

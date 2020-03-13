@@ -116,6 +116,18 @@ public:
   {
     return !(*this == ref_vector);
   };
+  
+  /*!
+   * Getter parenthesis operator
+   * \param[in] index					Index of value to retrieve.
+   * \return 							Value at index.
+   */
+  const T operator()(size_t index) const
+  {
+	  assert(index < 3);
+
+	  return m_data[index];
+  }
 
   /*!
    * Get the raw data of the sbgVector.
