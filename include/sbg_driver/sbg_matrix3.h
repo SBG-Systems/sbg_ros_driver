@@ -49,7 +49,7 @@ namespace sbg
  * Class to define a Matrix3.
  * 
  * Ros uses Eigen for mathematical computations so we implement a basic custom
- * matrix class to avoid useless dependencies. 
+ * matrix class to avoid dependency on Eigen. 
  */
 template <class T>
 class SbgMatrix3
@@ -172,7 +172,7 @@ public:
     return SbgVector3<T>(x, y, z);
   }
 
-  void makeTransposedDcm(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg)
+  void makeDcm(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg)
   {
 	float cr = cosf(ref_sbg_ekf_euler_msg.angle.x);
 	float sr = sinf(ref_sbg_ekf_euler_msg.angle.x);
@@ -181,21 +181,36 @@ public:
 	float cy = cosf(ref_sbg_ekf_euler_msg.angle.z);
 	float sy = sinf(ref_sbg_ekf_euler_msg.angle.z);
  
-	m_data[0] = cp * cy; 
-	m_data[1] = cp * sy;
-	m_data[2] = -sp;
+	m_data[0] = cp * cy;
+	m_data[3] = cp * sy; 
+	m_data[6] = -sp;
 	
-	m_data[3] = (sr * sp * cy) - (cr * sy); 
+	m_data[1] = (sr * sp * cy) - (cr * sy); 
 	m_data[4] = (sr * sp * sy) + (cr * cy); 
-	m_data[5] = sr * cp;
+	m_data[7] = sr * cp;
 	
-	m_data[6] = (cr * sp * cy) + (sy * sr);
-	m_data[7] = (cr * sp * sy) - (sr * cy); 
+	m_data[2] = (cr * sp * cy) + (sy * sr);
+	m_data[5] = (cr * sp * sy) - (sr * cy); 
 	m_data[8] = cr * cp;
 	  
   }
 
-  void makeTransposedDcm(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg)
+  void transpose()
+  {
+    T swap = m_data[1];
+    m_data[1] = m_data[3];
+    m_data[3] = swap;
+
+    swap = m_data[2];
+    m_data[2] = m_data[6];
+    m_data[6] = swap;
+
+    swap = m_data[5];
+    m_data[5] = m_data[7];
+    m_data[7] = swap;
+  }
+
+  void makeDcm(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg)
   {
 	float w = ref_sbg_ekf_quat_msg.quaternion.w;
 	float x = ref_sbg_ekf_quat_msg.quaternion.x;
@@ -210,15 +225,15 @@ public:
 	float yz = y * z;
 
 	m_data[0] = (2 * powf(w, 2)) + (2 * powf(x, 2)) - 1;
-	m_data[1] = (2 * xy) + (2 * wz);
-	m_data[2] = (2 * xz) - (2 * wy);
+	m_data[3] = (2 * xy) + (2 * wz);
+	m_data[6] = (2 * xz) - (2 * wy);
 
-	m_data[3] = (2 * xy) - (2 * wz); 
+	m_data[1] = (2 * xy) - (2 * wz); 
 	m_data[4] = (2 * powf(w, 2)) + (2 * powf(y, 2)) - 1;
-	m_data[5] = (2 * yz) + (2 * wx);
+	m_data[7] = (2 * yz) + (2 * wx);
 	
-	m_data[6] = (2 * wy) + (2 * xz);
-	m_data[7] = (2 * yz) - (2 * wx); 
+	m_data[2] = (2 * wy) + (2 * xz);
+	m_data[5] = (2 * yz) - (2 * wx); 
 	m_data[8] = (2 * powf(w, 2)) + (2 * powf(z, 2)) - 1;	  
   }
 
