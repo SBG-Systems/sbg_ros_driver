@@ -444,23 +444,7 @@ public:
    * \return                        	ROS standard TwistStamped message.
    */
   template <typename T>
-  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const T& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
-  {
-    geometry_msgs::TwistStamped twist_stamped_message;
-  
-    twist_stamped_message.header        = createRosHeader(ref_sbg_imu_msg.time_stamp);
-    twist_stamped_message.twist.angular = ref_sbg_imu_msg.gyro;
-
-    sbg::SbgMatrix3f tdcm;
-	tdcm.makeTransposedDcm(ref_sbg_ekf_vel_msg);
-
-	const sbg::SbgVector3<float> res = tdcm.vectMult(sbg::SbgVector3<float>(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z));
-
-    twist_stamped_message.twist.linear.x = res(0); 
-    twist_stamped_message.twist.linear.y = res(1); 
-    twist_stamped_message.twist.linear.z = res(2);
-	return twist_stamped_message;
-  };
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const T& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
 
   /*!
    * Create a ROS standard PointStamped message from SBG messages.
