@@ -163,7 +163,7 @@ public:
     return static_cast<const T*>(m_data.data());
   };
 
-  const SbgVector3<T> vectMult(SbgVector3<T> vect) const
+  const SbgVector3<T> operator*(SbgVector3<T> vect) const
   {
 	T x = m_data[0] * vect(0) + m_data[1] * vect(1) + m_data[2] * vect(2);
 	T y = m_data[3] * vect(0) + m_data[4] * vect(1) + m_data[5] * vect(2);

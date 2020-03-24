@@ -170,6 +170,10 @@ public:
     return static_cast<const T*>(m_data.data());
   };
 };
+
+typedef SbgVector3<float>  SbgVector3f;
+typedef SbgVector3<double> SbgVector3d;
+
 }
 
 #endif // SBG_VECTOR_3_H

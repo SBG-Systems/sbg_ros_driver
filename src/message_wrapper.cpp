@@ -688,7 +688,7 @@ const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(c
   tdcm.makeDcm(ref_sbg_ekf_vel_msg);
   tdcm.transpose();
 
-  const sbg::SbgVector3<float> res = tdcm.vectMult(sbg::SbgVector3<float>(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z));
+  const sbg::SbgVector3f res = tdcm * sbg::SbgVector3f(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z);
 
   twist_stamped_message.twist.linear.x = res(0); 
   twist_stamped_message.twist.linear.y = res(1); 
