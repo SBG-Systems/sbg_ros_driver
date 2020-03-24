@@ -5,7 +5,11 @@
 *	 
 *	\brief        Handle a 3x3 matrix.
 *
-*	Also defines as typedef SbgMatrix3f and SbgMatrix3d for floats and doubles. 
+*   SBG Systems Ros driver needs some basic matrix operations.
+*   Ros uses Eigen for mathematical computations but to avoid dependancy on
+*   Eigen we chose to implement a basic custom matrix class with basic
+*   mathematical operations needed. 
+*	This class also defines SbgMatrix3f and SbgMatrix3d for floats and doubles. 
 *
 *	\section CodeCopyright Copyright Notice
 *	MIT License
@@ -46,10 +50,7 @@ namespace sbg
 {
 
 /*!
- * Class to define a Matrix3.
  * 
- * Ros uses Eigen for mathematical computations so we implement a basic custom
- * matrix class to avoid dependency on Eigen. 
  */
 template <class T>
 class SbgMatrix3

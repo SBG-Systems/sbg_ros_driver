@@ -5,6 +5,10 @@
 *	 
 *	\brief        Handle a three components vector.
 *
+*   This custom vector3 class is compatible for operations with SbgMatrix3 in
+*   order to avoid a dependancy on Eigen.
+*   This class also defines SbgVector3f and SbgVector3d for floats and doubles.   
+*
 *	\section CodeCopyright Copyright Notice
 *	MIT License
 *	 
