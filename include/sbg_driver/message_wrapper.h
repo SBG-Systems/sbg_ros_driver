@@ -246,6 +246,15 @@ private:
    * \return                        SBG-ROS air data status message.
    */
   const sbg_driver::SbgAirDataStatus createAirDataStatusMessage(const SbgLogAirData& ref_sbg_air_data) const;
+  
+  /*!
+   * Create a ROS standard TwistStamped message.
+   * 
+   * \param[in] body_vel            SBG Body velocity vector.
+   * \param[in] ref_sbg_air_data    SBG IMU message.
+   * \return                        SBG TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
 
 public:
 
@@ -438,13 +447,24 @@ public:
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
    * 
-   * \template  T                   	Euler or Quat message.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
    * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
    * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
    * \return                        	ROS standard TwistStamped message.
    */
-  template <typename T>
-  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const T& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+  
+  
+  /*!
+   * Create a ROS standard TwistStamped message from SBG messages.
+   * 
+   * \param[in] ref_sbg_ekf_quat_msg	SBG-ROS Ekf Quaternion message.
+   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
+   * \return                        	ROS standard TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+  
 
   /*!
    * Create a ROS standard PointStamped message from SBG messages.

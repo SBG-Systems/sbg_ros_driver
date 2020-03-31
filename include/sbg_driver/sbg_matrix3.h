@@ -173,14 +173,37 @@ public:
     return SbgVector3<T>(x, y, z);
   }
 
-  void makeDcm(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg)
+  void transpose(void)
   {
-	float cr = cosf(ref_sbg_ekf_euler_msg.angle.x);
-	float sr = sinf(ref_sbg_ekf_euler_msg.angle.x);
-	float cp = cosf(ref_sbg_ekf_euler_msg.angle.y);
-	float sp = sinf(ref_sbg_ekf_euler_msg.angle.y);
-	float cy = cosf(ref_sbg_ekf_euler_msg.angle.z);
-	float sy = sinf(ref_sbg_ekf_euler_msg.angle.z);
+    T swap = m_data[1];
+    m_data[1] = m_data[3];
+    m_data[3] = swap;
+
+    swap = m_data[2];
+    m_data[2] = m_data[6];
+    m_data[6] = swap;
+
+    swap = m_data[5];
+    m_data[5] = m_data[7];
+    m_data[7] = swap;
+  }
+
+  /*!
+  * Make DCM from euler angles vector  
+  * 
+  * \param[in] vect               Euler angles vector.
+  * \param[in] x                  Quaternion x value.
+  * \param[in] y                  Quaternion y value.
+  * \param[in] z                  Quaternion z value.
+  */
+  void makeDcm(SbgVector3f euler) 
+  {
+	float cr = cosf(euler(0));
+	float sr = sinf(euler(0));
+	float cp = cosf(euler(1));
+	float sp = sinf(euler(1));
+	float cy = cosf(euler(2));
+	float sy = sinf(euler(2));
  
 	m_data[0] = cp * cy;
 	m_data[3] = cp * sy; 
@@ -196,28 +219,16 @@ public:
 	  
   }
 
-  void transpose()
+  /*!
+  * Make DCM from quaternion values
+  * 
+  * \param[in] w                  Quaternion w value.
+  * \param[in] x                  Quaternion x value.
+  * \param[in] y                  Quaternion y value.
+  * \param[in] z                  Quaternion z value.
+  */
+  void makeDcm(float w, float x, float y, float z)
   {
-    T swap = m_data[1];
-    m_data[1] = m_data[3];
-    m_data[3] = swap;
-
-    swap = m_data[2];
-    m_data[2] = m_data[6];
-    m_data[6] = swap;
-
-    swap = m_data[5];
-    m_data[5] = m_data[7];
-    m_data[7] = swap;
-  }
-
-  void makeDcm(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg)
-  {
-	float w = ref_sbg_ekf_quat_msg.quaternion.w;
-	float x = ref_sbg_ekf_quat_msg.quaternion.x;
-	float y = ref_sbg_ekf_quat_msg.quaternion.y;
-	float z = ref_sbg_ekf_quat_msg.quaternion.z;
-
 	float wx = w * x;
 	float wy = w * y;
 	float wz = w * z;
