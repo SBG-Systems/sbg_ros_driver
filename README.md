@@ -172,7 +172,7 @@ For each ROS standard, you have to activate the needed SBG outputs.
 * **`/imu/velocity`** [geometry_msgs/TwistStamped](http://docs.ros.org/melodic/api/geometry_msgs/html/msg/TwistStamped.html)
 
   IMU velocity data.
-  Requires `/sbg/imu_data`.
+  Requires `/sbg/imu_data` and `/sbg/ekf_nav` and either `/sbg/ekf_euler` or `/sbg/ekf_quat`.
   
 * **`/imu/mag`** [sensor_msgs/MagneticField](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/MagneticField.html)
 
