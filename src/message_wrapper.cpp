@@ -676,19 +676,38 @@ const sensor_msgs::MagneticField MessageWrapper::createRosMagneticMessage(const 
   return magnetic_message;
 }
 
-const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgImuData& ref_p_sbg_imu_msg) const
+const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
+{
+  sbg::SbgMatrix3f tdcm;
+  tdcm.makeDcm(sbg::SbgVector3f(ref_sbg_ekf_euler_msg.angle.x, ref_sbg_ekf_euler_msg.angle.y, ref_sbg_ekf_euler_msg.angle.z));
+  tdcm.transpose();
+
+  const sbg::SbgVector3f res = tdcm * sbg::SbgVector3f(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z);
+
+  return createRosTwistStampedMessage(res, ref_sbg_imu_msg);
+}
+
+const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
+{
+	
+  sbg::SbgMatrix3f tdcm;
+  tdcm.makeDcm(ref_sbg_ekf_quat_msg.quaternion.w, ref_sbg_ekf_quat_msg.quaternion.x, ref_sbg_ekf_quat_msg.quaternion.y, ref_sbg_ekf_quat_msg.quaternion.z);
+  tdcm.transpose();
+
+  const sbg::SbgVector3f res = tdcm * sbg::SbgVector3f(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z);
+  return createRosTwistStampedMessage(res, ref_sbg_imu_msg);
+}
+
+const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
 {
   geometry_msgs::TwistStamped twist_stamped_message;
-  double delta_t;
-
-  delta_t = (ref_sbg_imu_msg.time_stamp - ref_p_sbg_imu_msg.time_stamp) * 1e-6;
 
   twist_stamped_message.header        = createRosHeader(ref_sbg_imu_msg.time_stamp);
   twist_stamped_message.twist.angular = ref_sbg_imu_msg.gyro;
 
-  twist_stamped_message.twist.linear.x = (ref_sbg_imu_msg.accel.x - ref_p_sbg_imu_msg.accel.x) / delta_t;
-  twist_stamped_message.twist.linear.y = (ref_sbg_imu_msg.accel.y - ref_p_sbg_imu_msg.accel.y) / delta_t;
-  twist_stamped_message.twist.linear.z = (ref_sbg_imu_msg.accel.z - ref_p_sbg_imu_msg.accel.z) / delta_t;
+  twist_stamped_message.twist.linear.x = body_vel(0); 
+  twist_stamped_message.twist.linear.y = body_vel(1); 
+  twist_stamped_message.twist.linear.z = body_vel(2);
 
   return twist_stamped_message;
 }

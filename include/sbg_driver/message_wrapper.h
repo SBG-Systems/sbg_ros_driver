@@ -1,9 +1,45 @@
+/*!
+*	\file         message_wrapper.h
+*	\author       SBG Systems
+*	\date         13/03/2020
+*	 
+*	\brief        Handle creation of messages.
+*
+*   Methods to create ROS messages from given data. 
+*	 
+*	\section CodeCopyright Copyright Notice
+*	MIT License
+*	 
+*	Copyright (c) 2020 SBG Systems
+*	 
+*	Permission is hereby granted, free of charge, to any person obtaining a copy
+*	of this software and associated documentation files (the "Software"), to deal
+*	in the Software without restriction, including without limitation the rights
+*	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*	copies of the Software, and to permit persons to whom the Software is
+*	furnished to do so, subject to the following conditions:
+*	 
+*	The above copyright notice and this permission notice shall be included in all
+*	copies or substantial portions of the Software.
+*	 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*	SOFTWARE.
+*/
+
 #ifndef SBG_ROS_MESSAGE_WRAPPER_H
 #define SBG_ROS_MESSAGE_WRAPPER_H
 
 // SbgECom headers
 #include <sbgEComLib.h>
 #include <sbgEComIds.h>
+
+// Sbg header
+#include <sbg_matrix3.h>
 
 // ROS headers
 #include <geometry_msgs/TwistStamped.h>
@@ -210,7 +246,16 @@ private:
    * \return                        SBG-ROS air data status message.
    */
   const sbg_driver::SbgAirDataStatus createAirDataStatusMessage(const SbgLogAirData& ref_sbg_air_data) const;
- 
+  
+  /*!
+   * Create a ROS standard TwistStamped message.
+   * 
+   * \param[in] body_vel            SBG Body velocity vector.
+   * \param[in] ref_sbg_air_data    SBG IMU message.
+   * \return                        SBG TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+
 public:
 
   //---------------------------------------------------------------------//
@@ -343,15 +388,15 @@ public:
   const sbg_driver::SbgShipMotion createSbgShipMotionMessage(const SbgLogShipMotionData& ref_log_ship_motion) const;
 
   /*!
-   * Create a SBG-ROS status message from a SBG status log.
-   *
-   * \param[in] ref_log_status      SBG status log.
-   * \return                        Status message.
-   */
-  const sbg_driver::SbgStatus createSbgStatusMessage(const SbgLogStatusData& ref_log_status) const;
-
-  /*!
-   * Create a SBG-ROS UTC time message from a SBG UTC log.
+   * Create a SBG-ROS status message from a SBG status log.	
+   *                                                       	
+   * \param[in] ref_log_status      SBG status log.        	
+   * \return                        Status message.        	
+   */                                                      	
+  const sbg_driver::SbgStatus createSbgStatusMessage(const 	SbgLogStatusData& ref_log_status) const;
+                                                           	
+  /*!                                                      	
+   * Create a SBG-ROS UTC time message from a SBG UTC log. 	
    *
    * \param[in] ref_log_utc         SBG UTC log.
    * \return                        UTC time message.                  
@@ -402,11 +447,24 @@ public:
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
    * 
-   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
-   * \param[in] ref_p_sbg_imu_msg   SBG-ROS IMU previous message.
-   * \return                        ROS standard TwistStamped message.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
+   * \return                        	ROS standard TwistStamped message.
    */
-  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgImuData& ref_p_sbg_imu_msg) const;
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+  
+  
+  /*!
+   * Create a ROS standard TwistStamped message from SBG messages.
+   * 
+   * \param[in] ref_sbg_ekf_quat_msg	SBG-ROS Ekf Quaternion message.
+   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
+   * \return                        	ROS standard TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+  
 
   /*!
    * Create a ROS standard PointStamped message from SBG messages.

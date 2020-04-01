@@ -1,3 +1,34 @@
+/*!
+*	\file         message_publisher.h
+*	\author       SBG Systems
+*	\date         13/03/2020
+*	 
+*	\brief        Manage publishment of messages from logs.
+*	 
+*	\section CodeCopyright Copyright Notice
+*	MIT License
+*	 
+*	Copyright (c) 2020 SBG Systems
+*	 
+*	Permission is hereby granted, free of charge, to any person obtaining a copy
+*	of this software and associated documentation files (the "Software"), to deal
+*	in the Software without restriction, including without limitation the rights
+*	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*	copies of the Software, and to permit persons to whom the Software is
+*	furnished to do so, subject to the following conditions:
+*	 
+*	The above copyright notice and this permission notice shall be included in all
+*	copies or substantial portions of the Software.
+*	 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*	SOFTWARE.
+*/
+
 #ifndef SBG_ROS_MESSAGE_PUBLISHER_H
 #define SBG_ROS_MESSAGE_PUBLISHER_H
 
@@ -33,12 +64,14 @@ private:
   ros::Publisher          m_sbgEventC_pub_;
   ros::Publisher          m_sbgEventD_pub_;
   ros::Publisher          m_sbgEventE_pub_;
-  ros::Publisher          m_SbgImuShort_pub_;
-  ros::Publisher          m_SbgAirData_pub_;
+  ros::Publisher          m_sbgImuShort_pub_;
+  ros::Publisher          m_sbgAirData_pub_;
 
   ros::Publisher          m_imu_pub_;
   sbg_driver::SbgImuData  m_sbg_imu_message_;
   sbg_driver::SbgEkfQuat  m_sbg_ekf_quat_message_;
+  sbg_driver::SbgEkfNav   m_sbg_ekf_nav_message_;
+  sbg_driver::SbgEkfEuler m_sbg_ekf_euler_message_;
 
   ros::Publisher          m_temp_pub_;
   ros::Publisher          m_mag_pub_;
@@ -105,10 +138,15 @@ private:
   void publishIMUData(const SbgBinaryLogData &ref_sbg_log);
 
   /*!
+   * Process a ROS Velocity standard message.
+   */
+  void processRosVelMessage(void);
+
+  /*!
    * Process a ROS IMU standard message.
    */
   void processRosImuMessage(void);
-
+  
   /*!
    * Publish a received SBG Magnetic log.
    * 

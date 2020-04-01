@@ -1,3 +1,38 @@
+/*!
+*	\file         sbg_vector3.h
+*	\author       SBG Systems
+*	\date         13/03/2020
+*	 
+*	\brief        Handle a three components vector.
+*
+*   This custom vector3 class is compatible for operations with SbgMatrix3 in
+*   order to avoid a dependancy on Eigen.
+*   This class also defines SbgVector3f and SbgVector3d for floats and doubles.   
+*
+*	\section CodeCopyright Copyright Notice
+*	MIT License
+*	 
+*	Copyright (c) 2020 SBG Systems
+*	 
+*	Permission is hereby granted, free of charge, to any person obtaining a copy
+*	of this software and associated documentation files (the "Software"), to deal
+*	in the Software without restriction, including without limitation the rights
+*	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*	copies of the Software, and to permit persons to whom the Software is
+*	furnished to do so, subject to the following conditions:
+*	 
+*	The above copyright notice and this permission notice shall be included in all
+*	copies or substantial portions of the Software.
+*	 
+*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*	SOFTWARE.
+*/
+
 #ifndef SBG_VECTOR_3_H
 #define SBG_VECTOR_3_H
 
@@ -116,6 +151,18 @@ public:
   {
     return !(*this == ref_vector);
   };
+  
+  /*!
+   * Getter parenthesis operator
+   * \param[in] index					Index of value to retrieve.
+   * \return 							Value at index.
+   */
+  const T operator()(size_t index) const
+  {
+	  assert(index < 3);
+
+	  return m_data[index];
+  }
 
   /*!
    * Get the raw data of the sbgVector.
@@ -127,6 +174,10 @@ public:
     return static_cast<const T*>(m_data.data());
   };
 };
+
+typedef SbgVector3<float>  SbgVector3f;
+typedef SbgVector3<double> SbgVector3d;
+
 }
 
 #endif // SBG_VECTOR_3_H
