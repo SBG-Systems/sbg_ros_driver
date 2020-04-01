@@ -2,6 +2,11 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.3 (2020-04-01)
+------------------
+* Improve matrix handling
+* Fix body velocity computation (Issue `#31 <https://github.com/SBG-Systems/sbg_ros_driver/issues/31>`_)
+
 2.0.1 (2020-01-24)
 ------------------
 * Improve vector handling
