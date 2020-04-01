@@ -196,7 +196,7 @@ public:
   * \param[in] y                  Quaternion y value.
   * \param[in] z                  Quaternion z value.
   */
-  void makeDcm(SbgVector3f euler) 
+  void makeDcm(SbgVector3f& euler) 
   {
 	float cr = cosf(euler(0));
 	float sr = sinf(euler(0));
