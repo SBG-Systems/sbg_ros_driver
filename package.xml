@@ -6,7 +6,7 @@
     ROS driver package for communication with the SBG navigation systems.
   </description>
   <author>SBG Systems</author>
-  <maintainer email="remi.burtin@sbg-systems.com">Rémi Burtin</maintainer>
+  <maintainer email="hadrien.pomes@sbg-systems.com">Hadrien Pomès</maintainer>
   <license>MIT</license>
 
   <url type="website">http://wiki.ros.org/sbg_driver</url>

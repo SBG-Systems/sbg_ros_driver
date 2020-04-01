@@ -9,7 +9,7 @@ The driver allows the user to configure the IMU (if possible, according to the d
 <i>Initial work has been done by [ENSTA Bretagne](https://github.com/ENSTABretagneRobotics).</i>
 
 **Author : [SBG Systems](https://www.sbg-systems.com/)<br />
-Maintainer : Rémi Burtin, remi.burtin@sbg-systems.com**
+Maintainer : Hadrien Pomès, hadrien.pomes@sbg-systems.com**
 
 ## Installation
 ### Installation from Packages
