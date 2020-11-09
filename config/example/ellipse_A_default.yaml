@@ -80,8 +80,8 @@ imuAlignementLeverArm:
 
 # AIDING_ASSIGNMENT
 # Note: GNSS1 module configuration can only be set to an external port on Ellipse-E version.
-# Ellipse-N users must set this module to MODULE_INTERNAL. On the other hand, rtcmModule is only
-# available for Ellipse-N users. This module must be set to MODULE_DISABLED for other users.
+# Ellipse-N and Ellipse-D users must set this module to MODULE_INTERNAL. On the other hand, rtcmModule is only
+# available for Ellipse-N and Ellipse-D users. This module must be set to MODULE_DISABLED for other users.
 aidingAssignment:
   # GNSS module port assignment:
   # 255 Module is disabled

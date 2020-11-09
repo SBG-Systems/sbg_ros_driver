@@ -77,6 +77,10 @@ Default config file for an Ellipse-E with an external antenna and external Gnss.
 * **ellipse_N_default.yaml** <br />
 Default config file for an Ellipse-N with an external antenna and internal Gnss.
 
+* **ellipse_D_default.yaml** <br />
+Default config file for an Ellipse-D with an internal dual-antenna Gnss.
+
+
 ## Launch files
 ### Default launch files
 * **sbg_device.launch** <br />
