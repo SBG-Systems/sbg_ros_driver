@@ -380,7 +380,7 @@ const sbg_driver::SbgEkfNav MessageWrapper::createSbgEkfNavMessage(const SbgLogE
   sbg_driver::SbgEkfNav ekf_nav_message;
 
   ekf_nav_message.header            = createRosHeader(ref_log_ekf_nav.timeStamp);
-  ekf_nav_message.time_stamp        = ekf_nav_message.time_stamp;
+  ekf_nav_message.time_stamp        = ref_log_ekf_nav.timeStamp;
   ekf_nav_message.status            = createEkfStatusMessage(ref_log_ekf_nav.status);
   ekf_nav_message.undulation        = ref_log_ekf_nav.undulation;
 
