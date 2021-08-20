@@ -83,7 +83,7 @@ private:
 
   MessageWrapper          m_message_wrapper_;
   SbgEComOutputMode       m_output_mode_;
-  uint32_t                m_max_mesages_;
+  uint32_t                m_max_messages_;
 
   //---------------------------------------------------------------------//
   //- Private methods                                                   -//
