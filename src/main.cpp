@@ -9,14 +9,17 @@ int main(int argc, char **argv)
 
   try
   {
+	long unsigned int loopFrequency;
+
     ROS_INFO("SBG DRIVER - Init node, load params and connect to the device.");
     SbgDevice sbg_device(node_handle);
 
     ROS_INFO("SBG DRIVER - Initialize device for receiving data");
     sbg_device.initDeviceForReceivingData();
 
-    ROS_INFO("SBG DRIVER - START RECEIVING DATA");
-    ros::Rate loop_rate(sbg_device.getUpdateFrequency() * 2);
+	loopFrequency = sbg_device.getUpdateFrequency() * 2;
+    ROS_INFO("SBG DRIVER - Loop update frequency : %lu Hz", loopFrequency);
+    ros::Rate loop_rate(loopFrequency);
 
     while (ros::ok())
     {
