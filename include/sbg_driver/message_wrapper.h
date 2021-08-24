@@ -114,9 +114,10 @@ private:
    * Create a ROS message header.
    * 
    * \param[in] device_timestamp    SBG device timestamp (in microseconds).
+   * \param[in] ref_frame_id    	Frame ID.
    * \return                        ROS header message.
    */
-  const std_msgs::Header createRosHeader(uint32_t device_timestamp) const;
+  const std_msgs::Header createRosHeader(uint32_t device_timestamp, const std::string& ref_frame_id) const;
 
   /*!
    * Compute corrected ROS time for the device timestamp.
@@ -252,9 +253,10 @@ private:
    * 
    * \param[in] body_vel            SBG Body velocity vector.
    * \param[in] ref_sbg_air_data    SBG IMU message.
+   * \param[in] ref_frame_id    	Frame ID.
    * \return                        SBG TwistStamped message.
    */
-  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg, const std::string& ref_frame_id) const;
 
 public:
 
@@ -287,49 +289,55 @@ public:
    * Create a SBG-ROS Ekf Euler message.
    * 
    * \param[in] ref_log_ekf_euler   SBG Ekf Euler log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Ekf Euler message.
    */
-  const sbg_driver::SbgEkfEuler createSbgEkfEulerMessage(const SbgLogEkfEulerData& ref_log_ekf_euler) const;
+  const sbg_driver::SbgEkfEuler createSbgEkfEulerMessage(const SbgLogEkfEulerData& ref_log_ekf_euler, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Ekf Navigation message.
    * 
    * \param[in] ref_log_ekf_nav     SBG Ekf Navigation log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Ekf Navigation message.
    */
-  const sbg_driver::SbgEkfNav createSbgEkfNavMessage(const SbgLogEkfNavData& ref_log_ekf_nav) const;
+  const sbg_driver::SbgEkfNav createSbgEkfNavMessage(const SbgLogEkfNavData& ref_log_ekf_nav, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Ekf Quaternion message.
    * 
    * \param[in] ref_log_ekf_quat    SBG Ekf Quaternion log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Ekf Quaternion message.
    */
-  const sbg_driver::SbgEkfQuat createSbgEkfQuatMessage(const SbgLogEkfQuatData& ref_log_ekf_quat) const;
+  const sbg_driver::SbgEkfQuat createSbgEkfQuatMessage(const SbgLogEkfQuatData& ref_log_ekf_quat, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS event message.
    * 
    * \param[in] ref_log_event       SBG event log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Event message.
    */
-  const sbg_driver::SbgEvent createSbgEventMessage(const SbgLogEvent& ref_log_event) const;
+  const sbg_driver::SbgEvent createSbgEventMessage(const SbgLogEvent& ref_log_event, const std::string& ref_frame_id) const;
 
   /*!
    * Create SBG-ROS GPS-HDT message.
    * 
    * \param[in] ref_log_gps_hdt     SBG GPS HDT log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        GPS HDT message.
    */
-  const sbg_driver::SbgGpsHdt createSbgGpsHdtMessage(const SbgLogGpsHdt& ref_log_gps_hdt) const;
+  const sbg_driver::SbgGpsHdt createSbgGpsHdtMessage(const SbgLogGpsHdt& ref_log_gps_hdt, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS GPS-Position message.
    * 
    * \param[in] ref_log_gps_pos     SBG GPS Position log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        GPS Position message.
    */
-  const sbg_driver::SbgGpsPos createSbgGpsPosMessage(const SbgLogGpsPos& ref_log_gps_pos) const;
+  const sbg_driver::SbgGpsPos createSbgGpsPosMessage(const SbgLogGpsPos& ref_log_gps_pos, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS GPS raw message.
@@ -343,136 +351,150 @@ public:
    * Create a SBG-ROS GPS Velocity message.
    * 
    * \param[in] ref_log_gps_vel     SBG GPS Velocity log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        GPS Velocity message.
    */
-  const sbg_driver::SbgGpsVel createSbgGpsVelMessage(const SbgLogGpsVel& ref_log_gps_vel) const;
+  const sbg_driver::SbgGpsVel createSbgGpsVelMessage(const SbgLogGpsVel& ref_log_gps_vel, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Imu data message.
    * 
    * \param[in] ref_log_imu_data    SBG Imu data log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Imu data message.
    */
-  const sbg_driver::SbgImuData createSbgImuDataMessage(const SbgLogImuData& ref_log_imu_data) const;
+  const sbg_driver::SbgImuData createSbgImuDataMessage(const SbgLogImuData& ref_log_imu_data, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Magnetometer message.
    * 
    * \param[in] ref_log_mag         SBG Magnetometer log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Magnetometer message.
    */
-  const sbg_driver::SbgMag createSbgMagMessage(const SbgLogMag& ref_log_mag) const;
+  const sbg_driver::SbgMag createSbgMagMessage(const SbgLogMag& ref_log_mag, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Magnetometer calibration message.
    * 
    * \param[in] ref_log_mag_calib   SBG Magnetometer calibration log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Magnetometer calibration message.
    */
-  const sbg_driver::SbgMagCalib createSbgMagCalibMessage(const SbgLogMagCalib& ref_log_mag_calib) const;
+  const sbg_driver::SbgMagCalib createSbgMagCalibMessage(const SbgLogMagCalib& ref_log_mag_calib, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Odometer velocity message.
    * 
    * \param[in] ref_log_odo         SBG Odometer log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Odometer message.
    */
-  const sbg_driver::SbgOdoVel createSbgOdoVelMessage(const SbgLogOdometerData& ref_log_odo) const;
+  const sbg_driver::SbgOdoVel createSbgOdoVelMessage(const SbgLogOdometerData& ref_log_odo, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Shipmotion message.
    * 
    * \param[in] ref_log_ship_motion SBG Ship motion log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Ship motion message.
    */
-  const sbg_driver::SbgShipMotion createSbgShipMotionMessage(const SbgLogShipMotionData& ref_log_ship_motion) const;
+  const sbg_driver::SbgShipMotion createSbgShipMotionMessage(const SbgLogShipMotionData& ref_log_ship_motion, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS status message from a SBG status log.	
    *                                                       	
    * \param[in] ref_log_status      SBG status log.        	
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        Status message.        	
    */                                                      	
-  const sbg_driver::SbgStatus createSbgStatusMessage(const 	SbgLogStatusData& ref_log_status) const;
+  const sbg_driver::SbgStatus createSbgStatusMessage(const 	SbgLogStatusData& ref_log_status, const std::string& ref_frame_id) const;
                                                            	
   /*!                                                      	
    * Create a SBG-ROS UTC time message from a SBG UTC log. 	
    *
    * \param[in] ref_log_utc         SBG UTC log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        UTC time message.                  
    */
-  const sbg_driver::SbgUtcTime createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc);
+  const sbg_driver::SbgUtcTime createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc, const std::string& ref_frame_id);
 
   /*!
    * Create a SBG-ROS Air data message from a SBG log.
    * 
    * \param[in] ref_air_data_log    SBG AirData log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        SBG-ROS airData message.
    */
-  const sbg_driver::SbgAirData createSbgAirDataMessage(const SbgLogAirData& ref_air_data_log) const;
+  const sbg_driver::SbgAirData createSbgAirDataMessage(const SbgLogAirData& ref_air_data_log, const std::string& ref_frame_id) const;
 
   /*!
    * Create a SBG-ROS Short Imu message.
    * 
    * \param[in] ref_short_imu_log   SBG Imu short log.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        SBG-ROS Imu short message.
    */
-  const sbg_driver::SbgImuShort createSbgImuShortMessage(const SbgLogImuShort& ref_short_imu_log) const;
+  const sbg_driver::SbgImuShort createSbgImuShortMessage(const SbgLogImuShort& ref_short_imu_log, const std::string& ref_frame_id) const;
 
   /*!
    * Create a ROS standard IMU message from SBG messages.
    * 
    * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
    * \param[in] ref_sbg_quat_msg    SBG_ROS Quaternion message.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        ROS standard IMU message.
    */
-  const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const;
+   const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg, const std::string& ref_frame_id) const;
 
   /*!
    * Create a ROS standard Temperature message from SBG message.
    * 
    * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        ROS standard Temperature message.
    */
-  const sensor_msgs::Temperature createRosTemperatureMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+  const sensor_msgs::Temperature createRosTemperatureMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const std::string& ref_frame_id) const;
 
   /*!
    * Create a ROS standard MagneticField message from SBG message.
    * 
    * \param[in] ref_sbg_mag_msg     SBG-ROS Mag message.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        ROS standard Mag message.
    */
-  const sensor_msgs::MagneticField createRosMagneticMessage(const sbg_driver::SbgMag& ref_sbg_mag_msg) const;
+  const sensor_msgs::MagneticField createRosMagneticMessage(const sbg_driver::SbgMag& ref_sbg_mag_msg, const std::string& ref_frame_id) const;
 
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
    * 
    * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
-   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
-   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
-   * \return                        	ROS standard TwistStamped message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_frame_id            Frame ID.
+   * \return                            ROS standard TwistStamped message.
    */
-  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
-  
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg, const std::string& ref_frame_id) const;
   
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
    * 
-   * \param[in] ref_sbg_ekf_quat_msg	SBG-ROS Ekf Quaternion message.
-   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
-   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
-   * \return                        	ROS standard TwistStamped message.
+   * \param[in] ref_sbg_ekf_quat_msg    SBG-ROS Ekf Quaternion message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_frame_id            Frame ID.
+   * \return                            ROS standard TwistStamped message.
    */
-  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
-  
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg, const std::string& ref_frame_id) const;
 
   /*!
    * Create a ROS standard PointStamped message from SBG messages.
    * 
    * \param[in] ref_sbg_ekf_msg     SBG-ROS EkfNav message.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        ROS standard PointStamped message (ECEF).
    */
-  const geometry_msgs::PointStamped createRosPointStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_msg) const;
+  const geometry_msgs::PointStamped createRosPointStampedMessage(const sbg_driver::SbgEkfNav& ref_sbg_ekf_msg, const std::string& ref_frame_id) const;
 
   /*!
    * Create a ROS standard timeReference message for a UTC time.
@@ -486,17 +508,19 @@ public:
    * Create a ROS standard NavSatFix message from a Gps message.
    * 
    * \param[in] ref_sbg_gps_msg     SBG-ROS GPS position message.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        ROS standard NavSatFix message.
    */
-  const sensor_msgs::NavSatFix createRosNavSatFixMessage(const sbg_driver::SbgGpsPos& ref_sbg_gps_msg) const;
+  const sensor_msgs::NavSatFix createRosNavSatFixMessage(const sbg_driver::SbgGpsPos& ref_sbg_gps_msg, const std::string& ref_frame_id) const;
 
   /*!
    * Create a ROS standard FluidPressure message.
    * 
    * \param[in] ref_sbg_air_msg     SBG-ROS AirData message.
+   * \param[in] ref_frame_id        Frame ID.
    * \return                        ROS standard fluid pressure message.
    */
-  const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg) const; 
+  const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg, const std::string& ref_frame_id) const;
 };
 }
 

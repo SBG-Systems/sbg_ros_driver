@@ -84,6 +84,7 @@ private:
   MessageWrapper          m_message_wrapper_;
   SbgEComOutputMode       m_output_mode_;
   uint32_t                m_max_messages_;
+  std::string             m_frame_id_;
 
   //---------------------------------------------------------------------//
   //- Private methods                                                   -//
@@ -120,8 +121,9 @@ private:
    * \param[in] sbg_msg_id              Id of the SBG message.
    * \param[in] output_conf             Output configuration.
    * \param[in] ref_output_topic        Output topic for the publisher.
+   * \param[in] ref_frame_id            Frame ID.
    */
-  void initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic);
+  void initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic, const std::string &frame_id);
 
   /*!
    * Define standard ROS publishers.

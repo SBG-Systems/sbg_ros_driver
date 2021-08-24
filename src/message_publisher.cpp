@@ -163,7 +163,7 @@ std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) co
   }
 }
 
-void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic)
+void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic, const std::string &frame_id)
 {
   //
   // Check if the publisher has to be initialized.
@@ -171,6 +171,7 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
   if (output_conf != SBG_ECOM_OUTPUT_MODE_DISABLED)
   {
     updateMaxOutputFrequency(output_conf);
+	m_frame_id_ = frame_id;
 
     switch (sbg_msg_id)
     {
@@ -365,12 +366,12 @@ void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
 {
   if (m_sbgImuData_pub_)
   {
-    m_sbg_imu_message_ = m_message_wrapper_.createSbgImuDataMessage(ref_sbg_log.imuData);
+    m_sbg_imu_message_ = m_message_wrapper_.createSbgImuDataMessage(ref_sbg_log.imuData, m_frame_id_);
     m_sbgImuData_pub_.publish(m_sbg_imu_message_);
   }
   if (m_temp_pub_)
   {
-    m_temp_pub_.publish(m_message_wrapper_.createRosTemperatureMessage(m_sbg_imu_message_));
+    m_temp_pub_.publish(m_message_wrapper_.createRosTemperatureMessage(m_sbg_imu_message_, m_frame_id_));
   }
 
   processRosImuMessage();
@@ -383,11 +384,11 @@ void MessagePublisher::processRosVelMessage(void)
   {
     if (m_sbgEkfQuat_pub_)
     {
-      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_quat_message_, m_sbg_ekf_nav_message_, m_sbg_imu_message_));
+      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_quat_message_, m_sbg_ekf_nav_message_, m_sbg_imu_message_, m_frame_id_));
     }
     else if (m_sbgEkfEuler_pub_)
     {
-      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_euler_message_, m_sbg_ekf_nav_message_, m_sbg_imu_message_));
+      m_velocity_pub_.publish(m_message_wrapper_.createRosTwistStampedMessage(m_sbg_ekf_euler_message_, m_sbg_ekf_nav_message_, m_sbg_imu_message_, m_frame_id_));
     }
   }
 }
@@ -398,7 +399,7 @@ void MessagePublisher::processRosImuMessage(void)
   {
     if (m_sbg_imu_message_.time_stamp == m_sbg_ekf_quat_message_.time_stamp)
     {
-      m_imu_pub_.publish(m_message_wrapper_.createRosImuMessage(m_sbg_imu_message_, m_sbg_ekf_quat_message_));
+      m_imu_pub_.publish(m_message_wrapper_.createRosImuMessage(m_sbg_imu_message_, m_sbg_ekf_quat_message_, m_frame_id_));
     }
   }
 }
@@ -406,7 +407,7 @@ void MessagePublisher::processRosImuMessage(void)
 void MessagePublisher::publishMagData(const SbgBinaryLogData &ref_sbg_log)
 {
   sbg_driver::SbgMag sbg_mag_message;
-  sbg_mag_message = m_message_wrapper_.createSbgMagMessage(ref_sbg_log.magData);
+  sbg_mag_message = m_message_wrapper_.createSbgMagMessage(ref_sbg_log.magData, m_frame_id_);
 
   if (m_sbgMag_pub_)
   {
@@ -414,14 +415,14 @@ void MessagePublisher::publishMagData(const SbgBinaryLogData &ref_sbg_log)
   }
   if (m_mag_pub_)
   {
-    m_mag_pub_.publish(m_message_wrapper_.createRosMagneticMessage(sbg_mag_message));
+    m_mag_pub_.publish(m_message_wrapper_.createRosMagneticMessage(sbg_mag_message, m_frame_id_));
   }
 }
 
 void MessagePublisher::publishFluidPressureData(const SbgBinaryLogData &ref_sbg_log)
 {
   sbg_driver::SbgAirData sbg_air_data_message;
-  sbg_air_data_message = m_message_wrapper_.createSbgAirDataMessage(ref_sbg_log.airData);
+  sbg_air_data_message = m_message_wrapper_.createSbgAirDataMessage(ref_sbg_log.airData, m_frame_id_);
 
   if (m_sbgAirData_pub_)
   {
@@ -429,13 +430,13 @@ void MessagePublisher::publishFluidPressureData(const SbgBinaryLogData &ref_sbg_
   }
   if (m_fluid_pub_)
   {
-    m_fluid_pub_.publish(m_message_wrapper_.createRosFluidPressureMessage(sbg_air_data_message));
+    m_fluid_pub_.publish(m_message_wrapper_.createRosFluidPressureMessage(sbg_air_data_message, m_frame_id_));
   }
 }
 
 void MessagePublisher::publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_log)
 {
-  m_sbg_ekf_nav_message_ = m_message_wrapper_.createSbgEkfNavMessage(ref_sbg_log.ekfNavData);
+  m_sbg_ekf_nav_message_ = m_message_wrapper_.createSbgEkfNavMessage(ref_sbg_log.ekfNavData, m_frame_id_);
 
   if (m_sbgEkfNav_pub_)
   {
@@ -443,7 +444,7 @@ void MessagePublisher::publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_
   }
   if (m_pos_ecef_pub_)
   {
-    m_pos_ecef_pub_.publish(m_message_wrapper_.createRosPointStampedMessage(m_sbg_ekf_nav_message_));
+    m_pos_ecef_pub_.publish(m_message_wrapper_.createRosPointStampedMessage(m_sbg_ekf_nav_message_, m_frame_id_));
   }
   processRosVelMessage();
 }
@@ -452,7 +453,7 @@ void MessagePublisher::publishUtcData(const SbgBinaryLogData &ref_sbg_log)
 {
   sbg_driver::SbgUtcTime sbg_utc_message;
 
-  sbg_utc_message = m_message_wrapper_.createSbgUtcTimeMessage(ref_sbg_log.utcData);
+  sbg_utc_message = m_message_wrapper_.createSbgUtcTimeMessage(ref_sbg_log.utcData, m_frame_id_);
 
   if (m_sbgUtcTime_pub_)
   {
@@ -471,7 +472,7 @@ void MessagePublisher::publishGpsPosData(const SbgBinaryLogData &ref_sbg_log)
 {
   sbg_driver::SbgGpsPos sbg_gps_pos_message;
 
-  sbg_gps_pos_message = m_message_wrapper_.createSbgGpsPosMessage(ref_sbg_log.gpsPosData);
+  sbg_gps_pos_message = m_message_wrapper_.createSbgGpsPosMessage(ref_sbg_log.gpsPosData, m_frame_id_);
 
   if (m_sbgGpsPos_pub_)
   {
@@ -479,7 +480,7 @@ void MessagePublisher::publishGpsPosData(const SbgBinaryLogData &ref_sbg_log)
   }
   if (m_nav_sat_fix_pub_)
   {
-    m_nav_sat_fix_pub_.publish(m_message_wrapper_.createRosNavSatFixMessage(sbg_gps_pos_message));
+    m_nav_sat_fix_pub_.publish(m_message_wrapper_.createRosNavSatFixMessage(sbg_gps_pos_message, m_frame_id_));
   }
 }
 
@@ -505,7 +506,7 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
 
   for (const ConfigStore::SbgLogOutput &ref_output : ref_output_modes)
   {
-    initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id));
+    initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id), ref_config_store.getFrameId());
   }
 
   if (ref_config_store.checkRosStandardMessages())
@@ -530,7 +531,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgStatus_pub_)
       {
-        m_sbgStatus_pub_.publish(m_message_wrapper_.createSbgStatusMessage(ref_sbg_log.statusData));
+        m_sbgStatus_pub_.publish(m_message_wrapper_.createSbgStatusMessage(ref_sbg_log.statusData, m_frame_id_));
       }
       break;
 
@@ -553,7 +554,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgMagCalib_pub_)
       {
-        m_sbgMagCalib_pub_.publish(m_message_wrapper_.createSbgMagCalibMessage(ref_sbg_log.magCalibData));
+        m_sbgMagCalib_pub_.publish(m_message_wrapper_.createSbgMagCalibMessage(ref_sbg_log.magCalibData, m_frame_id_));
       }
       break;
 
@@ -561,7 +562,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgEkfEuler_pub_)
       {
-        m_sbg_ekf_euler_message_ = m_message_wrapper_.createSbgEkfEulerMessage(ref_sbg_log.ekfEulerData);
+        m_sbg_ekf_euler_message_ = m_message_wrapper_.createSbgEkfEulerMessage(ref_sbg_log.ekfEulerData, m_frame_id_);
 		m_sbgEkfEuler_pub_.publish(m_sbg_ekf_euler_message_);
 		processRosVelMessage();
       }
@@ -571,7 +572,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgEkfQuat_pub_)
       {
-        m_sbg_ekf_quat_message_ = m_message_wrapper_.createSbgEkfQuatMessage(ref_sbg_log.ekfQuatData);
+        m_sbg_ekf_quat_message_ = m_message_wrapper_.createSbgEkfQuatMessage(ref_sbg_log.ekfQuatData, m_frame_id_);
         m_sbgEkfQuat_pub_.publish(m_sbg_ekf_quat_message_);
         processRosImuMessage();
 		processRosVelMessage();
@@ -587,7 +588,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgShipMotion_pub_)
       {
-        m_sbgShipMotion_pub_.publish(m_message_wrapper_.createSbgShipMotionMessage(ref_sbg_log.shipMotionData));
+        m_sbgShipMotion_pub_.publish(m_message_wrapper_.createSbgShipMotionMessage(ref_sbg_log.shipMotionData, m_frame_id_));
       }
       break;
 
@@ -596,7 +597,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgGpsVel_pub_)
       {
-        m_sbgGpsVel_pub_.publish(m_message_wrapper_.createSbgGpsVelMessage(ref_sbg_log.gpsVelData));
+        m_sbgGpsVel_pub_.publish(m_message_wrapper_.createSbgGpsVelMessage(ref_sbg_log.gpsVelData, m_frame_id_));
       }
       break;
 
@@ -611,7 +612,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgGpsHdt_pub_)
       {
-        m_sbgGpsHdt_pub_.publish(m_message_wrapper_.createSbgGpsHdtMessage(ref_sbg_log.gpsHdtData));
+        m_sbgGpsHdt_pub_.publish(m_message_wrapper_.createSbgGpsHdtMessage(ref_sbg_log.gpsHdtData, m_frame_id_));
       }
       break;
 
@@ -628,7 +629,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgOdoVel_pub_)
       {
-        m_sbgOdoVel_pub_.publish(m_message_wrapper_.createSbgOdoVelMessage(ref_sbg_log.odometerData));
+        m_sbgOdoVel_pub_.publish(m_message_wrapper_.createSbgOdoVelMessage(ref_sbg_log.odometerData, m_frame_id_));
       }
       break;
 
@@ -636,7 +637,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgEventA_pub_)
       {
-        m_sbgEventA_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker));
+        m_sbgEventA_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker, m_frame_id_));
       }
       break;
 
@@ -644,7 +645,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgEventB_pub_)
       {
-        m_sbgEventB_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker));
+        m_sbgEventB_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker, m_frame_id_));
       }
       break;
 
@@ -652,7 +653,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgEventC_pub_)
       {
-        m_sbgEventC_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker));
+        m_sbgEventC_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker, m_frame_id_));
       }
       break;
 
@@ -660,7 +661,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgEventD_pub_)
       {
-        m_sbgEventD_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker));
+        m_sbgEventD_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker, m_frame_id_));
       }
       break;
 
@@ -668,7 +669,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgEventE_pub_)
       {
-        m_sbgEventE_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker));
+        m_sbgEventE_pub_.publish(m_message_wrapper_.createSbgEventMessage(ref_sbg_log.eventMarker, m_frame_id_));
       }
       break;
 
@@ -676,7 +677,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
       if (m_sbgImuShort_pub_)
       {
-        m_sbgImuShort_pub_.publish(m_message_wrapper_.createSbgImuShortMessage(ref_sbg_log.imuShort));
+        m_sbgImuShort_pub_.publish(m_message_wrapper_.createSbgImuShortMessage(ref_sbg_log.imuShort, m_frame_id_));
       }
       break;
 
