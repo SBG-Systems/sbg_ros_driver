@@ -1,8 +1,8 @@
 # Configuration file for SBG device through an Uart interface.
 
 driver:
-  # Node frequency (Hz) (if set to 0, the node will decide the most appropriate frequency to run)
-  frequency: 0
+  # Node frequency (Hz)
+  frequency: 200
 
 # Configuration of the device with ROS.
 confWithRos: false
@@ -10,7 +10,7 @@ confWithRos: false
 # Uart configuration
 uartConf:
   # Port Name
-  portName: "/dev/sbg"
+  portName: "/dev/ttyUSB0"
 
   # Baude rate (4800 ,9600 ,19200 ,38400 ,115200 [default],230400 ,460800 ,921600)
   baudRate: 115200

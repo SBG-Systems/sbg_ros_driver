@@ -7,8 +7,8 @@
 # Ellipse-D - Dual-antenna GNSS
 
 driver:
-  # Node frequency (Hz) (if set to 0, the node will decide the most appropriate frequency to run)
-  frequency: 0
+  # Node frequency (Hz)
+  frequency: 200
 
 # Configuration of the device with ROS.
 confWithRos: true
