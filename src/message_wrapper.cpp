@@ -615,15 +615,18 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
   imu_ros_message.header = createRosHeader(ref_sbg_imu_msg.time_stamp, ref_frame_id);
 
   imu_ros_message.orientation                       = ref_sbg_quat_msg.quaternion;
+  imu_ros_message.angular_velocity                  = ref_sbg_imu_msg.gyro;
+  imu_ros_message.linear_acceleration               = ref_sbg_imu_msg.accel;
+
   imu_ros_message.orientation_covariance[0]         = ref_sbg_quat_msg.accuracy.x * ref_sbg_quat_msg.accuracy.x;
   imu_ros_message.orientation_covariance[4]         = ref_sbg_quat_msg.accuracy.y * ref_sbg_quat_msg.accuracy.y;
   imu_ros_message.orientation_covariance[8]         = ref_sbg_quat_msg.accuracy.z * ref_sbg_quat_msg.accuracy.z;
 
-  imu_ros_message.angular_velocity                  = ref_sbg_imu_msg.gyro;
-  imu_ros_message.angular_velocity_covariance[0]    = -1;
-
-  imu_ros_message.linear_acceleration               = ref_sbg_imu_msg.accel;
-  imu_ros_message.linear_acceleration_covariance[0] = -1;
+  for (size_t i = 0; i < 9; i++)
+ {
+    imu_ros_message.angular_velocity_covariance[i]    = 0;
+    imu_ros_message.linear_acceleration_covariance[i] = 0;
+ }
 
   return imu_ros_message;
 }
@@ -662,7 +665,6 @@ const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(c
 
 const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg, const std::string& ref_frame_id) const
 {
-	
   sbg::SbgMatrix3f tdcm;
   tdcm.makeDcm(ref_sbg_ekf_quat_msg.quaternion.w, ref_sbg_ekf_quat_msg.quaternion.x, ref_sbg_ekf_quat_msg.quaternion.y, ref_sbg_ekf_quat_msg.quaternion.z);
   tdcm.transpose();
