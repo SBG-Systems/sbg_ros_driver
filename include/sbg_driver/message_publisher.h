@@ -221,12 +221,11 @@ public:
   /*!
    * Publish the received SbgLog if the corresponding publisher is defined.
    * 
-   * \param[in] ref_ros_time            ROS processing time for the messages.
    * \param[in] sbg_msg_class           Class ID of the SBG message.
    * \param[in] sbg_msg_id              Id of the SBG message.
    * \param[in] ref_sbg_log             SBG binary log.
    */
-  void publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log);
+  void publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log);
 };
 }
 

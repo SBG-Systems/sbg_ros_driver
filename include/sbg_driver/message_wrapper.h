@@ -276,10 +276,8 @@ public:
   /*!
    * Set the wrapper processing ROS time.
    * This method is call on the SbgDevice periodic handle, in order to have the same processing time for the messages.
-   * 
-   * \param[in] ref_ros_time        ROS processing time to set.
    */
-  void setRosProcessingTime(const ros::Time& ref_ros_time);
+  void setRosProcessingTime(void);
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

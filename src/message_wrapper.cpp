@@ -321,9 +321,9 @@ const sbg_driver::SbgAirDataStatus MessageWrapper::createAirDataStatusMessage(co
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
 
-void MessageWrapper::setRosProcessingTime(const ros::Time& ref_ros_time)
+void MessageWrapper::setRosProcessingTime(void)
 {
-  m_ros_processing_time_ = ref_ros_time;
+  m_ros_processing_time_ = ros::Time::now();
 }
 
 //---------------------------------------------------------------------//
