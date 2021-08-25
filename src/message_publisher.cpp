@@ -10,86 +10,13 @@ using sbg::MessagePublisher;
 //---------------------------------------------------------------------//
 
 MessagePublisher::MessagePublisher(void):
-m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED),
 m_max_messages_(10)
 {
-
 }
 
 //---------------------------------------------------------------------//
 //- Private methods                                                   -//
 //---------------------------------------------------------------------//
-
-void MessagePublisher::updateMaxOutputFrequency(SbgEComOutputMode output_mode)
-{
-  //
-  // Update the maximal output frequency if needed.
-  //
-  if (m_output_mode_ == SBG_ECOM_OUTPUT_MODE_DISABLED)
-  {
-    m_output_mode_ = output_mode;
-  }
-  else
-  {
-    if (getCorrespondingFrequency(output_mode) > getCorrespondingFrequency(m_output_mode_))
-    {
-      m_output_mode_ = output_mode;
-    }
-  }
-
-  //
-  // In case of sbg output event configuration, just define the output on a 25Hz frequency.
-  //
-  if (getCorrespondingFrequency(m_output_mode_) >= getCorrespondingFrequency(SBG_ECOM_OUTPUT_MODE_PPS))
-  {
-    m_output_mode_ = SBG_ECOM_OUTPUT_MODE_DIV_8;
-  }
-}
-
-uint32_t MessagePublisher::getCorrespondingFrequency(SbgEComOutputMode output_mode) const
-{
-  switch (output_mode)
-  {
-  case SBG_ECOM_OUTPUT_MODE_DISABLED:
-    return 0;
-  
-  case SBG_ECOM_OUTPUT_MODE_MAIN_LOOP:
-    return 200;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_2:
-    return 100;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_4:
-    return 50;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_5:
-    return 40;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_8:
-    return 25;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_10:
-    return 20;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_20:
-    return 10;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_40:
-    return 5;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_200:
-    return 1;
-
-  case SBG_ECOM_OUTPUT_MODE_HIGH_FREQ_LOOP:
-    return 1000;
-
-  case SBG_ECOM_OUTPUT_MODE_PPS:
-    return 10000;
-
-  default:
-    return 0;
-  }
-}
 
 std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) const
 {
@@ -170,7 +97,6 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
   //
   if (output_conf != SBG_ECOM_OUTPUT_MODE_DISABLED)
   {
-    updateMaxOutputFrequency(output_conf);
 	m_frame_id_ = frame_id;
 
     switch (sbg_msg_id)
@@ -482,15 +408,6 @@ void MessagePublisher::publishGpsPosData(const SbgBinaryLogData &ref_sbg_log)
   {
     m_nav_sat_fix_pub_.publish(m_message_wrapper_.createRosNavSatFixMessage(sbg_gps_pos_message, m_frame_id_));
   }
-}
-
-//---------------------------------------------------------------------//
-//- Parameters                                                        -//
-//---------------------------------------------------------------------//
-
-uint32_t MessagePublisher::getMaxOutputFrequency(void) const
-{
-  return getCorrespondingFrequency(m_output_mode_);
 }
 
 //---------------------------------------------------------------------//

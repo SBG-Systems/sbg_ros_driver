@@ -25,7 +25,7 @@ m_ros_standard_output_(false)
 
 void ConfigStore::loadDriverParameters(const ros::NodeHandle& ref_node_handle)
 {
-  m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "driver/frequency", 0);
+  m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "driver/frequency", 200);
 
   ref_node_handle.param<std::string>("driver/frameId", m_frame_id_, "imu_link_ned");
 }
