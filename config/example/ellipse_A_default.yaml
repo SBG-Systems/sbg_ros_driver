@@ -8,7 +8,11 @@
 
 driver:
   # Node frequency (Hz)
-  frequency: 200
+  # Note: The frequency should be at least two times higher than the highest
+  #       output frequency.
+  #       The frequency can be reduced in order to reduce CPU consumption but
+  #       it can lead to miss data frame.
+  frequency: 400
 
 # Configuration of the device with ROS.
 confWithRos: true
