@@ -20,15 +20,6 @@ m_ros_standard_output_(false)
 }
 
 //---------------------------------------------------------------------//
-//- Parameters                                                        -//
-//---------------------------------------------------------------------//
-
-sbg::TimeReference ConfigStore::getTimeReference(void) const
-{
-  return m_time_reference_;
-}
-
-//---------------------------------------------------------------------//
 //- Private  methods                                                  -//
 //---------------------------------------------------------------------//
 
@@ -321,6 +312,11 @@ uint32_t ConfigStore::getReadingRateFrequency(void) const
 const std::string &ConfigStore::getFrameId(void) const
 {
   return m_frame_id_;
+}
+
+sbg::TimeReference ConfigStore::getTimeReference(void) const
+{
+  return m_time_reference_;
 }
 
 //---------------------------------------------------------------------//

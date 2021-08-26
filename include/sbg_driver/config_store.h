@@ -70,16 +70,6 @@ public:
     SbgEComOutputMode output_mode;
   };
 
-  //---------------------------------------------------------------------//
-  //- Parameters                                                        -//
-  //---------------------------------------------------------------------//
-
-  /*!
-   * Get the time reference.
-   *
-   */
-  TimeReference getTimeReference(void) const;
-
 private:
 
   std::string                 m_uart_port_name_;
@@ -438,6 +428,14 @@ public:
    * \return                      Frame ID.
    */
   const std::string &getFrameId(void) const;
+
+  /*!
+   * Get the time reference.
+   *
+   * \return                      Time reference.
+   */
+  TimeReference getTimeReference(void) const;
+
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
