@@ -293,6 +293,7 @@ void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
   if (m_sbgImuData_pub_)
   {
     m_sbg_imu_message_ = m_message_wrapper_.createSbgImuDataMessage(ref_sbg_log.imuData, m_frame_id_);
+
     m_sbgImuData_pub_.publish(m_sbg_imu_message_);
   }
   if (m_temp_pub_)
@@ -430,15 +431,17 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
   {
     defineRosStandardPublishers(ref_ros_node_handle);
   }
+
+  m_message_wrapper_.setTimeReference(ref_config_store.getTimeReference());
 }
 
-void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
+void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
 {
   //
   // Publish the message with the corresponding publisher and SBG message ID.
   // For each log, check if the publisher has been initialized.
   //
-  m_message_wrapper_.setRosProcessingTime(ref_ros_time);
+  m_message_wrapper_.setRosProcessingTime(ros::Time::now());
 
   if(sbg_msg_class == SBG_ECOM_CLASS_LOG_ECOM_0)
   {

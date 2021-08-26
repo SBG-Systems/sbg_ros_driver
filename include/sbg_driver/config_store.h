@@ -45,13 +45,21 @@
 
 namespace sbg
 {
+  /*!
+   * Time reference.
+   */
+  enum class TimeReference
+  {
+    ROS = 0,
+    INS_UNIX = 1,
+  };
+
 /*!
  * Class to handle the device configuration.
  */
 class ConfigStore
 {
 public:
-
   /*!
    * Structure to define the SBG log output.
    */
@@ -61,6 +69,16 @@ public:
     SbgEComMsgId      message_id;
     SbgEComOutputMode output_mode;
   };
+
+  //---------------------------------------------------------------------//
+  //- Parameters                                                        -//
+  //---------------------------------------------------------------------//
+
+  /*!
+   * Get the time reference.
+   *
+   */
+  TimeReference getTimeReference(void) const;
 
 private:
 
@@ -99,6 +117,8 @@ private:
 
   std::vector<SbgLogOutput>   m_output_modes_;
   bool                        m_ros_standard_output_;
+
+  TimeReference               m_time_reference_;
 
   uint32_t                    m_rate_frequency_;
   std::string                 m_frame_id_;
@@ -198,6 +218,14 @@ private:
    * \param[in] sbg_msg_id        ID of the SBG log.
    */
   void loadOutputConfiguration(const ros::NodeHandle& ref_node_handle, const std::string& ref_key, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id);
+
+  /*!
+   * Load output time reference.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   * \param[in] ref_key           String key for the output config.
+   */
+  void loadOutputTimeReference(const ros::NodeHandle& ref_node_handle, const std::string& ref_key);
 
 public:
 

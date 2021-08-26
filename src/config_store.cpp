@@ -20,6 +20,15 @@ m_ros_standard_output_(false)
 }
 
 //---------------------------------------------------------------------//
+//- Parameters                                                        -//
+//---------------------------------------------------------------------//
+
+sbg::TimeReference ConfigStore::getTimeReference(void) const
+{
+  return m_time_reference_;
+}
+
+//---------------------------------------------------------------------//
 //- Private  methods                                                  -//
 //---------------------------------------------------------------------//
 
@@ -148,6 +157,15 @@ void ConfigStore::loadOutputConfiguration(const ros::NodeHandle& ref_node_handle
   log_output.output_mode    = getParameter<SbgEComOutputMode>(ref_node_handle, ref_key, SBG_ECOM_OUTPUT_MODE_DISABLED);
 
   m_output_modes_.push_back(log_output);
+}
+
+void ConfigStore::loadOutputTimeReference(const ros::NodeHandle& ref_node_handle, const std::string& ref_key)
+{
+  int	time_reference;
+
+  ref_node_handle.param<int>(ref_key, time_reference, (int)TimeReference::ROS);
+
+  m_time_reference_ = (TimeReference)time_reference;
 }
 
 //---------------------------------------------------------------------//
@@ -308,6 +326,8 @@ void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
   loadMagnetometersParameters(ref_node_handle);
   loadGnssParameters(ref_node_handle);
   loadOdometerParameters(ref_node_handle);
+
+  loadOutputTimeReference(ref_node_handle, "output/time_reference");
 
   loadOutputConfiguration(ref_node_handle, "output/log_status", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_STATUS);
   loadOutputConfiguration(ref_node_handle, "output/log_imu_data", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA);
