@@ -222,9 +222,9 @@ output:
   #       not effected by this parameter and it will be timestamped by the
   #       ROS time.
   #
-  # 0 : ROS time (default)
-  # 1 : INS absolute time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
-  time_reference: 0
+  # "ros" : ROS time (default)
+  # "ins_unix" : INS absolute time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
+  time_reference: "ros"
 
   ros_standard: true
 

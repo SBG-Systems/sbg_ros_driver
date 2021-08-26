@@ -441,8 +441,6 @@ void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_
   // Publish the message with the corresponding publisher and SBG message ID.
   // For each log, check if the publisher has been initialized.
   //
-  m_message_wrapper_.setRosProcessingTime(ros::Time::now());
-
   if(sbg_msg_class == SBG_ECOM_CLASS_LOG_ECOM_0)
   {
     switch (sbg_msg_id)

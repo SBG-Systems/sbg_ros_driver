@@ -31,14 +31,13 @@ const std_msgs::Header MessageWrapper::createRosHeader(uint32_t device_timestamp
 
  switch (m_time_reference_)
  {
-   case sbg::TimeReference::ROS:
-     header.stamp = m_ros_processing_time_;
-   break;
    case sbg::TimeReference::INS_UNIX:
      header.stamp = convertInsTimeToUnix(device_timestamp);
    break;
+   case sbg::TimeReference::ROS:
    default:
-     throw std::runtime_error("invalid time reference");
+     header.stamp = ros::Time::now();
+   break;
   }
 
   return header;
@@ -323,11 +322,6 @@ const sbg_driver::SbgAirDataStatus MessageWrapper::createAirDataStatusMessage(co
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
-
-void MessageWrapper::setRosProcessingTime(const ros::Time& ref_ros_time)
-{
-  m_ros_processing_time_ = ref_ros_time;
-}
 
 void MessageWrapper::setTimeReference(TimeReference time_reference)
 {
@@ -735,7 +729,7 @@ const sensor_msgs::TimeReference MessageWrapper::createRosUtcTimeReferenceMessag
   // This message is defined to have comparison between the System time and the Utc reference.
   // Header of the ROS message will always be the System time, and the source is the computed time from Utc data.
   //
-  utc_reference_message.header.stamp  = m_ros_processing_time_;
+  utc_reference_message.header.stamp  = ros::Time::now();
   utc_reference_message.time_ref      = convertInsTimeToUnix(ref_sbg_utc_msg.time_stamp);
   utc_reference_message.source        = "UTC time from device converted to Epoch";
 

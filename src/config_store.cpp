@@ -161,11 +161,22 @@ void ConfigStore::loadOutputConfiguration(const ros::NodeHandle& ref_node_handle
 
 void ConfigStore::loadOutputTimeReference(const ros::NodeHandle& ref_node_handle, const std::string& ref_key)
 {
-  int	time_reference;
+  std::string time_reference;
 
-  ref_node_handle.param<int>(ref_key, time_reference, (int)TimeReference::ROS);
+  ref_node_handle.param<std::string>(ref_key, time_reference, "ros");
 
-  m_time_reference_ = (TimeReference)time_reference;
+  if (time_reference == "ros")
+  {
+    m_time_reference_ = TimeReference::ROS;
+  }
+  else if (time_reference == "ins_unix")
+  {
+    m_time_reference_ = TimeReference::INS_UNIX;
+  }
+  else
+  {
+    throw std::invalid_argument("unknown time reference: " + time_reference);
+  }
 }
 
 //---------------------------------------------------------------------//

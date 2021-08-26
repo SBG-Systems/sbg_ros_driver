@@ -234,13 +234,14 @@ output:
   # Note: Set the time reference used to timestamp the header of the published
   #       messages.
   #       The header of the ROS standard message sensor_msgs:TimeReference is
-  #       not effected by this parameter and it will be timestamped by the
-  #       ROS time.
+  #       not effected by this parameter and it will be timestamped by the ROS time.
   #
-  # 0 : ROS time (default)
-  # 1 : INS absolute time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
-  time_reference: 0
+  # "ros" : ROS time (default)
+  # "ins_unix" : INS absolute time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
+  time_reference: "ros"
 
+  # Ros standard output:
+  # Note: If true publish ROS standard messages.
   ros_standard: false
 
   # Status general, clock, com aiding, solution, heave
