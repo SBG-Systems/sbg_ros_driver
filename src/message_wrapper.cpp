@@ -624,8 +624,8 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
 
   for (size_t i = 0; i < 9; i++)
  {
-    imu_ros_message.angular_velocity_covariance[i]    = 0;
-    imu_ros_message.linear_acceleration_covariance[i] = 0;
+    imu_ros_message.angular_velocity_covariance[i]    = 0.0;
+    imu_ros_message.linear_acceleration_covariance[i] = 0.0;
  }
 
   return imu_ros_message;
