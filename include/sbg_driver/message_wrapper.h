@@ -137,6 +137,29 @@ private:
     return geometry_vector;
   };
 
+  /*!
+   * Wrap an angle to  2 PI.
+   *
+   * \template  T                   Numeric template type.
+   * \param[in] angle_rad			Angle in rad.
+   * \return						Wrapped angle.
+   */
+  template <typename T>
+  T wrapAngle2Pi(T angle_rad) const
+  {
+    if ( (angle_rad < -SBG_PI * 2) || (angle_rad > SBG_PI * 2) )
+    {
+      angle_rad = fmodf(angle_rad, SBG_PI * 2);
+    }
+
+    if (angle_rad < 0.0)
+    {
+      angle_rad = SBG_PI * 2 + angle_rad;
+    }
+
+    return angle_rad;
+  };
+
 
   /*!
    * Wrap an angle to 360 degre.

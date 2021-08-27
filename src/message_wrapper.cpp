@@ -381,7 +381,7 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
   {
     ekf_euler_message.angle.x     = ref_log_ekf_euler.euler[1];
     ekf_euler_message.angle.y     = ref_log_ekf_euler.euler[0];
-    ekf_euler_message.angle.z     = wrapAngle360<float>(ref_log_ekf_euler.euler[1] + SBG_PI / 2);
+    ekf_euler_message.angle.z     = wrapAngle2Pi<float>(ref_log_ekf_euler.euler[1] + SBG_PI / 2);
     ekf_euler_message.accuracy.x  = ref_log_ekf_euler.eulerStdDev[1];
     ekf_euler_message.accuracy.y  = ref_log_ekf_euler.eulerStdDev[0];
     ekf_euler_message.accuracy.z  = ref_log_ekf_euler.eulerStdDev[2];
