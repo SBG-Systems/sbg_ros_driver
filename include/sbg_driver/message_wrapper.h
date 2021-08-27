@@ -139,6 +139,29 @@ private:
 
 
   /*!
+   * Wrap an angle to 360 degre.
+   *
+   * \template  T                   Numeric template type.
+   * \param[in] angle_deg			Angle in degre.
+   * \return						Wrapped angle.
+   */
+  template <typename T>
+  T wrapAngle360(T angle_deg) const
+  {
+    if ( (angle_deg < -360.0) || (angle_deg > 360.0) )
+    {
+      angle_deg = fmodf(angle_deg, 360.0);
+    }
+
+    if (angle_deg < 0.0)
+    {
+      angle_deg = 360.0 + angle_deg;
+    }
+
+    return angle_deg;
+  };
+
+  /*!
    * Create a ROS message header.
    *
    * \param[in] device_timestamp    SBG device timestamp (in microseconds).
@@ -302,21 +325,21 @@ public:
   /*!
    * Set the time reference.
    *
-   * \param[in] time_reference		Time reference.
+   * \param[in] time_reference    Time reference.
    */
   void setTimeReference(TimeReference time_reference);
 
   /*!
    * Set Frame ID.
    *
-   * \param[in]	frame_id			Frame ID.
+   * \param[in]  frame_id      Frame ID.
    */
   void setFrameId(const std::string &frame_id);
 
   /*!
    * Set use ENU.
    *
-   * \param[in]	enu					If true publish data in the ENU convention.
+   * \param[in]  enu          If true publish data in the ENU convention.
    */
   void setUseEnu(bool enu);
 
@@ -429,15 +452,15 @@ public:
   const sbg_driver::SbgShipMotion createSbgShipMotionMessage(const SbgLogShipMotionData& ref_log_ship_motion) const;
 
   /*!
-   * Create a SBG-ROS status message from a SBG status log.	
-   *                                                       	
-   * \param[in] ref_log_status      SBG status log.        	
-   * \return                        Status message.        	
-   */                                                      	
-  const sbg_driver::SbgStatus createSbgStatusMessage(const 	SbgLogStatusData& ref_log_status) const;
-                                                           	
-  /*!                                                      	
-   * Create a SBG-ROS UTC time message from a SBG UTC log. 	
+   * Create a SBG-ROS status message from a SBG status log.
+   *
+   * \param[in] ref_log_status      SBG status log.
+   * \return                        Status message.
+   */
+  const sbg_driver::SbgStatus createSbgStatusMessage(const SbgLogStatusData& ref_log_status) const;
+
+  /*!
+   * Create a SBG-ROS UTC time message from a SBG UTC log.
    *
    * \param[in] ref_log_utc         SBG UTC log.
    * \return                        UTC time message.

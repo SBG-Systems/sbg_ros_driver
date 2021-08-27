@@ -10,7 +10,8 @@ SbgGpsPosStatus status
 # GPS Time of Week ms
 uint32 gps_tow
 
-# [Latitude (positive North deg), Longitude (positive East deg), Altitude (Above Mean Sea Level m)]
+# If NED convention [Latitude (positive North deg), Longitude (positive East deg), Altitude (negativ Above Mean Sea Level m)]
+# If ENU convention [Longitude (positive East deg), Latitude (positive North deg), Altitude (Above Mean Sea Level m)]
 geometry_msgs/Vector3 position
 
 # Altitude difference between the geoid and the Ellipsoid (WGS-84 Altitude - MSL Altitude)

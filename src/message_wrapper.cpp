@@ -118,14 +118,27 @@ const sbg_driver::SbgImuStatus MessageWrapper::createImuStatusMessage(uint16_t s
 
   imu_status_message.imu_com              = (sbg_imu_status & SBG_ECOM_IMU_COM_OK) != 0;
   imu_status_message.imu_status           = (sbg_imu_status & SBG_ECOM_IMU_STATUS_BIT) != 0 ;
-  imu_status_message.imu_accel_x          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_X_BIT) != 0;
-  imu_status_message.imu_accel_y          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Y_BIT) != 0;
-  imu_status_message.imu_accel_z          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Z_BIT) != 0;
-  imu_status_message.imu_gyro_x           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_X_BIT) != 0;
-  imu_status_message.imu_gyro_y           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Y_BIT) != 0;
-  imu_status_message.imu_gyro_z           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Z_BIT) != 0;
   imu_status_message.imu_accels_in_range  = (sbg_imu_status & SBG_ECOM_IMU_ACCELS_IN_RANGE) != 0;
   imu_status_message.imu_gyros_in_range   = (sbg_imu_status & SBG_ECOM_IMU_GYROS_IN_RANGE) != 0;
+
+  if (m_use_enu_)
+  {
+    imu_status_message.imu_accel_x          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Y_BIT) != 0;
+    imu_status_message.imu_accel_y          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_X_BIT) != 0;
+    imu_status_message.imu_accel_z          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Z_BIT) != 0;
+    imu_status_message.imu_gyro_x           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_X_BIT) != 0;
+    imu_status_message.imu_gyro_y           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Y_BIT) != 0;
+    imu_status_message.imu_gyro_z           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Z_BIT) != 0;
+  }
+  else
+  {
+    imu_status_message.imu_accel_x          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_X_BIT) != 0;
+    imu_status_message.imu_accel_y          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Y_BIT) != 0;
+    imu_status_message.imu_accel_z          = (sbg_imu_status & SBG_ECOM_IMU_ACCEL_Z_BIT) != 0;
+    imu_status_message.imu_gyro_x           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_X_BIT) != 0;
+    imu_status_message.imu_gyro_y           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Y_BIT) != 0;
+    imu_status_message.imu_gyro_z           = (sbg_imu_status & SBG_ECOM_IMU_GYRO_Z_BIT) != 0;
+  }
 
   return imu_status_message;
 }
@@ -134,15 +147,30 @@ const sbg_driver::SbgMagStatus MessageWrapper::createMagStatusMessage(const SbgL
 {
   sbg_driver::SbgMagStatus mag_status_message;
 
-  mag_status_message.mag_x            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_X_BIT) != 0;
-  mag_status_message.mag_y            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Y_BIT) != 0;
-  mag_status_message.mag_z            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Z_BIT) != 0;
-  mag_status_message.accel_x          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_X_BIT) != 0;
-  mag_status_message.accel_y          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Y_BIT) != 0;
-  mag_status_message.accel_z          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Z_BIT) != 0;
-  mag_status_message.mags_in_range    = (ref_log_mag.status & SBG_ECOM_MAG_MAGS_IN_RANGE) != 0;
-  mag_status_message.accels_in_range  = (ref_log_mag.status & SBG_ECOM_MAG_ACCELS_IN_RANGE) != 0;
-  mag_status_message.calibration      = (ref_log_mag.status & SBG_ECOM_MAG_CALIBRATION_OK) != 0;
+  if (m_use_enu_)
+  {
+    mag_status_message.mag_x            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Y_BIT) != 0;
+    mag_status_message.mag_y            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_X_BIT) != 0;
+    mag_status_message.mag_z            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Z_BIT) != 0;
+    mag_status_message.accel_x          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Y_BIT) != 0;
+    mag_status_message.accel_y          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_X_BIT) != 0;
+    mag_status_message.accel_z          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Z_BIT) != 0;
+    mag_status_message.mags_in_range    = (ref_log_mag.status & SBG_ECOM_MAG_MAGS_IN_RANGE) != 0;
+    mag_status_message.accels_in_range  = (ref_log_mag.status & SBG_ECOM_MAG_ACCELS_IN_RANGE) != 0;
+    mag_status_message.calibration      = (ref_log_mag.status & SBG_ECOM_MAG_CALIBRATION_OK) != 0;
+  }
+  else
+  {
+    mag_status_message.mag_x            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_X_BIT) != 0;
+    mag_status_message.mag_y            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Y_BIT) != 0;
+    mag_status_message.mag_z            = (ref_log_mag.status & SBG_ECOM_MAG_MAG_Z_BIT) != 0;
+    mag_status_message.accel_x          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_X_BIT) != 0;
+    mag_status_message.accel_y          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Y_BIT) != 0;
+    mag_status_message.accel_z          = (ref_log_mag.status & SBG_ECOM_MAG_ACCEL_Z_BIT) != 0;
+    mag_status_message.mags_in_range    = (ref_log_mag.status & SBG_ECOM_MAG_MAGS_IN_RANGE) != 0;
+    mag_status_message.accels_in_range  = (ref_log_mag.status & SBG_ECOM_MAG_ACCELS_IN_RANGE) != 0;
+    mag_status_message.calibration      = (ref_log_mag.status & SBG_ECOM_MAG_CALIBRATION_OK) != 0;
+  }
 
   return mag_status_message;
 }
@@ -367,10 +395,10 @@ const sbg_driver::SbgEkfNav MessageWrapper::createSbgEkfNavMessage(const SbgLogE
 {
   sbg_driver::SbgEkfNav ekf_nav_message;
 
-  ekf_nav_message.header            = createRosHeader(ref_log_ekf_nav.timeStamp);
-  ekf_nav_message.time_stamp        = ref_log_ekf_nav.timeStamp;
-  ekf_nav_message.status            = createEkfStatusMessage(ref_log_ekf_nav.status);
-  ekf_nav_message.undulation        = ref_log_ekf_nav.undulation;
+  ekf_nav_message.header     = createRosHeader(ref_log_ekf_nav.timeStamp);
+  ekf_nav_message.time_stamp = ref_log_ekf_nav.timeStamp;
+  ekf_nav_message.status     = createEkfStatusMessage(ref_log_ekf_nav.status);
+  ekf_nav_message.undulation = ref_log_ekf_nav.undulation;
 
   if (m_use_enu_)
   {
@@ -442,13 +470,14 @@ const sbg_driver::SbgGpsHdt MessageWrapper::createSbgGpsHdtMessage(const SbgLogG
 
   gps_hdt_message.header      = createRosHeader(ref_log_gps_hdt.timeStamp);
   gps_hdt_message.time_stamp  = ref_log_gps_hdt.timeStamp;
-
   gps_hdt_message.status            = ref_log_gps_hdt.status;
   gps_hdt_message.tow               = ref_log_gps_hdt.timeOfWeek;
+
+  //
+  // TODO: Check for ENU convention.
+  //
   gps_hdt_message.true_heading      = ref_log_gps_hdt.heading;
-  gps_hdt_message.true_heading_acc  = ref_log_gps_hdt.headingAccuracy;
   gps_hdt_message.pitch             = ref_log_gps_hdt.pitch;
-  gps_hdt_message.pitch_acc         = ref_log_gps_hdt.pitchAccuracy;
 
   return gps_hdt_message;
 }
@@ -462,16 +491,29 @@ const sbg_driver::SbgGpsPos MessageWrapper::createSbgGpsPosMessage(const SbgLogG
 
   gps_pos_message.status              = createGpsPosStatusMessage(ref_log_gps_pos);
   gps_pos_message.gps_tow             = ref_log_gps_pos.timeOfWeek;
-  gps_pos_message.position.x          = ref_log_gps_pos.latitude;
-  gps_pos_message.position.y          = ref_log_gps_pos.longitude;
-  gps_pos_message.position.z          = ref_log_gps_pos.altitude;
   gps_pos_message.undulation          = ref_log_gps_pos.undulation;
-  gps_pos_message.position_accuracy.x = ref_log_gps_pos.latitudeAccuracy;
-  gps_pos_message.position_accuracy.y = ref_log_gps_pos.longitudeAccuracy;
-  gps_pos_message.position_accuracy.z = ref_log_gps_pos.altitudeAccuracy;
   gps_pos_message.num_sv_used         = ref_log_gps_pos.numSvUsed;
   gps_pos_message.base_station_id     = ref_log_gps_pos.baseStationId;
   gps_pos_message.diff_age            = ref_log_gps_pos.differentialAge;
+
+  if (m_use_enu_)
+  {
+    gps_pos_message.position.x          = ref_log_gps_pos.longitude;
+    gps_pos_message.position.y          = ref_log_gps_pos.latitude;
+    gps_pos_message.position.z          = ref_log_gps_pos.altitude;
+    gps_pos_message.position_accuracy.x = ref_log_gps_pos.longitudeAccuracy;
+    gps_pos_message.position_accuracy.y = ref_log_gps_pos.latitudeAccuracy;
+    gps_pos_message.position_accuracy.z = ref_log_gps_pos.altitudeAccuracy;
+  }
+  else
+  {
+    gps_pos_message.position.x          = ref_log_gps_pos.latitude;
+    gps_pos_message.position.y          = ref_log_gps_pos.longitude;
+    gps_pos_message.position.z          = -ref_log_gps_pos.altitude;
+    gps_pos_message.position_accuracy.x = ref_log_gps_pos.latitudeAccuracy;
+    gps_pos_message.position_accuracy.y = ref_log_gps_pos.longitudeAccuracy;
+    gps_pos_message.position_accuracy.z = ref_log_gps_pos.altitudeAccuracy;
+  }
 
   return gps_pos_message;
 }
@@ -499,7 +541,7 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
   {
     gps_vel_message.vel     = createVector3Enu<float>(ref_log_gps_vel.velocity, 3);
     gps_vel_message.vel_acc = createVector3Enu<float>(ref_log_gps_vel.velocityAcc, 3);
-    gps_vel_message.course  = ref_log_gps_vel.course + SBG_PI;
+    gps_vel_message.course  = wrapAngle360<float>(ref_log_gps_vel.course + SBG_PI);
   }
   else
   {
@@ -853,13 +895,26 @@ const sensor_msgs::NavSatFix MessageWrapper::createRosNavSatFixMessage(const sbg
     nav_sat_fix_message.status.service = nav_sat_fix_message.status.SERVICE_GPS;
   }
 
-  nav_sat_fix_message.latitude  = ref_sbg_gps_msg.position.x;
-  nav_sat_fix_message.longitude = ref_sbg_gps_msg.position.y;
-  nav_sat_fix_message.altitude  = ref_sbg_gps_msg.position.z;
+  if (m_use_enu_)
+  {
+    nav_sat_fix_message.latitude  = ref_sbg_gps_msg.position.y;
+    nav_sat_fix_message.longitude = ref_sbg_gps_msg.position.x;
+    nav_sat_fix_message.altitude  = ref_sbg_gps_msg.position.z;
 
-  nav_sat_fix_message.position_covariance[0] = pow(ref_sbg_gps_msg.position_accuracy.x, 2);
-  nav_sat_fix_message.position_covariance[4] = pow(ref_sbg_gps_msg.position_accuracy.y, 2);
-  nav_sat_fix_message.position_covariance[8] = pow(ref_sbg_gps_msg.position_accuracy.z, 2);
+    nav_sat_fix_message.position_covariance[0] = pow(ref_sbg_gps_msg.position_accuracy.y, 2);
+    nav_sat_fix_message.position_covariance[4] = pow(ref_sbg_gps_msg.position_accuracy.x, 2);
+    nav_sat_fix_message.position_covariance[8] = pow(ref_sbg_gps_msg.position_accuracy.z, 2);
+  }
+  else
+  {
+    nav_sat_fix_message.latitude  = ref_sbg_gps_msg.position.x;
+    nav_sat_fix_message.longitude = ref_sbg_gps_msg.position.y;
+    nav_sat_fix_message.altitude  = -ref_sbg_gps_msg.position.z;
+
+    nav_sat_fix_message.position_covariance[0] = pow(ref_sbg_gps_msg.position_accuracy.x, 2);
+    nav_sat_fix_message.position_covariance[4] = pow(ref_sbg_gps_msg.position_accuracy.y, 2);
+    nav_sat_fix_message.position_covariance[8] = pow(ref_sbg_gps_msg.position_accuracy.z, 2);
+  }
 
   nav_sat_fix_message.position_covariance_type = nav_sat_fix_message.COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
