@@ -84,6 +84,8 @@ private:
   ros::Time               m_ros_processing_time_;
   sbg_driver::SbgUtcTime  m_last_sbg_utc_;
   bool                    m_first_valid_utc_;
+  std::string             m_frame_id_;
+  bool                    m_enu_;
   TimeReference           m_time_reference_;
 
   //---------------------------------------------------------------------//
@@ -111,6 +113,29 @@ private:
 
     return geometry_vector;
   };
+
+  /*!
+   * Create a Vector3 from a raw input vector expressed in the ENU convention.
+   *
+   * \template  T                   Numeric template type.
+   * \param[in] p_array             Raw input vector.
+   * \param[in] array_size          Raw vector size, should be defined as 3.
+   * \return                        GeometryMsg Vector3.
+   */
+  template <typename T>
+  const geometry_msgs::Vector3 createEnuVector3(const T* p_array, size_t array_size) const
+  {
+    assert(array_size == 3);
+
+    geometry_msgs::Vector3 geometry_vector;
+
+    geometry_vector.x = p_array[1];
+    geometry_vector.y = p_array[0];
+    geometry_vector.z = -p_array[2];
+
+    return geometry_vector;
+  };
+
 
   /*!
    * Create a ROS message header.
@@ -274,6 +299,13 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
+   * Set Frame parameters.
+   *
+   * \param[in]	frame_id			Frame ID.
+   * \param[in]	enu					If true publish data in the ENU convention.
+   */
+  void setFrameParameters(const std::string &frame_id, bool enu);
+
   /*!
    * Set the time reference.
    *
@@ -428,7 +460,7 @@ public:
    * \param[in] ref_sbg_quat_msg    SBG_ROS Quaternion message.
    * \return                        ROS standard IMU message.
    */
-  const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const;
+   const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const;
 
   /*!
    * Create a ROS standard Temperature message from SBG message.

@@ -237,6 +237,20 @@ output:
   # "ins_unix" : INS absolute time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
   time_reference: "ros"
 
+  # Ros standard output:
+  # Note: If true publish ROS standard messages.
+  ros_standard: false
+
+  # Frame ID:
+  frame_id: "sbg_frame"
+
+  # Frame convention:
+  # Note: If true messages are expressed in the ENU convention.
+  #
+  # true : ENU convention (X east, Y north, Z up)
+  # false (default): NED convention (X north, Y east, Z down)
+  enu: false
+
   # Status general, clock, com aiding, solution, heave
   log_status: 200
   # Includes IMU status, acc., gyro, temp delta speeds and delta angles values

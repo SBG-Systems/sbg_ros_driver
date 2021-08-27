@@ -423,7 +423,14 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
 
   for (const ConfigStore::SbgLogOutput &ref_output : ref_output_modes)
   {
-    initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id));
+	std::string frame_id;
+	bool enu;
+
+    frame_id = ref_config_store.getFrameId();
+
+   enu = ref_config_store.conventionIsEnu();
+
+    initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id), frame_id, enu);
   }
 
   if (ref_config_store.checkRosStandardMessages())

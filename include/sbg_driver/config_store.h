@@ -112,6 +112,8 @@ private:
   TimeReference               m_time_reference_;
 
   uint32_t                    m_rate_frequency_;
+  std::string                 m_frame_id_;
+  bool						  m_enu_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -198,6 +200,13 @@ private:
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
   void loadOdometerParameters(const ros::NodeHandle& ref_node_handle);
+
+  /*!
+   * Load frame parameters.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   */
+   void loadOutputFrameParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load the output configuration.
@@ -421,6 +430,20 @@ public:
    * \return                      Rate frequency parameter (in Hz).
    */
   uint32_t getReadingRateFrequency(void) const;
+
+  /*!
+   * Get the frame ID.
+   *
+   * \return                      Frame ID.
+   */
+  const std::string &getFrameId(void) const;
+
+  /*!
+   * Check if the frame convention is ENU.
+   *
+   * \return					 True if the frame convention is ENU.
+   */
+   bool conventionIsEnu(void) const;
 
   /*!
    * Get the time reference.

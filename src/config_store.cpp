@@ -148,6 +148,14 @@ void ConfigStore::loadOutputConfiguration(const ros::NodeHandle& ref_node_handle
   m_output_modes_.push_back(log_output);
 }
 
+void ConfigStore::loadOutputFrameParameters(const ros::NodeHandle& ref_node_handle)
+{
+  ref_node_handle.param<std::string>("/output/frame_id", m_frame_id_, "sbg_frame");
+
+  ref_node_handle.param<bool>("output/enu", m_enu_, false);
+
+}
+
 void ConfigStore::loadOutputTimeReference(const ros::NodeHandle& ref_node_handle, const std::string& ref_key)
 {
   std::string time_reference;
@@ -307,6 +315,16 @@ uint32_t ConfigStore::getReadingRateFrequency(void) const
   return m_rate_frequency_;
 }
 
+const std::string &ConfigStore::getFrameId(void) const
+{
+  return m_frame_id_;
+}
+
+bool ConfigStore::conventionIsEnu(void) const
+{
+  return m_enu_;
+}
+
 sbg::TimeReference ConfigStore::getTimeReference(void) const
 {
   return m_time_reference_;
@@ -326,6 +344,7 @@ void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
   loadMagnetometersParameters(ref_node_handle);
   loadGnssParameters(ref_node_handle);
   loadOdometerParameters(ref_node_handle);
+  loadOutputFrameParameters(ref_node_handle);
 
   loadOutputTimeReference(ref_node_handle, "output/time_reference");
 
