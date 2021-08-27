@@ -337,7 +337,7 @@ void ConfigApplier::configureOdometerRejection(const SbgEComOdoRejectionConf& re
   error_code = sbgEComCmdOdoGetRejection(&m_ref_sbg_com_handle, &odom_rejection);
 
   checkConfigurationGet(error_code, std::string("Odometer rejection"));
-  
+
   if (odom_rejection.velocity != ref_odometer_rejection.velocity)
   {
     error_code = sbgEComCmdOdoSetRejection(&m_ref_sbg_com_handle, &ref_odometer_rejection);
@@ -375,7 +375,7 @@ void ConfigApplier::configureOutput(SbgEComOutputPort output_port, const ConfigS
   else if (current_output_mode != ref_log_output.output_mode)
   {
     error_code = sbgEComCmdOutputSetConf(&m_ref_sbg_com_handle, output_port, ref_log_output.message_class, ref_log_output.message_id, ref_log_output.output_mode);
-    
+
     if (error_code != SBG_NO_ERROR)
     {
       std::string error_message("[Config] Unable to set the output configuration : Class[");

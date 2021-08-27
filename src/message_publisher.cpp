@@ -687,14 +687,14 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
     default:
       break;
-    } 
+    }
   }
   else if (sbg_msg_class == SBG_ECOM_CLASS_LOG_ECOM_1)
   {
     switch (sbg_msg_id)
     {
     default:
-      break;  
+      break;
     }
   }
 }

@@ -2,26 +2,26 @@
 *	\file         message_wrapper.h
 *	\author       SBG Systems
 *	\date         13/03/2020
-*	 
+*
 *	\brief        Handle creation of messages.
 *
-*   Methods to create ROS messages from given data. 
-*	 
+*   Methods to create ROS messages from given data.
+*
 *	\section CodeCopyright Copyright Notice
 *	MIT License
-*	 
+*
 *	Copyright (c) 2020 SBG Systems
-*	 
+*
 *	Permission is hereby granted, free of charge, to any person obtaining a copy
 *	of this software and associated documentation files (the "Software"), to deal
 *	in the Software without restriction, including without limitation the rights
 *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *	copies of the Software, and to permit persons to whom the Software is
 *	furnished to do so, subject to the following conditions:
-*	 
+*
 *	The above copyright notice and this permission notice shall be included in all
 *	copies or substantial portions of the Software.
-*	 
+*
 *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -90,7 +90,7 @@ private:
 
   /*!
    * Create a geometry message Vector3 from a raw input vector.
-   * 
+   *
    * \template  T                   Numeric template type.
    * \param[in] p_array             Raw input vector.
    * \param[in] array_size          Raw vector size, should be defined as 3.
@@ -112,7 +112,7 @@ private:
 
   /*!
    * Create a ROS message header.
-   * 
+   *
    * \param[in] device_timestamp    SBG device timestamp (in microseconds).
    * \return                        ROS header message.
    */
@@ -128,7 +128,7 @@ private:
 
   /*!
    * Create SBG-ROS Ekf status message.
-   * 
+   *
    * \param[in] ekf_status          SBG Ekf status.
    * \return                        Ekf status message.
    */
@@ -136,7 +136,7 @@ private:
 
   /*!
    * Create SBG-ROS GPS Position status message.
-   * 
+   *
    * \param[in] ref_log_gps_pos     SBG GPS position log.
    * \return                        GPS Position status.
    */
@@ -144,7 +144,7 @@ private:
 
   /*!
    * Create SBG-ROS GPS Velocity status message.
-   * 
+   *
    * \param[in] ref_log_gps_vel     SBG GPS Velocity log.
    * \return                        GPS Velocity status.
    */
@@ -152,7 +152,7 @@ private:
 
   /*!
    * Create a SBG-ROS IMU status message.
-   * 
+   *
    * \param[in] sbg_imu_status      SBG IMU status.
    * \return                        IMU status message.
    */
@@ -160,7 +160,7 @@ private:
 
   /*!
    * Create a SBG-ROS Magnetometer status message.
-   * 
+   *
    * \param[in] ref_log_mag         SBG Magnetometer log.
    * \return                        Magnetometer status message.
    */
@@ -168,7 +168,7 @@ private:
 
   /*!
    * Create a SBG-ROS Ship motion status message.
-   * 
+   *
    * \param[in] ref_log_ship_motion SBG Ship motion log.
    * \return                        ship motion status message.
    */
@@ -200,7 +200,7 @@ private:
 
   /*!
    * Create a SBG-ROS UTC time status message.
-   * 
+   *
    * \param[in] ref_log_utc         SBG UTC data log.
    * \return                        UTC time status message.
    */
@@ -216,7 +216,7 @@ private:
 
   /*!
    * Get the number of days of the month index.
-   * 
+   *
    * \param[in] year                Year.
    * \param[in] month_index         Month index [1..12].
    * \return                        Number of days in the month.
@@ -225,7 +225,7 @@ private:
 
   /*!
    * Check if the given year is a leap year.
-   * 
+   *
    * \param[in] year                Year to check.
    * \return                        True if the year is a leap year.
    */
@@ -241,15 +241,15 @@ private:
 
   /*!
    * Create a SBG-ROS air data status message.
-   * 
+   *
    * \param[in] ref_sbg_air_data    SBG AirData log.
    * \return                        SBG-ROS air data status message.
    */
   const sbg_driver::SbgAirDataStatus createAirDataStatusMessage(const SbgLogAirData& ref_sbg_air_data) const;
-  
+
   /*!
    * Create a ROS standard TwistStamped message.
-   * 
+   *
    * \param[in] body_vel            SBG Body velocity vector.
    * \param[in] ref_sbg_air_data    SBG IMU message.
    * \return                        SBG TwistStamped message.
@@ -285,7 +285,7 @@ public:
 
   /*!
    * Create a SBG-ROS Ekf Euler message.
-   * 
+   *
    * \param[in] ref_log_ekf_euler   SBG Ekf Euler log.
    * \return                        Ekf Euler message.
    */
@@ -293,7 +293,7 @@ public:
 
   /*!
    * Create a SBG-ROS Ekf Navigation message.
-   * 
+   *
    * \param[in] ref_log_ekf_nav     SBG Ekf Navigation log.
    * \return                        Ekf Navigation message.
    */
@@ -301,7 +301,7 @@ public:
 
   /*!
    * Create a SBG-ROS Ekf Quaternion message.
-   * 
+   *
    * \param[in] ref_log_ekf_quat    SBG Ekf Quaternion log.
    * \return                        Ekf Quaternion message.
    */
@@ -309,7 +309,7 @@ public:
 
   /*!
    * Create a SBG-ROS event message.
-   * 
+   *
    * \param[in] ref_log_event       SBG event log.
    * \return                        Event message.
    */
@@ -317,7 +317,7 @@ public:
 
   /*!
    * Create SBG-ROS GPS-HDT message.
-   * 
+   *
    * \param[in] ref_log_gps_hdt     SBG GPS HDT log.
    * \return                        GPS HDT message.
    */
@@ -325,7 +325,7 @@ public:
 
   /*!
    * Create a SBG-ROS GPS-Position message.
-   * 
+   *
    * \param[in] ref_log_gps_pos     SBG GPS Position log.
    * \return                        GPS Position message.
    */
@@ -333,7 +333,7 @@ public:
 
   /*!
    * Create a SBG-ROS GPS raw message.
-   * 
+   *
    * \param[in] ref_log_gps_raw     SBG GPS raw log.
    * \return                        GPS raw message.
    */
@@ -341,7 +341,7 @@ public:
 
   /*!
    * Create a SBG-ROS GPS Velocity message.
-   * 
+   *
    * \param[in] ref_log_gps_vel     SBG GPS Velocity log.
    * \return                        GPS Velocity message.
    */
@@ -349,7 +349,7 @@ public:
 
   /*!
    * Create a SBG-ROS Imu data message.
-   * 
+   *
    * \param[in] ref_log_imu_data    SBG Imu data log.
    * \return                        Imu data message.
    */
@@ -357,7 +357,7 @@ public:
 
   /*!
    * Create a SBG-ROS Magnetometer message.
-   * 
+   *
    * \param[in] ref_log_mag         SBG Magnetometer log.
    * \return                        Magnetometer message.
    */
@@ -365,7 +365,7 @@ public:
 
   /*!
    * Create a SBG-ROS Magnetometer calibration message.
-   * 
+   *
    * \param[in] ref_log_mag_calib   SBG Magnetometer calibration log.
    * \return                        Magnetometer calibration message.
    */
@@ -373,7 +373,7 @@ public:
 
   /*!
    * Create a SBG-ROS Odometer velocity message.
-   * 
+   *
    * \param[in] ref_log_odo         SBG Odometer log.
    * \return                        Odometer message.
    */
@@ -381,7 +381,7 @@ public:
 
   /*!
    * Create a SBG-ROS Shipmotion message.
-   * 
+   *
    * \param[in] ref_log_ship_motion SBG Ship motion log.
    * \return                        Ship motion message.
    */
@@ -399,13 +399,13 @@ public:
    * Create a SBG-ROS UTC time message from a SBG UTC log. 	
    *
    * \param[in] ref_log_utc         SBG UTC log.
-   * \return                        UTC time message.                  
+   * \return                        UTC time message.
    */
   const sbg_driver::SbgUtcTime createSbgUtcTimeMessage(const SbgLogUtcData& ref_log_utc);
 
   /*!
    * Create a SBG-ROS Air data message from a SBG log.
-   * 
+   *
    * \param[in] ref_air_data_log    SBG AirData log.
    * \return                        SBG-ROS airData message.
    */
@@ -413,7 +413,7 @@ public:
 
   /*!
    * Create a SBG-ROS Short Imu message.
-   * 
+   *
    * \param[in] ref_short_imu_log   SBG Imu short log.
    * \return                        SBG-ROS Imu short message.
    */
@@ -421,7 +421,7 @@ public:
 
   /*!
    * Create a ROS standard IMU message from SBG messages.
-   * 
+   *
    * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
    * \param[in] ref_sbg_quat_msg    SBG_ROS Quaternion message.
    * \return                        ROS standard IMU message.
@@ -430,7 +430,7 @@ public:
 
   /*!
    * Create a ROS standard Temperature message from SBG message.
-   * 
+   *
    * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
    * \return                        ROS standard Temperature message.
    */
@@ -438,7 +438,7 @@ public:
 
   /*!
    * Create a ROS standard MagneticField message from SBG message.
-   * 
+   *
    * \param[in] ref_sbg_mag_msg     SBG-ROS Mag message.
    * \return                        ROS standard Mag message.
    */
@@ -446,29 +446,27 @@ public:
 
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
-   * 
+   *
    * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
-   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
-   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
-   * \return                        	ROS standard TwistStamped message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \return                            ROS standard TwistStamped message.
    */
   const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
-  
-  
+
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
-   * 
-   * \param[in] ref_sbg_ekf_quat_msg	SBG-ROS Ekf Quaternion message.
-   * \param[in] ref_sbg_ekf_nav_msg		SBG-ROS Ekf Nav message.
-   * \param[in] ref_sbg_imu_msg			SBG-ROS IMU message.
-   * \return                        	ROS standard TwistStamped message.
+   *
+   * \param[in] ref_sbg_ekf_quat_msg    SBG-ROS Ekf Quaternion message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \return                            ROS standard TwistStamped message.
    */
   const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
-  
 
   /*!
    * Create a ROS standard PointStamped message from SBG messages.
-   * 
+   *
    * \param[in] ref_sbg_ekf_msg     SBG-ROS EkfNav message.
    * \return                        ROS standard PointStamped message (ECEF).
    */
@@ -476,7 +474,7 @@ public:
 
   /*!
    * Create a ROS standard timeReference message for a UTC time.
-   * 
+   *
    * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
    * \return                        ROS standard timeReference message.
    */
@@ -484,7 +482,7 @@ public:
 
   /*!
    * Create a ROS standard NavSatFix message from a Gps message.
-   * 
+   *
    * \param[in] ref_sbg_gps_msg     SBG-ROS GPS position message.
    * \return                        ROS standard NavSatFix message.
    */
@@ -492,11 +490,11 @@ public:
 
   /*!
    * Create a ROS standard FluidPressure message.
-   * 
+   *
    * \param[in] ref_sbg_air_msg     SBG-ROS AirData message.
    * \return                        ROS standard fluid pressure message.
    */
-  const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg) const; 
+  const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg) const;
 };
 }
 

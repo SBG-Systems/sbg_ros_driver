@@ -151,7 +151,7 @@ void SbgDevice::connect(void)
   {
     throw ros::Exception("SBG_DRIVER - [Init] Unable to initialize the interface - " + std::string(sbgErrorCodeToString(error_code)));
   }
-  
+
   error_code = sbgEComInit(&m_com_handle_, &m_sbg_interface_);
 
   if (error_code != SBG_NO_ERROR)
@@ -296,7 +296,7 @@ bool SbgDevice::startMagCalibration(void)
 
   mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
   mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
-  
+
   error_code = sbgEComCmdMagStartCalib(&m_com_handle_, mag_calib_mode, mag_calib_bandwidth);
 
   if (error_code != SBG_NO_ERROR)
@@ -316,7 +316,7 @@ bool SbgDevice::startMagCalibration(void)
 bool SbgDevice::endMagCalibration(void)
 {
   SbgErrorCode error_code;
-  
+
   error_code = sbgEComCmdMagComputeCalib(&m_com_handle_, &m_magCalibResults);
 
   if (error_code != SBG_NO_ERROR)
@@ -380,7 +380,7 @@ void SbgDevice::displayMagCalibrationStatusResult(void) const
   if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_TOO_MUCH_DISTORTIONS)
   {
     ROS_WARN("SBG DRIVER [Mag Calib] - Unable to find a calibration solution. Maybe there are too much non static distortions");
-  }   
+  }
   if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_ALIGNMENT_ISSUE)
   {
     ROS_WARN("SBG DRIVER [Mag Calib] - The magnetic calibration has troubles to correct the magnetometers and inertial frame alignment");
@@ -422,7 +422,7 @@ void SbgDevice::exportMagCalibrationResults(void) const
 
   mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
   mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
-  
+
   mag_results_stream << "SBG DRIVER [Mag Calib]" << endl;
   mag_results_stream << "======= Parameters =======" << endl;
   mag_results_stream << "* CALIB_MODE = " << g_mag_calib_mode_[mag_calib_mode] << endl;
@@ -438,7 +438,7 @@ void SbgDevice::exportMagCalibrationResults(void) const
   mag_results_stream << "[After]\t" << m_magCalibResults.afterMeanError << "\t" << m_magCalibResults.afterStdError << "\t" << m_magCalibResults.afterMaxError << endl;
   mag_results_stream << "[Accuracy]\t" << sbgRadToDegF(m_magCalibResults.meanAccuracy) << "\t" << sbgRadToDegF(m_magCalibResults.stdAccuracy) << "\t" << sbgRadToDegF(m_magCalibResults.maxAccuracy) << endl;
   mag_results_stream << "* Offset\t" << m_magCalibResults.offset[0] << "\t" << m_magCalibResults.offset[1] << "\t" << m_magCalibResults.offset[2] << endl;
-  
+
   mag_results_stream << "* Matrix" << endl;
   mag_results_stream << m_magCalibResults.matrix[0] << "\t" << m_magCalibResults.matrix[1] << "\t" << m_magCalibResults.matrix[2] << endl;
   mag_results_stream << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;

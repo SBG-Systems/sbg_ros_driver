@@ -16,7 +16,6 @@ using sbg::MessageWrapper;
 MessageWrapper::MessageWrapper(void):
 m_first_valid_utc_(false)
 {
-  
 }
 
 //---------------------------------------------------------------------//
@@ -256,7 +255,7 @@ const sbg_driver::SbgUtcTimeStatus MessageWrapper::createUtcStatusMessage(const 
 
   utc_status_message.clock_status     = static_cast<uint8_t>(sbgEComLogUtcGetClockStatus(ref_log_utc.status));
   utc_status_message.clock_utc_status = static_cast<uint8_t>(sbgEComLogUtcGetClockUtcStatus(ref_log_utc.status));
-  
+
   return utc_status_message;
 }
 
@@ -314,7 +313,7 @@ const ros::Time MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTi
 
   for (uint16_t yearIndex = 1970; yearIndex < ref_sbg_utc_msg.year; yearIndex++)
   {
-    days += getNumberOfDaysInYear(yearIndex); 
+    days += getNumberOfDaysInYear(yearIndex);
   }
 
   for (uint8_t monthIndex = 1; monthIndex < ref_sbg_utc_msg.month; monthIndex++)
@@ -442,7 +441,7 @@ const sbg_driver::SbgGpsHdt MessageWrapper::createSbgGpsHdtMessage(const SbgLogG
   gps_hdt_message.pitch             = ref_log_gps_hdt.pitch;
   gps_hdt_message.pitch_acc         = ref_log_gps_hdt.pitchAccuracy;
 
-  return gps_hdt_message; 
+  return gps_hdt_message;
 }
 
 const sbg_driver::SbgGpsPos MessageWrapper::createSbgGpsPosMessage(const SbgLogGpsPos& ref_log_gps_pos) const
@@ -601,7 +600,7 @@ const sbg_driver::SbgUtcTime MessageWrapper::createSbgUtcTimeMessage(const SbgLo
       }
     }
   }
-  
+
   //
   // Store the last UTC message.
   //
@@ -689,7 +688,6 @@ const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(c
 
 const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
 {
-	
   sbg::SbgMatrix3f tdcm;
   tdcm.makeDcm(ref_sbg_ekf_quat_msg.quaternion.w, ref_sbg_ekf_quat_msg.quaternion.x, ref_sbg_ekf_quat_msg.quaternion.y, ref_sbg_ekf_quat_msg.quaternion.z);
   tdcm.transpose();
@@ -705,8 +703,8 @@ const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(c
   twist_stamped_message.header        = createRosHeader(ref_sbg_imu_msg.time_stamp);
   twist_stamped_message.twist.angular = ref_sbg_imu_msg.gyro;
 
-  twist_stamped_message.twist.linear.x = body_vel(0); 
-  twist_stamped_message.twist.linear.y = body_vel(1); 
+  twist_stamped_message.twist.linear.x = body_vel(0);
+  twist_stamped_message.twist.linear.y = body_vel(1);
   twist_stamped_message.twist.linear.z = body_vel(2);
 
   return twist_stamped_message;
