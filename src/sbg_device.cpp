@@ -196,17 +196,7 @@ void SbgDevice::initPublishers(void)
 {
   m_message_publisher_.initPublishers(m_ref_node_, m_config_store_);
 
-  //
-  // Check if the rate frequency has to be defined according to the defined publishers.
-  //
-  if(m_config_store_.getReadingRateFrequency() == 0)
-  {
-    m_rate_frequency_ = m_message_publisher_.getMaxOutputFrequency();
-  }
-  else
-  {
-    m_rate_frequency_ = m_config_store_.getReadingRateFrequency();
-  }
+  m_rate_frequency_ = m_config_store_.getReadingRateFrequency();
 }
 
 void SbgDevice::configure(void)

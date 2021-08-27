@@ -23,6 +23,11 @@ m_ros_standard_output_(false)
 //- Private  methods                                                  -//
 //---------------------------------------------------------------------//
 
+void ConfigStore::loadDriverParameters(const ros::NodeHandle& ref_node_handle)
+{
+  m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "driver/frequency", 400);
+}
+
 void ConfigStore::loadCommunicationParameters(const ros::NodeHandle& ref_node_handle)
 {
   ref_node_handle.param<bool>("confWithRos", m_configure_through_ros_, false);
@@ -288,6 +293,7 @@ uint32_t ConfigStore::getReadingRateFrequency(void) const
 
 void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
 {
+  loadDriverParameters(ref_node_handle);
   loadCommunicationParameters(ref_node_handle);
   loadSensorParameters(ref_node_handle);
   loadImuAlignementParameters(ref_node_handle);
@@ -319,5 +325,4 @@ void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
   loadOutputConfiguration(ref_node_handle, "output/log_imu_short", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_SHORT);
 
   ref_node_handle.param<bool>("output/ros_standard", m_ros_standard_output_, false);
-  m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "output/frequency", 0);
 }

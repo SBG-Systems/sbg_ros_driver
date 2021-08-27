@@ -132,6 +132,13 @@ private:
   }
 
   /*!
+   * Load driver parameters.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   */
+  void loadDriverParameters(const ros::NodeHandle& ref_node_handle);
+
+  /*!
    * Load interface communication parameters.
    *
    * \param[in] ref_node_handle   ROS nodeHandle.

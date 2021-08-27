@@ -6,6 +6,14 @@
 # Ellipse-N - GNSS-based
 # Ellipse-D - Dual-antenna GNSS
 
+driver:
+  # Node frequency (Hz)
+  # Note: The frequency should be at least two times higher than the highest
+  #       output frequency.
+  #       The frequency can be reduced in order to reduce CPU consumption but
+  #       it can lead to miss data frame.
+  frequency: 400
+
 # Configuration of the device with ROS.
 confWithRos: true
 
@@ -270,7 +278,3 @@ output:
   log_air_data: 0
   # Short IMU data
   log_imu_short: 0
-
-  # Node frequency (Hz) (if set to 0, the node will decide the most appropriate frequency to run)
-  frequency: 0
-

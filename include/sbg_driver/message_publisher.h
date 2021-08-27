@@ -82,28 +82,11 @@ private:
   ros::Publisher          m_nav_sat_fix_pub_;
 
   MessageWrapper          m_message_wrapper_;
-  SbgEComOutputMode       m_output_mode_;
-  uint32_t                m_max_mesages_;
+  uint32_t                m_max_messages_;
 
   //---------------------------------------------------------------------//
   //- Private methods                                                   -//
   //---------------------------------------------------------------------//
-
-  /*!
-   * Update the maximal output frequency for the defined pubishers.
-   * Each time a new publisher is defined, update the maximal output frequency if required.
-   * 
-   * \param[in] output_mode_freq        Output mode.
-   */
-  void updateMaxOutputFrequency(SbgEComOutputMode output_mode);
-
-  /*!
-   * Get the corresponding frequency for the SBG output mode.
-   * 
-   * \param[in] output_mode             Output mode.
-   * \return                            Output frequency (in Hz).
-   */
-  uint32_t getCorrespondingFrequency(SbgEComOutputMode output_mode) const;
 
   /*!
    * Get the corresponding topic name output for the SBG output mode.
@@ -192,17 +175,6 @@ public:
    * Default constructor.
    */
   MessagePublisher(void);
-
-  //---------------------------------------------------------------------//
-  //- Parameters                                                        -//
-  //---------------------------------------------------------------------//
-
-  /*!
-   * Get the maximal output frequency for the publisher.
-   * 
-   * \return                            Maixmal output frequency (in Hz).
-   */
-  uint32_t getMaxOutputFrequency(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
