@@ -104,10 +104,8 @@ private:
    * \param[in] sbg_msg_id              Id of the SBG message.
    * \param[in] output_conf             Output configuration.
    * \param[in] ref_output_topic        Output topic for the publisher.
-   * \param[in] frame_id                Frame ID.
-   * \param[in] enu						If true use ENU as frame convention.
    */
-  void initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic, const std::string &frame_id, bool enu);
+  void initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic);
 
   /*!
    * Define standard ROS publishers.

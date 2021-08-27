@@ -85,7 +85,7 @@ private:
   sbg_driver::SbgUtcTime  m_last_sbg_utc_;
   bool                    m_first_valid_utc_;
   std::string             m_frame_id_;
-  bool                    m_enu_;
+  bool                    m_use_enu_;
   TimeReference           m_time_reference_;
 
   //---------------------------------------------------------------------//
@@ -115,7 +115,8 @@ private:
   };
 
   /*!
-   * Create a Vector3 from a raw input vector expressed in the ENU convention.
+   * Create a Vector3 expressed in the ENU convention from a raw input vector expressed
+   * in the NED convention.
    *
    * \template  T                   Numeric template type.
    * \param[in] p_array             Raw input vector.
@@ -123,7 +124,7 @@ private:
    * \return                        GeometryMsg Vector3.
    */
   template <typename T>
-  const geometry_msgs::Vector3 createEnuVector3(const T* p_array, size_t array_size) const
+  const geometry_msgs::Vector3 createEnuVector3FromNed(const T* p_array, size_t array_size) const
   {
     assert(array_size == 3);
 

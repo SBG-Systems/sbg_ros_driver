@@ -113,7 +113,7 @@ private:
 
   uint32_t                    m_rate_frequency_;
   std::string                 m_frame_id_;
-  bool						  m_enu_;
+  bool						  m_use_enu_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -439,11 +439,11 @@ public:
   const std::string &getFrameId(void) const;
 
   /*!
-   * Check if the frame convention is ENU.
+   * Get use ENU.
    *
-   * \return					 True if the frame convention is ENU.
+   * \return					 True if the frame convention to use is ENU.
    */
-   bool conventionIsEnu(void) const;
+   bool getUseEnu(void) const;
 
   /*!
    * Get the time reference.

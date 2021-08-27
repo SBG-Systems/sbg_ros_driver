@@ -90,10 +90,8 @@ std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) co
   }
 }
 
-void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic, const std::string &frame_id, bool enu)
+void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic)
 {
-  m_message_wrapper_.setFrameParameters(frame_id, enu);
-
   //
   // Check if the publisher has to be initialized.
   //
@@ -423,14 +421,7 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
 
   for (const ConfigStore::SbgLogOutput &ref_output : ref_output_modes)
   {
-	std::string frame_id;
-	bool enu;
-
-    frame_id = ref_config_store.getFrameId();
-
-   enu = ref_config_store.conventionIsEnu();
-
-    initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id), frame_id, enu);
+    initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id));
   }
 
   if (ref_config_store.checkRosStandardMessages())
@@ -439,6 +430,8 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
   }
 
   m_message_wrapper_.setTimeReference(ref_config_store.getTimeReference());
+
+  m_message_wrapper_.setFrameParameters(ref_config_store.getFrameId(), ref_config_store.getUseEnu());
 }
 
 void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)

@@ -150,9 +150,9 @@ void ConfigStore::loadOutputConfiguration(const ros::NodeHandle& ref_node_handle
 
 void ConfigStore::loadOutputFrameParameters(const ros::NodeHandle& ref_node_handle)
 {
-  ref_node_handle.param<bool>("output/enu", m_enu_, false);
+  ref_node_handle.param<bool>("output/enu", m_use_enu_, false);
 
-  if (m_enu_)
+  if (m_use_enu_)
   {
     ref_node_handle.param<std::string>("/output/frame_id", m_frame_id_, "imu_link");
   }
@@ -326,9 +326,9 @@ const std::string &ConfigStore::getFrameId(void) const
   return m_frame_id_;
 }
 
-bool ConfigStore::conventionIsEnu(void) const
+bool ConfigStore::getUseEnu(void) const
 {
-  return m_enu_;
+  return m_use_enu_;
 }
 
 sbg::TimeReference ConfigStore::getTimeReference(void) const
