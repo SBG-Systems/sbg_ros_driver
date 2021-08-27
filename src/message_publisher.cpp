@@ -419,6 +419,10 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
   //
   const std::vector<ConfigStore::SbgLogOutput> &ref_output_modes = ref_config_store.getOutputModes();
 
+  m_message_wrapper_.setTimeReference(ref_config_store.getTimeReference());
+
+  m_message_wrapper_.setFrameParameters(ref_config_store.getFrameId(), ref_config_store.getUseEnu());
+
   for (const ConfigStore::SbgLogOutput &ref_output : ref_output_modes)
   {
     initPublisher(ref_ros_node_handle, ref_output.message_id, ref_output.output_mode, getOutputTopicName(ref_output.message_id));
@@ -428,10 +432,6 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
   {
     defineRosStandardPublishers(ref_ros_node_handle);
   }
-
-  m_message_wrapper_.setTimeReference(ref_config_store.getTimeReference());
-
-  m_message_wrapper_.setFrameParameters(ref_config_store.getFrameId(), ref_config_store.getUseEnu());
 }
 
 void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
