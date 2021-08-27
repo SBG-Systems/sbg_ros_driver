@@ -150,7 +150,7 @@ void ConfigStore::loadOutputConfiguration(const ros::NodeHandle& ref_node_handle
 
 void ConfigStore::loadOutputFrameParameters(const ros::NodeHandle& ref_node_handle)
 {
-  ref_node_handle.param<bool>("output/enu", m_use_enu_, false);
+  ref_node_handle.param<bool>("output/use_enu", m_use_enu_, false);
 
   if (m_use_enu_)
   {
