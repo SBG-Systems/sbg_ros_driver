@@ -541,7 +541,7 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
   {
     gps_vel_message.vel     = createVector3Enu<float>(ref_log_gps_vel.velocity, 3);
     gps_vel_message.vel_acc = createVector3Enu<float>(ref_log_gps_vel.velocityAcc, 3);
-    gps_vel_message.course  = wrapAngle360<float>(ref_log_gps_vel.course + SBG_PI);
+    gps_vel_message.course  = wrapAngle360<float>(ref_log_gps_vel.course + 90.0f);
   }
   else
   {

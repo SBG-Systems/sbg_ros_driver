@@ -18,7 +18,8 @@ geometry_msgs/Vector3 position
 # (Height above Ellipsoid = altitude + undulation)
 float32 undulation
 
-# Latitude, Longitude, Vertical accuracy m (1 sigma)
+# If NED convention Latitude, Longitude, Vertical accuracy m (1 sigma)
+# If ENU convention Longitude, Latitude, Vertical accuracy m (1 sigma)
 geometry_msgs/Vector3 position_accuracy
 
 # Number of space vehicles used in GNSS solution
