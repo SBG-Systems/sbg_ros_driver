@@ -15,7 +15,7 @@ driver:
   frequency: 400
 
 # Configuration of the device with ROS.
-confWithRos: true
+confWithRos: false
 
 uartConf:
   # Port Name
@@ -265,7 +265,7 @@ output:
   # Includes roll, pitch, yaw and their accuracies on each axis
   log_ekf_euler: 8
   # Includes the 4 quaternions values
-  log_ekf_quat: 0
+  log_ekf_quat: 8
   # Position and velocities in NED coordinates with the accuracies on each axis
   log_ekf_nav: 8
   # Heave, surge and sway and accelerations on each axis for up to 4 points

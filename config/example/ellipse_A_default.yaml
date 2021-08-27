@@ -15,7 +15,7 @@ driver:
   frequency: 400
 
 # Configuration of the device with ROS.
-confWithRos: true
+confWithRos: false
 
 uartConf:
   # Port Name
@@ -108,7 +108,7 @@ aidingAssignment:
   # 6 Synchronization is done using SYNC_OUT_A pin
   # 7 Synchronization is done using SYNC_OUT_B pin
   gnss1ModuleSyncAssignment: 0
-  # RTCM input port assignment for Ellipse-N DGPS
+  # RTCM input port assignment for Ellipse-N DGPS (see gnss1ModulePortAssignment for values)
   rtcmPortAssignment: 255
   # Odometer module pin assignment
   # 0 Odometer is disabled
@@ -265,9 +265,9 @@ output:
   # Includes roll, pitch, yaw and their accuracies on each axis
   log_ekf_euler: 8
   # Includes the 4 quaternions values
-  log_ekf_quat: 0
+  log_ekf_quat: 8
   # Position and velocities in NED coordinates with the accuracies on each axis
-  log_ekf_nav: 0
+  log_ekf_nav: 8
   # Heave, surge and sway and accelerations on each axis for up to 4 points
   log_ship_motion: 8
   # Provides UTC time reference
