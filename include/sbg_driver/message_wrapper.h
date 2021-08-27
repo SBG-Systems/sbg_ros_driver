@@ -300,19 +300,25 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
-   * Set Frame parameters.
-   *
-   * \param[in]	frame_id			Frame ID.
-   * \param[in]	enu					If true publish data in the ENU convention.
-   */
-  void setFrameParameters(const std::string &frame_id, bool enu);
-
-  /*!
    * Set the time reference.
    *
    * \param[in] time_reference		Time reference.
    */
   void setTimeReference(TimeReference time_reference);
+
+  /*!
+   * Set Frame ID.
+   *
+   * \param[in]	frame_id			Frame ID.
+   */
+  void setFrameId(const std::string &frame_id);
+
+  /*!
+   * Set use ENU.
+   *
+   * \param[in]	enu					If true publish data in the ENU convention.
+   */
+  void setUseEnu(bool enu);
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

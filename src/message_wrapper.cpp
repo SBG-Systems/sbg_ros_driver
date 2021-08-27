@@ -327,9 +327,13 @@ void MessageWrapper::setTimeReference(TimeReference time_reference)
   m_time_reference_ = time_reference;
 }
 
-void MessageWrapper::setFrameParameters(const std::string &frame_id, bool enu)
+void MessageWrapper::setFrameId(const std::string &frame_id)
 {
   m_frame_id_ = frame_id;
+}
+
+void MessageWrapper::setUseEnu(bool enu)
+{
   m_use_enu_ = enu;
 }
 
