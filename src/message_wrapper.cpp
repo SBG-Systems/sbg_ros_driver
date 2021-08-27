@@ -381,7 +381,7 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
   {
     ekf_euler_message.angle.x     = ref_log_ekf_euler.euler[1];
     ekf_euler_message.angle.y     = ref_log_ekf_euler.euler[0];
-    ekf_euler_message.angle.z     = wrapAngle360<float>(ref_log_ekf_euler.euler[1] + 90);
+    ekf_euler_message.angle.z     = wrapAngle360<float>(ref_log_ekf_euler.euler[1] + SBG_PI / 2);
     ekf_euler_message.accuracy.x  = ref_log_ekf_euler.eulerStdDev[1];
     ekf_euler_message.accuracy.y  = ref_log_ekf_euler.eulerStdDev[0];
     ekf_euler_message.accuracy.z  = ref_log_ekf_euler.eulerStdDev[2];
@@ -438,9 +438,9 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
     ekf_quat_message.quaternion.x = ref_log_ekf_quat.quaternion[2];
     ekf_quat_message.quaternion.y = ref_log_ekf_quat.quaternion[1];
     ekf_quat_message.quaternion.z = -ref_log_ekf_quat.quaternion[3];
-    ekf_quat_message.accuracy.x   = ref_log_quat_euler.eulerStdDev[1];
-    ekf_quat_message.accuracy.y   = ref_log_quat_euler.eulerStdDev[0];
-    ekf_quat_message.accuracy.z   = ref_log_quat_euler.eulerStdDev[2];
+    ekf_quat_message.accuracy.x   = ref_log_ekf_quat.eulerStdDev[1];
+    ekf_quat_message.accuracy.y   = ref_log_ekf_quat.eulerStdDev[0];
+    ekf_quat_message.accuracy.z   = ref_log_ekf_quat.eulerStdDev[2];
 
   }
   else
