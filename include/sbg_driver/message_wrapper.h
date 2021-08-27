@@ -40,6 +40,7 @@
 
 // Sbg header
 #include <sbg_matrix3.h>
+#include <config_store.h>
 
 // ROS headers
 #include <geometry_msgs/TwistStamped.h>
@@ -83,6 +84,7 @@ private:
   ros::Time               m_ros_processing_time_;
   sbg_driver::SbgUtcTime  m_last_sbg_utc_;
   bool                    m_first_valid_utc_;
+  TimeReference           m_time_reference_;
 
   //---------------------------------------------------------------------//
   //- Internal methods                                                  -//
@@ -119,12 +121,12 @@ private:
   const std_msgs::Header createRosHeader(uint32_t device_timestamp) const;
 
   /*!
-   * Compute corrected ROS time for the device timestamp.
-   * 
+   * Convert INS timestamp from a SBG device to UNIX timestamp.
+   *
    * \param[in] device_timestamp    SBG device timestamp (in microseconds).
    * \return                        ROS time.
    */
-  const ros::Time computeCorrectedRosTime(uint32_t device_timestamp) const;
+  const ros::Time convertInsTimeToUnix(uint32_t device_timestamp) const;
 
   /*!
    * Create SBG-ROS Ekf status message.
@@ -232,12 +234,12 @@ private:
   bool isLeapYear(uint16_t year) const;
 
   /*!
-   * Convert the UTC time to an Epoch time.
-   * 
-   * \param[in] ref_sbg_utc_msg     SBG-ROS UTC message.
+   * Convert the UTC time to an Unix time.
+   *
+   * \param[in] ref_sbg_utc_msg     UTC message.
    * \return                        Converted Epoch time (in s).
    */
-  const ros::Time convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
+  const ros::Time convertUtcToUnix(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
 
   /*!
    * Create a SBG-ROS air data status message.
@@ -272,12 +274,12 @@ public:
   //---------------------------------------------------------------------//
 
   /*!
-   * Set the wrapper processing ROS time.
-   * This method is call on the SbgDevice periodic handle, in order to have the same processing time for the messages.
-   * 
-   * \param[in] ref_ros_time        ROS processing time to set.
+  /*!
+   * Set the time reference.
+   *
+   * \param[in] time_reference		Time reference.
    */
-  void setRosProcessingTime(const ros::Time& ref_ros_time);
+  void setTimeReference(TimeReference time_reference);
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

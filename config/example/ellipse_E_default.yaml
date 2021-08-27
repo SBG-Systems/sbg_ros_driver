@@ -234,11 +234,18 @@ odom:
 # 10005 Output is generated on a Sync In C event
 # 10006 Output is generated on a Sync In D event
 output:
-  # Time Reference
-  # 0 No external time reference is used. Internal clock is used instead.
-  # 1 The system will be synchronized on the clock input observed at SYNC_IN_A pin.
-  # 2 The system will be synchronized GPS PPS signal, (see GPS module assignment)
-  timeReference: 0
+  # Time reference:
+  # Note: Set the time reference used to timestamp the header of the published
+  #       messages.
+  #       The header of the ROS standard message sensor_msgs:TimeReference is
+  #       not effected by this parameter and it will be timestamped by the ROS time.
+  #
+  # "ros" : ROS time (default)
+  # "ins_unix" : INS absolute time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
+  time_reference: "ros"
+
+  # Ros standard output:
+  # Note: If true publish ROS standard messages.
   ros_standard: false
 
   # Status general, clock, com aiding, solution, heave

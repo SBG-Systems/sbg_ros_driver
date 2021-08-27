@@ -148,6 +148,26 @@ void ConfigStore::loadOutputConfiguration(const ros::NodeHandle& ref_node_handle
   m_output_modes_.push_back(log_output);
 }
 
+void ConfigStore::loadOutputTimeReference(const ros::NodeHandle& ref_node_handle, const std::string& ref_key)
+{
+  std::string time_reference;
+
+  ref_node_handle.param<std::string>(ref_key, time_reference, "ros");
+
+  if (time_reference == "ros")
+  {
+    m_time_reference_ = TimeReference::ROS;
+  }
+  else if (time_reference == "ins_unix")
+  {
+    m_time_reference_ = TimeReference::INS_UNIX;
+  }
+  else
+  {
+    throw std::invalid_argument("unknown time reference: " + time_reference);
+  }
+}
+
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
@@ -287,6 +307,11 @@ uint32_t ConfigStore::getReadingRateFrequency(void) const
   return m_rate_frequency_;
 }
 
+sbg::TimeReference ConfigStore::getTimeReference(void) const
+{
+  return m_time_reference_;
+}
+
 //---------------------------------------------------------------------//
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
@@ -301,6 +326,8 @@ void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
   loadMagnetometersParameters(ref_node_handle);
   loadGnssParameters(ref_node_handle);
   loadOdometerParameters(ref_node_handle);
+
+  loadOutputTimeReference(ref_node_handle, "output/time_reference");
 
   loadOutputConfiguration(ref_node_handle, "output/log_status", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_STATUS);
   loadOutputConfiguration(ref_node_handle, "output/log_imu_data", SBG_ECOM_CLASS_LOG_ECOM_0, SBG_ECOM_LOG_IMU_DATA);

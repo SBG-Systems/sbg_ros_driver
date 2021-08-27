@@ -26,53 +26,23 @@ const std_msgs::Header MessageWrapper::createRosHeader(uint32_t device_timestamp
 {
   std_msgs::Header header;
 
-  if (!m_first_valid_utc_)
-  {
-    header.stamp    = m_ros_processing_time_;
-    header.frame_id = "System";
-  }
-  else
-  {
-    header.stamp = computeCorrectedRosTime(device_timestamp);
+ header.frame_id = "System";
 
-    std::string frame_header;
-    frame_header = "UTC";
-
-    if (m_last_sbg_utc_.clock_status.clock_utc_status == SBG_ECOM_UTC_INVALID)
-    {
-      frame_header += " INTERNAL";
-    }
-    else
-    {
-      if (m_last_sbg_utc_.clock_status.clock_utc_status == SBG_ECOM_UTC_NO_LEAP_SEC)
-      {
-        frame_header += " NO LEAP";
-      }
-
-      if (m_last_sbg_utc_.clock_status.clock_utc_sync)
-      {
-        if (m_last_sbg_utc_.clock_status.clock_status == SBG_ECOM_CLOCK_STEERING)
-        {
-          frame_header += " | SYNCHRONIZING";
-        }
-        else if (m_last_sbg_utc_.clock_status.clock_status == SBG_ECOM_CLOCK_VALID)
-        {
-          frame_header += " | SYNC";
-        }
-      }
-      else
-      {
-        frame_header += " | NOT SYNC";
-      }
-    }
-
-    header.frame_id = frame_header;
+ switch (m_time_reference_)
+ {
+   case sbg::TimeReference::INS_UNIX:
+     header.stamp = convertInsTimeToUnix(device_timestamp);
+   break;
+   case sbg::TimeReference::ROS:
+   default:
+     header.stamp = ros::Time::now();
+   break;
   }
 
   return header;
 }
 
-const ros::Time MessageWrapper::computeCorrectedRosTime(uint32_t device_timestamp) const
+const ros::Time MessageWrapper::convertInsTimeToUnix(uint32_t device_timestamp) const
 {
   //
   // Convert the UTC time to epoch from the last received message.
@@ -82,7 +52,7 @@ const ros::Time MessageWrapper::computeCorrectedRosTime(uint32_t device_timestam
   uint32_t  device_timestamp_diff;
   uint64_t  nanoseconds;
 
-  utc_to_epoch          = convertUtcTimeToEpoch(m_last_sbg_utc_);
+  utc_to_epoch          = convertUtcToUnix(m_last_sbg_utc_);
   device_timestamp_diff = device_timestamp - m_last_sbg_utc_.time_stamp;
 
   nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff) * 1000;
@@ -299,7 +269,7 @@ bool MessageWrapper::isLeapYear(uint16_t year) const
   return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
 }
 
-const ros::Time MessageWrapper::convertUtcTimeToEpoch(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
+const ros::Time MessageWrapper::convertUtcToUnix(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const
 {
   ros::Time utc_to_epoch;
   uint32_t  days;
@@ -352,9 +322,11 @@ const sbg_driver::SbgAirDataStatus MessageWrapper::createAirDataStatusMessage(co
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
 
-void MessageWrapper::setRosProcessingTime(const ros::Time& ref_ros_time)
+void MessageWrapper::setTimeReference(TimeReference time_reference)
 {
-  m_ros_processing_time_ = ref_ros_time;
+  m_time_reference_ = time_reference;
+}
+
 }
 
 //---------------------------------------------------------------------//
@@ -750,8 +722,8 @@ const sensor_msgs::TimeReference MessageWrapper::createRosUtcTimeReferenceMessag
   // This message is defined to have comparison between the System time and the Utc reference.
   // Header of the ROS message will always be the System time, and the source is the computed time from Utc data.
   //
-  utc_reference_message.header.stamp  = m_ros_processing_time_;
-  utc_reference_message.time_ref      = computeCorrectedRosTime(ref_sbg_utc_msg.time_stamp);
+  utc_reference_message.header.stamp  = ros::Time::now();
+  utc_reference_message.time_ref      = convertInsTimeToUnix(ref_sbg_utc_msg.time_stamp);
   utc_reference_message.source        = "UTC time from device converted to Epoch";
 
   return utc_reference_message;

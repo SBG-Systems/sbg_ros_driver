@@ -430,16 +430,16 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
   {
     defineRosStandardPublishers(ref_ros_node_handle);
   }
+
+  m_message_wrapper_.setTimeReference(ref_config_store.getTimeReference());
 }
 
-void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
+void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
 {
   //
   // Publish the message with the corresponding publisher and SBG message ID.
   // For each log, check if the publisher has been initialized.
   //
-  m_message_wrapper_.setRosProcessingTime(ref_ros_time);
-
   if(sbg_msg_class == SBG_ECOM_CLASS_LOG_ECOM_0)
   {
     switch (sbg_msg_id)
