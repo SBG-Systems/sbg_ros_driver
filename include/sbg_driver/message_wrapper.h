@@ -101,7 +101,7 @@ private:
    * \return                        GeometryMsg Vector3.
    */
   template <typename T>
-  const geometry_msgs::Vector3 createGeometryVector3(const T* p_array, size_t array_size) const
+  const geometry_msgs::Vector3 createVector3(const T* p_array, size_t array_size) const
   {
     assert(array_size == 3);
 
@@ -119,12 +119,12 @@ private:
    * in the NED convention.
    *
    * \template  T                   Numeric template type.
-   * \param[in] p_array             Raw input vector.
+   * \param[in] p_array             Raw input vector expressed in the NED convention.
    * \param[in] array_size          Raw vector size, should be defined as 3.
    * \return                        GeometryMsg Vector3.
    */
   template <typename T>
-  const geometry_msgs::Vector3 createEnuVector3FromNed(const T* p_array, size_t array_size) const
+  const geometry_msgs::Vector3 createVector3Enu(const T* p_array, size_t array_size) const
   {
     assert(array_size == 3);
 

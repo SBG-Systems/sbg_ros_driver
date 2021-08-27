@@ -351,13 +351,13 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
 
   if (m_use_enu_)
   {
-    ekf_euler_message.angle       = createEnuVector3FromNed<float>(ref_log_ekf_euler.euler, 3);
-    ekf_euler_message.accuracy    = createEnuVector3FromNed<float>(ref_log_ekf_euler.eulerStdDev, 3);
+    ekf_euler_message.angle       = createVector3Enu<float>(ref_log_ekf_euler.euler, 3);
+    ekf_euler_message.accuracy    = createVector3Enu<float>(ref_log_ekf_euler.eulerStdDev, 3);
   }
   else
   {
-    ekf_euler_message.angle       = createGeometryVector3<float>(ref_log_ekf_euler.euler, 3);
-    ekf_euler_message.accuracy    = createGeometryVector3<float>(ref_log_ekf_euler.eulerStdDev, 3);
+    ekf_euler_message.angle       = createVector3<float>(ref_log_ekf_euler.euler, 3);
+    ekf_euler_message.accuracy    = createVector3<float>(ref_log_ekf_euler.eulerStdDev, 3);
   }
 
   return ekf_euler_message;
@@ -374,15 +374,15 @@ const sbg_driver::SbgEkfNav MessageWrapper::createSbgEkfNavMessage(const SbgLogE
 
   if (m_use_enu_)
   {
-    ekf_nav_message.velocity          = createEnuVector3FromNed<float>(ref_log_ekf_nav.velocity, 3);
-    ekf_nav_message.velocity_accuracy = createEnuVector3FromNed<float>(ref_log_ekf_nav.velocityStdDev, 3);
-    ekf_nav_message.position          = createEnuVector3FromNed<double>(ref_log_ekf_nav.position, 3);
+    ekf_nav_message.velocity          = createVector3Enu<float>(ref_log_ekf_nav.velocity, 3);
+    ekf_nav_message.velocity_accuracy = createVector3Enu<float>(ref_log_ekf_nav.velocityStdDev, 3);
+    ekf_nav_message.position          = createVector3Enu<double>(ref_log_ekf_nav.position, 3);
   }
   else
   {
-    ekf_nav_message.velocity          = createGeometryVector3<float>(ref_log_ekf_nav.velocity, 3);
-    ekf_nav_message.velocity_accuracy = createGeometryVector3<float>(ref_log_ekf_nav.velocityStdDev, 3);
-    ekf_nav_message.position          = createGeometryVector3<double>(ref_log_ekf_nav.position, 3);
+    ekf_nav_message.velocity          = createVector3<float>(ref_log_ekf_nav.velocity, 3);
+    ekf_nav_message.velocity_accuracy = createVector3<float>(ref_log_ekf_nav.velocityStdDev, 3);
+    ekf_nav_message.position          = createVector3<double>(ref_log_ekf_nav.position, 3);
   }
 
   return ekf_nav_message;
@@ -395,7 +395,7 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
   ekf_quat_message.header       = createRosHeader(ref_log_ekf_quat.timeStamp);
   ekf_quat_message.time_stamp   = ref_log_ekf_quat.timeStamp;
   ekf_quat_message.status       = createEkfStatusMessage(ref_log_ekf_quat.status);
-  ekf_quat_message.accuracy     = createGeometryVector3<float>(ref_log_ekf_quat.eulerStdDev, 3);
+  ekf_quat_message.accuracy     = createVector3<float>(ref_log_ekf_quat.eulerStdDev, 3);
 
   if (m_use_enu_)
   {
@@ -497,14 +497,14 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
 
   if (m_use_enu_)
   {
-    gps_vel_message.vel     = createEnuVector3FromNed<float>(ref_log_gps_vel.velocity, 3);
-    gps_vel_message.vel_acc = createEnuVector3FromNed<float>(ref_log_gps_vel.velocityAcc, 3);
+    gps_vel_message.vel     = createVector3Enu<float>(ref_log_gps_vel.velocity, 3);
+    gps_vel_message.vel_acc = createVector3Enu<float>(ref_log_gps_vel.velocityAcc, 3);
     gps_vel_message.course  = ref_log_gps_vel.course + SBG_PI;
   }
   else
   {
-    gps_vel_message.vel     = createGeometryVector3<float>(ref_log_gps_vel.velocity, 3);
-    gps_vel_message.vel_acc = createGeometryVector3<float>(ref_log_gps_vel.velocityAcc, 3);
+    gps_vel_message.vel     = createVector3<float>(ref_log_gps_vel.velocity, 3);
+    gps_vel_message.vel_acc = createVector3<float>(ref_log_gps_vel.velocityAcc, 3);
     gps_vel_message.course  = ref_log_gps_vel.course;
   }
 
@@ -522,17 +522,17 @@ const sbg_driver::SbgImuData MessageWrapper::createSbgImuDataMessage(const SbgLo
 
   if (m_use_enu_)
   {
-    imu_data_message.accel        = createEnuVector3FromNed<float>(ref_log_imu_data.accelerometers, 3);
-    imu_data_message.gyro         = createEnuVector3FromNed<float>(ref_log_imu_data.gyroscopes, 3);
-    imu_data_message.delta_vel    = createEnuVector3FromNed<float>(ref_log_imu_data.deltaVelocity, 3);
-    imu_data_message.delta_angle  = createEnuVector3FromNed<float>(ref_log_imu_data.deltaAngle, 3);
+    imu_data_message.accel        = createVector3Enu<float>(ref_log_imu_data.accelerometers, 3);
+    imu_data_message.gyro         = createVector3Enu<float>(ref_log_imu_data.gyroscopes, 3);
+    imu_data_message.delta_vel    = createVector3Enu<float>(ref_log_imu_data.deltaVelocity, 3);
+    imu_data_message.delta_angle  = createVector3Enu<float>(ref_log_imu_data.deltaAngle, 3);
   }
   else
   {
-    imu_data_message.accel        = createGeometryVector3<float>(ref_log_imu_data.accelerometers, 3);
-    imu_data_message.gyro         = createGeometryVector3<float>(ref_log_imu_data.gyroscopes, 3);
-    imu_data_message.delta_vel    = createGeometryVector3<float>(ref_log_imu_data.deltaVelocity, 3);
-    imu_data_message.delta_angle  = createGeometryVector3<float>(ref_log_imu_data.deltaAngle, 3);
+    imu_data_message.accel        = createVector3<float>(ref_log_imu_data.accelerometers, 3);
+    imu_data_message.gyro         = createVector3<float>(ref_log_imu_data.gyroscopes, 3);
+    imu_data_message.delta_vel    = createVector3<float>(ref_log_imu_data.deltaVelocity, 3);
+    imu_data_message.delta_angle  = createVector3<float>(ref_log_imu_data.deltaAngle, 3);
   }
 
   return imu_data_message;
@@ -548,13 +548,13 @@ const sbg_driver::SbgMag MessageWrapper::createSbgMagMessage(const SbgLogMag& re
 
   if (m_use_enu_)
   {
-    mag_message.mag   = createEnuVector3FromNed<float>(ref_log_mag.magnetometers, 3);
-    mag_message.accel = createEnuVector3FromNed<float>(ref_log_mag.accelerometers, 3);
+    mag_message.mag   = createVector3Enu<float>(ref_log_mag.magnetometers, 3);
+    mag_message.accel = createVector3Enu<float>(ref_log_mag.accelerometers, 3);
   }
   else
   {
-    mag_message.mag   = createGeometryVector3<float>(ref_log_mag.magnetometers, 3);
-    mag_message.accel = createGeometryVector3<float>(ref_log_mag.accelerometers, 3);
+    mag_message.mag   = createVector3<float>(ref_log_mag.magnetometers, 3);
+    mag_message.accel = createVector3<float>(ref_log_mag.accelerometers, 3);
   }
 
   return mag_message;
@@ -590,9 +590,9 @@ const sbg_driver::SbgShipMotion MessageWrapper::createSbgShipMotionMessage(const
   ship_motion_message.header        = createRosHeader(ref_log_ship_motion.timeStamp);
   ship_motion_message.time_stamp    = ref_log_ship_motion.timeStamp;
   ship_motion_message.status        = createShipMotionStatusMessage(ref_log_ship_motion);
-  ship_motion_message.ship_motion   = createGeometryVector3<float>(ref_log_ship_motion.shipMotion, 3);
-  ship_motion_message.acceleration  = createGeometryVector3<float>(ref_log_ship_motion.shipAccel, 3);
-  ship_motion_message.velocity      = createGeometryVector3<float>(ref_log_ship_motion.shipVel, 3);
+  ship_motion_message.ship_motion   = createVector3<float>(ref_log_ship_motion.shipMotion, 3);
+  ship_motion_message.acceleration  = createVector3<float>(ref_log_ship_motion.shipAccel, 3);
+  ship_motion_message.velocity      = createVector3<float>(ref_log_ship_motion.shipVel, 3);
 
   return ship_motion_message;
 }
@@ -675,13 +675,13 @@ const sbg_driver::SbgImuShort MessageWrapper::createSbgImuShortMessage(const Sbg
 
   if (m_use_enu_)
   {
-    imu_short_message.delta_velocity  = createEnuVector3FromNed<int32_t>(ref_short_imu_log.deltaVelocity, 3);
-    imu_short_message.delta_angle     = createEnuVector3FromNed<int32_t>(ref_short_imu_log.deltaAngle, 3);
+    imu_short_message.delta_velocity  = createVector3Enu<int32_t>(ref_short_imu_log.deltaVelocity, 3);
+    imu_short_message.delta_angle     = createVector3Enu<int32_t>(ref_short_imu_log.deltaAngle, 3);
   }
   else
   {
-    imu_short_message.delta_velocity  = createGeometryVector3<int32_t>(ref_short_imu_log.deltaVelocity, 3);
-    imu_short_message.delta_angle     = createGeometryVector3<int32_t>(ref_short_imu_log.deltaAngle, 3);
+    imu_short_message.delta_velocity  = createVector3<int32_t>(ref_short_imu_log.deltaVelocity, 3);
+    imu_short_message.delta_angle     = createVector3<int32_t>(ref_short_imu_log.deltaAngle, 3);
   }
 
   return imu_short_message;
