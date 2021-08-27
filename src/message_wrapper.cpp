@@ -379,13 +379,21 @@ const sbg_driver::SbgEkfEuler MessageWrapper::createSbgEkfEulerMessage(const Sbg
 
   if (m_use_enu_)
   {
-    ekf_euler_message.angle       = createVector3Enu<float>(ref_log_ekf_euler.euler, 3);
-    ekf_euler_message.accuracy    = createVector3Enu<float>(ref_log_ekf_euler.eulerStdDev, 3);
+    ekf_euler_message.angle.x     = ref_log_ekf_euler.euler[1];
+    ekf_euler_message.angle.y     = ref_log_ekf_euler.euler[0];
+    ekf_euler_message.angle.z     = wrapAngle360<float>(ref_log_ekf_euler.euler[1] + 90);
+    ekf_euler_message.accuracy.x  = ref_log_ekf_euler.eulerStdDev[1];
+    ekf_euler_message.accuracy.y  = ref_log_ekf_euler.eulerStdDev[0];
+    ekf_euler_message.accuracy.z  = ref_log_ekf_euler.eulerStdDev[2];
   }
   else
   {
-    ekf_euler_message.angle       = createVector3<float>(ref_log_ekf_euler.euler, 3);
-    ekf_euler_message.accuracy    = createVector3<float>(ref_log_ekf_euler.eulerStdDev, 3);
+    ekf_euler_message.angle.x     = ref_log_ekf_euler.euler[0];
+    ekf_euler_message.angle.y     = ref_log_ekf_euler.euler[1];
+    ekf_euler_message.angle.z     = ref_log_ekf_euler.euler[2];
+    ekf_euler_message.accuracy.x  = ref_log_ekf_euler.eulerStdDev[0];
+    ekf_euler_message.accuracy.y  = ref_log_ekf_euler.eulerStdDev[1];
+    ekf_euler_message.accuracy.z  = ref_log_ekf_euler.eulerStdDev[2];
   }
 
   return ekf_euler_message;
@@ -423,7 +431,6 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
   ekf_quat_message.header       = createRosHeader(ref_log_ekf_quat.timeStamp);
   ekf_quat_message.time_stamp   = ref_log_ekf_quat.timeStamp;
   ekf_quat_message.status       = createEkfStatusMessage(ref_log_ekf_quat.status);
-  ekf_quat_message.accuracy     = createVector3<float>(ref_log_ekf_quat.eulerStdDev, 3);
 
   if (m_use_enu_)
   {
@@ -431,6 +438,10 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
     ekf_quat_message.quaternion.x = ref_log_ekf_quat.quaternion[2];
     ekf_quat_message.quaternion.y = ref_log_ekf_quat.quaternion[1];
     ekf_quat_message.quaternion.z = -ref_log_ekf_quat.quaternion[3];
+    ekf_quat_message.accuracy.x   = ref_log_quat_euler.eulerStdDev[1];
+    ekf_quat_message.accuracy.y   = ref_log_quat_euler.eulerStdDev[0];
+    ekf_quat_message.accuracy.z   = ref_log_quat_euler.eulerStdDev[2];
+
   }
   else
   {
@@ -438,6 +449,9 @@ const sbg_driver::SbgEkfQuat MessageWrapper::createSbgEkfQuatMessage(const SbgLo
     ekf_quat_message.quaternion.x = ref_log_ekf_quat.quaternion[1];
     ekf_quat_message.quaternion.y = ref_log_ekf_quat.quaternion[2];
     ekf_quat_message.quaternion.z = ref_log_ekf_quat.quaternion[3];
+    ekf_quat_message.accuracy.x   = ref_log_ekf_quat.eulerStdDev[0];
+    ekf_quat_message.accuracy.y   = ref_log_ekf_quat.eulerStdDev[1];
+    ekf_quat_message.accuracy.z   = ref_log_ekf_quat.eulerStdDev[2];
   }
 
   return ekf_quat_message;
@@ -470,14 +484,14 @@ const sbg_driver::SbgGpsHdt MessageWrapper::createSbgGpsHdtMessage(const SbgLogG
 
   gps_hdt_message.header      = createRosHeader(ref_log_gps_hdt.timeStamp);
   gps_hdt_message.time_stamp  = ref_log_gps_hdt.timeStamp;
-  gps_hdt_message.status            = ref_log_gps_hdt.status;
-  gps_hdt_message.tow               = ref_log_gps_hdt.timeOfWeek;
+  gps_hdt_message.status      = ref_log_gps_hdt.status;
+  gps_hdt_message.tow         = ref_log_gps_hdt.timeOfWeek;
 
   //
   // TODO: Check for ENU convention.
   //
-  gps_hdt_message.true_heading      = ref_log_gps_hdt.heading;
-  gps_hdt_message.pitch             = ref_log_gps_hdt.pitch;
+  gps_hdt_message.true_heading = ref_log_gps_hdt.heading;
+  gps_hdt_message.pitch        = ref_log_gps_hdt.pitch;
 
   return gps_hdt_message;
 }
@@ -739,9 +753,18 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
   imu_ros_message.angular_velocity                  = ref_sbg_imu_msg.gyro;
   imu_ros_message.linear_acceleration               = ref_sbg_imu_msg.accel;
 
-  imu_ros_message.orientation_covariance[0]         = ref_sbg_quat_msg.accuracy.x * ref_sbg_quat_msg.accuracy.x;
-  imu_ros_message.orientation_covariance[4]         = ref_sbg_quat_msg.accuracy.y * ref_sbg_quat_msg.accuracy.y;
-  imu_ros_message.orientation_covariance[8]         = ref_sbg_quat_msg.accuracy.z * ref_sbg_quat_msg.accuracy.z;
+  if (m_use_enu_)
+  {
+    imu_ros_message.orientation_covariance[0]         = ref_sbg_quat_msg.accuracy.y * ref_sbg_quat_msg.accuracy.y;
+    imu_ros_message.orientation_covariance[4]         = ref_sbg_quat_msg.accuracy.x * ref_sbg_quat_msg.accuracy.x;
+    imu_ros_message.orientation_covariance[8]         = ref_sbg_quat_msg.accuracy.z * ref_sbg_quat_msg.accuracy.z;
+  }
+  else
+  {
+    imu_ros_message.orientation_covariance[0]         = ref_sbg_quat_msg.accuracy.x * ref_sbg_quat_msg.accuracy.x;
+    imu_ros_message.orientation_covariance[4]         = ref_sbg_quat_msg.accuracy.y * ref_sbg_quat_msg.accuracy.y;
+    imu_ros_message.orientation_covariance[8]         = ref_sbg_quat_msg.accuracy.z * ref_sbg_quat_msg.accuracy.z;
+  }
 
   //
   // Angular velocity and linear acceleration covariances are not provided.
