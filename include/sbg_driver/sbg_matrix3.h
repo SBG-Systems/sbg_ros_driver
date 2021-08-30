@@ -166,9 +166,9 @@ public:
 
   const SbgVector3<T> operator*(const SbgVector3<T>& vect) const
   {
-	T x = m_data[0] * vect(0) + m_data[1] * vect(1) + m_data[2] * vect(2);
-	T y = m_data[3] * vect(0) + m_data[4] * vect(1) + m_data[5] * vect(2);
-	T z = m_data[6] * vect(0) + m_data[7] * vect(1) + m_data[8] * vect(2);
+    T x = m_data[0] * vect(0) + m_data[1] * vect(1) + m_data[2] * vect(2);
+    T y = m_data[3] * vect(0) + m_data[4] * vect(1) + m_data[5] * vect(2);
+    T z = m_data[6] * vect(0) + m_data[7] * vect(1) + m_data[8] * vect(2);
 
     return SbgVector3<T>(x, y, z);
   }
@@ -198,25 +198,25 @@ public:
   */
   void makeDcm(const SbgVector3f& euler)
   {
-	float cr = cosf(euler(0));
-	float sr = sinf(euler(0));
-	float cp = cosf(euler(1));
-	float sp = sinf(euler(1));
-	float cy = cosf(euler(2));
-	float sy = sinf(euler(2));
+    float cr = cosf(euler(0));
+    float sr = sinf(euler(0));
+    float cp = cosf(euler(1));
+    float sp = sinf(euler(1));
+    float cy = cosf(euler(2));
+    float sy = sinf(euler(2));
 
-	m_data[0] = cp * cy;
-	m_data[3] = cp * sy;
-	m_data[6] = -sp;
-	
-	m_data[1] = (sr * sp * cy) - (cr * sy);
-	m_data[4] = (sr * sp * sy) + (cr * cy);
-	m_data[7] = sr * cp;
-	
-	m_data[2] = (cr * sp * cy) + (sy * sr);
-	m_data[5] = (cr * sp * sy) - (sr * cy);
-	m_data[8] = cr * cp;
-	
+    m_data[0] = cp * cy;
+    m_data[3] = cp * sy;
+    m_data[6] = -sp;
+    
+    m_data[1] = (sr * sp * cy) - (cr * sy);
+    m_data[4] = (sr * sp * sy) + (cr * cy);
+    m_data[7] = sr * cp;
+    
+    m_data[2] = (cr * sp * cy) + (sy * sr);
+    m_data[5] = (cr * sp * sy) - (sr * cy);
+    m_data[8] = cr * cp;
+    
   }
 
   /*!
@@ -229,24 +229,24 @@ public:
   */
   void makeDcm(float w, float x, float y, float z)
   {
-	float wx = w * x;
-	float wy = w * y;
-	float wz = w * z;
-	float xy = x * y;
-	float xz = x * z;
-	float yz = y * z;
+    float wx = w * x;
+    float wy = w * y;
+    float wz = w * z;
+    float xy = x * y;
+    float xz = x * z;
+    float yz = y * z;
 
-	m_data[0] = (2 * powf(w, 2)) + (2 * powf(x, 2)) - 1;
-	m_data[3] = (2 * xy) + (2 * wz);
-	m_data[6] = (2 * xz) - (2 * wy);
+    m_data[0] = (2 * powf(w, 2)) + (2 * powf(x, 2)) - 1;
+    m_data[3] = (2 * xy) + (2 * wz);
+    m_data[6] = (2 * xz) - (2 * wy);
 
-	m_data[1] = (2 * xy) - (2 * wz);
-	m_data[4] = (2 * powf(w, 2)) + (2 * powf(y, 2)) - 1;
-	m_data[7] = (2 * yz) + (2 * wx);
-	
-	m_data[2] = (2 * wy) + (2 * xz);
-	m_data[5] = (2 * yz) - (2 * wx);
-	m_data[8] = (2 * powf(w, 2)) + (2 * powf(z, 2)) - 1;	
+    m_data[1] = (2 * xy) - (2 * wz);
+    m_data[4] = (2 * powf(w, 2)) + (2 * powf(y, 2)) - 1;
+    m_data[7] = (2 * yz) + (2 * wx);
+    
+    m_data[2] = (2 * wy) + (2 * xz);
+    m_data[5] = (2 * yz) - (2 * wx);
+    m_data[8] = (2 * powf(w, 2)) + (2 * powf(z, 2)) - 1;	
   }
 
 };

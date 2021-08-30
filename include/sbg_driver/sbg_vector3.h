@@ -159,9 +159,9 @@ public:
    */
   const T operator()(size_t index) const
   {
-	  assert(index < 3);
+      assert(index < 3);
 
-	  return m_data[index];
+      return m_data[index];
   }
 
   /*!
