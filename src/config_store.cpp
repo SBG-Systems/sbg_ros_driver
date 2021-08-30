@@ -154,11 +154,11 @@ void ConfigStore::loadOutputFrameParameters(const ros::NodeHandle& ref_node_hand
 
   if (m_use_enu_)
   {
-    ref_node_handle.param<std::string>("/output/frame_id", m_frame_id_, "imu_link");
+    ref_node_handle.param<std::string>("output/frame_id", m_frame_id_, "imu_link");
   }
   else
   {
-    ref_node_handle.param<std::string>("/output/frame_id", m_frame_id_, "imu_link_ned");
+    ref_node_handle.param<std::string>("output/frame_id", m_frame_id_, "imu_link_ned");
   }
 }
 
