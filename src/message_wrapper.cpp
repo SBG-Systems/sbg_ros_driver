@@ -572,7 +572,7 @@ const sbg_driver::SbgGpsVel MessageWrapper::createSbgGpsVelMessage(const SbgLogG
   {
     gps_vel_message.vel.x = ref_log_gps_vel.velocity[1];
     gps_vel_message.vel.y = ref_log_gps_vel.velocity[0];
-    gps_vel_message.vel.z = -ref_log_gps_vel.velocity[1];
+    gps_vel_message.vel.z = -ref_log_gps_vel.velocity[2];
 
     gps_vel_message.vel_acc.x = ref_log_gps_vel.velocityAcc[1];
     gps_vel_message.vel_acc.y = ref_log_gps_vel.velocityAcc[0];
