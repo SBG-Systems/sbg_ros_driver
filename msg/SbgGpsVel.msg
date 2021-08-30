@@ -10,14 +10,32 @@ SbgGpsVelStatus status
 # GPS Time of Week ms 
 uint32 gps_tow
 
-# Velocity in [North, East, Down] direction m/s 
+# Velocity [m/s]
+# In NED convention:
+#   X: North
+#   Y: East
+#   Z: Down
+# In ENU convention:
+#   X: East
+#   Y: North
+#   Z: Up
 geometry_msgs/Vector3 vel
 
-# 1 sgima Accuracy in [North, East, Down] direction m/s 
+# Velocity accuracy (1 sigma) [m/s]
+# In NED convention:
+#   X: North
+#   Y: East
+#   Z: Vertical
+# In ENU convention:
+#   X: East
+#   Y: North
+#   Z: Vertical
 geometry_msgs/Vector3 vel_acc
 
 # True direction of motion over ground (0 to 360 deg)
+# NED convention (clockwise starting with North)
+# ENU convention (counterclockwise startin with East)
 float32 course
 
-# 1 sgima course accuracy (0 to 360 deg).
+# 1 sgima course accuracy (0 to 360 deg)
 float32 course_acc

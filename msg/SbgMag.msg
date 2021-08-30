@@ -4,10 +4,30 @@ Header header
 # Time since sensor is powered up (us)
 uint32 time_stamp
 
-# Magnetometer output (X, Y, Z)
+# Magnetometer output
+#
+# NED convention:
+#   x: X axis of the device frame
+#   y: Y axis of the device frame
+#   z: Z axis of the device frame
+#
+# ENU convention:
+#   x: X axis of the device frame
+#   y: -Y axis of the device frame
+#   z: -Z axis of the device frame
 geometry_msgs/Vector3 mag
 
-# Accelerometer output (X, Y, Z) in m/s2
+# Accelerometer output  [m/s^2]
+#
+# NED convention:
+#   x: X axis of the device frame
+#   y: Y axis of the device frame
+#   z: Z axis of the device frame
+#
+# ENU convention:
+#   x: X axis of the device frame
+#   y: -Y axis of the device frame
+#   z: -Z axis of the device frame
 geometry_msgs/Vector3 accel
 
 # Status

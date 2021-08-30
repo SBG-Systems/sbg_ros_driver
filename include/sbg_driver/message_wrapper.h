@@ -124,65 +124,23 @@ private:
    * \return                        GeometryMsg Vector3.
    */
   template <typename T>
-  const geometry_msgs::Vector3 createVector3Enu(const T* p_array, size_t array_size) const
-  {
-    assert(array_size == 3);
-
-    geometry_msgs::Vector3 geometry_vector;
-
-    geometry_vector.x = p_array[1];
-    geometry_vector.y = p_array[0];
-    geometry_vector.z = -p_array[2];
-
-    return geometry_vector;
-  };
+  const geometry_msgs::Vector3 createVector3Enu(const T* p_array, size_t array_size) const;
 
   /*!
-   * Wrap an angle to  2 PI.
+   * Wrap an angle to 2 PI.
    *
-   * \template  T                   Numeric template type.
    * \param[in] angle_rad			Angle in rad.
    * \return						Wrapped angle.
    */
-  template <typename T>
-  T wrapAngle2Pi(T angle_rad) const
-  {
-    if ( (angle_rad < -SBG_PI * 2) || (angle_rad > SBG_PI * 2) )
-    {
-      angle_rad = fmodf(angle_rad, SBG_PI * 2);
-    }
-
-    if (angle_rad < 0.0)
-    {
-      angle_rad = SBG_PI * 2 + angle_rad;
-    }
-
-    return angle_rad;
-  };
-
+  double wrapAngle2Pi(double angle_rad) const;
 
   /*!
-   * Wrap an angle to 360 degre.
+   * Wrap an angle to 360 degres.
    *
-   * \template  T                   Numeric template type.
    * \param[in] angle_deg			Angle in degre.
    * \return						Wrapped angle.
    */
-  template <typename T>
-  T wrapAngle360(T angle_deg) const
-  {
-    if ( (angle_deg < -360.0) || (angle_deg > 360.0) )
-    {
-      angle_deg = fmodf(angle_deg, 360.0);
-    }
-
-    if (angle_deg < 0.0)
-    {
-      angle_deg = 360.0 + angle_deg;
-    }
-
-    return angle_deg;
-  };
+  float wrapAngle360(float angle_deg) const;
 
   /*!
    * Create a ROS message header.

@@ -2,23 +2,45 @@
 
 Header header
 
-# Time since sensor is powered up us
+# Time since sensor is powered up [us]
 uint32 time_stamp
 
-# Velocity (North, East, Down) direction m/s
+# Velocity [m/s]
+# In NED convention:
+#   x: North
+#   y: East
+#   z: Down
+# In ENU convention:
+#   x: East
+#   y: North
+#   z: Up
 geometry_msgs/Vector3 velocity
 
-# 1 sigma Velocity in (North, East, Down) direction accuracy m/s
+# Velocity accuracy (1 sigma) [m/s].
+# In NED convention:
+#   x: North
+#   y: East
+#   z: Vertical
+# In ENU convention:
+#   x: East
+#   y: North
+#   z: Vertical
 geometry_msgs/Vector3 velocity_accuracy
 
-# [Latitude (deg), Longitude (deg), Altitude (above Mean Sea Level in meters)] 
-geometry_msgs/Vector3 position
+# Latitude [degrees]. Positive is north of equator; negative is south
+float64 latitude
+
+# Longitude [degrees]. Positive is east of prime meridian; negative is west
+float64 longitude
+
+# Altitude [m]. Positive (above Mean Sea Level in meters)
+float64 altitude
 
 # Altitude difference between the geoid and the Ellipsoid (WGS-84 Altitude - MSL Altitude)
-# (Height above Ellipsoid = altitude + undulation)
+# (Height above Ellipsoid = altitude + undulation) [m]
 float32 undulation
 
-# Latitude, Longitude, Vertical accuracy m (1 sigma)
+# Position accuracy (latitude, longitude, Vertical) [m] (1 sigma)
 geometry_msgs/Vector3 position_accuracy
 
 #  Global solution status

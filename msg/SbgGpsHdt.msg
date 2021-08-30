@@ -14,13 +14,19 @@ uint16 status
 # GPS Time of Week ms
 uint32 tow
 
-# True heading angle (0 to 360 deg).
+# True heading angle (0 to 360 deg)
+# NED convention: Clockwise starting with North
+# ENU convention: Counter-clockwise startin with East
 float32 true_heading
 
-# 1 sigma True heading estimated accuracy (0 to 360 deg).
+# 1 sigma True heading estimated accuracy
 float32 true_heading_acc
 
-# Pitch angle from the master to the rover
+# Pitch
+# NED convention:
+#   angle from the master to the rover
+# ENU convention:
+#   angle from the rover to the master
 float32 pitch
 
 # 1 sigma pitch estimated accuracy
