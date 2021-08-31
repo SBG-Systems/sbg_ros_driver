@@ -2,8 +2,8 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.0.0 (2021-08-31)
+------------------
 * Merge pull request `#62 <https://github.com/SBG-Systems/sbg_ros_driver/issues/62>`_ from SBG-Systems/devel
   Devel
 * Merge pull request `#61 <https://github.com/SBG-Systems/sbg_ros_driver/issues/61>`_ from SBG-Systems/fix-frame-convention
