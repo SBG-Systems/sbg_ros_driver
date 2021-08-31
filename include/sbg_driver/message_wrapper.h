@@ -103,7 +103,7 @@ private:
   /*!
    * Wrap an angle to 360 degres.
    *
-   * \param[in] angle_deg			Angle in degre.
+   * \param[in] angle_deg			Angle in degree.
    * \return						Wrapped angle.
    */
   float wrapAngle360(float angle_deg) const;

@@ -313,7 +313,7 @@ const ros::Time MessageWrapper::convertUtcToUnix(const sbg_driver::SbgUtcTime& r
   uint64_t  nanoseconds;
 
   //
-  // Convert the UTC time to Epoch(Unix) time, which is the elasped seconds since 1 Jan 1970.
+  // Convert the UTC time to Epoch(Unix) time, which is the elapsed seconds since 1 Jan 1970.
   //
   days        = 0;
   nanoseconds = 0;
@@ -840,8 +840,8 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
   imu_ros_message.header = createRosHeader(ref_sbg_imu_msg.time_stamp);
 
   imu_ros_message.orientation               = ref_sbg_quat_msg.quaternion;
-  imu_ros_message.angular_velocity          = ref_sbg_imu_msg.gyro;
-  imu_ros_message.linear_acceleration       = ref_sbg_imu_msg.accel;
+  imu_ros_message.angular_velocity          = ref_sbg_imu_msg.delta_angle;
+  imu_ros_message.linear_acceleration       = ref_sbg_imu_msg.delta_vel;
 
   imu_ros_message.orientation_covariance[0] = ref_sbg_quat_msg.accuracy.x * ref_sbg_quat_msg.accuracy.x;
   imu_ros_message.orientation_covariance[4] = ref_sbg_quat_msg.accuracy.y * ref_sbg_quat_msg.accuracy.y;
@@ -906,7 +906,7 @@ const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(c
   geometry_msgs::TwistStamped twist_stamped_message;
 
   twist_stamped_message.header        = createRosHeader(ref_sbg_imu_msg.time_stamp);
-  twist_stamped_message.twist.angular = ref_sbg_imu_msg.gyro;
+  twist_stamped_message.twist.angular = ref_sbg_imu_msg.delta_angle;
 
   twist_stamped_message.twist.linear.x = body_vel(0);
   twist_stamped_message.twist.linear.y = body_vel(1);
@@ -923,7 +923,7 @@ const geometry_msgs::PointStamped MessageWrapper::createRosPointStampedMessage(c
 
   //
   // Conversion from Geodetic coordinates to ECEF is based on World Geodetic System 1984 (WGS84).
-  // Radius are expressed in meters, and latidute/longitude in radian.
+  // Radius are expressed in meters, and latitude/longitude in radian.
   //
   double equatorial_radius;
   double polar_radius;
