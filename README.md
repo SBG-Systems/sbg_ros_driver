@@ -212,7 +212,7 @@ The sbg_device_mag node handles the magnetic calibration for suitable devices.
 
   Service to save the magnetic calibration to the connected device.
 
-## HowTo
+## How To
 ### Configure the SBG device
 The SBG Ros driver allows the user to configure the device before starting the data handling. <br />
 To do so, set the corresponding parameter in the used config file.
@@ -270,18 +270,27 @@ Once it is done, configuration file could be updated `portName: "/dev/sbg"`.
 
 See the docs folder, to see an example of rules with the corresponding screenshot using the udev functions.
 
-### Synchronize the ROS messages from an external time source
+### Time source & reference
+ROS uses an internal system time to time stamp messages. This time stamp is generally gathered when the message is processed and published.
+As a result, the message is not time stamped accurately due to transmission and processing delays.
+
+SBG Systems INS however provides a very accurate timing based on GNSS time if available. The following conditions have to be met to get
+absolute accurate timing information:
+* The ELLIPSE-N or D should have a connected GNSS antenna with internal GNSS enabled
+* The ELLIPSE-E should be connected to an external GNSS receiver with a PPS signal
+* A valid GNSS position has to be available to get UTC data
+* The ELLIPSE internal clock should be aligned to PPS signal (clock status)
+* The ELLIPSE should be setup to send SBG_ECOM_LOG_UTC message
+
+You can select which time source to use with the parameter `time_reference` to time stamp messages published by this driver:
+* `ros`: The header.stamp member contains the current ROS system time when the message has been processed.
+* `ins_unix`: The header.stamp member contains an absolute and accurate time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
+
+Configuration example to use an absolute and accurate time reference to UNIX epoch:
 ```
 # Time reference:
 time_reference: "ins_unix"
 ```
-
-When the SBG device is connected with an external Gnss receiver, if the device receives a full valid SBG Utc log, i.e :
-* A stable input clock to be synchronized with the internal clock
-* A valid Utc time data (with or without the leap second)
-* The clock has converged to the PPS
-
-then, the time header will be computed from the last received Utc log and the device timestamp given by the internal clock.
 
 ### Change frame parameters
 #### Frame ID
