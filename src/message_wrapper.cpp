@@ -58,15 +58,13 @@ const std_msgs::Header MessageWrapper::createRosHeader(uint32_t device_timestamp
 
   header.frame_id = m_frame_id_;
 
- switch (m_time_reference_)
- {
-   case sbg::TimeReference::INS_UNIX:
-     header.stamp = convertInsTimeToUnix(device_timestamp);
-   break;
-   case sbg::TimeReference::ROS:
-   default:
-     header.stamp = ros::Time::now();
-   break;
+  if (m_first_valid_utc_ && (m_time_reference_ == sbg::TimeReference::INS_UNIX))
+  {
+    header.stamp = convertInsTimeToUnix(device_timestamp);
+  }
+  else
+  {
+    header.stamp = ros::Time::now();
   }
 
   return header;
