@@ -3,93 +3,20 @@
 using sbg::MessagePublisher;
 
 /*!
- * Class to publish all SBG-ROS messages to the corresponding publishers. 
+ * Class to publish all SBG-ROS messages to the corresponding publishers.
  */
 //---------------------------------------------------------------------//
 //- Constructor                                                       -//
 //---------------------------------------------------------------------//
 
 MessagePublisher::MessagePublisher(void):
-m_output_mode_(SBG_ECOM_OUTPUT_MODE_DISABLED),
-m_max_mesages_(10)
+m_max_messages_(10)
 {
-
 }
 
 //---------------------------------------------------------------------//
 //- Private methods                                                   -//
 //---------------------------------------------------------------------//
-
-void MessagePublisher::updateMaxOutputFrequency(SbgEComOutputMode output_mode)
-{
-  //
-  // Update the maximal output frequency if needed.
-  //
-  if (m_output_mode_ == SBG_ECOM_OUTPUT_MODE_DISABLED)
-  {
-    m_output_mode_ = output_mode;
-  }
-  else
-  {
-    if (getCorrespondingFrequency(output_mode) > getCorrespondingFrequency(m_output_mode_))
-    {
-      m_output_mode_ = output_mode;
-    }
-  }
-
-  //
-  // In case of sbg output event configuration, just define the output on a 25Hz frequency.
-  //
-  if (getCorrespondingFrequency(m_output_mode_) >= getCorrespondingFrequency(SBG_ECOM_OUTPUT_MODE_PPS))
-  {
-    m_output_mode_ = SBG_ECOM_OUTPUT_MODE_DIV_8;
-  }
-}
-
-uint32_t MessagePublisher::getCorrespondingFrequency(SbgEComOutputMode output_mode) const
-{
-  switch (output_mode)
-  {
-  case SBG_ECOM_OUTPUT_MODE_DISABLED:
-    return 0;
-  
-  case SBG_ECOM_OUTPUT_MODE_MAIN_LOOP:
-    return 200;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_2:
-    return 100;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_4:
-    return 50;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_5:
-    return 40;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_8:
-    return 25;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_10:
-    return 20;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_20:
-    return 10;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_40:
-    return 5;
-
-  case SBG_ECOM_OUTPUT_MODE_DIV_200:
-    return 1;
-
-  case SBG_ECOM_OUTPUT_MODE_HIGH_FREQ_LOOP:
-    return 1000;
-
-  case SBG_ECOM_OUTPUT_MODE_PPS:
-    return 10000;
-
-  default:
-    return 0;
-  }
-}
 
 std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) const
 {
@@ -170,110 +97,108 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
   //
   if (output_conf != SBG_ECOM_OUTPUT_MODE_DISABLED)
   {
-    updateMaxOutputFrequency(output_conf);
-
     switch (sbg_msg_id)
     {
       case SBG_ECOM_LOG_STATUS:
-        m_sbgStatus_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgStatus>(ref_output_topic, m_max_mesages_);
+        m_sbgStatus_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgStatus>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_UTC_TIME:
-        m_sbgUtcTime_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgUtcTime>(ref_output_topic, m_max_mesages_);
+        m_sbgUtcTime_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgUtcTime>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_IMU_DATA:
-        m_sbgImuData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuData>(ref_output_topic, m_max_mesages_);
+        m_sbgImuData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuData>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_MAG:
-        m_sbgMag_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgMag>(ref_output_topic, m_max_mesages_);
+        m_sbgMag_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgMag>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_MAG_CALIB:
-        m_sbgMagCalib_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgMagCalib>(ref_output_topic, m_max_mesages_);
+        m_sbgMagCalib_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgMagCalib>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EKF_EULER:
-        m_sbgEkfEuler_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, m_max_mesages_);
+        m_sbgEkfEuler_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EKF_QUAT:
-        m_sbgEkfQuat_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfQuat>(ref_output_topic, m_max_mesages_);
+        m_sbgEkfQuat_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfQuat>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EKF_NAV:
 
-        m_sbgEkfNav_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfNav>(ref_output_topic, m_max_mesages_);
+        m_sbgEkfNav_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfNav>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_SHIP_MOTION:
 
-        m_sbgShipMotion_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgShipMotion>(ref_output_topic, m_max_mesages_);
+        m_sbgShipMotion_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgShipMotion>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_VEL:
       case SBG_ECOM_LOG_GPS2_VEL:
 
-        m_sbgGpsVel_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsVel>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsVel_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsVel>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_POS:
       case SBG_ECOM_LOG_GPS2_POS:
 
-        m_sbgGpsPos_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsPos>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsPos_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsPos>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_HDT:
       case SBG_ECOM_LOG_GPS2_HDT:
 
-        m_sbgGpsHdt_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsHdt>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsHdt_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsHdt>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_GPS1_RAW:
       case SBG_ECOM_LOG_GPS2_RAW:
 
-        m_sbgGpsRaw_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsRaw>(ref_output_topic, m_max_mesages_);
+        m_sbgGpsRaw_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgGpsRaw>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_ODO_VEL:
 
-        m_sbgOdoVel_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgOdoVel>(ref_output_topic, m_max_mesages_);
+        m_sbgOdoVel_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgOdoVel>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_A:
 
-        m_sbgEventA_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventA_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_B:
 
-        m_sbgEventB_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventB_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_C:
 
-        m_sbgEventC_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventC_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_D:
 
-        m_sbgEventD_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventD_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_EVENT_E:
 
-        m_sbgEventE_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_mesages_);
+        m_sbgEventE_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEvent>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_IMU_SHORT:
 
-        m_sbgImuShort_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuShort>(ref_output_topic, m_max_mesages_);
+        m_sbgImuShort_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgImuShort>(ref_output_topic, m_max_messages_);
         break;
 
       case SBG_ECOM_LOG_AIR_DATA:
 
-        m_sbgAirData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgAirData>(ref_output_topic, m_max_mesages_);
+        m_sbgAirData_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgAirData>(ref_output_topic, m_max_messages_);
         break;
 
       default:
@@ -286,7 +211,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 {
   if (m_sbgImuData_pub_ && m_sbgEkfQuat_pub_)
   {
-    m_imu_pub_ = ref_ros_node_handle.advertise<sensor_msgs::Imu>("imu/data", m_max_mesages_);
+    m_imu_pub_ = ref_ros_node_handle.advertise<sensor_msgs::Imu>("imu/data", m_max_messages_);
   }
   else
   {
@@ -295,7 +220,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgImuData_pub_)
   {
-    m_temp_pub_     = ref_ros_node_handle.advertise<sensor_msgs::Temperature>("imu/temp", m_max_mesages_);
+    m_temp_pub_     = ref_ros_node_handle.advertise<sensor_msgs::Temperature>("imu/temp", m_max_messages_);
   }
   else
   {
@@ -304,7 +229,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgMag_pub_)
   {
-    m_mag_pub_ = ref_ros_node_handle.advertise<sensor_msgs::MagneticField>("imu/mag", m_max_mesages_);
+    m_mag_pub_ = ref_ros_node_handle.advertise<sensor_msgs::MagneticField>("imu/mag", m_max_messages_);
   }
   else
   {
@@ -317,7 +242,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   //
   if ((m_sbgEkfEuler_pub_ || m_sbgEkfQuat_pub_) && m_sbgEkfNav_pub_ && m_sbgImuData_pub_)
   {
-    m_velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>("imu/velocity", m_max_mesages_);
+    m_velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>("imu/velocity", m_max_messages_);
   }
   else
   {
@@ -326,7 +251,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgAirData_pub_)
   {
-    m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_mesages_);
+    m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_messages_);
   }
   else
   {
@@ -335,7 +260,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgEkfNav_pub_)
   {
-    m_pos_ecef_pub_ = ref_ros_node_handle.advertise<geometry_msgs::PointStamped>("imu/pos_ecef", m_max_mesages_);
+    m_pos_ecef_pub_ = ref_ros_node_handle.advertise<geometry_msgs::PointStamped>("imu/pos_ecef", m_max_messages_);
   }
   else
   {
@@ -344,7 +269,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgUtcTime_pub_)
   {
-    m_utc_reference_pub_ = ref_ros_node_handle.advertise<sensor_msgs::TimeReference>("imu/utc_ref", m_max_mesages_);
+    m_utc_reference_pub_ = ref_ros_node_handle.advertise<sensor_msgs::TimeReference>("imu/utc_ref", m_max_messages_);
   }
   else
   {
@@ -353,7 +278,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgGpsPos_pub_)
   {
-    m_nav_sat_fix_pub_ = ref_ros_node_handle.advertise<sensor_msgs::NavSatFix>("imu/nav_sat_fix", m_max_mesages_);
+    m_nav_sat_fix_pub_ = ref_ros_node_handle.advertise<sensor_msgs::NavSatFix>("imu/nav_sat_fix", m_max_messages_);
   }
   else
   {
@@ -484,15 +409,6 @@ void MessagePublisher::publishGpsPosData(const SbgBinaryLogData &ref_sbg_log)
 }
 
 //---------------------------------------------------------------------//
-//- Parameters                                                        -//
-//---------------------------------------------------------------------//
-
-uint32_t MessagePublisher::getMaxOutputFrequency(void) const
-{
-  return getCorrespondingFrequency(m_output_mode_);
-}
-
-//---------------------------------------------------------------------//
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
 
@@ -502,6 +418,12 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
   // Initialize all the publishers with the defined SBG output from the config store.
   //
   const std::vector<ConfigStore::SbgLogOutput> &ref_output_modes = ref_config_store.getOutputModes();
+
+  m_message_wrapper_.setTimeReference(ref_config_store.getTimeReference());
+
+  m_message_wrapper_.setFrameId(ref_config_store.getFrameId());
+
+  m_message_wrapper_.setUseEnu(ref_config_store.getUseEnu());
 
   for (const ConfigStore::SbgLogOutput &ref_output : ref_output_modes)
   {
@@ -514,14 +436,12 @@ void MessagePublisher::initPublishers(ros::NodeHandle& ref_ros_node_handle, cons
   }
 }
 
-void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
+void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log)
 {
   //
   // Publish the message with the corresponding publisher and SBG message ID.
   // For each log, check if the publisher has been initialized.
   //
-  m_message_wrapper_.setRosProcessingTime(ref_ros_time);
-
   if(sbg_msg_class == SBG_ECOM_CLASS_LOG_ECOM_0)
   {
     switch (sbg_msg_id)
@@ -562,8 +482,8 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
       if (m_sbgEkfEuler_pub_)
       {
         m_sbg_ekf_euler_message_ = m_message_wrapper_.createSbgEkfEulerMessage(ref_sbg_log.ekfEulerData);
-		m_sbgEkfEuler_pub_.publish(m_sbg_ekf_euler_message_);
-		processRosVelMessage();
+        m_sbgEkfEuler_pub_.publish(m_sbg_ekf_euler_message_);
+        processRosVelMessage();
       }
       break;
 
@@ -574,7 +494,7 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
         m_sbg_ekf_quat_message_ = m_message_wrapper_.createSbgEkfQuatMessage(ref_sbg_log.ekfQuatData);
         m_sbgEkfQuat_pub_.publish(m_sbg_ekf_quat_message_);
         processRosImuMessage();
-		processRosVelMessage();
+        processRosVelMessage();
       }
       break;
 
@@ -687,14 +607,14 @@ void MessagePublisher::publish(const ros::Time& ref_ros_time, SbgEComClass sbg_m
 
     default:
       break;
-    } 
+    }
   }
   else if (sbg_msg_class == SBG_ECOM_CLASS_LOG_ECOM_1)
   {
     switch (sbg_msg_id)
     {
     default:
-      break;  
+      break;
     }
   }
 }

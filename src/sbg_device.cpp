@@ -114,7 +114,7 @@ void SbgDevice::onLogReceived(SbgEComClass msg_class, SbgEComMsgId msg, const Sb
   //
   // Publish the received SBG log.
   //
-  m_message_publisher_.publish(m_ros_processing_time_, msg_class, msg, ref_sbg_data);
+  m_message_publisher_.publish(msg_class, msg, ref_sbg_data);
 }
 
 void SbgDevice::loadParameters(void)
@@ -151,7 +151,7 @@ void SbgDevice::connect(void)
   {
     throw ros::Exception("SBG_DRIVER - [Init] Unable to initialize the interface - " + std::string(sbgErrorCodeToString(error_code)));
   }
-  
+
   error_code = sbgEComInit(&m_com_handle_, &m_sbg_interface_);
 
   if (error_code != SBG_NO_ERROR)
@@ -165,23 +165,25 @@ void SbgDevice::connect(void)
 void SbgDevice::readDeviceInfo(void)
 {
   SbgEComDeviceInfo device_info;
-  SbgErrorCode      error_code; 
-  
+  SbgErrorCode      error_code;
+
   error_code = sbgEComCmdGetInfo(&m_com_handle_, &device_info);
 
-  if (error_code != SBG_NO_ERROR)
+  if (error_code == SBG_NO_ERROR)
+  {
+    ROS_INFO("SBG_DRIVER - productCode = %s", device_info.productCode);
+    ROS_INFO("SBG_DRIVER - serialNumber = %u", device_info.serialNumber);
+
+    ROS_INFO("SBG_DRIVER - calibationRev = %s", getVersionAsString(device_info.calibationRev).c_str());
+    ROS_INFO("SBG_DRIVER - calibrationDate = %u / %u / %u", device_info.calibrationDay, device_info.calibrationMonth, device_info.calibrationYear);
+
+    ROS_INFO("SBG_DRIVER - hardwareRev = %s", getVersionAsString(device_info.hardwareRev).c_str());
+    ROS_INFO("SBG_DRIVER - firmwareRev = %s", getVersionAsString(device_info.firmwareRev).c_str());
+  }
+  else
   {
     ROS_ERROR("Unable to get the device Info : %s", sbgErrorCodeToString(error_code));
   }
-
-  ROS_INFO("SBG_DRIVER - productCode = %s", device_info.productCode);
-  ROS_INFO("SBG_DRIVER - serialNumber = %u", device_info.serialNumber);
-
-  ROS_INFO("SBG_DRIVER - calibationRev = %s", getVersionAsString(device_info.calibationRev).c_str());
-  ROS_INFO("SBG_DRIVER - calibrationDate = %u / %u / %u", device_info.calibrationDay, device_info.calibrationMonth, device_info.calibrationYear);
-
-  ROS_INFO("SBG_DRIVER - hardwareRev = %s", getVersionAsString(device_info.hardwareRev).c_str());
-  ROS_INFO("SBG_DRIVER - firmwareRev = %s", getVersionAsString(device_info.firmwareRev).c_str()); 
 }
 
 std::string SbgDevice::getVersionAsString(uint32 sbg_version_enc) const
@@ -196,17 +198,7 @@ void SbgDevice::initPublishers(void)
 {
   m_message_publisher_.initPublishers(m_ref_node_, m_config_store_);
 
-  //
-  // Check if the rate frequency has to be defined according to the defined publishers.
-  //
-  if(m_config_store_.getReadingRateFrequency() == 0)
-  {
-    m_rate_frequency_ = m_message_publisher_.getMaxOutputFrequency();
-  }
-  else
-  {
-    m_rate_frequency_ = m_config_store_.getReadingRateFrequency();
-  }
+  m_rate_frequency_ = m_config_store_.getReadingRateFrequency();
 }
 
 void SbgDevice::configure(void)
@@ -296,7 +288,7 @@ bool SbgDevice::startMagCalibration(void)
 
   mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
   mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
-  
+
   error_code = sbgEComCmdMagStartCalib(&m_com_handle_, mag_calib_mode, mag_calib_bandwidth);
 
   if (error_code != SBG_NO_ERROR)
@@ -316,7 +308,7 @@ bool SbgDevice::startMagCalibration(void)
 bool SbgDevice::endMagCalibration(void)
 {
   SbgErrorCode error_code;
-  
+
   error_code = sbgEComCmdMagComputeCalib(&m_com_handle_, &m_magCalibResults);
 
   if (error_code != SBG_NO_ERROR)
@@ -380,7 +372,7 @@ void SbgDevice::displayMagCalibrationStatusResult(void) const
   if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_TOO_MUCH_DISTORTIONS)
   {
     ROS_WARN("SBG DRIVER [Mag Calib] - Unable to find a calibration solution. Maybe there are too much non static distortions");
-  }   
+  }
   if (m_magCalibResults.advancedStatus & SBG_ECOM_MAG_CALIB_ALIGNMENT_ISSUE)
   {
     ROS_WARN("SBG DRIVER [Mag Calib] - The magnetic calibration has troubles to correct the magnetometers and inertial frame alignment");
@@ -422,7 +414,7 @@ void SbgDevice::exportMagCalibrationResults(void) const
 
   mag_calib_mode      = m_config_store_.getMagnetometerCalibMode();
   mag_calib_bandwidth = m_config_store_.getMagnetometerCalibBandwidth();
-  
+
   mag_results_stream << "SBG DRIVER [Mag Calib]" << endl;
   mag_results_stream << "======= Parameters =======" << endl;
   mag_results_stream << "* CALIB_MODE = " << g_mag_calib_mode_[mag_calib_mode] << endl;
@@ -438,7 +430,7 @@ void SbgDevice::exportMagCalibrationResults(void) const
   mag_results_stream << "[After]\t" << m_magCalibResults.afterMeanError << "\t" << m_magCalibResults.afterStdError << "\t" << m_magCalibResults.afterMaxError << endl;
   mag_results_stream << "[Accuracy]\t" << sbgRadToDegF(m_magCalibResults.meanAccuracy) << "\t" << sbgRadToDegF(m_magCalibResults.stdAccuracy) << "\t" << sbgRadToDegF(m_magCalibResults.maxAccuracy) << endl;
   mag_results_stream << "* Offset\t" << m_magCalibResults.offset[0] << "\t" << m_magCalibResults.offset[1] << "\t" << m_magCalibResults.offset[2] << endl;
-  
+
   mag_results_stream << "* Matrix" << endl;
   mag_results_stream << m_magCalibResults.matrix[0] << "\t" << m_magCalibResults.matrix[1] << "\t" << m_magCalibResults.matrix[2] << endl;
   mag_results_stream << m_magCalibResults.matrix[3] << "\t" << m_magCalibResults.matrix[4] << "\t" << m_magCalibResults.matrix[5] << endl;
@@ -490,7 +482,5 @@ void SbgDevice::initDeviceForMagCalibration(void)
 
 void SbgDevice::periodicHandle(void)
 {
-  m_ros_processing_time_ = ros::Time::now();
-
   sbgEComHandle(&m_com_handle_);
 }

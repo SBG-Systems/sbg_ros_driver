@@ -10,14 +10,28 @@ SbgGpsPosStatus status
 # GPS Time of Week ms
 uint32 gps_tow
 
-# [Latitude (positive North deg), Longitude (positive East deg), Altitude (Above Mean Sea Level m)]
-geometry_msgs/Vector3 position
+# Latitude [degrees]; Positive is north of equator; negative is south
+float64 latitude
+
+# Longitude [degrees]; Positive is east of prime meridian; negative is west
+float64 longitude
+
+# Altitude [m]; Positive is above Mean Sea Level in meters
+float64 altitude
 
 # Altitude difference between the geoid and the Ellipsoid (WGS-84 Altitude - MSL Altitude)
 # (Height above Ellipsoid = altitude + undulation)
 float32 undulation
 
-# Latitude, Longitude, Vertical accuracy m (1 sigma)
+# Position accuracy (1 sigma) [m].
+# In NED convention:
+#   x: North
+#   y: East
+#   z: Vertical
+# In ENU convention:
+#   x: East
+#   y: North
+#   z: Vertical
 geometry_msgs/Vector3 position_accuracy
 
 # Number of space vehicles used in GNSS solution

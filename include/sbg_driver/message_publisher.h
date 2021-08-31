@@ -2,24 +2,24 @@
 *	\file         message_publisher.h
 *	\author       SBG Systems
 *	\date         13/03/2020
-*	 
+*	
 *	\brief        Manage publishment of messages from logs.
-*	 
+*	
 *	\section CodeCopyright Copyright Notice
 *	MIT License
-*	 
+*	
 *	Copyright (c) 2020 SBG Systems
-*	 
+*	
 *	Permission is hereby granted, free of charge, to any person obtaining a copy
 *	of this software and associated documentation files (the "Software"), to deal
 *	in the Software without restriction, including without limitation the rights
 *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *	copies of the Software, and to permit persons to whom the Software is
 *	furnished to do so, subject to the following conditions:
-*	 
+*	
 *	The above copyright notice and this permission notice shall be included in all
 *	copies or substantial portions of the Software.
-*	 
+*	
 *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,7 +39,7 @@
 namespace sbg
 {
 /*!
- * Class to publish all SBG-ROS messages to the corresponding publishers. 
+ * Class to publish all SBG-ROS messages to the corresponding publishers.
  */
 class MessagePublisher
 {
@@ -82,32 +82,16 @@ private:
   ros::Publisher          m_nav_sat_fix_pub_;
 
   MessageWrapper          m_message_wrapper_;
-  SbgEComOutputMode       m_output_mode_;
-  uint32_t                m_max_mesages_;
+  uint32_t                m_max_messages_;
+  std::string             m_frame_id_;
 
   //---------------------------------------------------------------------//
   //- Private methods                                                   -//
   //---------------------------------------------------------------------//
 
   /*!
-   * Update the maximal output frequency for the defined pubishers.
-   * Each time a new publisher is defined, update the maximal output frequency if required.
-   * 
-   * \param[in] output_mode_freq        Output mode.
-   */
-  void updateMaxOutputFrequency(SbgEComOutputMode output_mode);
-
-  /*!
-   * Get the corresponding frequency for the SBG output mode.
-   * 
-   * \param[in] output_mode             Output mode.
-   * \return                            Output frequency (in Hz).
-   */
-  uint32_t getCorrespondingFrequency(SbgEComOutputMode output_mode) const;
-
-  /*!
    * Get the corresponding topic name output for the SBG output mode.
-   * 
+   *
    * \param[in] sbg_message_id          SBG message ID.
    * \return                            Output topic name.
    */
@@ -115,7 +99,7 @@ private:
 
   /*!
    * Initialize the publisher for the specified SBG Id, and the output configuration.
-   * 
+   *
    * \param[in] ref_ros_node_handle     Ros NodeHandle to advertise the publisher.
    * \param[in] sbg_msg_id              Id of the SBG message.
    * \param[in] output_conf             Output configuration.
@@ -125,14 +109,14 @@ private:
 
   /*!
    * Define standard ROS publishers.
-   * 
+   *
    * \param[in] ref_ros_node_handle     Ros NodeHandle to advertise the publisher.
    */
   void defineRosStandardPublishers(ros::NodeHandle& ref_ros_node_handle);
 
   /*!
    * Publish a received SBG IMU log.
-   * 
+   *
    * \param[in] ref_sbg_log             SBG log.
    */
   void publishIMUData(const SbgBinaryLogData &ref_sbg_log);
@@ -146,38 +130,38 @@ private:
    * Process a ROS IMU standard message.
    */
   void processRosImuMessage(void);
-  
+
   /*!
    * Publish a received SBG Magnetic log.
-   * 
+   *
    * \param[in] ref_sbg_log             SBG log.
    */
   void publishMagData(const SbgBinaryLogData &ref_sbg_log);
 
   /*!
    * Publish a received SBG Fluid pressure log.
-   * 
+   *
    * \param[in] ref_sbg_log             SBG log.
    */
   void publishFluidPressureData(const SbgBinaryLogData &ref_sbg_log);
 
   /*!
    * Publish a received SBG EkfNav log.
-   * 
+   *
    * \param[in] ref_sbg_log             SBG log.
    */
   void publishEkfNavigationData(const SbgBinaryLogData &ref_sbg_log);
 
   /*!
    * Publish a received SBG UTC log.
-   * 
+   *
    * \param[in] ref_sbg_log             SBG log.
    */
   void publishUtcData(const SbgBinaryLogData &ref_sbg_log);
 
   /*!
    * Publish a received SBG GpsPos log.
-   * 
+   *
    * \param[in] ref_sbg_log             SBG log.
    */
   void publishGpsPosData(const SbgBinaryLogData &ref_sbg_log);
@@ -194,23 +178,12 @@ public:
   MessagePublisher(void);
 
   //---------------------------------------------------------------------//
-  //- Parameters                                                        -//
-  //---------------------------------------------------------------------//
-
-  /*!
-   * Get the maximal output frequency for the publisher.
-   * 
-   * \return                            Maixmal output frequency (in Hz).
-   */
-  uint32_t getMaxOutputFrequency(void) const;
-
-  //---------------------------------------------------------------------//
   //- Operations                                                        -//
   //---------------------------------------------------------------------//
 
   /*!
    * Initialize the publishers for the output configuration.
-   * 
+   *
    * \param[in] ref_ros_node_handle     Ros NodeHandle to advertise the publisher.
    * \param[in] ref_config_store        Store configuration for the publishers.
    */
@@ -218,13 +191,12 @@ public:
 
   /*!
    * Publish the received SbgLog if the corresponding publisher is defined.
-   * 
-   * \param[in] ref_ros_time            ROS processing time for the messages.
+   *
    * \param[in] sbg_msg_class           Class ID of the SBG message.
    * \param[in] sbg_msg_id              Id of the SBG message.
    * \param[in] ref_sbg_log             SBG binary log.
    */
-  void publish(const ros::Time& ref_ros_time, SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log);
+  void publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_id, const SbgBinaryLogData &ref_sbg_log);
 };
 }
 

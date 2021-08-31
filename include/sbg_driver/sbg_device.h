@@ -2,26 +2,26 @@
 *	\file         sbg_device.h
 *	\author       SBG Systems
 *	\date         13/03/2020
-*	 
+*	
 *	\brief        Handle a connected SBG device.
 *
-*   Methods to communicate with the device. 
-*	 
+*   Methods to communicate with the device.
+*	
 *	\section CodeCopyright Copyright Notice
 *	MIT License
-*	 
+*	
 *	Copyright (c) 2020 SBG Systems
-*	 
+*	
 *	Permission is hereby granted, free of charge, to any person obtaining a copy
 *	of this software and associated documentation files (the "Software"), to deal
 *	in the Software without restriction, including without limitation the rights
 *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *	copies of the Software, and to permit persons to whom the Software is
 *	furnished to do so, subject to the following conditions:
-*	 
+*	
 *	The above copyright notice and this permission notice shall be included in all
 *	copies or substantial portions of the Software.
-*	 
+*	
 *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -84,15 +84,13 @@ private:
   ros::ServiceServer      m_calib_service_;
   ros::ServiceServer      m_calib_save_service_;
 
-  ros::Time               m_ros_processing_time_;
-
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
   //---------------------------------------------------------------------//
 
   /*!
    *  Callback definition called each time a new log is received.
-   * 
+   *
    *  \param[in]  pHandle         Valid handle on the sbgECom instance that has called this callback.
    *  \param[in]  msg_class       Class of the message we have received
    *  \param[in]  msg             Message ID of the log received.
@@ -104,7 +102,7 @@ private:
 
   /*!
    * Function to handle the received log.
-   * 
+   *
    * \param[in]  msg_class        Class of the message we have received
    * \param[in]  msg              Message ID of the log received.
    * \param[in]  ref_sbg_data     Contains the received log data as an union.
@@ -118,7 +116,7 @@ private:
 
   /*!
    * Create the connection to the SBG device.
-   * 
+   *
    * \throw                       Unable to connect to the SBG device.
    */
   void connect(void);
@@ -132,7 +130,7 @@ private:
 
   /*!
    * Get the SBG version as a string.
-   * 
+   *
    * \param[in] sbg_version_enc   SBG version encoded.
    * \return                      String version decoded.
    */
@@ -147,14 +145,14 @@ private:
    * Configure the connected SBG device.
    * This function will configure the device if the config file allows it.
    * It will log warning for unavailable parameters for the connected device.
-   * 
+   *
    * \throw                       Unable to configure the connected device.
    */
   void configure(void);
 
   /*!
    * Process the magnetometer calibration.
-   * 
+   *
    * \param[in] ref_ros_request   ROS service request.
    * \param[in] ref_ros_response  ROS service response.
    * \return                      Return true if the calibration process has been succesfull.
@@ -163,7 +161,7 @@ private:
 
   /*!
    * Save the magnetometer calibration.
-   * 
+   *
    * \param[in] ref_ros_request   ROS service request.
    * \param[in] ref_ros_response  ROS service response.
    * \return                      Return true if the calibration has been saved.
@@ -172,21 +170,21 @@ private:
 
   /*!
    * Start the magnetometer calibration process.
-   * 
+   *
    * \return                      True if the calibration process has started successfully.
    */
   bool startMagCalibration(void);
 
   /*!
    * End the magnetometer calibration process.
-   * 
+   *
    * \return                      True if the calibration process has ended successfully.
    */
   bool endMagCalibration(void);
 
   /*!
    * Upload the magnetometers calibration results to the device.
-   * 
+   *
    * \return                      True if the magnetometers calibration has been successfully uploaded to the device.
    */
   bool uploadMagCalibrationToDevice(void);
@@ -209,7 +207,7 @@ public:
 
   /*!
    * Default constructor.
-   * 
+   *
    * \param[in] ref_node_handle   ROS NodeHandle.
    */
   SbgDevice(ros::NodeHandle& ref_node_handle);
@@ -225,7 +223,7 @@ public:
 
   /*!
    * Get the frequency to update the main rate loop for device handling.
-   * 
+   *
    * \return                      Device frequency to read the logs (in Hz).
    */
   uint32_t getUpdateFrequency(void) const;
@@ -236,7 +234,7 @@ public:
 
   /*!
    * Initialize the SBG device for receiving data.
-   * 
+   *
    * \throw                       Unable to initialize the SBG device.
    */
   void initDeviceForReceivingData(void);

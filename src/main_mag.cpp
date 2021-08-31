@@ -11,9 +11,9 @@ int main(int argc, char **argv)
   {
     ROS_INFO("SBG DRIVER - Init node, load params and connect to the device");
     SbgDevice sbg_device(node_handle);
-    
+
     sbg_device.initDeviceForMagCalibration();
-    
+
     ros::spin();
 
     return 0;

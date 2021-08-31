@@ -2,28 +2,28 @@
 *	\file         sbg_vector3.h
 *	\author       SBG Systems
 *	\date         13/03/2020
-*	 
+*	
 *	\brief        Handle a three components vector.
 *
 *   This custom vector3 class is compatible for operations with SbgMatrix3 in
 *   order to avoid a dependancy on Eigen.
-*   This class also defines SbgVector3f and SbgVector3d for floats and doubles.   
+*   This class also defines SbgVector3f and SbgVector3d for floats and doubles.
 *
 *	\section CodeCopyright Copyright Notice
 *	MIT License
-*	 
+*	
 *	Copyright (c) 2020 SBG Systems
-*	 
+*	
 *	Permission is hereby granted, free of charge, to any person obtaining a copy
 *	of this software and associated documentation files (the "Software"), to deal
 *	in the Software without restriction, including without limitation the rights
 *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *	copies of the Software, and to permit persons to whom the Software is
 *	furnished to do so, subject to the following conditions:
-*	 
+*	
 *	The above copyright notice and this permission notice shall be included in all
 *	copies or substantial portions of the Software.
-*	 
+*	
 *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,7 +46,7 @@ namespace sbg
 {
 /*!
  * Check if the two input numbers are equals, taking into account the machine precision (float/double).
- * 
+ *
  * \template  T                           Numeric template type.
  * \param[in] firstValue                  First numeric value.
  * \param[in] secondValue                 Second numeric value.
@@ -93,7 +93,7 @@ public:
 
   /*!
    * Constructor.
-   * 
+   *
    * \param[in] x_value                     Vector X value.
    * \param[in] y_value                     Vector Y value.
    * \param[in] z_value                     Vector Z value.
@@ -130,7 +130,7 @@ public:
 
   /*!
    * Comparison equal operator.
-   * 
+   *
    * \param[in] ref_vector                  Vector to compare.
    * \return                                True if the vector are equals.
    */
@@ -143,7 +143,7 @@ public:
 
   /*!
    * Comparison not equal operator.
-   * 
+   *
    * \param[in] ref_vector                  Vector to compare.
    * \return                                True if the vector are equals.
    */
@@ -151,7 +151,7 @@ public:
   {
     return !(*this == ref_vector);
   };
-  
+
   /*!
    * Getter parenthesis operator
    * \param[in] index					Index of value to retrieve.
@@ -159,18 +159,18 @@ public:
    */
   const T operator()(size_t index) const
   {
-	  assert(index < 3);
+      assert(index < 3);
 
-	  return m_data[index];
+      return m_data[index];
   }
 
   /*!
    * Get the raw data of the sbgVector.
-   * 
+   *
    * \return                                Raw vector data.
    */
   const T *data(void) const
-  {  
+  {
     return static_cast<const T*>(m_data.data());
   };
 };

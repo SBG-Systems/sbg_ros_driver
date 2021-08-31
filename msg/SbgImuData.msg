@@ -1,23 +1,63 @@
 # SBG Ellipse Messages
 Header header
 
-# Time since sensor is powered up us 
+# Time since sensor is powered up [us]
 uint32 time_stamp
 
 # IMU Status
 SbgImuStatus imu_status
 
-# Filtered Accelerometer - X, Y, Z axis m/s2 
+# Filtered Accelerometer [m/s^2]
+#
+# NED convention:
+#   x: X axis of the device frame
+#   y: Y axis of the device frame
+#   z: Z axis of the device frame
+#
+# ENU convention:
+#   x: X axis of the device frame
+#   y: -Y axis of the device frame
+#   z: -Z axis of the device frame
 geometry_msgs/Vector3 accel
 
-# Filtered Gyroscope - X, Y, Z axis rad/s 
+# Filtered Gyroscope [rad/s]
+#
+# NED convention:
+#   x: X axis of the device frame
+#   y: Y axis of the device frame
+#   z: Z axis of the device frame
+#
+# ENU convention:
+#   x: X axis of the device frame
+#   y: -Y axis of the device frame
+#   z: -Z axis of the device frame
 geometry_msgs/Vector3 gyro
 
-# Internal Temperature degC 
+# Internal Temperature [°C]
 float32 temp
 
-# Sculling output - X, Y, Z axis m/s2 
+# Sculling output [m/s2]
+#
+# NED convention:
+#   x: X axis of the device frame
+#   y: Y axis of the device frame
+#   z: Z axis of the device frame
+#
+# ENU convention:
+#   x: X axis of the device frame
+#   y: -Y axis of the device frame
+#   z: -Z axis of the device frame
 geometry_msgs/Vector3 delta_vel
 
-# Coning output - X, Y, Z axis rad/s 
+# Coning output [rad/s]
+#
+# NED convention:
+#   x: X axis of the device frame
+#   y: Y axis of the device frame
+#   z: Z axis of the device frame
+#
+# ENU convention:
+#   x: X axis of the device frame
+#   y: -Y axis of the device frame
+#   z: -Z axis of the device frame
 geometry_msgs/Vector3 delta_angle
