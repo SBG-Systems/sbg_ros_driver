@@ -2,6 +2,61 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#62 <https://github.com/SBG-Systems/sbg_ros_driver/issues/62>`_ from SBG-Systems/devel
+  Devel
+* Merge pull request `#61 <https://github.com/SBG-Systems/sbg_ros_driver/issues/61>`_ from SBG-Systems/fix-frame-convention
+  Fix frame convention errors
+* Make sure only delta angles/velocities are used
+  + syntax fixes
+* Improved comments & README file
+* Fix missing checks on UTC / Unix time computation
+* Updated sbgECom messages definitions
+* Update README.md and releasePackage.md
+* Clean up readme
+* Fix position accuracy
+* Replace pow by multiplication
+* Complete README.md
+* Fix bugs in message wrapper and complete message definitions
+* Fix Z GPS velocity
+* Fix frame convention errors
+* Merge pull request `#59 <https://github.com/SBG-Systems/sbg_ros_driver/issues/59>`_ from SBG-Systems/fix-frame-id
+  Fix param name
+* Fix param name
+* Fix inconsistent tab and spaces usages.
+  Now all files are using spaces
+* Add wrap 2PI
+* Fix bugs
+* Fix matrix accuracy
+* Fix course
+* wrapper: Fix ENU->NED for GPS messages
+* warpper: Change createrVector3 names
+* wrapper: Fix setter
+* wrapper: Fix missing ENU conversion an add comment for cov
+* wrapper: Fix regresion
+* coding style : Remove tables
+* publisher: Configure the wrapper before init the publisher
+* main: Fix loopFrequency type
+* config: Restore output configuration
+* config: Replace enu by use_enu
+* enu: Replace enu by use_enu and rename frame convertion function
+* frame_id: Change default value
+* clean up
+* `#51 <https://github.com/SBG-Systems/sbg_ros_driver/issues/51>`_ - Correctly fill convariances parameters
+* project: Update maintainer
+* config: Update parameters
+* `#45 <https://github.com/SBG-Systems/sbg_ros_driver/issues/45>`_-`#50 <https://github.com/SBG-Systems/sbg_ros_driver/issues/50>`_ - Add parameters to set frame ID and ENU convention
+* `#48 <https://github.com/SBG-Systems/sbg_ros_driver/issues/48>`_ - # 52 Add a parameter to select header stamp source and read ROS time when publishing the message
+* `#47 <https://github.com/SBG-Systems/sbg_ros_driver/issues/47>`_ Remove node ros::Rate period auto computation and only read it from a node parameter
+* clean up: Remove blank spaces
+* Merge pull request `#35 <https://github.com/SBG-Systems/sbg_ros_driver/issues/35>`_ from ShepelIlya/patch-1
+  Fixed time_stamp value initializing in SbgEkfNavMessage.
+* Added/updated license to MIT
+* Updated maintainer
+* Fixed timeStamp value initializing in SbgEkfNavMessage.
+* Contributors: Michael Zemb, Raphael Siryani, ShepelIlya, bsaussay, rsiryani
+
 2.0.3 (2020-04-01)
 ------------------
 * Improve matrix handling
