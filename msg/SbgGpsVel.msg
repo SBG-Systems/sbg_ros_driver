@@ -33,8 +33,8 @@ geometry_msgs/Vector3 velocity
 geometry_msgs/Vector3 velocity_accuracy
 
 # True direction of motion over ground (0 to 360 deg)
-# NED convention: clockwise starting with North (0 then X axis is pointing North)
-# ENU convention: counterclockwise startin with East (0 then X axis is pointing East)
+# NED convention: Zero when the X axis is pointing North.
+# ENU convention: Zero when the X axis is pointing East. (opposite sign compared to NED)
 float32 course
 
 # 1 sgima course accuracy
