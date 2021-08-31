@@ -28,8 +28,13 @@ catkin_prepare_release --bump {major, minor, patch}
 ## Running prerelease tests
 A completed prerelease test is a quite good guarantee that the package will run perfectly. Follow the instructions from the 
 prerelease doc pages.
-The following command could be used to generate the prerelease executables.
 
+Install the python3-ros-buildfarm package.
+```
+sudo apt-get install python3-ros-buildfarm
+```
+
+The following command could be used to generate the prerelease executables.
 ```
 generate_prerelease_script.py \
 https://raw.githubusercontent.com/ros-infrastructure/ros_buildfarm_config/production/index.yaml \

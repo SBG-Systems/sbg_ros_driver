@@ -293,10 +293,8 @@ frame_id: "imu_link_ned"
 
 #### Frame convention
 The frame convention can be set to NED or ENU
-
-In NED convention: axises are the same as device axises.
-
-In ENU convention (x = X, y = -Y, z = -Z).
+* In NED convention axises are the same as device axises.
+* In ENU convention (x = X, y = -Y, z = -Z).
 ```
 # Frame convention:
 use_enu: true
