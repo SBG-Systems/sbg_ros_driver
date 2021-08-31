@@ -5,7 +5,7 @@ Header header
 # Time since sensor is powered up [us]
 uint32 time_stamp
 
-# Quaternion parameter
+# Quaternion parameter (ROS order X, Y, Z, W)
 geometry_msgs/Quaternion quaternion
 
 # Angle accuracy (Roll, Pitch, Yaw (heading)) (1 sigma) [rad]

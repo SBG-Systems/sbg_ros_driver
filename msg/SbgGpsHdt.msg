@@ -1,7 +1,7 @@
 # SBG Ellipse Messages
 Header header
 
-# Time since sensor is powered up us 
+# Time since sensor is powered up [us]
 uint32 time_stamp
 
 # GPS True Heading status.
@@ -11,12 +11,12 @@ uint32 time_stamp
 # 3 HEIGHT_LIMIT		The height limit has been exceeded.
 uint16 status
 
-# GPS Time of Week ms
+# GPS Time of Week [ms]
 uint32 tow
 
 # True heading angle (0 to 360 deg)
-# NED convention: Clockwise starting with North
-# ENU convention: Counter-clockwise startin with East
+# NED convention: Clockwise starting with North (0 then X axis is pointing North)
+# ENU convention: Counter-clockwise startin with East (0 then X axis is pointing East)
 float32 true_heading
 
 # 1 sigma True heading estimated accuracy

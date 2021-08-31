@@ -93,46 +93,12 @@ private:
   //---------------------------------------------------------------------//
 
   /*!
-   * Create a geometry message Vector3 from a raw input vector.
-   *
-   * \template  T                   Numeric template type.
-   * \param[in] p_array             Raw input vector.
-   * \param[in] array_size          Raw vector size, should be defined as 3.
-   * \return                        GeometryMsg Vector3.
-   */
-  template <typename T>
-  const geometry_msgs::Vector3 createVector3(const T* p_array, size_t array_size) const
-  {
-    assert(array_size == 3);
-
-    geometry_msgs::Vector3 geometry_vector;
-
-    geometry_vector.x = p_array[0];
-    geometry_vector.y = p_array[1];
-    geometry_vector.z = p_array[2];
-
-    return geometry_vector;
-  };
-
-  /*!
-   * Create a Vector3 expressed in the ENU convention from a raw input vector expressed
-   * in the NED convention.
-   *
-   * \template  T                   Numeric template type.
-   * \param[in] p_array             Raw input vector expressed in the NED convention.
-   * \param[in] array_size          Raw vector size, should be defined as 3.
-   * \return                        GeometryMsg Vector3.
-   */
-  template <typename T>
-  const geometry_msgs::Vector3 createVector3Enu(const T* p_array, size_t array_size) const;
-
-  /*!
    * Wrap an angle to 2 PI.
    *
    * \param[in] angle_rad			Angle in rad.
    * \return						Wrapped angle.
    */
-  double wrapAngle2Pi(double angle_rad) const;
+  float wrapAngle2Pi(float angle_rad) const;
 
   /*!
    * Wrap an angle to 360 degres.

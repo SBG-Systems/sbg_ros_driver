@@ -23,7 +23,15 @@ float64 altitude
 # (Height above Ellipsoid = altitude + undulation)
 float32 undulation
 
-# Position accuracy (Latitude, Longitude, Vertical) [m]
+# Position accuracy (1 sigma) [m].
+# In NED convention:
+#   x: North
+#   y: East
+#   z: Vertical
+# In ENU convention:
+#   x: East
+#   y: North
+#   z: Vertical
 geometry_msgs/Vector3 position_accuracy
 
 # Number of space vehicles used in GNSS solution

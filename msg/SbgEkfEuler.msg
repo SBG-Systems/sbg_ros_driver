@@ -8,13 +8,13 @@ uint32 time_stamp
 # Angle [Roll, Pitch, Yaw (heading)] [rad]
 #
 # NED convention:
-#   Roll: X axis of the device frame
-#   Pitch: Y axis of the device frame
+#   Roll: Clockwise around X axis
+#   Pitch: Clockwise around Y axis
 #   Yaw: Clockwise starting with North
 #
 # ENU convention:
-#   Roll: X axis of the device frame
-#   Pitch: -Y axis of the device frame
+#   Roll: Clockwise around X axis
+#   Pitch: Counter-clockwise around Y axis
 #   Yaw: Counter-clockwise startin with East
 geometry_msgs/Vector3 angle
 
