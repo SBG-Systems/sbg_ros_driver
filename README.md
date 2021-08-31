@@ -271,16 +271,34 @@ Once it is done, configuration file could be updated `portName: "/dev/sbg"`.
 See the docs folder, to see an example of rules with the corresponding screenshot using the udev functions.
 
 ### Synchronize the ROS messages from an external time source
-#### No external source
-When no external time source is available, the header time of messages is the system Epoch (Unix) processing time of the SBG callback, given by the ```ros::Time::now()```.
+```
+# Time reference:
+time_reference: "ins_unix"
+```
 
-#### External Gnss receiver and/or External antenna
 When the SBG device is connected with an external Gnss receiver, if the device receives a full valid SBG Utc log, i.e :
 * A stable input clock to be synchronized with the internal clock
 * A valid Utc time data (with or without the leap second)
 * The clock has converged to the PPS
 
-then, the time header will be computed from the last received Utc log and the device timestamp given by the internal clock. 
+then, the time header will be computed from the last received Utc log and the device timestamp given by the internal clock.
+
+### Change frame parameters
+#### Frame ID
+The frame_id of the header can be set with this parameter:
+```
+# Frame convention
+frame_id: "imu_link_ned"
+```
+
+#### Frame convention
+The frame convention can be set to NED or ENU
+In NED convention axises are the same as device axises.
+In ENU convention (x = X, y = -Y, z = -Z).
+```
+# Frame convention:
+use_enu: true
+```
 
 ## Contributing
 ### Bugs and issues
