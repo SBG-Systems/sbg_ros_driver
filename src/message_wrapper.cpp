@@ -547,6 +547,12 @@ const sbg_driver::SbgGpsPos MessageWrapper::createSbgGpsPosMessage(const SbgLogG
 
   if (m_use_enu_)
   {
+    gps_pos_message.position_accuracy.x = ref_log_gps_pos.longitudeAccuracy;
+    gps_pos_message.position_accuracy.y = ref_log_gps_pos.latitudeAccuracy;
+    gps_pos_message.position_accuracy.z = ref_log_gps_pos.altitudeAccuracy;
+  }
+  else
+  {
     gps_pos_message.position_accuracy.x = ref_log_gps_pos.latitudeAccuracy;
     gps_pos_message.position_accuracy.y = ref_log_gps_pos.longitudeAccuracy;
     gps_pos_message.position_accuracy.z = ref_log_gps_pos.altitudeAccuracy;
