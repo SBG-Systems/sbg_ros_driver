@@ -14,8 +14,18 @@ driver:
   #       it can lead to miss data frame and less accurate time stamping.
   frequency: 400
 
+odometry:
+    # Enable ROS odometry messages.
+    enable: false
+    # Publish odometry transforms.
+    publishTf: true
+    # Odometry frame IDs.
+    odomFrameId: "odom"
+    baseFrameId: "base_link"
+    initFrameId: "map"
+
 # Configuration of the device with ROS.
-confWithRos: false
+confWithRos: true
 
 uartConf:
   # Port Name
@@ -246,7 +256,7 @@ output:
 
   # Ros standard output:
   # Note: If true publish ROS standard messages.
-  ros_standard: false
+  ros_standard: true
 
   # Frame convention:
   # Note: If true messages are expressed in the ENU convention.
@@ -267,7 +277,7 @@ output:
   # Includes roll, pitch, yaw and their accuracies on each axis
   log_ekf_euler: 8
   # Includes the 4 quaternions values
-  log_ekf_quat: 0
+  log_ekf_quat: 8
   # Position and velocities in NED coordinates with the accuracies on each axis
   log_ekf_nav: 8
   # Heave, surge and sway and accelerations on each axis for up to 4 points

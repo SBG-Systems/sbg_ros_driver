@@ -14,6 +14,16 @@ driver:
   #       it can lead to miss data frame and less accurate time stamping.
   frequency: 400
 
+odometry:
+    # Enable ROS odometry messages.
+    enable: false
+    # Publish odometry transforms.
+    publishTf: true
+    # Odometry frame IDs.
+    odomFrameId: "odom"
+    baseFrameId: "base_link"
+    initFrameId: "map"
+
 # Configuration of the device with ROS.
 confWithRos: true
 
@@ -22,7 +32,7 @@ uartConf:
   portName: "/dev/ttyUSB0"
 
   # Baude rate (4800 ,9600 ,19200 ,38400 ,115200 [default],230400 ,460800 ,921600)
-  baudRate: 921600
+  baudRate: 115200
 
   # Port Id
   # 0 PORT_A: Main communication interface. Full duplex.

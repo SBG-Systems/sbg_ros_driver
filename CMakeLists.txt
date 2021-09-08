@@ -8,6 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   geometry_msgs
   message_generation
+  tf2_ros
+  tf2_msgs
 )
 
 ################################################

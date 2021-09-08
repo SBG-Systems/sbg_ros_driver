@@ -52,6 +52,10 @@
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/TimeReference.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/static_transform_broadcaster.h>
+#include <nav_msgs/Odometry.h>
 
 // SbgRos message headers
 #include "sbg_driver/SbgStatus.h"
@@ -74,6 +78,14 @@
 
 namespace sbg
 {
+typedef struct _UTM0
+{
+	double			easting;
+	double			northing;
+	double			altitude;
+	int				zone;
+} UTM0;
+
 /*!
  * Class to wrap the SBG logs into ROS messages.
  */
@@ -81,12 +93,21 @@ class MessageWrapper
 {
 private:
 
-  ros::Time               m_ros_processing_time_;
-  sbg_driver::SbgUtcTime  m_last_sbg_utc_;
-  bool                    m_first_valid_utc_;
-  std::string             m_frame_id_;
-  bool                    m_use_enu_;
-  TimeReference           m_time_reference_;
+  ros::Time                           m_ros_processing_time_;
+  sbg_driver::SbgUtcTime              m_last_sbg_utc_;
+  bool                                m_first_valid_utc_;
+  std::string                         m_frame_id_;
+  bool                                m_use_enu_;
+  TimeReference                       m_time_reference_;
+  UTM0					              m_utm0_;
+  tf2_ros::TransformBroadcaster       m_tf_broadcaster_;
+  tf2_ros::StaticTransformBroadcaster m_static_tf_broadcaster_;
+
+  bool                                m_odom_enable_;
+  bool                                m_odom_publish_tf_;
+  std::string                         m_odom_frame_id_;
+  std::string                         m_odom_base_frame_id_;
+  std::string                         m_odom_init_frame_id_;
 
   //---------------------------------------------------------------------//
   //- Internal methods                                                  -//
@@ -107,6 +128,14 @@ private:
    * \return						Wrapped angle.
    */
   float wrapAngle360(float angle_deg) const;
+
+  /*!
+   * Compute UTM zone meridian.
+   *
+   * \param[in] zone_number			UTM Zone number.
+   * \return						Meridian angle, in degrees.
+   */
+  double computeMeridian(int zone_number) const;
 
   /*!
    * Create a ROS message header.
@@ -254,6 +283,44 @@ private:
    */
   const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
 
+  /*!
+   * Fill a transformation.
+   *
+   * \param[in] ref_parent_frame_id     Parent frame ID.
+   * \param[in] ref_child_frame_id      Child frame ID.
+   * \param[in] ref_pose                Pose.
+   * \param[out] ref_transform_stamped  Stamped transformation.
+   */
+   void fillTransform(const std::string &ref_parent_frame_id, const std::string &ref_child_frame_id, const geometry_msgs::Pose &ref_pose, geometry_msgs::TransformStamped &ref_transform_stamped);
+
+   /*!
+   * Get UTM letter designator for the given latitude.
+   *
+   * \param[in] Lat                     Latitude, in degrees.
+   * \return                            UTM letter designator.
+   */
+   char UTMLetterDesignator(double Lat);
+
+   /*!
+   * Set UTM initial position.
+   *
+   * \param[in] Lat                     Latitude, in degrees.
+   * \param[in] Long                    Longitude, in degrees.
+   * \param[in] altitude                Altitude, in meters.
+   */
+   void initUTM(double Lat, double Long, double altitude);
+
+   /*!
+   * Convert latitude and longitude to a position relative to UTM initial position.
+   *
+   * \param[in] Lat                     Latitude, in degrees.
+   * \param[in] Long                    Longitude, in degrees.
+   * \param[in] zoneNumber              UTM zone number.
+   * \param[out] UTMNorthing            UTM northing, in meters.
+   * \param[out] UTMEasting             UTM easting, in meters.
+   */
+   void LLtoUTM(double Lat, double Long, int zoneNumber, double &UTMNorthing, double &UTMEasting) const;
+
 public:
 
   //---------------------------------------------------------------------//
@@ -289,6 +356,41 @@ public:
    * \param[in]  enu          If true publish data in the ENU convention.
    */
   void setUseEnu(bool enu);
+
+  /*!
+   * Set odom enable.
+   *
+   * \param[in] odom_enable		 If true enable odometry.
+   */
+   void setOdomEnable(bool odom_enable);
+
+  /*!
+   * Set odom publish_tf.
+   *
+   * \param[in] publish_tf		 If true publish odometry transforms.
+   */
+   void setOdomPublishTf(bool publish_tf);
+
+  /*!
+   * Set the odometry frame ID.
+   *
+   * \param[in] ref_frame_id     Odometry frame ID.
+   */
+  void setOdomFrameId(const std::string &ref_frame_id);
+
+  /*!
+   * Set the odometry base frame ID.
+   *
+   * \param[in] ref_frame_id     Odometry base frame ID.
+   */
+  void setOdomBaseFrameId(const std::string &ref_frame_id);
+
+  /*!
+   * Set the odometry init frame ID.
+   *
+   * \param[in] ref_frame_id     Odometry init frame ID.
+   */
+  void setOdomInitFrameId(const std::string &ref_frame_id);
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
@@ -440,6 +542,38 @@ public:
    const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const;
 
   /*!
+   * Create a ROS standard odometry message from SBG messages.
+   *
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_ekf_quat_msg    SBG-ROS Ekf Quaternion message.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \return                            ROS standard odometry message.
+   */
+  const nav_msgs::Odometry createRosOdoMessage(const sbg_driver::SbgImuData &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_sbg_ekf_nav_msg, const sbg_driver::SbgEkfQuat &ref_sbg_ekf_quat_msg, const sbg_driver::SbgEkfEuler &ref_sbg_ekf_euler_msg);
+
+  /*!
+   * Create a ROS standard odometry message from SBG messages.
+   *
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \return                            ROS standard odometry message.
+   */
+  const nav_msgs::Odometry createRosOdoMessage(const sbg_driver::SbgImuData &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_sbg_ekf_nav_msg, const sbg_driver::SbgEkfEuler &ref_sbg_ekf_euler_msg);
+
+  /*!
+   * Create a ROS standard odometry message from SBG messages and tf2 quaternion.
+   *
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] orientation             Orientation as a Tf2 quaternion.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \return                            ROS standard odometry message.
+   */
+  const nav_msgs::Odometry createRosOdoMessage(const sbg_driver::SbgImuData &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_sbg_ekf_nav_msg, const tf2::Quaternion &ref_orientation, const sbg_driver::SbgEkfEuler &ref_sbg_ekf_euler_msg);
+
+  /*!
    * Create a ROS standard Temperature message from SBG message.
    *
    * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
@@ -458,7 +592,7 @@ public:
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
    *
-   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \param[in] ref_sbg_ekf_vel_msg     SBG-ROS Ekf velocity message.
    * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
    * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
    * \return                            ROS standard TwistStamped message.
