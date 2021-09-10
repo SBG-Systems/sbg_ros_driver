@@ -114,6 +114,7 @@ const sbg_driver::SbgEkfStatus MessageWrapper::createEkfStatusMessage(uint32_t e
   ekf_status_message.gps2_hdt_used    = (ekf_status & SBG_ECOM_SOL_GPS2_HDT_USED) != 0;
 
   ekf_status_message.odo_used         = (ekf_status & SBG_ECOM_SOL_ODO_USED) != 0;
+  ekf_status_message.ekf_aligned      = (ekf_status & SBG_ECOM_SOL_ALIGN_VALID) != 0;
 
   return ekf_status_message;
 }

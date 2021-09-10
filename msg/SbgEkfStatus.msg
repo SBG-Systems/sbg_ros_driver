@@ -53,3 +53,6 @@ bool gps2_hdt_used
 
 # True if Odometer is used in solution (data used and valid since 3s)
 bool odo_used
+
+# True if solution ekf is aligned (data used and valid since 4 mns)
+bool ekf_aligned
