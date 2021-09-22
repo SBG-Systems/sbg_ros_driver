@@ -506,10 +506,13 @@ const sbg_driver::SbgGpsHdt MessageWrapper::createSbgGpsHdtMessage(const SbgLogG
 {
   sbg_driver::SbgGpsHdt gps_hdt_message;
 
-  gps_hdt_message.header      = createRosHeader(ref_log_gps_hdt.timeStamp);
-  gps_hdt_message.time_stamp  = ref_log_gps_hdt.timeStamp;
-  gps_hdt_message.status      = ref_log_gps_hdt.status;
-  gps_hdt_message.tow         = ref_log_gps_hdt.timeOfWeek;
+  gps_hdt_message.header           = createRosHeader(ref_log_gps_hdt.timeStamp);
+  gps_hdt_message.time_stamp       = ref_log_gps_hdt.timeStamp;
+  gps_hdt_message.status           = ref_log_gps_hdt.status;
+  gps_hdt_message.tow              = ref_log_gps_hdt.timeOfWeek;
+  gps_hdt_message.true_heading_acc = ref_log_gps_hdt.headingAccuracy;
+  gps_hdt_message.pitch_acc        = ref_log_gps_hdt.pitchAccuracy;
+  gps_hdt_message.baseline         = ref_log_gps_hdt.baseline;
 
   if (m_use_enu_)
   {

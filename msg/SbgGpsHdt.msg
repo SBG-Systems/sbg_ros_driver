@@ -31,3 +31,6 @@ float32 pitch
 
 # 1 sigma pitch estimated accuracy
 float32 pitch_acc
+
+# The distance between the main and aux antenna in meters.
+float32 baseline
