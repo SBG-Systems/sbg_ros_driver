@@ -6,15 +6,15 @@ driver:
   #       output frequency.
   #       The frequency can be reduced in order to reduce CPU consumption but
   #       it can lead to miss data frame and less accurate time stamping.
-  frequency: 400
+  frequency: 100
 
 # Configuration of the device with ROS.
-confWithRos: false
+confWithRos: true
 
 # Uart configuration
 uartConf:
   # Port Name
-  portName: "/dev/ttyUSB0"
+  portName: "/dev/ttyUSB1"
 
   # Baude rate (4800 ,9600 ,19200 ,38400 ,115200 [default],230400 ,460800 ,921600)
   baudRate: 115200
@@ -30,17 +30,17 @@ uartConf:
 # Sensor Parameters
 sensorParameters:
   # Initial latitude (°)
-  initLat: 48.419727
+  initLat: 37.235915606
   # Initial longitude (°)
-  initLong: -4.472119
+  initLong: 126.772467433
   # Initial altitude (above WGS84 ellipsoid) (m)
-  initAlt: 100.0
+  initAlt: 30.0
   # Year at startup
-  year: 2018
+  year: 2021
   # month in year at startup
-  month: 03
+  month: 08
   # day in month at startup
-  day: 10
+  day: 09
 
   # Montion profile ID
   # 1 GENERAL_PURPOSE Should be used as a default when other profiles do not apply
@@ -48,7 +48,7 @@ sensorParameters:
   # 3 MARINE          Used in marine and underwater applications
   # 4 AIRPLANE        For fixed wings aircraft
   # 5 HELICOPTER      For rotary wing aircraft
-  motionProfile: 1
+  motionProfile: 2
 
 # IMU_ALIGNMENT_LEVER_ARM
 imuAlignementLeverArm:
@@ -75,11 +75,11 @@ imuAlignementLeverArm:
   # Residual yaw error after axis alignment rad
   misYaw: 0
   # X Primary lever arm in IMU X axis (once IMU alignment is applied) m
-  leverArmX: 0
+  leverArmX: 0.40
   # Y Primary lever arm in IMU Y axis (once IMU alignment is applied) m
   leverArmY: 0
   # Z Primary lever arm in IMU Z axis (once IMU alignment is applied) m
-  leverArmZ: 0
+  leverArmZ: 0.35
 
 # AIDING_ASSIGNMENT
 # Note: GNSS1 module configuration can only be set to an external port on Ellipse-E version.
@@ -92,7 +92,7 @@ aidingAssignment:
   # 2 Module connected on PORT_C
   # 3 Module connected on PORT_D
   # 5 Module is connected internally
-  gnss1ModulePortAssignment: 255
+  gnss1ModulePortAssignment: 5
   # GNSS module sync assignment:
   # 0 Module is disabled
   # 1 Synchronization is done using SYNC_IN_A pin
@@ -102,9 +102,9 @@ aidingAssignment:
   # 5 Synchronization is internal
   # 6 Synchronization is done using SYNC_OUT_A pin
   # 7 Synchronization is done using SYNC_OUT_B pin
-  gnss1ModuleSyncAssignment: 0
-  # RTCM input port assignment for Ellipse-N DGPS (see gnss1ModulePortAssignment for values)
-  rtcmPortAssignment: 255
+  gnss1ModuleSyncAssignment: 5
+  # RTCM input port assignment for Ellipse-N DGPS
+  rtcmPortAssignment: 1
   # Odometer module pin assignment
   # 0 Odometer is disabled
   # 1 Odometer connected only to ODO_A (unidirectional).
@@ -115,12 +115,12 @@ magnetometer:
   # Magnetometer model ID
   # 201 Should be used in most applications
   # 202 Should be used in disturbed magnetic environment
-  magnetometerModel: 201
+  magnetometerModel: 202
   # Magnetometer rejection mode
   # 0 Measurement is not taken into account
   # 1 Measurement is rejected if inconsistent with current estimate (depending on error model)
   # 2 Measurement is always accepted
-  magnetometerRejectMode: 1
+  magnetometerRejectMode: 0
 
   # Theses parameters are only used for a calibration run
   calibration:
@@ -148,30 +148,30 @@ gnss:
   # 104 Used on Ellipse-E to setup a connection to ublox in read only mode.
   # 106 Used on Ellipse-E to setup a connection to Novatel receiver in read only mode.
   # 107 Used on Ellipse-D by default
-  gnss_model_id: 101
+  gnss_model_id: 107
 
   #GNSS primary antenna lever arm in IMU X axis (m)
-  primaryLeverArmX: 0
+  primaryLeverArmX: 1.75
   #GNSS primary antenna lever arm in IMU Y axis (m)
   primaryLeverArmY: 0
   #GNSS primary antenna lever arm in IMU Z axis (m)
-  primaryLeverArmZ: 0
+  primaryLeverArmZ: -0.92
   #GNSS primary antenna precise. Set to true if the primary lever arm has been accurately entered and doesn't need online re-estimation.
-  primaryLeverPrecise: true
+  primaryLeverPrecise: false
 
   #GNSS secondary antenna lever arm in IMU X axis (m)
-  secondaryLeverArmX: 0
+  secondaryLeverArmX: 0.26
   #GNSS secondary antenna lever arm in IMU Y axis (m)
   secondaryLeverArmY: 0
   #GNSS secondary antenna lever arm in IMU Z axis (m)
-  secondaryLeverArmZ: 0
+  secondaryLeverArmZ: -0.94
 
   # Secondary antenna operating mode.
   # 1 The GNSS will be used in single antenna mode only and the secondary lever arm is not used.
   # 2 [Reserved] The GNSS dual antenna information will be used but the secondary lever arm is not known.
   # 3 The GNSS dual antenna information will be used and we have a rough guess for the secondary lever arm.
   # 4 The GNSS dual antenna information will be used and the secondary lever arm is accurately entered and doesn't need online re-estimation.
-  secondaryLeverMode: 1
+  secondaryLeverMode: 3
 
   # Rejection mode for position
   # 0 Measurement is not taken into account
@@ -205,7 +205,7 @@ odom:
   # 0 Measurement is not taken into account
   # 1 Measurement is rejected if inconsistent with current estimate (depending on error model)
   # 2 Measurement is always accepted
-  rejectMode: 1
+  rejectMode: 0
 
 # ToDo: event & CAN configuration
 
@@ -239,7 +239,7 @@ output:
 
   # Ros standard output:
   # Note: If true publish ROS standard messages.
-  ros_standard: false
+  ros_standard: true
 
   # Frame convention:
   # Note: If true messages are expressed in the ENU convention.
@@ -254,15 +254,15 @@ output:
   frame_id: "imu_link_ned"
 
   # Status general, clock, com aiding, solution, heave
-  log_status: 200
+  log_status: 100
   # Includes IMU status, acc., gyro, temp delta speeds and delta angles values
   log_imu_data: 8
   # Includes roll, pitch, yaw and their accuracies on each axis
-  log_ekf_euler: 0
+  log_ekf_euler: 8
   # Includes the 4 quaternions values
   log_ekf_quat: 8
   # Position and velocities in NED coordinates with the accuracies on each axis
-  log_ekf_nav: 0
+  log_ekf_nav: 4
   # Heave, surge and sway and accelerations on each axis for up to 4 points
   log_ship_motion: 0
   # Provides UTC time reference
@@ -272,13 +272,13 @@ output:
   # Magnetometer calibration data (raw buffer)
   log_mag_calib: 0
   # GPS velocities from primary or secondary GPS receiver
-  log_gps1_vel: 0
+  log_gps1_vel: 10001
   # GPS positions from primary or secondary GPS receiver
-  log_gps1_pos: 0
+  log_gps1_pos: 10001
   # GPS true heading from dual antenna system
-  log_gps1_hdt: 0
+  log_gps1_hdt: 10001
   # GPS 1 raw data for post processing.
-  log_gps1_raw: 0
+  log_gps1_raw: 10001
   # Provides odometer velocity
   log_odo_vel: 0
   # Event A/B/C/D Event markers sent when events are detected on a sync in pin
