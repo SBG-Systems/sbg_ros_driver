@@ -2,6 +2,15 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature `#44 <https://github.com/SBG-Systems/sbg_ros_driver/issues/44>`_ - odometry output
+* fix `#66 <https://github.com/SBG-Systems/sbg_ros_driver/issues/66>`_ - status description for SbgGpsHdt msg
+* fix `#66 <https://github.com/SBG-Systems/sbg_ros_driver/issues/66>`_ - missing heading and pitch accuracies in sbgGpsHdt msg
+* add ellipse D default configuration
+* update README
+* Contributors: Michael Zemb
+
 3.0.0 (2021-08-31)
 ------------------
 * Merge pull request `#62 <https://github.com/SBG-Systems/sbg_ros_driver/issues/62>`_ from SBG-Systems/devel
