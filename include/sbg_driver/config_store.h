@@ -115,6 +115,12 @@ private:
   std::string                 m_frame_id_;
   bool						  m_use_enu_;
 
+  bool						  m_odom_enable_;
+  bool						  m_odom_publish_tf_;
+  std::string                 m_odom_frame_id_;
+  std::string                 m_odom_base_frame_id_;
+  std::string                 m_odom_init_frame_id_;
+
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
   //---------------------------------------------------------------------//
@@ -151,6 +157,13 @@ private:
    * \param[in] ref_node_handle   ROS nodeHandle.
    */
   void loadDriverParameters(const ros::NodeHandle& ref_node_handle);
+
+  /*!
+   * Load odometry parameters.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   */
+  void loadOdomParameters(const ros::NodeHandle& ref_node_handle);
 
   /*!
    * Load interface communication parameters.
@@ -446,12 +459,48 @@ public:
    bool getUseEnu(void) const;
 
   /*!
+   * Get odom enable.
+   *
+   * \return					 True if the odometry is enabled.
+   */
+   bool getOdomEnable(void) const;
+
+  /*!
+   * Get odom publish_tf.
+   *
+   * \return					 If true publish odometry transforms.
+   */
+   bool getOdomPublishTf(void) const;
+
+  /*!
+   * Get the odometry frame ID.
+   *
+   * \return                      Odometry frame ID.
+   */
+  const std::string &getOdomFrameId(void) const;
+
+
+  /*!
+   * Get the odometry base frame ID.
+   *
+   * \return                      Odometry base frame ID.
+   */
+  const std::string &getOdomBaseFrameId(void) const;
+
+
+  /*!
+   * Get the odometry init frame ID.
+   *
+   * \return                      Odometry init frame ID.
+   */
+  const std::string &getOdomInitFrameId(void) const;
+
+  /*!
    * Get the time reference.
    *
    * \return                      Time reference.
    */
   TimeReference getTimeReference(void) const;
-
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

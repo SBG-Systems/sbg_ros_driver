@@ -80,6 +80,7 @@ private:
   ros::Publisher          m_velocity_pub_;
   ros::Publisher          m_utc_reference_pub_;
   ros::Publisher          m_nav_sat_fix_pub_;
+  ros::Publisher          m_odometry_pub_;
 
   MessageWrapper          m_message_wrapper_;
   uint32_t                m_max_messages_;
@@ -111,8 +112,9 @@ private:
    * Define standard ROS publishers.
    *
    * \param[in] ref_ros_node_handle     Ros NodeHandle to advertise the publisher.
+   * \param[in] odom_enable             If true, enable odometry messages.
    */
-  void defineRosStandardPublishers(ros::NodeHandle& ref_ros_node_handle);
+  void defineRosStandardPublishers(ros::NodeHandle& ref_ros_node_handle, bool odom_enable);
 
   /*!
    * Publish a received SBG IMU log.
@@ -130,6 +132,11 @@ private:
    * Process a ROS IMU standard message.
    */
   void processRosImuMessage(void);
+
+  /*!
+   * Process a ROS odometry standard message.
+   */
+  void processRosOdoMessage(void);
 
   /*!
    * Publish a received SBG Magnetic log.

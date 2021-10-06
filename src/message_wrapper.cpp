@@ -1,6 +1,12 @@
 // File header
 #include "message_wrapper.h"
 
+// ROS headers
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/static_transform_broadcaster.h>
+
 // Project headers
 #include <sbg_vector3.h>
 
@@ -16,6 +22,10 @@ using sbg::MessageWrapper;
 MessageWrapper::MessageWrapper(void):
 m_first_valid_utc_(false)
 {
+  m_utm0_.easting  = 0.0;
+  m_utm0_.northing = 0.0;
+  m_utm0_.altitude = 0.0;
+  m_utm0_.zone = 0;
 }
 
 //---------------------------------------------------------------------//
@@ -50,6 +60,11 @@ float MessageWrapper::wrapAngle360(float angle_deg) const
   }
 
   return angle_deg;
+}
+
+double MessageWrapper::computeMeridian(int zone_number) const
+{
+  return (zone_number == 0) ? 0.0 : (zone_number - 1) * 6.0 - 177.0;
 }
 
 const std_msgs::Header MessageWrapper::createRosHeader(uint32_t device_timestamp) const
@@ -355,6 +370,143 @@ const sbg_driver::SbgAirDataStatus MessageWrapper::createAirDataStatusMessage(co
   return air_data_status_message;
 }
 
+/**
+ * Get UTM letter designator for the given latitude.
+ *
+ * @returns 'Z' if latitude is outside the UTM limits of 84N to 80S
+ *
+ * Written by Chuck Gantz- chuck.gantz@globalstar.com
+ */
+char MessageWrapper::UTMLetterDesignator(double Lat)
+{
+	char LetterDesignator;
+
+	if     ((84 >= Lat) && (Lat >= 72))  LetterDesignator = 'X';
+	else if ((72 > Lat) && (Lat >= 64))  LetterDesignator = 'W';
+	else if ((64 > Lat) && (Lat >= 56))  LetterDesignator = 'V';
+	else if ((56 > Lat) && (Lat >= 48))  LetterDesignator = 'U';
+	else if ((48 > Lat) && (Lat >= 40))  LetterDesignator = 'T';
+	else if ((40 > Lat) && (Lat >= 32))  LetterDesignator = 'S';
+	else if ((32 > Lat) && (Lat >= 24))  LetterDesignator = 'R';
+	else if ((24 > Lat) && (Lat >= 16))  LetterDesignator = 'Q';
+	else if ((16 > Lat) && (Lat >= 8))   LetterDesignator = 'P';
+	else if (( 8 > Lat) && (Lat >= 0))   LetterDesignator = 'N';
+	else if (( 0 > Lat) && (Lat >= -8))  LetterDesignator = 'M';
+	else if ((-8 > Lat) && (Lat >= -16)) LetterDesignator = 'L';
+	else if((-16 > Lat) && (Lat >= -24)) LetterDesignator = 'K';
+	else if((-24 > Lat) && (Lat >= -32)) LetterDesignator = 'J';
+	else if((-32 > Lat) && (Lat >= -40)) LetterDesignator = 'H';
+	else if((-40 > Lat) && (Lat >= -48)) LetterDesignator = 'G';
+	else if((-48 > Lat) && (Lat >= -56)) LetterDesignator = 'F';
+	else if((-56 > Lat) && (Lat >= -64)) LetterDesignator = 'E';
+	else if((-64 > Lat) && (Lat >= -72)) LetterDesignator = 'D';
+	else if((-72 > Lat) && (Lat >= -80)) LetterDesignator = 'C';
+    // 'Z' is an error flag, the Latitude is outside the UTM limits
+	else LetterDesignator = 'Z';
+	return LetterDesignator;
+}
+
+void MessageWrapper::initUTM(double Lat, double Long, double altitude)
+{
+  int zoneNumber;
+
+  // Make sure the longitude is between -180.00 .. 179.9
+  double LongTemp = (Long+180)-int((Long+180)/360)*360-180;
+
+  zoneNumber = int((LongTemp + 180)/6) + 1;
+
+  if( Lat >= 56.0 && Lat < 64.0 && LongTemp >= 3.0 && LongTemp < 12.0 )
+  {
+    zoneNumber = 32;
+  }
+
+  // Special zones for Svalbard
+  if( Lat >= 72.0 && Lat < 84.0 )
+  {
+    if(      LongTemp >= 0.0  && LongTemp <  9.0 ) zoneNumber = 31;
+    else if( LongTemp >= 9.0  && LongTemp < 21.0 ) zoneNumber = 33;
+    else if( LongTemp >= 21.0 && LongTemp < 33.0 ) zoneNumber = 35;
+    else if( LongTemp >= 33.0 && LongTemp < 42.0 ) zoneNumber = 37;
+  }
+
+  m_utm0_.zone = zoneNumber;
+  m_utm0_.altitude = altitude;
+  LLtoUTM(Lat, Long, m_utm0_.zone, m_utm0_.northing, m_utm0_.easting);
+
+  ROS_INFO("initialized from lat:%f long:%f UTM zone %d%c: easting:%fm (%dkm) northing:%fm (%dkm)"
+  , Lat, Long, m_utm0_.zone, UTMLetterDesignator(Lat)
+  , m_utm0_.easting, (int)(m_utm0_.easting)/1000
+  , m_utm0_.northing, (int)(m_utm0_.northing)/1000
+  );
+}
+
+/*
+ * Modification of gps_common::LLtoUTM() to use a constant UTM zone.
+ *
+ * Convert lat/long to UTM coords.  Equations from USGS Bulletin 1532
+ *
+ * East Longitudes are positive, West longitudes are negative.
+ * North latitudes are positive, South latitudes are negative
+ * Lat and Long are in fractional degrees
+ *
+ * Originally written by Chuck Gantz- chuck.gantz@globalstar.com.
+ */
+void MessageWrapper::LLtoUTM(double Lat, double Long, int zoneNumber, double &UTMNorthing, double &UTMEasting) const
+{
+  const double RADIANS_PER_DEGREE = M_PI/180.0;
+
+  // WGS84 Parameters
+  const double WGS84_A = 6378137.0;        // major axis
+  const double WGS84_E = 0.0818191908;     // first eccentricity
+
+  // UTM Parameters
+  const double UTM_K0 = 0.9996;            // scale factor
+  const double UTM_E2 = (WGS84_E*WGS84_E); // e^2
+
+  double a = WGS84_A;
+  double eccSquared = UTM_E2;
+  double k0 = UTM_K0;
+
+  double LongOrigin;
+  double eccPrimeSquared;
+  double N, T, C, A, M;
+
+  // Make sure the longitude is between -180.00 .. 179.9
+  double LongTemp = (Long+180)-int((Long+180)/360)*360-180;
+
+  double LatRad = Lat*RADIANS_PER_DEGREE;
+  double LongRad = LongTemp*RADIANS_PER_DEGREE;
+  double LongOriginRad;
+
+  // +3 puts origin in middle of zone
+  LongOrigin = (zoneNumber - 1)*6 - 180 + 3;
+  LongOriginRad = LongOrigin * RADIANS_PER_DEGREE;
+
+  eccPrimeSquared = (eccSquared)/(1-eccSquared);
+
+  N = a/sqrt(1-eccSquared*sin(LatRad)*sin(LatRad));
+  T = tan(LatRad)*tan(LatRad);
+  C = eccPrimeSquared*cos(LatRad)*cos(LatRad);
+  A = cos(LatRad)*(LongRad-LongOriginRad);
+
+  M = a*((1 - eccSquared/4      - 3*eccSquared*eccSquared/64     - 5*eccSquared*eccSquared*eccSquared/256)*LatRad
+            - (3*eccSquared/8   + 3*eccSquared*eccSquared/32    + 45*eccSquared*eccSquared*eccSquared/1024)*sin(2*LatRad)
+                                + (15*eccSquared*eccSquared/256 + 45*eccSquared*eccSquared*eccSquared/1024)*sin(4*LatRad)
+                                - (35*eccSquared*eccSquared*eccSquared/3072)*sin(6*LatRad));
+
+  UTMEasting = (double)(k0*N*(A+(1-T+C)*A*A*A/6
+    + (5-18*T+T*T+72*C-58*eccPrimeSquared)*A*A*A*A*A/120)
+    + 500000.0);
+
+  UTMNorthing = (double)(k0*(M+N*tan(LatRad)*(A*A/2+(5-T+9*C+4*C*C)*A*A*A*A/24
+    + (61-58*T+T*T+600*C-330*eccPrimeSquared)*A*A*A*A*A*A/720)));
+
+  if(Lat < 0)
+  {
+    UTMNorthing += 10000000.0; //10000000 meter offset for southern hemisphere
+  }
+}
+
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
@@ -372,6 +524,31 @@ void MessageWrapper::setFrameId(const std::string &frame_id)
 void MessageWrapper::setUseEnu(bool enu)
 {
   m_use_enu_ = enu;
+}
+
+void MessageWrapper::setOdomEnable(bool odom_enable)
+{
+  m_odom_enable_ = odom_enable;
+}
+
+void MessageWrapper::setOdomPublishTf(bool publish_tf)
+{
+  m_odom_publish_tf_ = publish_tf;
+}
+
+void MessageWrapper::setOdomFrameId(const std::string &ref_frame_id)
+{
+  m_odom_frame_id_ = ref_frame_id;
+}
+
+void MessageWrapper::setOdomBaseFrameId(const std::string &ref_frame_id)
+{
+  m_odom_base_frame_id_ = ref_frame_id;
+}
+
+void MessageWrapper::setOdomInitFrameId(const std::string &ref_frame_id)
+{
+  m_odom_init_frame_id_ = ref_frame_id;
 }
 
 //---------------------------------------------------------------------//
@@ -506,10 +683,13 @@ const sbg_driver::SbgGpsHdt MessageWrapper::createSbgGpsHdtMessage(const SbgLogG
 {
   sbg_driver::SbgGpsHdt gps_hdt_message;
 
-  gps_hdt_message.header      = createRosHeader(ref_log_gps_hdt.timeStamp);
-  gps_hdt_message.time_stamp  = ref_log_gps_hdt.timeStamp;
-  gps_hdt_message.status      = ref_log_gps_hdt.status;
-  gps_hdt_message.tow         = ref_log_gps_hdt.timeOfWeek;
+  gps_hdt_message.header           = createRosHeader(ref_log_gps_hdt.timeStamp);
+  gps_hdt_message.time_stamp       = ref_log_gps_hdt.timeStamp;
+  gps_hdt_message.status           = ref_log_gps_hdt.status;
+  gps_hdt_message.tow              = ref_log_gps_hdt.timeOfWeek;
+  gps_hdt_message.true_heading_acc = ref_log_gps_hdt.headingAccuracy;
+  gps_hdt_message.pitch_acc        = ref_log_gps_hdt.pitchAccuracy;
+  gps_hdt_message.baseline         = ref_log_gps_hdt.baseline;
 
   if (m_use_enu_)
   {
@@ -857,6 +1037,120 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
   }
 
   return imu_ros_message;
+}
+
+void MessageWrapper::fillTransform(const std::string &ref_parent_frame_id, const std::string &ref_child_frame_id, const geometry_msgs::Pose &ref_pose, geometry_msgs::TransformStamped &refTransformStamped)
+{
+  tf2::Quaternion q;
+
+  refTransformStamped.header.stamp = ros::Time::now();
+  refTransformStamped.header.frame_id = ref_parent_frame_id;
+  refTransformStamped.child_frame_id = ref_child_frame_id;
+
+  refTransformStamped.transform.translation.x = ref_pose.position.x;
+  refTransformStamped.transform.translation.y = ref_pose.position.y;
+  refTransformStamped.transform.translation.z = ref_pose.position.z;
+  refTransformStamped.transform.rotation.x = ref_pose.orientation.x;
+  refTransformStamped.transform.rotation.y = ref_pose.orientation.y;
+  refTransformStamped.transform.rotation.z = ref_pose.orientation.z;
+  refTransformStamped.transform.rotation.w = ref_pose.orientation.w;
+
+  m_tf_broadcaster_.sendTransform(refTransformStamped);
+}
+
+const nav_msgs::Odometry MessageWrapper::createRosOdoMessage(const sbg_driver::SbgImuData &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_ekf_nav_msg, const sbg_driver::SbgEkfQuat &ref_ekf_quat_msg, const sbg_driver::SbgEkfEuler &ref_ekf_euler_msg)
+{
+  tf2::Quaternion orientation(ref_ekf_quat_msg.quaternion.x, ref_ekf_quat_msg.quaternion.y, ref_ekf_quat_msg.quaternion.z, ref_ekf_quat_msg.quaternion.w);
+
+  return createRosOdoMessage(ref_sbg_imu_msg, ref_ekf_nav_msg, orientation, ref_ekf_euler_msg);
+}
+
+const nav_msgs::Odometry MessageWrapper::createRosOdoMessage(const sbg_driver::SbgImuData &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_ekf_nav_msg, const sbg_driver::SbgEkfEuler &ref_ekf_euler_msg)
+{
+  tf2::Quaternion orientation;
+
+  // Compute orientation quaternion from euler angles (already converted from NED to ENU if needed).
+  orientation.setRPY(ref_ekf_euler_msg.angle.x, ref_ekf_euler_msg.angle.y, ref_ekf_euler_msg.angle.z);
+
+  return createRosOdoMessage(ref_sbg_imu_msg, ref_ekf_nav_msg, orientation, ref_ekf_euler_msg);
+}
+
+const nav_msgs::Odometry MessageWrapper::createRosOdoMessage(const sbg_driver::SbgImuData &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_ekf_nav_msg, const tf2::Quaternion &ref_orientation, const sbg_driver::SbgEkfEuler &ref_ekf_euler_msg)
+{
+  nav_msgs::Odometry odo_ros_msg;
+  double utm_northing, utm_easting;
+  std::string utm_zone;
+  geometry_msgs::TransformStamped transform;
+
+  // The pose message provides the position and orientation of the robot relative to the frame specified in header.frame_id
+  odo_ros_msg.header = createRosHeader(ref_sbg_imu_msg.time_stamp);
+  odo_ros_msg.header.frame_id = m_odom_frame_id_;
+  tf2::convert(ref_orientation, odo_ros_msg.pose.pose.orientation);
+
+  // Convert latitude and longitude to UTM coordinates.
+  if (m_utm0_.zone == 0)
+  {
+    initUTM(ref_ekf_nav_msg.latitude, ref_ekf_nav_msg.longitude, ref_ekf_nav_msg.altitude);
+
+    if (m_odom_publish_tf_)
+    {
+      // Publish UTM initial transformation.
+      geometry_msgs::Pose pose;
+      pose.position.x = m_utm0_.easting;
+      pose.position.y = m_utm0_.northing;
+      pose.position.z = m_utm0_.altitude;
+      fillTransform(m_odom_init_frame_id_, m_odom_frame_id_, pose, transform);
+      m_static_tf_broadcaster_.sendTransform(transform);
+    }
+  }
+
+  LLtoUTM(ref_ekf_nav_msg.latitude, ref_ekf_nav_msg.longitude, m_utm0_.zone, utm_easting, utm_northing);
+  odo_ros_msg.pose.pose.position.x = utm_northing - m_utm0_.easting;
+  odo_ros_msg.pose.pose.position.y = utm_easting  - m_utm0_.northing;
+  odo_ros_msg.pose.pose.position.z = ref_ekf_nav_msg.altitude - m_utm0_.altitude;
+
+  // Compute convergence angle.
+  double longitudeRad      = sbgDegToRadD(ref_ekf_nav_msg.longitude);
+  double latitudeRad       = sbgDegToRadD(ref_ekf_nav_msg.latitude);
+  double central_meridian  = sbgDegToRadD(computeMeridian(m_utm0_.zone));
+  double convergence_angle = atan(tan(longitudeRad - central_meridian) * sin(latitudeRad));
+
+  // Convert position standard deviations to UTM frame.
+  double std_east  = ref_ekf_nav_msg.position_accuracy.x;
+  double std_north = ref_ekf_nav_msg.position_accuracy.y;
+  double std_x = std_north * cos(convergence_angle) - std_east * sin(convergence_angle);
+  double std_y = std_north * sin(convergence_angle) + std_east * cos(convergence_angle);
+  double std_z = ref_ekf_nav_msg.position_accuracy.z;
+  odo_ros_msg.pose.covariance[0*6 + 0] = std_x * std_x;
+  odo_ros_msg.pose.covariance[1*6 + 1] = std_y * std_y;
+  odo_ros_msg.pose.covariance[2*6 + 2] = std_z * std_z;
+  odo_ros_msg.pose.covariance[3*6 + 3] = ref_ekf_euler_msg.accuracy.x * ref_ekf_euler_msg.accuracy.x;
+  odo_ros_msg.pose.covariance[4*6 + 4] = ref_ekf_euler_msg.accuracy.y * ref_ekf_euler_msg.accuracy.y;
+  odo_ros_msg.pose.covariance[5*6 + 5] = ref_ekf_euler_msg.accuracy.z * ref_ekf_euler_msg.accuracy.z;
+
+  // The twist message gives the linear and angular velocity relative to the frame defined in child_frame_id
+  odo_ros_msg.child_frame_id            = m_frame_id_;
+  odo_ros_msg.twist.twist.linear.x      = ref_ekf_nav_msg.velocity.x;
+  odo_ros_msg.twist.twist.linear.y      = ref_ekf_nav_msg.velocity.y;
+  odo_ros_msg.twist.twist.linear.z      = ref_ekf_nav_msg.velocity.z;
+  odo_ros_msg.twist.twist.angular.x     = ref_sbg_imu_msg.gyro.x;
+  odo_ros_msg.twist.twist.angular.y     = ref_sbg_imu_msg.gyro.y;
+  odo_ros_msg.twist.twist.angular.z     = ref_sbg_imu_msg.gyro.z;
+  odo_ros_msg.twist.covariance[0*6 + 0] = ref_ekf_nav_msg.velocity_accuracy.x * ref_ekf_nav_msg.velocity_accuracy.x;
+  odo_ros_msg.twist.covariance[1*6 + 1] = ref_ekf_nav_msg.velocity_accuracy.y * ref_ekf_nav_msg.velocity_accuracy.y;
+  odo_ros_msg.twist.covariance[2*6 + 2] = ref_ekf_nav_msg.velocity_accuracy.z * ref_ekf_nav_msg.velocity_accuracy.z;
+  odo_ros_msg.twist.covariance[3*6 + 3] = 0;
+  odo_ros_msg.twist.covariance[4*6 + 4] = 0;
+  odo_ros_msg.twist.covariance[5*6 + 5] = 0;
+
+  if (m_odom_publish_tf_)
+  {
+    // Publish odom transformation.
+    fillTransform(odo_ros_msg.header.frame_id, m_odom_base_frame_id_, odo_ros_msg.pose.pose, transform);
+    m_tf_broadcaster_.sendTransform(transform);
+  }
+
+  return odo_ros_msg;
 }
 
 const sensor_msgs::Temperature MessageWrapper::createRosTemperatureMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg) const

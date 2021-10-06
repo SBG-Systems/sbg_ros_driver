@@ -14,9 +14,9 @@ Maintainer : SBG Systems, support@sbg-systems.com**
 ## Installation
 ### Installation from Packages
 User can install the sbg_ros_driver through the standard ROS installation system.
+
 * Melodic ```sudo apt-get install ros-melodic-sbg-driver```
-* Kinectic ```sudo apt-get install ros-kinetic-sbg-driver```
-* Lunar ```sudo apt-get install ros-lunar-sbg-driver```
+* Noetic ```sudo apt-get install ros-noetic-sbg-driver```
 
 ### Building from sources
 #### Dependencies
@@ -307,6 +307,13 @@ The frame convention can be set to NED or ENU
 ```
 # Frame convention:
 use_enu: true
+```
+
+## Troubleshooting
+
+If you experience higher latency than expected and have connected the IMU via an USB interface, you can enable the serial driver low latency mode:
+```
+/bin/setserial /dev/<device> low_latency
 ```
 
 ## Contributing

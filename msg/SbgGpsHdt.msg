@@ -5,10 +5,13 @@ Header header
 uint32 time_stamp
 
 # GPS True Heading status.
+# Bit 0-5: enum:
 # 0 SOL_COMPUTED		A valid solution has been computed.
 # 1 INSUFFICIENT_OBS	Not enough valid SV to compute a solution.
 # 2 INTERNAL_ERROR		An internal error has occurred.
 # 3 HEIGHT_LIMIT		The height limit has been exceeded.
+# Bit 6: mask:
+# 1 BASELINE_VALID      The baseline length field is filled and valid.
 uint16 status
 
 # GPS Time of Week [ms]
@@ -31,3 +34,6 @@ float32 pitch
 
 # 1 sigma pitch estimated accuracy
 float32 pitch_acc
+
+# The distance between the main and aux antenna in meters.
+float32 baseline

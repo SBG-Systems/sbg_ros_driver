@@ -28,6 +28,15 @@ void ConfigStore::loadDriverParameters(const ros::NodeHandle& ref_node_handle)
   m_rate_frequency_ = getParameter<uint32_t>(ref_node_handle, "driver/frequency", 400);
 }
 
+void ConfigStore::loadOdomParameters(const ros::NodeHandle& ref_node_handle)
+{
+  ref_node_handle.param<bool>       ("odometry/enable"   , m_odom_enable_          , false);
+  ref_node_handle.param<bool>       ("odometry/publishTf", m_odom_publish_tf_      , false);
+  ref_node_handle.param<std::string>("odometry/odomFrameId", m_odom_frame_id_      , "odom");
+  ref_node_handle.param<std::string>("odometry/baseFrameId", m_odom_base_frame_id_ , "base_link");
+  ref_node_handle.param<std::string>("odometry/initFrameId", m_odom_init_frame_id_ , "map");
+}
+
 void ConfigStore::loadCommunicationParameters(const ros::NodeHandle& ref_node_handle)
 {
   ref_node_handle.param<bool>("confWithRos", m_configure_through_ros_, false);
@@ -336,6 +345,31 @@ sbg::TimeReference ConfigStore::getTimeReference(void) const
   return m_time_reference_;
 }
 
+bool ConfigStore::getOdomEnable(void) const
+{
+  return m_odom_enable_;
+}
+
+bool ConfigStore::getOdomPublishTf(void) const
+{
+  return m_odom_publish_tf_;
+}
+
+const std::string &ConfigStore::getOdomFrameId(void) const
+{
+  return m_odom_frame_id_;
+}
+
+const std::string &ConfigStore::getOdomBaseFrameId(void) const
+{
+  return m_odom_base_frame_id_;
+}
+
+const std::string &ConfigStore::getOdomInitFrameId(void) const
+{
+  return m_odom_init_frame_id_;
+}
+
 //---------------------------------------------------------------------//
 //- Operations                                                        -//
 //---------------------------------------------------------------------//
@@ -343,6 +377,7 @@ sbg::TimeReference ConfigStore::getTimeReference(void) const
 void ConfigStore::loadFromRosNodeHandle(const ros::NodeHandle& ref_node_handle)
 {
   loadDriverParameters(ref_node_handle);
+  loadOdomParameters(ref_node_handle);
   loadCommunicationParameters(ref_node_handle);
   loadSensorParameters(ref_node_handle);
   loadImuAlignementParameters(ref_node_handle);
