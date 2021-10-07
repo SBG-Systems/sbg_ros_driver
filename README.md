@@ -77,6 +77,9 @@ Default config file for an Ellipse-E with an external antenna and external Gnss.
 * **ellipse_N_default.yaml** <br />
 Default config file for an Ellipse-N with an external antenna and internal Gnss.
 
+* **ellipse_D_default.yaml** <br />
+Default config file for an Ellipse-D.
+
 ## Launch files
 ### Default launch files
 * **sbg_device.launch** <br />
@@ -199,6 +202,11 @@ For each ROS standard, you have to activate the needed SBG outputs.
   Navigation satellite fix for any Global Navigation Satellite System.
   Requires `/sbg/gps_pos`.
   
+* **`/imu/odometry`** [nav_msgs/Odometry](http://docs.ros.org/en/melodic/api/nav_msgs/html/msg/Odometry.html)
+
+  UTM projected position relative to the first valid INS position.
+  Requires `/sbg/imu_data` and `/sbg/ekv_nav` and either `/sbg/ekf_euler` or `/sbg/ekf_quat`.
+  Disabled by default, set odometry.enable in configuration file.
 
 ### sbg_device_mag
 The sbg_device_mag node handles the magnetic calibration for suitable devices.
