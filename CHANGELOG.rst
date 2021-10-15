@@ -2,8 +2,8 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.1.1 (2021-10-15)
+------------------
 * fix missing dependencies and build status link
   - missing dep on nav_msgs, tf2_geometry_msgs, tf2_ros and tf2_msgs
   - fix build status link in readme
