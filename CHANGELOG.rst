@@ -2,6 +2,14 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix missing dependencies and build status link
+  - missing dep on nav_msgs, tf2_geometry_msgs, tf2_ros and tf2_msgs
+  - fix build status link in readme
+* update doc with odometry message
+* Contributors: Michael Zemb
+
 3.1.0 (2021-10-06)
 ------------------
 * Feature `#44 <https://github.com/SBG-Systems/sbg_ros_driver/issues/44>`_ - odometry output
