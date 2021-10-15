@@ -25,12 +25,20 @@ User can install the sbg_ros_driver through the standard ROS installation system
 
 #### Building
 1. Clone the repository (use a Release version)
-2. Build using the normal ROS catkin build system
-
 ```
 cd catkin_ws/src
-git clone https://github.com/SBG-Systems/sbg_ros_driver.git
-cd ../
+git clone -b master https://github.com/SBG-Systems/sbg_ros_driver.git
+```
+
+2. Install dependencies
+```
+cd ..
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+3. Build using the normal ROS catkin build system
+
+```
 catkin_make
 ```
 
