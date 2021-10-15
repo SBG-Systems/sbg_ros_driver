@@ -1,6 +1,6 @@
 # sbg_driver
 
-[![Build Status](https://img.shields.io/jenkins/build?jobUrl=http%3A%2F%2Fbuild.ros.org%2Fjob%2FMdev__sbg_driver__ubuntu_bionic_amd64%2F&label=Ubuntu%20bionic)](http://build.ros.org/job/Mdev__sbg_driver__ubuntu_bionic_amd64/) [![Build Status](https://img.shields.io/jenkins/build?jobUrl=http%3A%2F%2Fbuild.ros.org%2Fjob%2FKdev__sbg_driver__ubuntu_xenial_amd64%2F&label=Ubuntu%20xenial)](http://build.ros.org/job/Kdev__sbg_driver__ubuntu_xenial_amd64/)
+[![Build Status](https://build.ros.org/buildStatus/icon?job=Mdev__sbg_driver__ubuntu_bionic_amd64&build=lastBuild)](https://build.ros.org/job/Mdev__sbg_driver__ubuntu_bionic_amd64/lastBuild/)
 
 ## Overview
 ROS package for SBG Systems IMU.<br />
@@ -76,6 +76,9 @@ Default config file for an Ellipse-E with an external antenna and external Gnss.
 
 * **ellipse_N_default.yaml** <br />
 Default config file for an Ellipse-N with an external antenna and internal Gnss.
+
+* **ellipse_D_default.yaml** <br />
+Default config file for an Ellipse-D.
 
 ## Launch files
 ### Default launch files
@@ -199,6 +202,11 @@ For each ROS standard, you have to activate the needed SBG outputs.
   Navigation satellite fix for any Global Navigation Satellite System.
   Requires `/sbg/gps_pos`.
   
+* **`/imu/odometry`** [nav_msgs/Odometry](http://docs.ros.org/en/melodic/api/nav_msgs/html/msg/Odometry.html)
+
+  UTM projected position relative to the first valid INS position.
+  Requires `/sbg/imu_data` and `/sbg/ekv_nav` and either `/sbg/ekf_euler` or `/sbg/ekf_quat`.
+  Disabled by default, set odometry.enable in configuration file.
 
 ### sbg_device_mag
 The sbg_device_mag node handles the magnetic calibration for suitable devices.
