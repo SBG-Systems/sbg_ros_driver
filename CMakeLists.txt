@@ -106,11 +106,21 @@ set (SBG_COMMON_RESOURCES
 ## Declare a C++ executable
 add_executable(sbg_device ${SBG_COMMON_RESOURCES} src/main.cpp)
 add_dependencies(sbg_device ${sbg_driver_EXPORTED_TARGETS})
+
+if(WIN32)
+target_compile_options(sbg_device PRIVATE)
+else()
 target_compile_options(sbg_device PRIVATE -Wall -Wextra)
+endif()
 
 add_executable(sbg_device_mag ${SBG_COMMON_RESOURCES} src/main_mag.cpp)
 add_dependencies(sbg_device_mag ${sbg_driver_EXPORTED_TARGETS})
+
+if(WIN32)
+target_compile_options(sbg_device_mag PRIVATE)
+else()
 target_compile_options(sbg_device_mag PRIVATE -Wall -Wextra)
+endif()
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(sbg_device ${catkin_LIBRARIES} sbgECom)
