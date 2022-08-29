@@ -20,74 +20,81 @@ m_max_messages_(10)
 
 std::string MessagePublisher::getOutputTopicName(SbgEComMsgId sbg_message_id) const
 {
+  std::string sbg_node_name;
+  std::string name;
+
+  sbg_node_name = ros::names::resolve("sbg");
+
   switch (sbg_message_id)
   {
   case SBG_ECOM_LOG_STATUS:
-    return "sbg/status";
-
+    name = "/status";
+    break;
   case SBG_ECOM_LOG_UTC_TIME:
-    return "sbg/utc_time";
-
+    name = "/utc_time";
+    break;
   case SBG_ECOM_LOG_IMU_DATA:
-    return "sbg/imu_data";
-
+    name = "/imu_data";
+    break;
   case SBG_ECOM_LOG_MAG:
-    return "sbg/mag";
-
+    name = "/mag";
+    break;
   case SBG_ECOM_LOG_MAG_CALIB:
-    return "sbg/mag_calib";
-
+    name = "/mag_calib";
+    break;
   case SBG_ECOM_LOG_EKF_EULER:
-    return "sbg/ekf_euler";
-
+    name = "/ekf_euler";
+    break;
   case SBG_ECOM_LOG_EKF_QUAT:
-    return "sbg/ekf_quat";
-
+    name = "/ekf_quat";
+    break;
   case SBG_ECOM_LOG_EKF_NAV:
-    return "sbg/ekf_nav";
-
+    name = "/ekf_nav";
+    break;
   case SBG_ECOM_LOG_SHIP_MOTION:
-    return "sbg/ship_motion";
-
+    name = "/ship_motion";
+    break;
   case SBG_ECOM_LOG_GPS1_VEL:
-    return "sbg/gps_vel";
-
+    name = "/gps_vel";
+    break;
   case SBG_ECOM_LOG_GPS1_POS:
-    return "sbg/gps_pos";
-
+    name = "/gps_pos";
+    break;
   case SBG_ECOM_LOG_GPS1_HDT:
-    return "sbg/gps_hdt";
-
+    name = "/gps_hdt";
+    break;
   case SBG_ECOM_LOG_GPS1_RAW:
-    return "sbg/gps_raw";
-
+    name = "/gps_raw";
+    break;
   case SBG_ECOM_LOG_ODO_VEL:
-    return "sbg/odo_vel";
-
+    name = "/odo_vel";
+    break;
   case SBG_ECOM_LOG_EVENT_A:
-    return "sbg/eventA";
-
+    name = "/eventA";
+    break;
   case SBG_ECOM_LOG_EVENT_B:
-    return "sbg/eventB";
-
+    name = "/eventB";
+    break;
   case SBG_ECOM_LOG_EVENT_C:
-    return "sbg/eventC";
-
+    name = "/eventC";
+    break;
   case SBG_ECOM_LOG_EVENT_D:
-    return "sbg/eventD";
-
+    name = "/eventD";
+    break;
   case SBG_ECOM_LOG_EVENT_E:
-    return "sbg/eventE";
-
+    name = "/eventE";
+    break;
   case SBG_ECOM_LOG_AIR_DATA:
-    return "sbg/air_data";
-
+    name = "/air_data";
+    break;
   case SBG_ECOM_LOG_IMU_SHORT:
-    return "sbg/imu_short";
-
+    name = "/imu_short";
+    break;
   default:
     return "undefined";
   }
+
+  return sbg_node_name + name;
 }
 
 void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEComMsgId sbg_msg_id, SbgEComOutputMode output_conf, const std::string &ref_output_topic)
@@ -209,9 +216,13 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
 
 void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node_handle, bool odom_enable)
 {
+  std::string imu_node_name;
+
+  imu_node_name = ros::names::resolve("imu");
+
   if (m_sbgImuData_pub_ && m_sbgEkfQuat_pub_)
   {
-    m_imu_pub_ = ref_ros_node_handle.advertise<sensor_msgs::Imu>("imu/data", m_max_messages_);
+    m_imu_pub_ = ref_ros_node_handle.advertise<sensor_msgs::Imu>(imu_node_name + "/data", m_max_messages_);
   }
   else
   {
@@ -220,7 +231,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgImuData_pub_)
   {
-    m_temp_pub_     = ref_ros_node_handle.advertise<sensor_msgs::Temperature>("imu/temp", m_max_messages_);
+    m_temp_pub_     = ref_ros_node_handle.advertise<sensor_msgs::Temperature>(imu_node_name + "/temp", m_max_messages_);
   }
   else
   {
@@ -229,7 +240,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgMag_pub_)
   {
-    m_mag_pub_ = ref_ros_node_handle.advertise<sensor_msgs::MagneticField>("imu/mag", m_max_messages_);
+    m_mag_pub_ = ref_ros_node_handle.advertise<sensor_msgs::MagneticField>(imu_node_name + "/mag", m_max_messages_);
   }
   else
   {
@@ -242,7 +253,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   //
   if ((m_sbgEkfEuler_pub_ || m_sbgEkfQuat_pub_) && m_sbgEkfNav_pub_ && m_sbgImuData_pub_)
   {
-    m_velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>("imu/velocity", m_max_messages_);
+    m_velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>(imu_node_name + "/velocity", m_max_messages_);
   }
   else
   {
@@ -251,7 +262,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgAirData_pub_)
   {
-    m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>("imu/pres", m_max_messages_);
+    m_fluid_pub_ = ref_ros_node_handle.advertise<sensor_msgs::FluidPressure>(imu_node_name + "/pres", m_max_messages_);
   }
   else
   {
@@ -260,7 +271,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgEkfNav_pub_)
   {
-    m_pos_ecef_pub_ = ref_ros_node_handle.advertise<geometry_msgs::PointStamped>("imu/pos_ecef", m_max_messages_);
+    m_pos_ecef_pub_ = ref_ros_node_handle.advertise<geometry_msgs::PointStamped>(imu_node_name + "/pos_ecef", m_max_messages_);
   }
   else
   {
@@ -269,7 +280,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgUtcTime_pub_)
   {
-    m_utc_reference_pub_ = ref_ros_node_handle.advertise<sensor_msgs::TimeReference>("imu/utc_ref", m_max_messages_);
+    m_utc_reference_pub_ = ref_ros_node_handle.advertise<sensor_msgs::TimeReference>(imu_node_name + "/utc_ref", m_max_messages_);
   }
   else
   {
@@ -278,7 +289,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (m_sbgGpsPos_pub_)
   {
-    m_nav_sat_fix_pub_ = ref_ros_node_handle.advertise<sensor_msgs::NavSatFix>("imu/nav_sat_fix", m_max_messages_);
+    m_nav_sat_fix_pub_ = ref_ros_node_handle.advertise<sensor_msgs::NavSatFix>(imu_node_name + "/nav_sat_fix", m_max_messages_);
   }
   else
   {
@@ -289,7 +300,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   {
     if (m_sbgImuData_pub_ && m_sbgEkfNav_pub_ && (m_sbgEkfEuler_pub_ || m_sbgEkfQuat_pub_))
     {
-      m_odometry_pub_ = ref_ros_node_handle.advertise<nav_msgs::Odometry>("imu/odometry", m_max_messages_);
+      m_odometry_pub_ = ref_ros_node_handle.advertise<nav_msgs::Odometry>(imu_node_name + "/odometry", m_max_messages_);
     }
     else
     {
