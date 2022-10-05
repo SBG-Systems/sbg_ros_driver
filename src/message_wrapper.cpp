@@ -10,6 +10,9 @@
 // Project headers
 #include <sbg_vector3.h>
 
+// Standard headers
+#include <cmath>
+
 using sbg::MessageWrapper;
 
 /*!
@@ -1018,8 +1021,22 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
   sensor_msgs::Imu imu_ros_message;
 
   imu_ros_message.header = createRosHeader(ref_sbg_imu_msg.time_stamp);
-
-  imu_ros_message.orientation               = ref_sbg_quat_msg.quaternion;
+  
+  if (m_use_enu_)
+  {
+    //
+    // Rotate quaternion to point 0 to East to respect ENU convention.
+    //
+    const double factor                     = sqrt(2) / 2;
+    imu_ros_message.orientation.w           = factor * (ref_sbg_quat_msg.quaternion.w - ref_sbg_quat_msg.quaternion.z);
+    imu_ros_message.orientation.x           = factor * (ref_sbg_quat_msg.quaternion.x - ref_sbg_quat_msg.quaternion.y);
+    imu_ros_message.orientation.y           = factor * (ref_sbg_quat_msg.quaternion.x + ref_sbg_quat_msg.quaternion.y);
+    imu_ros_message.orientation.z           = factor * (ref_sbg_quat_msg.quaternion.w + ref_sbg_quat_msg.quaternion.z);
+  }
+  else
+  {
+    imu_ros_message.orientation             = ref_sbg_quat_msg.quaternion;
+  }
   imu_ros_message.angular_velocity          = ref_sbg_imu_msg.delta_angle;
   imu_ros_message.linear_acceleration       = ref_sbg_imu_msg.delta_vel;
 
