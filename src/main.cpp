@@ -27,6 +27,7 @@ int main(int argc, char **argv)
       loop_rate.sleep();
     }
 
+    ros::shutdown();
     return 0;
   }
   catch (ros::Exception const& refE)

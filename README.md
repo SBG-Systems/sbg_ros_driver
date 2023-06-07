@@ -90,7 +90,10 @@ Launch the sbg_device_mag node to calibrate the magnetometers, and load the `ell
 
 ## Nodes
 ### sbg_device
-The sbg_device node handles the communication with the connected device, and publishes the SBG output to the Ros environment.
+The `sbg_device` node handles the communication with the connected device, and publishes the SBG output to the Ros environment.
+
+### sbg_subscriber
+The `sbg_subscriber` node handles the subscriptions to the Ros environment topics, and forward data the device.  
 
 #### Published Topics
 ##### SBG specific topics
@@ -207,6 +210,24 @@ For each ROS standard, you have to activate the needed SBG outputs.
   UTM projected position relative to the first valid INS position.
   Requires `/sbg/imu_data` and `/sbg/ekv_nav` and either `/sbg/ekf_euler` or `/sbg/ekf_quat`.
   Disabled by default, set odometry.enable in configuration file.
+
+##### NMEA topics
+GPS data in NMEA format can be published when `publish_nmea` is set to `true` in .yaml config file.  
+Data published on that topic can be used by a third party ROS module for NTRIP purpose.
+
+* **`/ntrip_client/nmea`** [nmea_msgs/Sentence](http://docs.ros.org/en/api/nmea_msgs/html/msg/Sentence.html)
+
+  Data from `/sbg/gps_pos` serialized into NMEA GGA format. Requires `/sbg/gps_pos`.  
+  Namespace `ntrip_client` and topic_name `nmea` can be customized in .yaml config files.
+
+#### Subscribed Topics
+##### RTCM topics
+SBG ROS Driver will listen to some topics published by third party ROS modules.
+
+* **`/ntrip_client/rtcm`** [mavros_msgs/RTCM](http://docs.ros.org/en/noetic/api/mavros_msgs/html/msg/RTCM.html)
+
+  RTCM data from `/ntrip_client/rtcm` will be forwarded to the IMU.    
+  Namespace `ntrip_client` and topic_name `rtcm` can be customized in .yaml config files.
 
 ### sbg_device_mag
 The sbg_device_mag node handles the magnetic calibration for suitable devices.

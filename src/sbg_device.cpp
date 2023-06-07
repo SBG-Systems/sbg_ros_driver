@@ -201,6 +201,21 @@ void SbgDevice::initPublishers(void)
   m_rate_frequency_ = m_config_store_.getReadingRateFrequency();
 }
 
+
+void SbgDevice::initSubscribers(void)
+{
+    if (!m_config_store_.shouldListenRtcm())
+    {
+        return;
+    }
+
+    m_message_subscriber_ = std::make_shared<MessageSubscriber>(&m_sbg_interface_);
+    m_message_subscriber_->initTopicSubscriptions(m_config_store_);
+    std::thread([&]{
+        ros::spin();
+    }).detach();
+}
+
 void SbgDevice::configure(void)
 {
   if (m_config_store_.checkConfigWithRos())
@@ -462,6 +477,7 @@ void SbgDevice::initDeviceForReceivingData(void)
 {
   SbgErrorCode error_code;
   initPublishers();
+  initSubscribers();
   configure();
 
   error_code = sbgEComSetReceiveLogCallback(&m_com_handle_, onLogReceivedCallback, this);

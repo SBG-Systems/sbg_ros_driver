@@ -56,6 +56,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
+#include <nmea_msgs/Sentence.h>
 
 // SbgRos message headers
 #include "sbg_driver/SbgStatus.h"
@@ -85,6 +86,19 @@ typedef struct _UTM0
 	double			altitude;
 	int				zone;
 } UTM0;
+
+typedef enum _SbgNmeaGpsQuality
+{
+    SBG_NMEA_GPS_QUALITY_INVALID	            = 0,
+    SBG_NMEA_GPS_QUALITY_SINGLE	                = 1,
+    SBG_NMEA_GPS_QUALITY_DGPS	                = 2,
+    SBG_NMEA_GPS_QUALITY_PPS		            = 3,
+    SBG_NMEA_GPS_QUALITY_RTK	            	= 4,
+    SBG_NMEA_GPS_QUALITY_RTK_FLOAT	           	= 5,
+    SBG_NMEA_GPS_QUALITY_FIX_DEAD_RECKONING		= 6,
+    SBG_NMEA_GPS_QUALITY_MANUAL_INPUT	    	= 7,
+    SBG_NMEA_GPS_QUALITY_SIMULATED		        = 8,
+} SbgNmeaGpsQuality;
 
 /*!
  * Class to wrap the SBG logs into ROS messages.
@@ -291,26 +305,26 @@ private:
    * \param[in] ref_pose                Pose.
    * \param[out] ref_transform_stamped  Stamped transformation.
    */
-   void fillTransform(const std::string &ref_parent_frame_id, const std::string &ref_child_frame_id, const geometry_msgs::Pose &ref_pose, geometry_msgs::TransformStamped &ref_transform_stamped);
+  void fillTransform(const std::string &ref_parent_frame_id, const std::string &ref_child_frame_id, const geometry_msgs::Pose &ref_pose, geometry_msgs::TransformStamped &ref_transform_stamped);
 
-   /*!
+  /*!
    * Get UTM letter designator for the given latitude.
    *
    * \param[in] Lat                     Latitude, in degrees.
    * \return                            UTM letter designator.
    */
-   char UTMLetterDesignator(double Lat);
+  char UTMLetterDesignator(double Lat);
 
-   /*!
+  /*!
    * Set UTM initial position.
    *
    * \param[in] Lat                     Latitude, in degrees.
    * \param[in] Long                    Longitude, in degrees.
    * \param[in] altitude                Altitude, in meters.
    */
-   void initUTM(double Lat, double Long, double altitude);
+  void initUTM(double Lat, double Long, double altitude);
 
-   /*!
+  /*!
    * Convert latitude and longitude to a position relative to UTM initial position.
    *
    * \param[in] Lat                     Latitude, in degrees.
@@ -319,7 +333,15 @@ private:
    * \param[out] UTMNorthing            UTM northing, in meters.
    * \param[out] UTMEasting             UTM easting, in meters.
    */
-   void LLtoUTM(double Lat, double Long, int zoneNumber, double &UTMNorthing, double &UTMEasting) const;
+  void LLtoUTM(double Lat, double Long, int zoneNumber, double &UTMNorthing, double &UTMEasting) const;
+
+  /*!
+   * Convert SbgEComGpsPosType enum to SbgNmeaGpsQuality enum
+   *
+   * \param[in] sbgGpsType              SbgECom GPS type
+   * \return                            NMEA GPS type
+   */
+  static SbgNmeaGpsQuality convertSbgGpsTypeToNmeaGpsType(SbgEComGpsPosType sbgGpsType);
 
 public:
 
@@ -640,6 +662,14 @@ public:
    * \return                        ROS standard fluid pressure message.
    */
   const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg) const;
+
+  /*!
+   * Create a SBG-ROS GPS-Position message.
+   *
+   * \param[in] ref_log_gps_pos     SBG GPS Position log.
+   * \return                        GPS Position message in nmea format.
+   */
+  const nmea_msgs::Sentence createSbgGpsPosMessageGGA(const SbgLogGpsPos& ref_log_gps_pos) const;
 };
 }
 

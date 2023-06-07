@@ -38,6 +38,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <thread>
 
 // ROS headers
 #include <std_srvs/SetBool.h>
@@ -47,6 +48,7 @@
 #include <config_applier.h>
 #include <config_store.h>
 #include <message_publisher.h>
+#include <message_subscriber.h>
 
 namespace sbg
 {
@@ -70,19 +72,20 @@ private:
   //- Private variables                                                 -//
   //---------------------------------------------------------------------//
 
-  SbgEComHandle           m_com_handle_;
-  SbgInterface            m_sbg_interface_;
-  ros::NodeHandle&        m_ref_node_;
-  MessagePublisher        m_message_publisher_;
-  ConfigStore             m_config_store_;
+  SbgEComHandle                             m_com_handle_;
+  SbgInterface                              m_sbg_interface_;
+  ros::NodeHandle&                          m_ref_node_;
+  MessagePublisher                          m_message_publisher_;
+  std::shared_ptr<MessageSubscriber>        m_message_subscriber_;
+  ConfigStore                               m_config_store_;
 
-  uint32_t                m_rate_frequency_;
+  uint32_t                                  m_rate_frequency_;
 
-  bool                    m_mag_calibration_ongoing_;
-  bool                    m_mag_calibration_done_;
-  SbgEComMagCalibResults  m_magCalibResults;
-  ros::ServiceServer      m_calib_service_;
-  ros::ServiceServer      m_calib_save_service_;
+  bool                                      m_mag_calibration_ongoing_;
+  bool                                      m_mag_calibration_done_;
+  SbgEComMagCalibResults                    m_magCalibResults;
+  ros::ServiceServer                        m_calib_service_;
+  ros::ServiceServer                        m_calib_save_service_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -140,6 +143,11 @@ private:
    * Initialize the publishers according to the configuration.
    */
   void initPublishers(void);
+
+  /*!
+   * Initialize the subscribers according to the configuration.
+   */
+  void initSubscribers(void);
 
   /*!
    * Configure the connected SBG device.

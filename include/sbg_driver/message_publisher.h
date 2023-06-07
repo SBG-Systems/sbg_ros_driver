@@ -82,6 +82,8 @@ private:
   ros::Publisher          m_nav_sat_fix_pub_;
   ros::Publisher          m_odometry_pub_;
 
+  ros::Publisher          m_sbgGpsPos_gga_pub_;
+
   MessageWrapper          m_message_wrapper_;
   uint32_t                m_max_messages_;
   std::string             m_frame_id_;
@@ -170,8 +172,9 @@ private:
    * Publish a received SBG GpsPos log.
    *
    * \param[in] ref_sbg_log             SBG log.
+   * \param[in] sbg_msg_id              Id of the SBG message.
    */
-  void publishGpsPosData(const SbgBinaryLogData &ref_sbg_log);
+  void publishGpsPosData(const SbgBinaryLogData &ref_sbg_log, SbgEComMsgId sbg_msg_id);
 
 public:
 

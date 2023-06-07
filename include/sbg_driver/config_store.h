@@ -121,6 +121,16 @@ private:
   std::string                 m_odom_base_frame_id_;
   std::string                 m_odom_init_frame_id_;
 
+  bool                        m_listen_rtcm_;
+  std::string                 m_rtcm_topic_name_;
+  std::string                 m_rtcm_topic_namespace_;
+  std::string                 m_rtcm_full_topic_;
+
+  bool                        m_publish_nmea_;
+  std::string                 m_nmea_topic_name_;
+  std::string                 m_nmea_topic_namespace_;
+  std::string                 m_nmea_full_topic_;
+
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
   //---------------------------------------------------------------------//
@@ -238,6 +248,20 @@ private:
    * \param[in] ref_key           String key for the output config.
    */
   void loadOutputTimeReference(const ros::NodeHandle& ref_node_handle, const std::string& ref_key);
+
+  /*!
+   * Load RTCM parameters.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   */
+  void loadRtcmParameters(const ros::NodeHandle& ref_node_handle);
+
+  /*!
+   * Load NMEA parameters.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   */
+  void loadNmeaParameters(const ros::NodeHandle& ref_node_handle);
 
 public:
 
@@ -456,21 +480,21 @@ public:
    *
    * \return					 True if the frame convention to use is ENU.
    */
-   bool getUseEnu(void) const;
+  bool getUseEnu(void) const;
 
   /*!
    * Get odom enable.
    *
    * \return					 True if the odometry is enabled.
    */
-   bool getOdomEnable(void) const;
+  bool getOdomEnable(void) const;
 
   /*!
    * Get odom publish_tf.
    *
    * \return					 If true publish odometry transforms.
    */
-   bool getOdomPublishTf(void) const;
+  bool getOdomPublishTf(void) const;
 
   /*!
    * Get the odometry frame ID.
@@ -501,6 +525,34 @@ public:
    * \return                      Time reference.
    */
   TimeReference getTimeReference(void) const;
+
+  /*!
+   * Get RTCM enable.
+   *
+   * \return                      True if RTCM is enabled.
+   */
+  bool shouldListenRtcm(void) const;
+
+  /*!
+   * Get RTCM full topic.
+   *
+   * \return                      String with RTCM namespace + topic.
+   */
+  const std::string &getRtcmFullTopic(void) const;
+
+  /*!
+   * Get NMEA enable.
+   *
+   * \return                      True if NMEA is enabled.
+   */
+  bool shouldPublishNmea() const;
+
+  /*!
+   * Get NMEA full topic.
+   *
+   * \return                      String with NMEA namespace + topic.
+   */
+  const std::string &getNmeaFullTopic(void) const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//
