@@ -11,8 +11,13 @@ driver:
 # Configuration of the device with ROS.
 confWithRos: false
 
+# File configuration
+filesConf:
+  path: '/mnt/c/Users/eduardo.lopes/repos/fugro.elite.prototypes/AEL-190-Generate-ROS-messages-from-raw-SBG-data/sbg_data.dat'
+  #'/mnt/c/Users/eduardo.lopes/Fugro/InEn.RAD - Documents/ARAN E-Lite/Test Data/20230418_Ouster_RD1/LidarLoop/ins/sbg/21Apr_lidarLoop_0001/20230421_20h_21Apr_lidarLoop.001'
+
 # Uart configuration
-uartConf:
+uartConf_:
   # Port Name
   portName: "/dev/ttyUSB0"
 
@@ -207,6 +212,8 @@ odom:
   # 2 Measurement is always accepted
   rejectMode: 1
 
+  enable: true
+
 # ToDo: event & CAN configuration
 
 ############################### Output configuration ###############################
@@ -235,11 +242,11 @@ output:
   #
   # "ros" : ROS time (default)
   # "ins_unix" : INS absolute time referenced to UNIX epoch (00:00:00 UTC on 1 January 1970)
-  time_reference: "ros"
+  time_reference: "ins_unix" #"ros"
 
   # Ros standard output:
   # Note: If true publish ROS standard messages.
-  ros_standard: false
+  ros_standard: true
 
   # Frame convention:
   # Note: If true messages are expressed in the ENU convention.
@@ -256,25 +263,25 @@ output:
   # Status general, clock, com aiding, solution, heave
   log_status: 200
   # Includes IMU status, acc., gyro, temp delta speeds and delta angles values
-  log_imu_data: 8
+  log_imu_data: 3
   # Includes roll, pitch, yaw and their accuracies on each axis
   log_ekf_euler: 0
   # Includes the 4 quaternions values
   log_ekf_quat: 8
   # Position and velocities in NED coordinates with the accuracies on each axis
-  log_ekf_nav: 0
+  log_ekf_nav: 8
   # Heave, surge and sway and accelerations on each axis for up to 4 points
   log_ship_motion: 0
   # Provides UTC time reference
   log_utc_time: 200
   # Magnetic data with associated accelerometer on each axis
-  log_mag: 0
+  log_mag: 4
   # Magnetometer calibration data (raw buffer)
-  log_mag_calib: 0
+  log_mag_calib: 5
   # GPS velocities from primary or secondary GPS receiver
   log_gps1_vel: 0
   # GPS positions from primary or secondary GPS receiver
-  log_gps1_pos: 0
+  log_gps1_pos: 14
   # GPS true heading from dual antenna system
   log_gps1_hdt: 0
   # GPS 1 raw data for post processing.
@@ -287,6 +294,10 @@ output:
   log_event_c: 0
   log_event_d: 0
   # Air data
-  log_air_data: 0
+  log_air_data: 36
   # Short IMU data
   log_imu_short: 8
+
+
+odometry:
+  enable: true

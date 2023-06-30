@@ -59,6 +59,11 @@ void ConfigStore::loadCommunicationParameters(const ros::NodeHandle& ref_node_ha
     m_out_port_address_   = getParameter<uint32_t>(ref_node_handle, "ipConf/out_port", 0);
     m_in_port_address_    = getParameter<uint32_t>(ref_node_handle, "ipConf/in_port", 0);
   }
+  else if (ref_node_handle.hasParam("filesConf"))
+  {
+    m_files_communication_ = true;
+    m_sbg_file_ = ref_node_handle.param<std::string>("filesConf/path", std::string("*.*"));
+  }
   else
   {
     throw ros::Exception("SBG DRIVER - Invalid communication interface parameters.");
@@ -238,6 +243,16 @@ uint32_t ConfigStore::getOutputPortAddress(void) const
 uint32_t ConfigStore::getInputPortAddress(void) const
 {
   return m_in_port_address_;
+}
+
+bool ConfigStore::isInterfaceFiles(void) const
+{
+  return m_files_communication_;
+}
+
+const std::string &ConfigStore::getFile(void) const
+{
+  return m_sbg_file_;
 }
 
 const SbgEComInitConditionConf &ConfigStore::getInitialConditions(void) const

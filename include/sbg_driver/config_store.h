@@ -83,6 +83,9 @@ private:
   uint32_t                    m_in_port_address_;
   bool                        m_upd_communication_;
 
+  std::string                 m_sbg_file_;
+  bool                        m_files_communication_;
+
   bool                        m_configure_through_ros_;
 
   SbgEComInitConditionConf    m_init_condition_conf_;
@@ -316,6 +319,20 @@ public:
    * \return                      Input port.
    */
   uint32_t getInputPortAddress(void) const;
+
+  /*!
+   * Check if the interface configuration is to read dump files.
+   *
+   * \return                      True if the interface is dump files, False otherwise.
+   */
+  bool isInterfaceFiles(void) const;
+
+  /*!
+   * Get the input files.
+   *
+   * \return                      Input files.
+   */
+  const std::string &getFile(void) const;
 
   /*!
    * Get the initial conditions configuration.
