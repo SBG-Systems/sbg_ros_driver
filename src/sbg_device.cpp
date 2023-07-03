@@ -12,7 +12,11 @@
 #include <boost/thread/xtime.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 
+// ROS headers
+#include <ros/ros.h>
+
 // SbgECom headers
+#include <interfaces/sbgInterface.h>
 #include <version/sbgVersion.h>
 
 using namespace std;
@@ -202,18 +206,21 @@ void SbgDevice::initPublishers(void)
 }
 
 
-void SbgDevice::initSubscribers(void)
+void SbgDevice::initSubscribers()
 {
     if (!m_config_store_.shouldListenRtcm())
     {
         return;
     }
 
-    m_message_subscriber_ = std::make_shared<MessageSubscriber>(&m_sbg_interface_);
-    m_message_subscriber_->initTopicSubscriptions(m_config_store_);
-    std::thread([&]{
-        ros::spin();
-    }).detach();
+    auto rtcm_cb = [&](const rtcm_msgs::Message::ConstPtr& msg) -> void {
+        this->writeRtcmMessageToDevice(msg);
+    };
+
+    if (m_config_store_.shouldListenRtcm())
+    {
+        m_rtcm_sub_ = m_ref_node_.subscribe<rtcm_msgs::Message>("/" + m_config_store_.getRtcmFullTopic(), 10, rtcm_cb);
+    }
 }
 
 void SbgDevice::configure(void)
@@ -460,6 +467,19 @@ void SbgDevice::exportMagCalibrationResults(void) const
   ROS_INFO("SBG DRIVER [Mag Calib] - Magnetometers calibration results saved to file %s", output_filename.c_str());
 }
 
+void SbgDevice::writeRtcmMessageToDevice(const rtcm_msgs::Message::ConstPtr& msg)
+{
+    auto rtcm_data = msg->message;
+    auto error_code = sbgInterfaceWrite(&m_sbg_interface_, rtcm_data.data(), rtcm_data.size());
+    if (error_code != SBG_NO_ERROR)
+    {
+        char error_str[256];
+
+        sbgEComErrorToString(error_code, error_str);
+        SBG_LOG_ERROR(SBG_ERROR, "Failed to sent RTCM data to device: %s", error_str);
+    }
+}
+
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
 //---------------------------------------------------------------------//
@@ -486,6 +506,8 @@ void SbgDevice::initDeviceForReceivingData(void)
   {
     throw ros::Exception("SBG_DRIVER - [Init] Unable to set the callback function - " + std::string(sbgErrorCodeToString(error_code)));
   }
+
+  initSubscribers();
 }
 
 void SbgDevice::initDeviceForMagCalibration(void)

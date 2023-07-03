@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_msgs
   tf2_geometry_msgs
-  mavros_msgs
+  rtcm_msgs
   nmea_msgs
 )
 
@@ -58,7 +58,7 @@ generate_messages(DEPENDENCIES
   std_msgs
   nav_msgs
   geometry_msgs
-  mavros_msgs
+  rtcm_msgs
   nmea_msgs
 )
 
@@ -76,7 +76,7 @@ catkin_package(
     std_msgs
     std_srvs
     geometry_msgs
-    mavros_msgs
+    rtcm_msgs
     nmea_msgs
 )
 
@@ -104,7 +104,6 @@ include_directories(
 set (SBG_COMMON_RESOURCES
   src/config_applier.cpp
   src/message_publisher.cpp
-  src/message_subscriber.cpp
   src/message_wrapper.cpp
   src/config_store.cpp
   src/sbg_device.cpp

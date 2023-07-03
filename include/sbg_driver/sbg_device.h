@@ -43,12 +43,12 @@
 // ROS headers
 #include <std_srvs/SetBool.h>
 #include <std_srvs/Trigger.h>
+#include <rtcm_msgs/Message.h>
 
 // Project headers
 #include <config_applier.h>
 #include <config_store.h>
 #include <message_publisher.h>
-#include <message_subscriber.h>
 
 namespace sbg
 {
@@ -76,7 +76,6 @@ private:
   SbgInterface                              m_sbg_interface_;
   ros::NodeHandle&                          m_ref_node_;
   MessagePublisher                          m_message_publisher_;
-  std::shared_ptr<MessageSubscriber>        m_message_subscriber_;
   ConfigStore                               m_config_store_;
 
   uint32_t                                  m_rate_frequency_;
@@ -86,6 +85,8 @@ private:
   SbgEComMagCalibResults                    m_magCalibResults;
   ros::ServiceServer                        m_calib_service_;
   ros::ServiceServer                        m_calib_save_service_;
+
+  ros::Subscriber                           m_rtcm_sub_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -147,7 +148,7 @@ private:
   /*!
    * Initialize the subscribers according to the configuration.
    */
-  void initSubscribers(void);
+  void initSubscribers();
 
   /*!
    * Configure the connected SBG device.
@@ -206,6 +207,13 @@ private:
    * Export magnetometers calibration results.
    */
   void exportMagCalibrationResults(void) const;
+
+  /*!
+   * Handler for subscription to RTCM topic.
+   *
+   * \param[in] msg             ROS RTCM message.
+   */
+  void writeRtcmMessageToDevice(const rtcm_msgs::Message::ConstPtr& msg);
 
 public:
 

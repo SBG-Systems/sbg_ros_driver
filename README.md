@@ -90,10 +90,7 @@ Launch the sbg_device_mag node to calibrate the magnetometers, and load the `ell
 
 ## Nodes
 ### sbg_device
-The `sbg_device` node handles the communication with the connected device, and publishes the SBG output to the Ros environment.
-
-### sbg_subscriber
-The `sbg_subscriber` node handles the subscriptions to the Ros environment topics, and forward data the device.  
+The `sbg_device` node handles the communication with the connected device, publishes the SBG output to the Ros environment and subscribes to topics.
 
 #### Published Topics
 ##### SBG specific topics
@@ -224,7 +221,7 @@ Data published on that topic can be used by a third party ROS module for NTRIP p
 ##### RTCM topics
 SBG ROS Driver will listen to some topics published by third party ROS modules.
 
-* **`/ntrip_client/rtcm`** [mavros_msgs/RTCM](http://docs.ros.org/en/noetic/api/mavros_msgs/html/msg/RTCM.html)
+* **`/ntrip_client/rtcm`** [rtcm_msgs/Message](https://github.com/tilk/rtcm_msgs/blob/master/msg/Message.msg)
 
   RTCM data from `/ntrip_client/rtcm` will be forwarded to the IMU.    
   Namespace `ntrip_client` and topic_name `rtcm` can be customized in .yaml config files.
@@ -252,6 +249,11 @@ confWithRos: true
 ```
 
 Then, modify the desired parameters in the config file, using the <i>SBG Firmware Manual</i>, to see which features are configurable, and which parameter values are available.
+
+### Configuration for SBG device and RTCM messages
+The SBG Ros driver forwards RTCM messages received to the device. For the device to listen to those messages, a specific configuration must be applied manually.  
+Use `sbgCenter`, to configure the device.  
+In `Assignment panel`, `RTCM` should be set to `Port A`.
 
 ### Calibrate the magnetometers
 Ellipse-A/E/N use magnemoter to provide heading. A calibration is then required to compensate soft and hard iron distortions due to the environmenent (motors, batteries, ...). The magnetic calibration procedure should be held in a non magnetic area (outside of buildings).

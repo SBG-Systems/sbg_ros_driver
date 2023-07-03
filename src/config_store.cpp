@@ -193,7 +193,6 @@ void ConfigStore::loadOutputTimeReference(const ros::NodeHandle& ref_node_handle
   }
 }
 
-
 void ConfigStore::loadRtcmParameters(const ros::NodeHandle &ref_node_handle)
 {
     ref_node_handle.param<bool>("rtcm/listen_rtcm", m_listen_rtcm_, false);
@@ -209,8 +208,6 @@ void ConfigStore::loadNmeaParameters(const ros::NodeHandle &ref_node_handle)
     ref_node_handle.param<std::string>("nmea/namespace", m_nmea_topic_namespace_, "ntrip_client");
     m_nmea_full_topic_ = m_nmea_topic_namespace_ + "/" + m_nmea_topic_name_;
 }
-
-
 
 //---------------------------------------------------------------------//
 //- Parameters                                                        -//
