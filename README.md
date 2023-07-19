@@ -1,3 +1,14 @@
+## usage
+
+To run the sbg_driver using a file as source instead of the device
+
+```
+roslaunch sbg_driver sbg_file.launch file_path:=path
+```
+
+
+# below, the original README
+
 # sbg_driver
 
 [![Build Status](https://build.ros.org/buildStatus/icon?job=Mdev__sbg_driver__ubuntu_bionic_amd64&build=lastBuild)](https://build.ros.org/job/Mdev__sbg_driver__ubuntu_bionic_amd64/lastBuild/)

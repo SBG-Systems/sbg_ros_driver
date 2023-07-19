@@ -12,9 +12,9 @@ driver:
 confWithRos: false
 
 # File configuration
-filesConf:
-  path: '/mnt/c/Users/eduardo.lopes/repos/fugro.elite.prototypes/AEL-190-Generate-ROS-messages-from-raw-SBG-data/sbg_data.dat'
-  #'/mnt/c/Users/eduardo.lopes/Fugro/InEn.RAD - Documents/ARAN E-Lite/Test Data/20230418_Ouster_RD1/LidarLoop/ins/sbg/21Apr_lidarLoop_0001/20230421_20h_21Apr_lidarLoop.001'
+# can be configured by command line as defined in README
+#filesConf:
+# path: 'sbg_data.dat'
 
 # Uart configuration
 uartConf_:
