@@ -1,0 +1,7 @@
+<launch>
+  <arg name="file_path"/>
+  <node name="sbg_device" pkg="sbg_driver" type="sbg_device" output="screen">
+  	<rosparam command="load" file="$(find sbg_driver)/config/sbg_device_uart_default.yaml" />
+    <param name="/filesConf/path" type="string" value="$(arg file_path)" />
+  </node>
+</launch>

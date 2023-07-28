@@ -115,6 +115,10 @@ void SbgDevice::onLogReceived(SbgEComClass msg_class, SbgEComMsgId msg, const Sb
   // Publish the received SBG log.
   //
   m_message_publisher_.publish(msg_class, msg, ref_sbg_data);
+
+  // if Sbg driver is reading from file
+  if (_config_store_.isInterfaceFiles())
+    usleep(50);
 }
 
 void SbgDevice::loadParameters(void)
