@@ -160,7 +160,7 @@ magnetometer:
 gnss:
   # Gnss Model Id
   # 101 Used on Ellipse-N to setup the internal GNSS in GPS+GLONASS
-  # 102 Default mode for Ellipse-E connection to external GNSS
+  # 102 Default mode for Ellipse-E connection to external NMEA GNSS
   # 103 Used on Ellipse-N to setup the internal GNSS in GPS+BEIDOU
   # 104 Used on Ellipse-E to setup a connection to ublox in read only mode.
   # 106 Used on Ellipse-E to setup a connection to Novatel receiver in read only mode.

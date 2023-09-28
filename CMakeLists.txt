@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_msgs
   tf2_geometry_msgs
+  rtcm_msgs
+  nmea_msgs
 )
 
 ################################################
@@ -56,6 +58,8 @@ generate_messages(DEPENDENCIES
   std_msgs
   nav_msgs
   geometry_msgs
+  rtcm_msgs
+  nmea_msgs
 )
 
 ###################################
@@ -72,6 +76,8 @@ catkin_package(
     std_msgs
     std_srvs
     geometry_msgs
+    rtcm_msgs
+    nmea_msgs
 )
 
 ###########
@@ -101,6 +107,8 @@ set (SBG_COMMON_RESOURCES
   src/message_wrapper.cpp
   src/config_store.cpp
   src/sbg_device.cpp
+  src/sbg_ros_helpers.cpp
+  src/sbg_utm.cpp
 )
 
 ## Declare a C++ executable

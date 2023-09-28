@@ -1,34 +1,32 @@
 /*!
-*	\file         sbg_device.h
-*	\author       SBG Systems
-*	\date         13/03/2020
-*	
-*	\brief        Handle a connected SBG device.
+*  \file         sbg_device.h
+*  \author       SBG Systems
+*  \date         13/03/2020
 *
-*   Methods to communicate with the device.
-*	
-*	\section CodeCopyright Copyright Notice
-*	MIT License
-*	
-*	Copyright (c) 2020 SBG Systems
-*	
-*	Permission is hereby granted, free of charge, to any person obtaining a copy
-*	of this software and associated documentation files (the "Software"), to deal
-*	in the Software without restriction, including without limitation the rights
-*	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-*	copies of the Software, and to permit persons to whom the Software is
-*	furnished to do so, subject to the following conditions:
-*	
-*	The above copyright notice and this permission notice shall be included in all
-*	copies or substantial portions of the Software.
-*	
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-*	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-*	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-*	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-*	SOFTWARE.
+*  \brief       Implement device connection / parsing.
+*
+*  \section CodeCopyright Copyright Notice
+*  MIT License
+*
+*  Copyright (c) 2023 SBG Systems
+*
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
+*  of this software and associated documentation files (the "Software"), to deal
+*  in the Software without restriction, including without limitation the rights
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*  copies of the Software, and to permit persons to whom the Software is
+*  furnished to do so, subject to the following conditions:
+*
+*  The above copyright notice and this permission notice shall be included in all
+*  copies or substantial portions of the Software.
+*
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*  SOFTWARE.
 */
 
 #ifndef SBG_ROS_SBG_DEVICE_H
@@ -42,6 +40,7 @@
 // ROS headers
 #include <std_srvs/SetBool.h>
 #include <std_srvs/Trigger.h>
+#include <rtcm_msgs/Message.h>
 
 // Project headers
 #include <config_applier.h>
@@ -61,28 +60,30 @@ private:
   //- Static members definition                                         -//
   //---------------------------------------------------------------------//
 
-  static std::map<SbgEComMagCalibQuality, std::string>    g_mag_calib_quality_;
-  static std::map<SbgEComMagCalibConfidence, std::string> g_mag_calib_confidence_;
-  static std::map<SbgEComMagCalibMode, std::string>       g_mag_calib_mode_;
-  static std::map<SbgEComMagCalibBandwidth, std::string>  g_mag_calib_bandwidth;
+  static std::map<SbgEComMagCalibQuality, std::string>      g_mag_calib_quality_;
+  static std::map<SbgEComMagCalibConfidence, std::string>   g_mag_calib_confidence_;
+  static std::map<SbgEComMagCalibMode, std::string>         g_mag_calib_mode_;
+  static std::map<SbgEComMagCalibBandwidth, std::string>    g_mag_calib_bandwidth_;
 
   //---------------------------------------------------------------------//
   //- Private variables                                                 -//
   //---------------------------------------------------------------------//
 
-  SbgEComHandle           m_com_handle_;
-  SbgInterface            m_sbg_interface_;
-  ros::NodeHandle&        m_ref_node_;
-  MessagePublisher        m_message_publisher_;
-  ConfigStore             m_config_store_;
+  SbgEComHandle           com_handle_;
+  SbgInterface            sbg_interface_;
+  ros::NodeHandle&        ref_node_;
+  MessagePublisher        message_publisher_;
+  ConfigStore             config_store_;
 
-  uint32_t                m_rate_frequency_;
+  uint32_t                rate_frequency_;
 
-  bool                    m_mag_calibration_ongoing_;
-  bool                    m_mag_calibration_done_;
-  SbgEComMagCalibResults  m_magCalibResults;
-  ros::ServiceServer      m_calib_service_;
-  ros::ServiceServer      m_calib_save_service_;
+  bool                    mag_calibration_ongoing_;
+  bool                    mag_calibration_done_;
+  SbgEComMagCalibResults  mag_calib_results_;
+  ros::ServiceServer      calib_service_;
+  ros::ServiceServer      calib_save_service_;
+
+  ros::Subscriber         rtcm_sub_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -112,21 +113,21 @@ private:
   /*!
    * Load the parameters.
    */
-  void loadParameters(void);
+  void loadParameters();
 
   /*!
    * Create the connection to the SBG device.
    *
    * \throw                       Unable to connect to the SBG device.
    */
-  void connect(void);
+  void connect();
 
   /*!
    * Read the device informations.
    *
    * \throw                       Unable to read the device information.
    */
-  void readDeviceInfo(void);
+  void readDeviceInfo();
 
   /*!
    * Get the SBG version as a string.
@@ -139,7 +140,12 @@ private:
   /*!
    * Initialize the publishers according to the configuration.
    */
-  void initPublishers(void);
+  void initPublishers();
+
+  /*!
+   * Initialize the subscribers according to the configuration.
+   */
+  void initSubscribers();
 
   /*!
    * Configure the connected SBG device.
@@ -148,7 +154,7 @@ private:
    *
    * \throw                       Unable to configure the connected device.
    */
-  void configure(void);
+  void configure();
 
   /*!
    * Process the magnetometer calibration.
@@ -173,31 +179,38 @@ private:
    *
    * \return                      True if the calibration process has started successfully.
    */
-  bool startMagCalibration(void);
+  bool startMagCalibration();
 
   /*!
    * End the magnetometer calibration process.
    *
    * \return                      True if the calibration process has ended successfully.
    */
-  bool endMagCalibration(void);
+  bool endMagCalibration();
 
   /*!
    * Upload the magnetometers calibration results to the device.
    *
    * \return                      True if the magnetometers calibration has been successfully uploaded to the device.
    */
-  bool uploadMagCalibrationToDevice(void);
+  bool uploadMagCalibrationToDevice();
 
   /*!
    * Display magnetometers calibration status result.
    */
-  void displayMagCalibrationStatusResult(void) const;
+  void displayMagCalibrationStatusResult() const;
 
   /*!
    * Export magnetometers calibration results.
    */
-  void exportMagCalibrationResults(void) const;
+  void exportMagCalibrationResults() const;
+
+  /*!
+   * Handler for subscription to RTCM topic.
+   *
+   * \param[in] msg             ROS RTCM message.
+   */
+  void writeRtcmMessageToDevice(const rtcm_msgs::Message::ConstPtr &msg);
 
 public:
 
@@ -215,7 +228,7 @@ public:
   /*!
    * Default destructor.
    */
-  ~SbgDevice(void);
+  ~SbgDevice();
 
   //---------------------------------------------------------------------//
   //- Parameters                                                        -//
@@ -226,7 +239,7 @@ public:
    *
    * \return                      Device frequency to read the logs (in Hz).
    */
-  uint32_t getUpdateFrequency(void) const;
+  uint32_t getUpdateFrequency() const;
 
   //---------------------------------------------------------------------//
   //- Public  methods                                                   -//
@@ -237,17 +250,17 @@ public:
    *
    * \throw                       Unable to initialize the SBG device.
    */
-  void initDeviceForReceivingData(void);
+  void initDeviceForReceivingData();
 
   /*!
    * Initialize the device for magnetometers calibration.
    */
-  void initDeviceForMagCalibration(void);
+  void initDeviceForMagCalibration();
 
   /*!
    * Periodic handle of the connected SBG device.
    */
-  void periodicHandle(void);
+  void periodicHandle();
 };
 }
 

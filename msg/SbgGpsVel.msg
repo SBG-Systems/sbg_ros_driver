@@ -37,5 +37,5 @@ geometry_msgs/Vector3 velocity_accuracy
 # ENU convention: Zero when the X axis is pointing East. (opposite sign compared to NED)
 float32 course
 
-# 1 sgima course accuracy
+# 1 sigma course accuracy
 float32 course_acc

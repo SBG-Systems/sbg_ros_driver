@@ -8,6 +8,16 @@ driver:
   #       it can lead to miss data frame and less accurate time stamping.
   frequency: 400
 
+odometry:
+  # Enable ROS odometry messages.
+  enable: false
+  # Publish odometry transforms.
+  publishTf: true
+  # Odometry frame IDs.
+  odomFrameId: "odom"
+  baseFrameId: "base_link"
+  initFrameId: "map"
+
 # Configuration of the device with ROS.
 confWithRos: false
 
@@ -100,8 +110,6 @@ aidingAssignment:
   # 1 Odometer connected only to ODO_A (unidirectional).
   # 2 Odometer connected to both ODO_A (signal A) and ODO_B (Signal B or direction) for bidirectional odometer.
   odometerPinAssignment: 0
-
-
 
 magnetometer:
   # Magnetometer model ID
@@ -282,3 +290,19 @@ output:
   log_air_data: 0
   # Short IMU data
   log_imu_short: 0
+
+rtcm:
+  # Should ros driver subscribe to RTCM topic
+  subscribe: false
+  # Topic on which RTCM is published
+  topic_name: rtcm
+  # Namespace where topic is published
+  namespace: ntrip_client
+
+nmea:
+  # Should ros driver publish NMEA string
+  publish: false
+  # Topic on which to publish nmea data
+  topic_name: nmea
+  # Namespace where to publish topic
+  namespace: ntrip_client

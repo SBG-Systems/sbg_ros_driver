@@ -12,8 +12,8 @@ uint32 time_stamp
 #   z: Z axis of the device frame
 #
 # ENU convention:
-#   x: X axis of the device frame
-#   y: -Y axis of the device frame
+#   x: Y axis of the device frame
+#   y: X axis of the device frame
 #   z: -Z axis of the device frame
 geometry_msgs/Vector3 mag
 
@@ -25,8 +25,8 @@ geometry_msgs/Vector3 mag
 #   z: Z axis of the device frame
 #
 # ENU convention:
-#   x: X axis of the device frame
-#   y: -Y axis of the device frame
+#   x: Y axis of the device frame
+#   y: X axis of the device frame
 #   z: -Z axis of the device frame
 geometry_msgs/Vector3 accel
 
