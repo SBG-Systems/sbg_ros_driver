@@ -1,34 +1,34 @@
 /*!
-*	\file         config_store.h
-*	\author       SBG Systems
-*	\date         13/03/2020
+*  \file         config_store.h
+*  \author       SBG Systems
+*  \date         13/03/2020
 *
-*	\brief        Class to handle the device configuration.
+*  \brief        Class to handle the device configuration.
 *
-*   Methods to extract configuration values and load it to the ROS node.
-*	
-*	\section CodeCopyright Copyright Notice
-*	MIT License
-*	
-*	Copyright (c) 2020 SBG Systems
-*	
-*	Permission is hereby granted, free of charge, to any person obtaining a copy
-*	of this software and associated documentation files (the "Software"), to deal
-*	in the Software without restriction, including without limitation the rights
-*	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-*	copies of the Software, and to permit persons to whom the Software is
-*	furnished to do so, subject to the following conditions:
-*	
-*	The above copyright notice and this permission notice shall be included in all
-*	copies or substantial portions of the Software.
-*	
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-*	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-*	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-*	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-*	SOFTWARE.
+*  Methods to extract configuration values and load it to the ROS node.
+*
+*  \section CodeCopyright Copyright Notice
+*  MIT License
+*
+*  Copyright (c) 2023 SBG Systems
+*
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
+*  of this software and associated documentation files (the "Software"), to deal
+*  in the Software without restriction, including without limitation the rights
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*  copies of the Software, and to permit persons to whom the Software is
+*  furnished to do so, subject to the following conditions:
+*
+*  The above copyright notice and this permission notice shall be included in all
+*  copies or substantial portions of the Software.
+*
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*  SOFTWARE.
 */
 
 #ifndef SBG_ROS_CONFIG_STORE_H
@@ -66,60 +66,66 @@ public:
    */
   struct SbgLogOutput
   {
-    SbgEComClass      message_class;
-    SbgEComMsgId      message_id;
-    SbgEComOutputMode output_mode;
+    SbgEComClass              message_class;
+    SbgEComMsgId              message_id;
+    SbgEComOutputMode         output_mode;
   };
 
 private:
 
-  std::string                 m_uart_port_name_;
-  SbgEComOutputPort           m_output_port_;
-  uint32_t                    m_uart_baud_rate_;
-  bool                        m_serial_communication_;
+  std::string                 uart_port_name_;
+  SbgEComOutputPort           output_port_;
+  uint32_t                    uart_baud_rate_;
+  bool                        serial_communication_;
 
-  sbgIpAddress                m_sbg_ip_address_;
-  uint32_t                    m_out_port_address_;
-  uint32_t                    m_in_port_address_;
-  bool                        m_upd_communication_;
+  sbgIpAddress                sbg_ip_address_;
+  uint32_t                    out_port_address_;
+  uint32_t                    in_port_address_;
+  bool                        upd_communication_;
 
-  bool                        m_configure_through_ros_;
+  bool                        configure_through_ros_;
 
-  SbgEComInitConditionConf    m_init_condition_conf_;
-  SbgEComModelInfo            m_motion_profile_model_info_;
+  SbgEComInitConditionConf    init_condition_conf_;
+  SbgEComModelInfo            motion_profile_model_info_;
 
-  SbgEComSensorAlignmentInfo  m_sensor_alignement_info_;
-  SbgVector3<float>           m_sensor_lever_arm_;
+  SbgEComSensorAlignmentInfo  sensor_alignement_info_;
+  SbgVector3<float>           sensor_lever_arm_;
 
-  SbgEComAidingAssignConf     m_aiding_assignement_conf_;
+  SbgEComAidingAssignConf     aiding_assignement_conf_;
 
-  SbgEComModelInfo            m_mag_model_info_;
-  SbgEComMagRejectionConf     m_mag_rejection_conf_;
-  SbgEComMagCalibMode         m_mag_calib_mode_;
-  SbgEComMagCalibBandwidth    m_mag_calib_bandwidth_;
+  SbgEComModelInfo            mag_model_info_;
+  SbgEComMagRejectionConf     mag_rejection_conf_;
+  SbgEComMagCalibMode         mag_calib_mode_;
+  SbgEComMagCalibBandwidth    mag_calib_bandwidth_;
 
-  SbgEComModelInfo            m_gnss_model_info_;
-  SbgEComGnssInstallation     m_gnss_installation_;
-  SbgEComGnssRejectionConf    m_gnss_rejection_conf_;
+  SbgEComModelInfo            gnss_model_info_;
+  SbgEComGnssInstallation     gnss_installation_;
+  SbgEComGnssRejectionConf    gnss_rejection_conf_;
 
-  SbgEComOdoConf              m_odometer_conf_;
-  SbgVector3<float>           m_odometer_level_arm_;
-  SbgEComOdoRejectionConf     m_odometer_rejection_conf_;
+  SbgEComOdoConf              odometer_conf_;
+  SbgVector3<float>           odometer_level_arm_;
+  SbgEComOdoRejectionConf     odometer_rejection_conf_;
 
-  std::vector<SbgLogOutput>   m_output_modes_;
-  bool                        m_ros_standard_output_;
+  std::vector<SbgLogOutput>   output_modes_;
+  bool                        ros_standard_output_;
 
-  TimeReference               m_time_reference_;
+  TimeReference               time_reference_;
 
-  uint32_t                    m_rate_frequency_;
-  std::string                 m_frame_id_;
-  bool						  m_use_enu_;
+  uint32_t                    rate_frequency_;
+  std::string                 frame_id_;
+  bool                        use_enu_;
 
-  bool						  m_odom_enable_;
-  bool						  m_odom_publish_tf_;
-  std::string                 m_odom_frame_id_;
-  std::string                 m_odom_base_frame_id_;
-  std::string                 m_odom_init_frame_id_;
+  bool                        odom_enable_;
+  bool                        odom_publish_tf_;
+  std::string                 odom_frame_id_;
+  std::string                 odom_base_frame_id_;
+  std::string                 odom_init_frame_id_;
+
+  bool                        rtcm_subscribe_;
+  std::string                 rtcm_full_topic_;
+
+  bool                        nmea_publish_;
+  std::string                 nmea_full_topic_;
 
   //---------------------------------------------------------------------//
   //- Private  methods                                                  -//
@@ -239,6 +245,20 @@ private:
    */
   void loadOutputTimeReference(const ros::NodeHandle& ref_node_handle, const std::string& ref_key);
 
+  /*!
+   * Load RTCM parameters.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   */
+  void loadRtcmParameters(const ros::NodeHandle& ref_node_handle);
+
+  /*!
+   * Load NMEA parameters.
+   *
+   * \param[in] ref_node_handle   ROS nodeHandle.
+   */
+  void loadNmeaParameters(const ros::NodeHandle& ref_node_handle);
+
 public:
 
   //---------------------------------------------------------------------//
@@ -248,7 +268,7 @@ public:
   /*!
    * Default constructor.
    */
-  ConfigStore(void);
+  ConfigStore();
 
   //---------------------------------------------------------------------//
   //- Parameters                                                        -//
@@ -259,182 +279,182 @@ public:
    *
    * \return                      True if the ROS driver has to configure the device.
    */
-  bool checkConfigWithRos(void) const;
+  bool checkConfigWithRos() const;
 
   /*!
    * Check if the interface configuration is a serial interface.
    *
    * \return                      True if the interface is serial, False otherwise.
    */
-  bool isInterfaceSerial(void) const;
+  bool isInterfaceSerial() const;
 
   /*!
    * Get the UART port name.
    *
    * \return                      UART serial port name.
    */
-  const std::string &getUartPortName(void) const;
+  const std::string &getUartPortName() const;
 
   /*!
    * Get the UART baudrate communication.
    *
    * \return                      UART serial baudrate.
    */
-  uint32_t getBaudRate(void) const;
+  uint32_t getBaudRate() const;
 
   /*!
    * Get the output port of the device.
    *
    * \return                      SBG device output port.
    */
-  SbgEComOutputPort getOutputPort(void) const;
+  SbgEComOutputPort getOutputPort() const;
 
   /*!
    * Check if the interface configuration is a UDP interface.
    *
    * \return                      True if the interface is UDP, False otherwise.
    */
-  bool isInterfaceUdp(void) const;
+  bool isInterfaceUdp() const;
 
   /*!
    * Get the Ip address of the interface.
    *
    * \return                      Ip address.
    */
-  sbgIpAddress getIpAddress(void) const;
+  sbgIpAddress getIpAddress() const;
 
   /*!
    * Get the output port.
    *
    * \return                      Output port.
    */
-  uint32_t getOutputPortAddress(void) const;
+  uint32_t getOutputPortAddress() const;
 
   /*!
    * Get the input port.
    *
    * \return                      Input port.
    */
-  uint32_t getInputPortAddress(void) const;
+  uint32_t getInputPortAddress() const;
 
   /*!
    * Get the initial conditions configuration.
    *
    * \return                                Initial conditions configuration.
    */
-  const SbgEComInitConditionConf &getInitialConditions(void) const;
+  const SbgEComInitConditionConf &getInitialConditions() const;
 
   /*!
    * Get the motion profile configuration.
    *
    * \return                                Motion profile configuration.
    */
-  const SbgEComModelInfo &getMotionProfile(void) const;
+  const SbgEComModelInfo &getMotionProfile() const;
 
   /*!
    * Get the sensor alignement configuration.
    *
    * \return                                Sensor alignement configuration.
    */
-  const SbgEComSensorAlignmentInfo &getSensorAlignement(void) const;
+  const SbgEComSensorAlignmentInfo &getSensorAlignement() const;
 
   /*!
    * Get the sensor level arms.
    *
    * \return                                Sensor level arms vector (in meters).
    */
-  const SbgVector3<float> &getSensorLevelArms(void) const;
+  const SbgVector3<float> &getSensorLevelArms() const;
 
   /*!
    * Get the aiding assignement configuration.
    *
    * \return                                Aiding assignement configuration.
    */
-  const SbgEComAidingAssignConf &getAidingAssignement(void) const;
+  const SbgEComAidingAssignConf &getAidingAssignement() const;
 
   /*!
    * Get the magnetometer model configuration.
    *
    * \return                                Magnetometer model configuration.
    */
-  const SbgEComModelInfo &getMagnetometerModel(void) const;
+  const SbgEComModelInfo &getMagnetometerModel() const;
 
   /*!
    * Get the magnetometer rejection configuration.
    *
    * \return                                Magnetometer rejection configuration.
    */
-  const SbgEComMagRejectionConf &getMagnetometerRejection(void) const;
+  const SbgEComMagRejectionConf &getMagnetometerRejection() const;
 
   /*!
    * Get the magnetometer calibration mode.
    *
    * \return                                Magnetometer calibration mode.
    */
-  const SbgEComMagCalibMode &getMagnetometerCalibMode(void) const;
+  const SbgEComMagCalibMode &getMagnetometerCalibMode() const;
 
   /*!
    * Get the magnetometer calibration bandwidth.
    *
    * \return                                Magnetometer calibration bandwidth.
    */
-  const SbgEComMagCalibBandwidth &getMagnetometerCalibBandwidth(void) const;
+  const SbgEComMagCalibBandwidth &getMagnetometerCalibBandwidth() const;
 
   /*!
    * Get the Gnss model configuration.
    *
    * \return                                Gnss model configuration.
    */
-  const SbgEComModelInfo &getGnssModel(void) const;
+  const SbgEComModelInfo &getGnssModel() const;
 
   /*!
    * Get the Gnss installation configuration.
    *
    * \return                                Gnss installation configuration.
    */
-  const SbgEComGnssInstallation &getGnssInstallation(void) const;
+  const SbgEComGnssInstallation &getGnssInstallation() const;
 
   /*!
    * Get the Gnss rejection configuration.
    *
    * \return                                Gnss rejection configuration.
    */
-  const SbgEComGnssRejectionConf &getGnssRejection(void) const;
+  const SbgEComGnssRejectionConf &getGnssRejection() const;
 
   /*!
    * Get the odometer configuration.
    *
    * \return                                Odometer configuration.
    */
-  const SbgEComOdoConf &getOdometerConf(void) const;
+  const SbgEComOdoConf &getOdometerConf() const;
 
   /*!
    * Get the odometer level arms.
    *
    * \return                                Odometer level arms vector (in meters).
    */
-  const SbgVector3<float> &getOdometerLevelArms(void) const;
+  const SbgVector3<float> &getOdometerLevelArms() const;
 
   /*!
    * Get the odometer rejection.
    *
    * \return                                Odometer rejection configuration.
    */
-  const SbgEComOdoRejectionConf &getOdometerRejection(void) const;
+  const SbgEComOdoRejectionConf &getOdometerRejection() const;
 
   /*!
    * Get all the output modes.
    *
    * \return                      Output mode for this config store.
    */
-  const std::vector<SbgLogOutput> &getOutputModes(void) const;
+  const std::vector<SbgLogOutput> &getOutputModes() const;
 
   /*!
    * Check if the ROS standard outputs are defined.
    *
    * \return                      True if standard ROS messages output are defined.
    */
-  bool checkRosStandardMessages(void) const;
+  bool checkRosStandardMessages() const;
 
   /*!
    * Get the reading frequency defined in settings.
@@ -442,65 +462,93 @@ public:
    *
    * \return                      Rate frequency parameter (in Hz).
    */
-  uint32_t getReadingRateFrequency(void) const;
+  uint32_t getReadingRateFrequency() const;
 
   /*!
    * Get the frame ID.
    *
    * \return                      Frame ID.
    */
-  const std::string &getFrameId(void) const;
+  const std::string &getFrameId() const;
 
   /*!
    * Get use ENU.
    *
-   * \return					 True if the frame convention to use is ENU.
+   * \return                      True if the frame convention to use is ENU.
    */
-   bool getUseEnu(void) const;
+  bool getUseEnu() const;
 
   /*!
    * Get odom enable.
    *
-   * \return					 True if the odometry is enabled.
+   * \return                      True if the odometry is enabled.
    */
-   bool getOdomEnable(void) const;
+  bool getOdomEnable() const;
 
   /*!
    * Get odom publish_tf.
    *
-   * \return					 If true publish odometry transforms.
+   * \return                      If true publish odometry transforms.
    */
-   bool getOdomPublishTf(void) const;
+  bool getOdomPublishTf() const;
 
   /*!
    * Get the odometry frame ID.
    *
    * \return                      Odometry frame ID.
    */
-  const std::string &getOdomFrameId(void) const;
-
+  const std::string &getOdomFrameId() const;
 
   /*!
    * Get the odometry base frame ID.
    *
    * \return                      Odometry base frame ID.
    */
-  const std::string &getOdomBaseFrameId(void) const;
-
+  const std::string &getOdomBaseFrameId() const;
 
   /*!
    * Get the odometry init frame ID.
    *
    * \return                      Odometry init frame ID.
    */
-  const std::string &getOdomInitFrameId(void) const;
+  const std::string &getOdomInitFrameId() const;
 
   /*!
    * Get the time reference.
    *
    * \return                      Time reference.
    */
-  TimeReference getTimeReference(void) const;
+  TimeReference getTimeReference() const;
+
+  /*!
+   * Returns if the node should subscribe to RTCM publisher
+   *
+   * \return                      True to subscribe to RTCM messages.
+   */
+  bool shouldSubscribeToRtcm() const;
+
+  /*!
+   * Get RTCM full topic.
+   *
+   * \return                      String with RTCM namespace + topic.
+   */
+  const std::string &getRtcmFullTopic() const;
+
+  /*!
+   * Returns if a specific NMEA GGA message should be published or not.
+   *
+   * This GGA message is dedicated for NTRIP VRS operations and not for navigation.
+   *
+   * \return                      True if NMEA is enabled.
+   */
+  bool shouldPublishNmea() const;
+
+  /*!
+   * Get NMEA full topic.
+   *
+   * \return                      String with NMEA namespace + topic.
+   */
+  const std::string &getNmeaFullTopic() const;
 
   //---------------------------------------------------------------------//
   //- Operations                                                        -//

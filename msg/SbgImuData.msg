@@ -15,8 +15,8 @@ SbgImuStatus imu_status
 #   z: Z axis of the device frame
 #
 # ENU convention:
-#   x: X axis of the device frame
-#   y: -Y axis of the device frame
+#   x: Y axis of the device frame
+#   y: X axis of the device frame
 #   z: -Z axis of the device frame
 geometry_msgs/Vector3 accel
 
@@ -28,8 +28,8 @@ geometry_msgs/Vector3 accel
 #   z: Z axis of the device frame
 #
 # ENU convention:
-#   x: X axis of the device frame
-#   y: -Y axis of the device frame
+#   x: Y axis of the device frame
+#   y: X axis of the device frame
 #   z: -Z axis of the device frame
 geometry_msgs/Vector3 gyro
 
@@ -44,8 +44,8 @@ float32 temp
 #   z: Z axis of the device frame
 #
 # ENU convention:
-#   x: X axis of the device frame
-#   y: -Y axis of the device frame
+#   x: Y axis of the device frame
+#   y: X axis of the device frame
 #   z: -Z axis of the device frame
 geometry_msgs/Vector3 delta_vel
 
@@ -57,7 +57,7 @@ geometry_msgs/Vector3 delta_vel
 #   z: Z axis of the device frame
 #
 # ENU convention:
-#   x: X axis of the device frame
-#   y: -Y axis of the device frame
+#   x: Y axis of the device frame
+#   y: X axis of the device frame
 #   z: -Z axis of the device frame
 geometry_msgs/Vector3 delta_angle

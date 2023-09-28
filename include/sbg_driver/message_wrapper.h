@@ -1,34 +1,34 @@
 /*!
-*	\file         message_wrapper.h
-*	\author       SBG Systems
-*	\date         13/03/2020
+*  \file         message_wrapper.h
+*  \author       SBG Systems
+*  \date         13/03/2020
 *
-*	\brief        Handle creation of messages.
+*  \brief        Handle creation of messages.
 *
-*   Methods to create ROS messages from given data.
+*  Methods to create ROS messages from given data.
 *
-*	\section CodeCopyright Copyright Notice
-*	MIT License
+*  \section CodeCopyright Copyright Notice
+*  MIT License
 *
-*	Copyright (c) 2020 SBG Systems
+*  Copyright (c) 2023 SBG Systems
 *
-*	Permission is hereby granted, free of charge, to any person obtaining a copy
-*	of this software and associated documentation files (the "Software"), to deal
-*	in the Software without restriction, including without limitation the rights
-*	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-*	copies of the Software, and to permit persons to whom the Software is
-*	furnished to do so, subject to the following conditions:
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
+*  of this software and associated documentation files (the "Software"), to deal
+*  in the Software without restriction, including without limitation the rights
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*  copies of the Software, and to permit persons to whom the Software is
+*  furnished to do so, subject to the following conditions:
 *
-*	The above copyright notice and this permission notice shall be included in all
-*	copies or substantial portions of the Software.
+*  The above copyright notice and this permission notice shall be included in all
+*  copies or substantial portions of the Software.
 *
-*	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-*	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-*	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-*	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-*	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-*	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-*	SOFTWARE.
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*  SOFTWARE.
 */
 
 #ifndef SBG_ROS_MESSAGE_WRAPPER_H
@@ -41,6 +41,7 @@
 // Sbg header
 #include <sbg_matrix3.h>
 #include <config_store.h>
+#include <sbg_utm.h>
 
 // ROS headers
 #include <geometry_msgs/TwistStamped.h>
@@ -56,6 +57,7 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
+#include <nmea_msgs/Sentence.h>
 
 // SbgRos message headers
 #include "sbg_driver/SbgStatus.h"
@@ -78,13 +80,6 @@
 
 namespace sbg
 {
-typedef struct _UTM0
-{
-	double			easting;
-	double			northing;
-	double			altitude;
-	int				zone;
-} UTM0;
 
 /*!
  * Class to wrap the SBG logs into ROS messages.
@@ -92,49 +87,29 @@ typedef struct _UTM0
 class MessageWrapper
 {
 private:
+  sbg_driver::SbgUtcTime              last_sbg_utc_;
+  bool                                first_valid_utc_;
+  std::string                         frame_id_;
+  bool                                use_enu_;
+  TimeReference                       time_reference_;
 
-  sbg_driver::SbgUtcTime              m_last_sbg_utc_;
-  bool                                m_first_valid_utc_;
-  std::string                         m_frame_id_;
-  bool                                m_use_enu_;
-  TimeReference                       m_time_reference_;
-  UTM0					              m_utm0_;
-  tf2_ros::TransformBroadcaster       m_tf_broadcaster_;
-  tf2_ros::StaticTransformBroadcaster m_static_tf_broadcaster_;
+  bool                                odom_enable_;
+  bool                                odom_publish_tf_;
+  std::string                         odom_frame_id_;
+  std::string                         odom_base_frame_id_;
+  std::string                         odom_init_frame_id_;
 
-  bool                                m_odom_enable_;
-  bool                                m_odom_publish_tf_;
-  std::string                         m_odom_frame_id_;
-  std::string                         m_odom_base_frame_id_;
-  std::string                         m_odom_init_frame_id_;
+  tf2_ros::TransformBroadcaster       tf_broadcaster_;
+  tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
+
+  Utm                                 utm_{};
+  double                              first_valid_easting_{};
+  double                              first_valid_northing_{};
+  double                              first_valid_altitude_{};
 
   //---------------------------------------------------------------------//
   //- Internal methods                                                  -//
   //---------------------------------------------------------------------//
-
-  /*!
-   * Wrap an angle to 2 PI.
-   *
-   * \param[in] angle_rad			Angle in rad.
-   * \return						Wrapped angle.
-   */
-  float wrapAngle2Pi(float angle_rad) const;
-
-  /*!
-   * Wrap an angle to 360 degres.
-   *
-   * \param[in] angle_deg			Angle in degree.
-   * \return						Wrapped angle.
-   */
-  float wrapAngle360(float angle_deg) const;
-
-  /*!
-   * Compute UTM zone meridian.
-   *
-   * \param[in] zone_number			UTM Zone number.
-   * \return						Meridian angle, in degrees.
-   */
-  double computeMeridian(int zone_number) const;
 
   /*!
    * Create a ROS message header.
@@ -151,6 +126,14 @@ private:
    * \return                        ROS time.
    */
   const ros::Time convertInsTimeToUnix(uint32_t device_timestamp) const;
+
+  /*!
+   * Convert the UTC time to an Unix time.
+   *
+   * \param[in] ref_sbg_utc_msg     UTC message.
+   * \return                        Converted Epoch time (in s).
+   */
+  const ros::Time convertUtcTimeToUnix(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
 
   /*!
    * Create SBG-ROS Ekf status message.
@@ -233,39 +216,6 @@ private:
   const sbg_driver::SbgUtcTimeStatus createUtcStatusMessage(const SbgLogUtcData& ref_log_utc) const;
 
   /*!
-   * Get the number of days in the year.
-   *
-   * \param[in] year                Year to get the number of days.
-   * \return                        Number of days in the year.
-   */
-  uint32_t getNumberOfDaysInYear(uint16_t year) const;
-
-  /*!
-   * Get the number of days of the month index.
-   *
-   * \param[in] year                Year.
-   * \param[in] month_index         Month index [1..12].
-   * \return                        Number of days in the month.
-   */
-  uint32_t getNumberOfDaysInMonth(uint16_t year, uint8_t month_index) const;
-
-  /*!
-   * Check if the given year is a leap year.
-   *
-   * \param[in] year                Year to check.
-   * \return                        True if the year is a leap year.
-   */
-  bool isLeapYear(uint16_t year) const;
-
-  /*!
-   * Convert the UTC time to an Unix time.
-   *
-   * \param[in] ref_sbg_utc_msg     UTC message.
-   * \return                        Converted Epoch time (in s).
-   */
-  const ros::Time convertUtcToUnix(const sbg_driver::SbgUtcTime& ref_sbg_utc_msg) const;
-
-  /*!
    * Create a SBG-ROS air data status message.
    *
    * \param[in] ref_sbg_air_data    SBG AirData log.
@@ -290,35 +240,7 @@ private:
    * \param[in] ref_pose                Pose.
    * \param[out] ref_transform_stamped  Stamped transformation.
    */
-   void fillTransform(const std::string &ref_parent_frame_id, const std::string &ref_child_frame_id, const geometry_msgs::Pose &ref_pose, geometry_msgs::TransformStamped &ref_transform_stamped);
-
-   /*!
-   * Get UTM letter designator for the given latitude.
-   *
-   * \param[in] Lat                     Latitude, in degrees.
-   * \return                            UTM letter designator.
-   */
-   char UTMLetterDesignator(double Lat);
-
-   /*!
-   * Set UTM initial position.
-   *
-   * \param[in] Lat                     Latitude, in degrees.
-   * \param[in] Long                    Longitude, in degrees.
-   * \param[in] altitude                Altitude, in meters.
-   */
-   void initUTM(double Lat, double Long, double altitude);
-
-   /*!
-   * Convert latitude and longitude to a position relative to UTM initial position.
-   *
-   * \param[in] Lat                     Latitude, in degrees.
-   * \param[in] Long                    Longitude, in degrees.
-   * \param[in] zoneNumber              UTM zone number.
-   * \param[out] UTMNorthing            UTM northing, in meters.
-   * \param[out] UTMEasting             UTM easting, in meters.
-   */
-   void LLtoUTM(double Lat, double Long, int zoneNumber, double &UTMNorthing, double &UTMEasting) const;
+  void fillTransform(const std::string &ref_parent_frame_id, const std::string &ref_child_frame_id, const geometry_msgs::Pose &ref_pose, geometry_msgs::TransformStamped &ref_transform_stamped);
 
 public:
 
@@ -329,7 +251,7 @@ public:
   /*!
    * Default constructor.
    */
-  MessageWrapper(void);
+  MessageWrapper();
 
   //---------------------------------------------------------------------//
   //- Parameters                                                        -//
@@ -359,14 +281,14 @@ public:
   /*!
    * Set odom enable.
    *
-   * \param[in] odom_enable		 If true enable odometry.
+   * \param[in] odom_enable    If true enable odometry.
    */
    void setOdomEnable(bool odom_enable);
 
   /*!
    * Set odom publish_tf.
    *
-   * \param[in] publish_tf		 If true publish odometry transforms.
+   * \param[in] publish_tf    If true publish odometry transforms.
    */
    void setOdomPublishTf(bool publish_tf);
 
@@ -591,10 +513,10 @@ public:
   /*!
    * Create a ROS standard TwistStamped message from SBG messages.
    *
-   * \param[in] ref_sbg_ekf_vel_msg     SBG-ROS Ekf velocity message.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
    * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
-   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
-   * \return                            ROS standard TwistStamped message.
+   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \return                        ROS standard TwistStamped message.
    */
   const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
 
@@ -639,6 +561,19 @@ public:
    * \return                        ROS standard fluid pressure message.
    */
   const sensor_msgs::FluidPressure createRosFluidPressureMessage(const sbg_driver::SbgAirData& ref_sbg_air_msg) const;
+
+  /*!
+   * Create a ROS NMEA GGA message especially designed to support NTRIP VRS operations.
+   *
+   * This message is limited to 80 chars and only sent at up to 1 Hz to maximize VRS
+   * providers compatibility.
+   *
+   * WARNING: Don't use this GGA message for navigation purposes as the accuracy is limited.
+   *
+   * \param[in] ref_log_gps_pos     SBG GPS Position log.
+   * \return                        ROS NMEA GGA message.
+   */
+  const nmea_msgs::Sentence createNmeaGGAMessageForNtrip(const SbgLogGpsPos& ref_log_gps_pos) const;
 };
 }
 
