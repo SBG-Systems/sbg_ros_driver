@@ -117,7 +117,7 @@ void SbgDevice::onLogReceived(SbgEComClass msg_class, SbgEComMsgId msg, const Sb
   m_message_publisher_.publish(msg_class, msg, ref_sbg_data);
 
   // if Sbg driver is reading from file
-  if (_config_store_.isInterfaceFiles())
+  if (m_config_store_.isInterfaceFiles())
     usleep(50);
 }
 
