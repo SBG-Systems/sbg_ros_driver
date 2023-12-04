@@ -115,6 +115,10 @@ void SbgDevice::onLogReceived(SbgEComClass msg_class, SbgEComMsgId msg, const Sb
   // Publish the received SBG log.
   //
   m_message_publisher_.publish(msg_class, msg, ref_sbg_data);
+
+  // if Sbg driver is reading from file
+  if (m_config_store_.isInterfaceFiles())
+    usleep(50);
 }
 
 void SbgDevice::loadParameters(void)
@@ -142,6 +146,10 @@ void SbgDevice::connect(void)
   {
     error_code = sbgInterfaceUdpCreate(&m_sbg_interface_, m_config_store_.getIpAddress(), m_config_store_.getInputPortAddress(), m_config_store_.getOutputPortAddress());
   }
+  else if (m_config_store_.isInterfaceFiles())
+  {
+    error_code = sbgInterfaceFileOpen(&m_sbg_interface_, m_config_store_.getFile().c_str());
+  }
   else
   {
     throw ros::Exception("Invalid interface type for the SBG device.");
@@ -159,7 +167,8 @@ void SbgDevice::connect(void)
     throw ros::Exception("SBG_DRIVER - [Init] Unable to initialize the SbgECom protocol - " + std::string(sbgErrorCodeToString(error_code)));
   }
 
-  readDeviceInfo();
+  if (!m_config_store_.isInterfaceFiles())
+    readDeviceInfo();
 }
 
 void SbgDevice::readDeviceInfo(void)
