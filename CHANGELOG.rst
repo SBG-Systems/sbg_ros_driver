@@ -2,6 +2,17 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update README according to the latest changes
+* Backported changes from ROS2 driver
+* fix `#70 <https://github.com/SBG-Systems/sbg_ros_driver/issues/70>`_ build on Windows
+* remove unused var
+* update doc to build from sources
+* Perform proper name resolution to make name remapping more convenient
+  Fixes `#75 <https://github.com/SBG-Systems/sbg_ros_driver/issues/75>`_.
+* Contributors: Michael Zemb, Richard Braun, Samuel Toledano, cledant
+
 3.1.1 (2021-10-15)
 ------------------
 * fix missing dependencies and build status link
