@@ -23,7 +23,6 @@ The driver supports the following features:
 ### Installation from Packages
 User can install the sbg_ros_driver through the standard ROS installation system.
 
-* Melodic ```sudo apt-get install ros-melodic-sbg-driver```
 * Noetic ```sudo apt-get install ros-noetic-sbg-driver```
 
 ### Building from sources
@@ -48,10 +47,18 @@ rosdep install --from-paths src --ignore-src -r -y
 3. Build using the normal ROS catkin build system
 
 ```
+source /opt/ros/${ROS_DISTRO}/setup.bash
 catkin_make
 ```
 
 ## Usage
+
+Source the generated setup environment
+
+```
+source devel/setup.bash
+```
+
 To run the default Ros node with the default configuration
 
 ```
@@ -107,7 +114,7 @@ Launch the sbg_device_mag node to calibrate the magnetometers, and load the `ell
 
 ## Nodes
 ### sbg_device node
-The `sbg_device` node handles the communication with the connected device, publishes the SBG output to the Ros environment and subscribes to useful topics such as RTCM data streams.
+The `sbg_device` node handles the communication with the connected device, publishes the SBG output to the ROS environment and subscribes to useful topics such as RTCM data streams.
 
 #### Published Topics
 ##### SBG Systems specific topics
@@ -174,11 +181,15 @@ These messages try to match as much as possible the sbgECom logs as they are out
 
   Event on sync in the corresponding pin.
   
-* **`/sbg/pressure`** [sbg_driver/SbgPressure](http://docs.ros.org/api/sbg_driver/html/msg/SbgPressure.html)
+* **`/sbg/air_data`** [sbg_driver/SbgAirData](http://docs.ros.org/api/sbg_driver/html/msg/SbgAirData.html)
 
-  Pressure data.
+  Air data.
 
 ##### ROS standard topics
+
+> [!NOTE]
+> Please update the driver configuration to enable standard ROS messages publication `output.ros_standard`. Also, the driver only publish standard ROS messages if the driver is setup to use ENU frame convention `output.use_enu`.
+
 In order to define ROS standard topics, it requires sometimes several SBG messages, to be merged.
 For each ROS standard, you have to activate the needed SBG outputs.
 
@@ -205,7 +216,7 @@ For each ROS standard, you have to activate the needed SBG outputs.
 * **`/imu/pres`** [sensor_msgs/FluidPressure](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/FluidPressure.html)
 
   IMU pressure data.
-  Requires `/sbg/pressure`.
+  Requires `/sbg/air_data`.
   
 * **`/imu/pos_ecef`** [geometry_msgs/PointStamped](http://docs.ros.org/melodic/api/geometry_msgs/html/msg/PointStamped.html)
 
@@ -228,9 +239,6 @@ For each ROS standard, you have to activate the needed SBG outputs.
   Requires `/sbg/imu_data` and `/sbg/ekv_nav` and either `/sbg/ekf_euler` or `/sbg/ekf_quat`.
   Disabled by default, set `odometry.enable` in configuration file.
 
-> [!NOTE]
-> Please update the driver configuration to enable standard ROS messages publication. Also, the driver only publish standard ROS messages if the driver is setup to use ENU frame convention.
-
 ##### NMEA topics
 The driver can publish NMEA GGA messages from the internal GNSS receiver. It can be used with third party [NTRIP client](https://github.com/LORD-MicroStrain/ntrip_client) modules to support VRS networks providers.
 
@@ -243,7 +251,7 @@ The driver can publish NMEA GGA messages from the internal GNSS receiver. It can
 
 #### Subscribed Topics
 ##### RTCM topics
-The `sbg_device` node can subscribe to RTCM topics published by third party ROS2 modules.  
+The `sbg_device` node can subscribe to RTCM topics published by third party ROS modules.  
 Incoming RTCM data are forwarded to the INS internal GNSS receiver to enable DGPS/RTK solutions.
 
  Disabled by default, set `rtcm.subscribe` to `true` in .yaml config file to use this feature.
