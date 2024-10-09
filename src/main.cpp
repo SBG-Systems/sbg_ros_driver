@@ -24,9 +24,11 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
       sbg_device.periodicHandle();
+      ros::spinOnce();
       loop_rate.sleep();
     }
 
+    ros::shutdown();
     return 0;
   }
   catch (ros::Exception const& refE)

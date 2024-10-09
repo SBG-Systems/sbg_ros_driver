@@ -8,6 +8,16 @@ driver:
   #       it can lead to miss data frame and less accurate time stamping.
   frequency: 400
 
+odometry:
+  # Enable ROS odometry messages.
+  enable: false
+  # Publish odometry transforms.
+  publishTf: true
+  # Odometry frame IDs.
+  odomFrameId: "odom"
+  baseFrameId: "base_link"
+  initFrameId: "map"
+
 # Configuration of the device with ROS.
 confWithRos: false
 
@@ -124,15 +134,15 @@ magnetometer:
 
   # Theses parameters are only used for a calibration run
   calibration:
-    # 1 2D Tell the device that the magnetic calibration will be performed with limited motions. 
-    #     This calibration mode is only designed to be used when roll and pitch motions are less than ± 5°. 
+    # 1 2D Tell the device that the magnetic calibration will be performed with limited motions.
+    #     This calibration mode is only designed to be used when roll and pitch motions are less than ± 5°.
     #     To work correctly, the device should be rotated through at least a full circle.
     # 2 3D Tell the device to start a full 3D magnetic calibration procedure. The 3D magnetic calibration offers the best accuracy
     mode: 2
 
-    # 0 LOW_BW Use this parameter in case of strong magnetic noise during calibration. 
+    # 0 LOW_BW Use this parameter in case of strong magnetic noise during calibration.
     #     Motion during calibration is then limited to slow rotations.
-    # 1 MEDIUM_BW Tell the device that medium dynamics will be observed during the magnetic calibration process. 
+    # 1 MEDIUM_BW Tell the device that medium dynamics will be observed during the magnetic calibration process.
     #     It can be used in case of medium magnetic noise during calibration process. Medium dynamics are used during calibration.
     # 2 HIGH_BW This parameter is suitable to most applications. It can be used when the dynamics during calibration are relatively high.
     bandwidth: 2
@@ -186,9 +196,9 @@ gnss:
 # Odometer configuration
 odom:
   # Odometer's gain Pulses/m
-  gain: 4800 
+  gain: 4800
   # User gain average error (%)
-  gain_error: 0.1 
+  gain_error: 0.1
   # Odometer's direction
   # 0: positive
   # 1: negative
@@ -258,11 +268,11 @@ output:
   # Includes IMU status, acc., gyro, temp delta speeds and delta angles values
   log_imu_data: 8
   # Includes roll, pitch, yaw and their accuracies on each axis
-  log_ekf_euler: 0
+  log_ekf_euler: 8
   # Includes the 4 quaternions values
   log_ekf_quat: 8
   # Position and velocities in NED coordinates with the accuracies on each axis
-  log_ekf_nav: 0
+  log_ekf_nav: 8
   # Heave, surge and sway and accelerations on each axis for up to 4 points
   log_ship_motion: 0
   # Provides UTC time reference
@@ -272,13 +282,13 @@ output:
   # Magnetometer calibration data (raw buffer)
   log_mag_calib: 0
   # GPS velocities from primary or secondary GPS receiver
-  log_gps1_vel: 0
+  log_gps1_vel: 10001
   # GPS positions from primary or secondary GPS receiver
-  log_gps1_pos: 0
+  log_gps1_pos: 10001
   # GPS true heading from dual antenna system
-  log_gps1_hdt: 0
+  log_gps1_hdt: 10001
   # GPS 1 raw data for post processing.
-  log_gps1_raw: 0
+  log_gps1_raw: 10001
   # Provides odometer velocity
   log_odo_vel: 0
   # Event A/B/C/D Event markers sent when events are detected on a sync in pin
@@ -290,3 +300,19 @@ output:
   log_air_data: 0
   # Short IMU data
   log_imu_short: 8
+
+rtcm:
+  # Should ros driver subscribe to RTCM topic
+  subscribe: false
+  # Topic on which RTCM is published
+  topic_name: rtcm
+  # Namespace where topic is published
+  namespace: ntrip_client
+
+nmea:
+  # Should ros driver publish NMEA string
+  publish: false
+  # Topic on which to publish nmea data
+  topic_name: nmea
+  # Namespace where to publish topic
+  namespace: ntrip_client

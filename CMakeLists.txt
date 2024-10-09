@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_msgs
   tf2_geometry_msgs
+  rtcm_msgs
+  nmea_msgs
 )
 
 ################################################
@@ -56,6 +58,8 @@ generate_messages(DEPENDENCIES
   std_msgs
   nav_msgs
   geometry_msgs
+  rtcm_msgs
+  nmea_msgs
 )
 
 ###################################
@@ -72,6 +76,8 @@ catkin_package(
     std_msgs
     std_srvs
     geometry_msgs
+    rtcm_msgs
+    nmea_msgs
 )
 
 ###########
@@ -101,16 +107,28 @@ set (SBG_COMMON_RESOURCES
   src/message_wrapper.cpp
   src/config_store.cpp
   src/sbg_device.cpp
+  src/sbg_ros_helpers.cpp
+  src/sbg_utm.cpp
 )
 
 ## Declare a C++ executable
 add_executable(sbg_device ${SBG_COMMON_RESOURCES} src/main.cpp)
 add_dependencies(sbg_device ${sbg_driver_EXPORTED_TARGETS})
+
+if(WIN32)
+target_compile_options(sbg_device PRIVATE)
+else()
 target_compile_options(sbg_device PRIVATE -Wall -Wextra)
+endif()
 
 add_executable(sbg_device_mag ${SBG_COMMON_RESOURCES} src/main_mag.cpp)
 add_dependencies(sbg_device_mag ${sbg_driver_EXPORTED_TARGETS})
+
+if(WIN32)
+target_compile_options(sbg_device_mag PRIVATE)
+else()
 target_compile_options(sbg_device_mag PRIVATE -Wall -Wextra)
+endif()
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(sbg_device ${catkin_LIBRARIES} sbgECom)
