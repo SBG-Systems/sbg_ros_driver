@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>sbg_driver</name>
-  <version>3.1.1</version>
+  <version>3.2.0</version>
   <description>
     ROS driver package for communication with the SBG navigation systems.
   </description>

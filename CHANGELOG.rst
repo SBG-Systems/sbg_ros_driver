@@ -2,8 +2,8 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.2.0 (2024-10-09)
+------------------
 * Update README according to the latest changes
 * Backported changes from ROS2 driver
 * fix `#70 <https://github.com/SBG-Systems/sbg_ros_driver/issues/70>`_ build on Windows
