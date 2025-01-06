@@ -48,7 +48,7 @@ private:
   ros::Publisher          sbg_status_pub_;
   ros::Publisher          sbg_utc_time_pub_;
   ros::Publisher          sbg_imu_data_pub_;
-  ros::Publisher          sbg_ekf_ruler_pub_;
+  ros::Publisher          sbg_ekf_euler_pub_;
   ros::Publisher          sbg_ekf_quat_pub_;
   ros::Publisher          sbg_ekf_nav_pub_;
   ros::Publisher          sbg_ship_motion_pub_;

@@ -127,7 +127,7 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
         break;
 
       case SBG_ECOM_LOG_EKF_EULER:
-        sbg_ekf_ruler_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, max_messages_);
+        sbg_ekf_euler_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, max_messages_);
         break;
 
       case SBG_ECOM_LOG_EKF_QUAT:
@@ -243,7 +243,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   // We need either Euler or quat angles, and we must have Nav and IMU data to
   // compute Body and angular velocity.
   //
-  if ((sbg_ekf_ruler_pub_ || sbg_ekf_quat_pub_) && sbg_ekf_nav_pub_ && sbg_imu_data_pub_)
+  if ((sbg_ekf_euler_pub_ || sbg_ekf_quat_pub_) && sbg_ekf_nav_pub_ && sbg_imu_data_pub_)
   {
     velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>(imu_node_name + "/velocity", max_messages_);
   }
@@ -290,7 +290,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (odom_enable)
   {
-    if (sbg_imu_data_pub_ && sbg_ekf_nav_pub_ && (sbg_ekf_ruler_pub_ || sbg_ekf_quat_pub_))
+    if (sbg_imu_data_pub_ && sbg_ekf_nav_pub_ && (sbg_ekf_euler_pub_ || sbg_ekf_quat_pub_))
     {
       odometry_pub_ = ref_ros_node_handle.advertise<nav_msgs::Odometry>(imu_node_name + "/odometry", max_messages_);
     }
@@ -541,10 +541,10 @@ void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_
       break;
 
     case SBG_ECOM_LOG_EKF_EULER:
-      if (sbg_ekf_ruler_pub_)
+      if (sbg_ekf_euler_pub_)
       {
         sbg_ekf_euler_message_ = message_wrapper_.createSbgEkfEulerMessage(ref_sbg_log.ekfEulerData);
-        sbg_ekf_ruler_pub_.publish(sbg_ekf_euler_message_);
+        sbg_ekf_euler_pub_.publish(sbg_ekf_euler_message_);
         processRosVelMessage();
         processRosOdoMessage();
       }
