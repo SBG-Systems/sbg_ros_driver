@@ -54,13 +54,10 @@ const ros::Time MessageWrapper::convertInsTimeToUnix(uint32_t device_timestamp) 
   // Add the SBG timestamp difference (timestamp is in microsecond).
   //
   ros::Time utc_to_epoch;
-  uint32_t  device_timestamp_diff;
   uint64_t  nanoseconds;
 
-  utc_to_epoch          = convertUtcTimeToUnix(last_sbg_utc_);
-  device_timestamp_diff = device_timestamp - last_sbg_utc_.time_stamp;
-
-  nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff) * 1000;
+  utc_to_epoch  = convertUtcTimeToUnix(last_sbg_utc_);
+  nanoseconds   = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp) * 1000 - static_cast<uint64_t>(last_sbg_utc_.time_stamp) * 1000;
 
   utc_to_epoch.fromNSec(nanoseconds);
 
