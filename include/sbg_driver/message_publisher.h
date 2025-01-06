@@ -69,6 +69,7 @@ private:
 
   ros::Publisher          imu_pub_;
   sbg_driver::SbgImuData  sbg_imu_message_;
+  sbg_driver::SbgImuShort sbg_imu_short_message_;
   sbg_driver::SbgEkfQuat  sbg_ekf_quat_message_;
   sbg_driver::SbgEkfNav   sbg_ekf_nav_message_;
   sbg_driver::SbgEkfEuler sbg_ekf_euler_message_;
@@ -119,11 +120,9 @@ private:
   void defineRosStandardPublishers(ros::NodeHandle& ref_ros_node_handle, bool odom_enable, bool enu_enable);
 
   /*!
-   * Publish a received SBG IMU log.
-   *
-   * \param[in] ref_sbg_log             SBG log.
+   * Process a received SBG IMU log.
    */
-  void publishIMUData(const SbgBinaryLogData &ref_sbg_log);
+  void processImuMessage();
 
   /*!
    * Process a ROS Velocity standard message.
