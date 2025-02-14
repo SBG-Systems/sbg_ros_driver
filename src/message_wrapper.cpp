@@ -57,7 +57,21 @@ const ros::Time MessageWrapper::convertInsTimeToUnix(uint32_t device_timestamp) 
   uint64_t  nanoseconds;
 
   utc_to_epoch  = convertUtcTimeToUnix(last_sbg_utc_);
-  nanoseconds   = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp) * 1000 - static_cast<uint64_t>(last_sbg_utc_.time_stamp) * 1000;
+
+  // Handle 32-bit device timestamp rollover.
+  uint32_t timestamp_diff;
+  if (device_timestamp >= last_sbg_utc_.time_stamp)
+  {
+    // No rollover, straightforward time difference.
+    timestamp_diff = device_timestamp - last_sbg_utc_.time_stamp;
+  }
+  else
+  {
+    // Rollover has occurred: handle the wraparound.
+    timestamp_diff = device_timestamp + (UINT32_MAX - last_sbg_utc_.time_stamp) + 1;
+  }
+
+  nanoseconds  = utc_to_epoch.toNSec() + static_cast<uint64_t>(timestamp_diff) * 1000;
 
   utc_to_epoch.fromNSec(nanoseconds);
 
