@@ -54,13 +54,24 @@ const ros::Time MessageWrapper::convertInsTimeToUnix(uint32_t device_timestamp) 
   // Add the SBG timestamp difference (timestamp is in microsecond).
   //
   ros::Time utc_to_epoch;
-  uint32_t  device_timestamp_diff;
   uint64_t  nanoseconds;
 
-  utc_to_epoch          = convertUtcTimeToUnix(last_sbg_utc_);
-  device_timestamp_diff = device_timestamp - last_sbg_utc_.time_stamp;
+  utc_to_epoch  = convertUtcTimeToUnix(last_sbg_utc_);
 
-  nanoseconds = utc_to_epoch.toNSec() + static_cast<uint64_t>(device_timestamp_diff) * 1000;
+  // Handle 32-bit device timestamp rollover.
+  uint32_t timestamp_diff;
+  if (device_timestamp >= last_sbg_utc_.time_stamp)
+  {
+    // No rollover, straightforward time difference.
+    timestamp_diff = device_timestamp - last_sbg_utc_.time_stamp;
+  }
+  else
+  {
+    // Rollover has occurred: handle the wraparound.
+    timestamp_diff = device_timestamp + (UINT32_MAX - last_sbg_utc_.time_stamp) + 1;
+  }
+
+  nanoseconds  = utc_to_epoch.toNSec() + static_cast<uint64_t>(timestamp_diff) * 1000;
 
   utc_to_epoch.fromNSec(nanoseconds);
 
@@ -829,6 +840,32 @@ const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::Sbg
   return imu_ros_message;
 }
 
+const sensor_msgs::Imu MessageWrapper::createRosImuMessage(const sbg_driver::SbgImuShort& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const
+{
+  sensor_msgs::Imu imu_ros_message;
+
+  imu_ros_message.header = createRosHeader(ref_sbg_imu_msg.time_stamp);
+
+  imu_ros_message.orientation               = ref_sbg_quat_msg.quaternion;
+  imu_ros_message.angular_velocity          = ref_sbg_imu_msg.delta_angle;
+  imu_ros_message.linear_acceleration       = ref_sbg_imu_msg.delta_velocity;
+
+  imu_ros_message.orientation_covariance[0] = pow(ref_sbg_quat_msg.accuracy.x, 2);
+  imu_ros_message.orientation_covariance[4] = pow(ref_sbg_quat_msg.accuracy.y, 2);
+  imu_ros_message.orientation_covariance[8] = pow(ref_sbg_quat_msg.accuracy.z, 2);
+
+  //
+  // Angular velocity and linear acceleration covariances are not provided.
+  //
+  for (size_t i = 0; i < 9; i++)
+  {
+    imu_ros_message.angular_velocity_covariance[i]    = 0.0;
+    imu_ros_message.linear_acceleration_covariance[i] = 0.0;
+  }
+
+  return imu_ros_message;
+}
+
 void MessageWrapper::fillTransform(const std::string &ref_parent_frame_id, const std::string &ref_child_frame_id, const geometry_msgs::Pose &ref_pose, geometry_msgs::TransformStamped &refTransformStamped)
 {
   refTransformStamped.header.stamp = ros::Time::now();
@@ -950,12 +987,129 @@ const nav_msgs::Odometry MessageWrapper::createRosOdoMessage(const sbg_driver::S
   return odo_ros_msg;
 }
 
+const nav_msgs::Odometry MessageWrapper::createRosOdoMessage(const sbg_driver::SbgImuShort &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_ekf_nav_msg, const sbg_driver::SbgEkfQuat &ref_ekf_quat_msg, const sbg_driver::SbgEkfEuler &ref_ekf_euler_msg)
+{
+  tf2::Quaternion orientation(ref_ekf_quat_msg.quaternion.x, ref_ekf_quat_msg.quaternion.y, ref_ekf_quat_msg.quaternion.z, ref_ekf_quat_msg.quaternion.w);
+
+  return createRosOdoMessage(ref_sbg_imu_msg, ref_ekf_nav_msg, orientation, ref_ekf_euler_msg);
+}
+
+const nav_msgs::Odometry MessageWrapper::createRosOdoMessage(const sbg_driver::SbgImuShort &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_ekf_nav_msg, const sbg_driver::SbgEkfEuler &ref_ekf_euler_msg)
+{
+  tf2::Quaternion orientation;
+
+  // Compute orientation quaternion from euler angles (already converted from NED to ENU if needed).
+  orientation.setRPY(ref_ekf_euler_msg.angle.x, ref_ekf_euler_msg.angle.y, ref_ekf_euler_msg.angle.z);
+
+  return createRosOdoMessage(ref_sbg_imu_msg, ref_ekf_nav_msg, orientation, ref_ekf_euler_msg);
+}
+
+const nav_msgs::Odometry MessageWrapper::createRosOdoMessage(const sbg_driver::SbgImuShort &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_ekf_nav_msg, const tf2::Quaternion &ref_orientation, const sbg_driver::SbgEkfEuler &ref_ekf_euler_msg)
+{
+  nav_msgs::Odometry odo_ros_msg;
+  std::string utm_zone;
+  geometry_msgs::TransformStamped transform;
+
+  // The pose message provides the position and orientation of the robot relative to the frame specified in header.frame_id
+  odo_ros_msg.header = createRosHeader(ref_sbg_imu_msg.time_stamp);
+  odo_ros_msg.header.frame_id = odom_frame_id_;
+  tf2::convert(ref_orientation, odo_ros_msg.pose.pose.orientation);
+
+  // Convert latitude and longitude to UTM coordinates.
+  if (!utm_.isInit())
+  {
+    utm_.init(ref_ekf_nav_msg.latitude, ref_ekf_nav_msg.longitude);
+    const auto first_valid_easting_northing = utm_.computeEastingNorthing(ref_ekf_nav_msg.latitude, ref_ekf_nav_msg.longitude);
+    first_valid_easting_ = first_valid_easting_northing[0];
+    first_valid_northing_ = first_valid_easting_northing[1];
+    first_valid_altitude_ = ref_ekf_nav_msg.altitude;
+
+    ROS_INFO("Initialized from lat:%f long:%f UTM zone %d%c: easting:%fm (%dkm) northing:%fm (%dkm)"
+    , ref_ekf_nav_msg.latitude, ref_ekf_nav_msg.longitude, utm_.getZoneNumber(), utm_.getLetterDesignator()
+    , first_valid_easting_, (int)(first_valid_easting_) / 1000
+    , first_valid_northing_, (int)(first_valid_northing_) / 1000
+    );
+
+    if (odom_publish_tf_)
+    {
+      // Publish UTM initial transformation.
+      geometry_msgs::Pose pose;
+      pose.position.x = first_valid_easting_;
+      pose.position.y = first_valid_northing_;
+      pose.position.z = first_valid_altitude_;
+
+      fillTransform(odom_init_frame_id_, odom_frame_id_, pose, transform);
+      tf_broadcaster_.sendTransform(transform);
+      static_tf_broadcaster_.sendTransform(transform);
+    }
+  }
+
+  const auto easting_northing = utm_.computeEastingNorthing(ref_ekf_nav_msg.latitude, ref_ekf_nav_msg.longitude);
+  odo_ros_msg.pose.pose.position.x = easting_northing[0] - first_valid_easting_;
+  odo_ros_msg.pose.pose.position.y = easting_northing[1] - first_valid_northing_;
+  odo_ros_msg.pose.pose.position.z = ref_ekf_nav_msg.altitude - first_valid_altitude_;
+
+  // Compute convergence angle.
+  double longitudeRad      = sbgDegToRadD(ref_ekf_nav_msg.longitude);
+  double latitudeRad       = sbgDegToRadD(ref_ekf_nav_msg.latitude);
+  double central_meridian  = sbgDegToRadD(utm_.getMeridian());
+  double convergence_angle = atan(tan(longitudeRad - central_meridian) * sin(latitudeRad));
+
+  // Convert position standard deviations to UTM frame.
+  double std_east  = ref_ekf_nav_msg.position_accuracy.x;
+  double std_north = ref_ekf_nav_msg.position_accuracy.y;
+  double std_x = std_north * cos(convergence_angle) - std_east * sin(convergence_angle);
+  double std_y = std_north * sin(convergence_angle) + std_east * cos(convergence_angle);
+  double std_z = ref_ekf_nav_msg.position_accuracy.z;
+  odo_ros_msg.pose.covariance[0*6 + 0] = std_x * std_x;
+  odo_ros_msg.pose.covariance[1*6 + 1] = std_y * std_y;
+  odo_ros_msg.pose.covariance[2*6 + 2] = std_z * std_z;
+  odo_ros_msg.pose.covariance[3*6 + 3] = pow(ref_ekf_euler_msg.accuracy.x, 2);
+  odo_ros_msg.pose.covariance[4*6 + 4] = pow(ref_ekf_euler_msg.accuracy.y, 2);
+  odo_ros_msg.pose.covariance[5*6 + 5] = pow(ref_ekf_euler_msg.accuracy.z, 2);
+
+  // The twist message gives the linear and angular velocity relative to the frame defined in child_frame_id
+  odo_ros_msg.child_frame_id            = frame_id_;
+  odo_ros_msg.twist.twist.linear.x      = ref_ekf_nav_msg.velocity.x;
+  odo_ros_msg.twist.twist.linear.y      = ref_ekf_nav_msg.velocity.y;
+  odo_ros_msg.twist.twist.linear.z      = ref_ekf_nav_msg.velocity.z;
+  odo_ros_msg.twist.twist.angular.x     = ref_sbg_imu_msg.delta_angle.x;
+  odo_ros_msg.twist.twist.angular.y     = ref_sbg_imu_msg.delta_angle.y;
+  odo_ros_msg.twist.twist.angular.z     = ref_sbg_imu_msg.delta_angle.z;
+  odo_ros_msg.twist.covariance[0*6 + 0] = pow(ref_ekf_nav_msg.velocity_accuracy.x, 2);
+  odo_ros_msg.twist.covariance[1*6 + 1] = pow(ref_ekf_nav_msg.velocity_accuracy.y, 2);
+  odo_ros_msg.twist.covariance[2*6 + 2] = pow(ref_ekf_nav_msg.velocity_accuracy.z, 2);
+  odo_ros_msg.twist.covariance[3*6 + 3] = 0;
+  odo_ros_msg.twist.covariance[4*6 + 4] = 0;
+  odo_ros_msg.twist.covariance[5*6 + 5] = 0;
+
+  if (odom_publish_tf_)
+  {
+    // Publish odom transformation.
+    fillTransform(odo_ros_msg.header.frame_id, odom_base_frame_id_, odo_ros_msg.pose.pose, transform);
+    tf_broadcaster_.sendTransform(transform);
+  }
+
+  return odo_ros_msg;
+}
+
 const sensor_msgs::Temperature MessageWrapper::createRosTemperatureMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
 {
   sensor_msgs::Temperature temperature_message;
 
   temperature_message.header      = createRosHeader(ref_sbg_imu_msg.time_stamp);
   temperature_message.temperature = ref_sbg_imu_msg.temp;
+  temperature_message.variance    = 0.0;
+
+  return temperature_message;
+}
+
+const sensor_msgs::Temperature MessageWrapper::createRosTemperatureMessage(const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const
+{
+  sensor_msgs::Temperature temperature_message;
+
+  temperature_message.header      = createRosHeader(ref_sbg_imu_msg.time_stamp);
+  temperature_message.temperature = ref_sbg_imu_msg.temperature;
   temperature_message.variance    = 0.0;
 
   return temperature_message;
@@ -993,6 +1147,41 @@ const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(c
 }
 
 const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const
+{
+  geometry_msgs::TwistStamped twist_stamped_message;
+
+  twist_stamped_message.header        = createRosHeader(ref_sbg_imu_msg.time_stamp);
+  twist_stamped_message.twist.angular = ref_sbg_imu_msg.delta_angle;
+
+  twist_stamped_message.twist.linear.x = body_vel(0);
+  twist_stamped_message.twist.linear.y = body_vel(1);
+  twist_stamped_message.twist.linear.z = body_vel(2);
+
+  return twist_stamped_message;
+}
+
+const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const
+{
+  sbg::SbgMatrix3f tdcm;
+  tdcm.makeDcm(sbg::SbgVector3f(ref_sbg_ekf_euler_msg.angle.x, ref_sbg_ekf_euler_msg.angle.y, ref_sbg_ekf_euler_msg.angle.z));
+  tdcm.transpose();
+
+  const sbg::SbgVector3f res = tdcm * sbg::SbgVector3f(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z);
+
+  return createRosTwistStampedMessage(res, ref_sbg_imu_msg);
+}
+
+const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_quat_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const
+{
+  sbg::SbgMatrix3f tdcm;
+  tdcm.makeDcm(ref_sbg_ekf_quat_msg.quaternion.w, ref_sbg_ekf_quat_msg.quaternion.x, ref_sbg_ekf_quat_msg.quaternion.y, ref_sbg_ekf_quat_msg.quaternion.z);
+  tdcm.transpose();
+
+  const sbg::SbgVector3f res = tdcm * sbg::SbgVector3f(ref_sbg_ekf_nav_msg.velocity.x, ref_sbg_ekf_nav_msg.velocity.y, ref_sbg_ekf_nav_msg.velocity.z);
+  return createRosTwistStampedMessage(res, ref_sbg_imu_msg);
+}
+
+const geometry_msgs::TwistStamped MessageWrapper::createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const
 {
   geometry_msgs::TwistStamped twist_stamped_message;
 

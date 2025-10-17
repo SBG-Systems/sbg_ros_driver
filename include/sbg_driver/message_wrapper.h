@@ -233,6 +233,15 @@ private:
   const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
 
   /*!
+   * Create a ROS standard TwistStamped message.
+   *
+   * \param[in] body_vel            SBG Body velocity vector.
+   * \param[in] ref_sbg_air_data    SBG IMU message.
+   * \return                        SBG TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg::SbgVector3f& body_vel, const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const;
+
+  /*!
    * Fill a transformation.
    *
    * \param[in] ref_parent_frame_id     Parent frame ID.
@@ -463,6 +472,15 @@ public:
    const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const;
 
   /*!
+   * Create a ROS standard IMU message from SBG messages.
+   * 
+   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \param[in] ref_sbg_quat_msg    SBG_ROS Quaternion message.
+   * \return                        ROS standard IMU message.
+   */
+  const sensor_msgs::Imu createRosImuMessage(const sbg_driver::SbgImuShort& ref_sbg_imu_msg, const sbg_driver::SbgEkfQuat& ref_sbg_quat_msg) const;
+
+  /*!
    * Create a ROS standard odometry message from SBG messages.
    *
    * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
@@ -495,12 +513,52 @@ public:
   const nav_msgs::Odometry createRosOdoMessage(const sbg_driver::SbgImuData &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_sbg_ekf_nav_msg, const tf2::Quaternion &ref_orientation, const sbg_driver::SbgEkfEuler &ref_sbg_ekf_euler_msg);
 
   /*!
+   * Create a ROS standard odometry message from SBG messages.
+   *
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_ekf_quat_msg    SBG-ROS Ekf Quaternion message.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \return                            ROS standard odometry message.
+   */
+  const nav_msgs::Odometry createRosOdoMessage(const sbg_driver::SbgImuShort &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_sbg_ekf_nav_msg, const sbg_driver::SbgEkfQuat &ref_sbg_ekf_quat_msg, const sbg_driver::SbgEkfEuler &ref_sbg_ekf_euler_msg);
+
+  /*!
+   * Create a ROS standard odometry message from SBG messages.
+   *
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \return                            ROS standard odometry message.
+   */
+  const nav_msgs::Odometry createRosOdoMessage(const sbg_driver::SbgImuShort &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_sbg_ekf_nav_msg, const sbg_driver::SbgEkfEuler &ref_sbg_ekf_euler_msg);
+
+  /*!
+   * Create a ROS standard odometry message from SBG messages and tf2 quaternion.
+   *
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] orientation             Orientation as a Tf2 quaternion.
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \return                            ROS standard odometry message.
+   */
+  const nav_msgs::Odometry createRosOdoMessage(const sbg_driver::SbgImuShort &ref_sbg_imu_msg, const sbg_driver::SbgEkfNav &ref_sbg_ekf_nav_msg, const tf2::Quaternion &ref_orientation, const sbg_driver::SbgEkfEuler &ref_sbg_ekf_euler_msg);
+
+  /*!
    * Create a ROS standard Temperature message from SBG message.
    *
    * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
    * \return                        ROS standard Temperature message.
    */
   const sensor_msgs::Temperature createRosTemperatureMessage(const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+
+  /*!
+   * Create a ROS standard Temperature message from SBG message.
+   * 
+   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \return                        ROS standard Temperature message.
+   */
+  const sensor_msgs::Temperature createRosTemperatureMessage(const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const;
 
   /*!
    * Create a ROS standard MagneticField message from SBG message.
@@ -529,6 +587,26 @@ public:
    * \return                            ROS standard TwistStamped message.
    */
   const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuData& ref_sbg_imu_msg) const;
+
+  /*!
+   * Create a ROS standard TwistStamped message from SBG messages.
+   * 
+   * \param[in] ref_sbg_ekf_euler_msg   SBG-ROS Ekf Euler message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg     SBG-ROS IMU message.
+   * \return                        ROS standard TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfEuler& ref_sbg_ekf_euler_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const;
+
+  /*!
+   * Create a ROS standard TwistStamped message from SBG messages.
+   *
+   * \param[in] ref_sbg_ekf_quat_msg    SBG-ROS Ekf Quaternion message.
+   * \param[in] ref_sbg_ekf_nav_msg     SBG-ROS Ekf Nav message.
+   * \param[in] ref_sbg_imu_msg         SBG-ROS IMU message.
+   * \return                            ROS standard TwistStamped message.
+   */
+  const geometry_msgs::TwistStamped createRosTwistStampedMessage(const sbg_driver::SbgEkfQuat& ref_sbg_ekf_vel_msg, const sbg_driver::SbgEkfNav& ref_sbg_ekf_nav_msg, const sbg_driver::SbgImuShort& ref_sbg_imu_msg) const;
 
   /*!
    * Create a ROS standard PointStamped message from SBG messages.

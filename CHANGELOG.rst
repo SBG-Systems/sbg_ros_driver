@@ -2,6 +2,15 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add End of Life notice
+* Handle INS internal clock rollover
+* Fix timestamp computation for out-of-order messages
+* Backport from ROS2 driver: Use imu_short to populate standard topics
+* Fix typo sbg_ekf_ruler_pub\_ instead of sbg_ekf_euler_pub\_
+* Contributors: Samuel Toledano
+
 3.2.0 (2024-10-09)
 ------------------
 * Update README according to the latest changes

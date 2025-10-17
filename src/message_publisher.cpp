@@ -127,7 +127,7 @@ void MessagePublisher::initPublisher(ros::NodeHandle& ref_ros_node_handle, SbgEC
         break;
 
       case SBG_ECOM_LOG_EKF_EULER:
-        sbg_ekf_ruler_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, max_messages_);
+        sbg_ekf_euler_pub_ = ref_ros_node_handle.advertise<sbg_driver::SbgEkfEuler>(ref_output_topic, max_messages_);
         break;
 
       case SBG_ECOM_LOG_EKF_QUAT:
@@ -243,7 +243,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   // We need either Euler or quat angles, and we must have Nav and IMU data to
   // compute Body and angular velocity.
   //
-  if ((sbg_ekf_ruler_pub_ || sbg_ekf_quat_pub_) && sbg_ekf_nav_pub_ && sbg_imu_data_pub_)
+  if ((sbg_ekf_euler_pub_ || sbg_ekf_quat_pub_) && sbg_ekf_nav_pub_ && sbg_imu_data_pub_)
   {
     velocity_pub_ = ref_ros_node_handle.advertise<geometry_msgs::TwistStamped>(imu_node_name + "/velocity", max_messages_);
   }
@@ -290,7 +290,7 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
 
   if (odom_enable)
   {
-    if (sbg_imu_data_pub_ && sbg_ekf_nav_pub_ && (sbg_ekf_ruler_pub_ || sbg_ekf_quat_pub_))
+    if (sbg_imu_data_pub_ && sbg_ekf_nav_pub_ && (sbg_ekf_euler_pub_ || sbg_ekf_quat_pub_))
     {
       odometry_pub_ = ref_ros_node_handle.advertise<nav_msgs::Odometry>(imu_node_name + "/odometry", max_messages_);
     }
@@ -301,16 +301,18 @@ void MessagePublisher::defineRosStandardPublishers(ros::NodeHandle& ref_ros_node
   }
 }
 
-void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
+void MessagePublisher::processImuMessage()
 {
-  if (sbg_imu_data_pub_)
-  {
-    sbg_imu_message_ = message_wrapper_.createSbgImuDataMessage(ref_sbg_log.imuData);
-    sbg_imu_data_pub_.publish(sbg_imu_message_);
-  }
   if (temp_pub_)
   {
-    temp_pub_.publish(message_wrapper_.createRosTemperatureMessage(sbg_imu_message_));
+    if (sbg_imu_short_pub_)
+    {
+      temp_pub_.publish(message_wrapper_.createRosTemperatureMessage(sbg_imu_short_message_));
+    }
+    else if (sbg_imu_data_pub_)
+    {
+      temp_pub_.publish(message_wrapper_.createRosTemperatureMessage(sbg_imu_message_));
+    }
   }
 
   processRosImuMessage();
@@ -318,56 +320,107 @@ void MessagePublisher::publishIMUData(const SbgBinaryLogData &ref_sbg_log)
   processRosOdoMessage();
 }
 
-void MessagePublisher::processRosVelMessage(void)
+void MessagePublisher::processRosVelMessage()
 {
   if (velocity_pub_)
   {
-    if (sbg_ekf_quat_pub_)
+    if (sbg_imu_short_pub_)
     {
-      velocity_pub_.publish(message_wrapper_.createRosTwistStampedMessage(sbg_ekf_quat_message_, sbg_ekf_nav_message_, sbg_imu_message_));
+      if (sbg_ekf_quat_pub_)
+      {
+        velocity_pub_.publish(message_wrapper_.createRosTwistStampedMessage(sbg_ekf_quat_message_, sbg_ekf_nav_message_, sbg_imu_short_message_));
+      }
+      else if (sbg_ekf_euler_pub_)
+      {
+        velocity_pub_.publish(message_wrapper_.createRosTwistStampedMessage(sbg_ekf_euler_message_, sbg_ekf_nav_message_, sbg_imu_short_message_));
+      }
     }
-    else if (sbg_ekf_ruler_pub_)
+    else if (sbg_imu_data_pub_)
     {
-      velocity_pub_.publish(message_wrapper_.createRosTwistStampedMessage(sbg_ekf_euler_message_, sbg_ekf_nav_message_, sbg_imu_message_));
+      if (sbg_ekf_quat_pub_)
+      {
+        velocity_pub_.publish(message_wrapper_.createRosTwistStampedMessage(sbg_ekf_quat_message_, sbg_ekf_nav_message_, sbg_imu_message_));
+      }
+      else if (sbg_ekf_euler_pub_)
+      {
+        velocity_pub_.publish(message_wrapper_.createRosTwistStampedMessage(sbg_ekf_euler_message_, sbg_ekf_nav_message_, sbg_imu_message_));
+      }
     }
   }
 }
 
-void MessagePublisher::processRosImuMessage(void)
+void MessagePublisher::processRosImuMessage()
 {
   if (imu_pub_)
   {
-    if (sbg_imu_message_.time_stamp == sbg_ekf_quat_message_.time_stamp)
+    if (sbg_imu_short_pub_)
     {
-      imu_pub_.publish(message_wrapper_.createRosImuMessage(sbg_imu_message_, sbg_ekf_quat_message_));
+      if (sbg_imu_short_message_.time_stamp == sbg_ekf_quat_message_.time_stamp)
+      {
+        imu_pub_.publish(message_wrapper_.createRosImuMessage(sbg_imu_short_message_, sbg_ekf_quat_message_));
+      }
+    }
+    else if (sbg_imu_data_pub_)
+    {
+      if (sbg_imu_message_.time_stamp == sbg_ekf_quat_message_.time_stamp)
+      {
+        imu_pub_.publish(message_wrapper_.createRosImuMessage(sbg_imu_message_, sbg_ekf_quat_message_));
+      }
     }
   }
 }
 
-void MessagePublisher::processRosOdoMessage(void)
+void MessagePublisher::processRosOdoMessage()
 {
   if (odometry_pub_)
   {
     if (sbg_ekf_nav_message_.status.position_valid)
     {
-      if (sbg_imu_message_.time_stamp == sbg_ekf_nav_message_.time_stamp)
+      if (sbg_imu_short_pub_)
       {
-        /*
-         * Odometry message can be generated from quaternion or euler angles.
-         * Quaternion is prefered if they are available.
-         */
-        if (sbg_ekf_quat_pub_)
+        if (sbg_imu_short_message_.time_stamp == sbg_ekf_nav_message_.time_stamp)
         {
-          if (sbg_imu_message_.time_stamp == sbg_ekf_quat_message_.time_stamp)
+          /*
+          * Odometry message can be generated from quaternion or euler angles.
+          * Quaternion is prefered if they are available.
+          */
+          if (sbg_ekf_quat_pub_)
           {
-            odometry_pub_.publish(message_wrapper_.createRosOdoMessage(sbg_imu_message_, sbg_ekf_nav_message_, sbg_ekf_quat_message_, sbg_ekf_euler_message_));
+            if (sbg_imu_short_message_.time_stamp == sbg_ekf_quat_message_.time_stamp)
+            {
+              odometry_pub_.publish(message_wrapper_.createRosOdoMessage(sbg_imu_short_message_, sbg_ekf_nav_message_, sbg_ekf_quat_message_, sbg_ekf_euler_message_));
+            }
+          }
+          else
+          {
+            if (sbg_imu_short_message_.time_stamp == sbg_ekf_euler_message_.time_stamp)
+            {
+              odometry_pub_.publish(message_wrapper_.createRosOdoMessage(sbg_imu_short_message_, sbg_ekf_nav_message_, sbg_ekf_euler_message_));
+            }
           }
         }
-        else
+      }
+      else if (sbg_imu_data_pub_)
+      {
+        if (sbg_imu_message_.time_stamp == sbg_ekf_nav_message_.time_stamp)
         {
-          if (sbg_imu_message_.time_stamp == sbg_ekf_euler_message_.time_stamp)
+          /*
+          * Odometry message can be generated from quaternion or euler angles.
+          * Quaternion is prefered if they are available.
+          */
+          if (sbg_ekf_quat_pub_)
           {
-            odometry_pub_.publish(message_wrapper_.createRosOdoMessage(sbg_imu_message_, sbg_ekf_nav_message_, sbg_ekf_euler_message_));
+            if (sbg_imu_message_.time_stamp == sbg_ekf_quat_message_.time_stamp)
+            {
+              odometry_pub_.publish(message_wrapper_.createRosOdoMessage(sbg_imu_message_, sbg_ekf_nav_message_, sbg_ekf_quat_message_, sbg_ekf_euler_message_));
+            }
+          }
+          else
+          {
+            if (sbg_imu_message_.time_stamp == sbg_ekf_euler_message_.time_stamp)
+            {
+              odometry_pub_.publish(message_wrapper_.createRosOdoMessage(sbg_imu_message_, sbg_ekf_nav_message_, sbg_ekf_euler_message_));
+            }
           }
         }
       }
@@ -525,8 +578,13 @@ void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_
       publishUtcData(ref_sbg_log);
       break;
 
-    case SBG_ECOM_LOG_IMU_DATA:
-      publishIMUData(ref_sbg_log);
+      case SBG_ECOM_LOG_IMU_DATA:
+        if (sbg_imu_data_pub_)
+        {
+          sbg_imu_message_ = message_wrapper_.createSbgImuDataMessage(ref_sbg_log.imuData);
+          sbg_imu_data_pub_.publish(sbg_imu_message_);
+          processImuMessage();
+        }
       break;
 
     case SBG_ECOM_LOG_MAG:
@@ -541,10 +599,10 @@ void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_
       break;
 
     case SBG_ECOM_LOG_EKF_EULER:
-      if (sbg_ekf_ruler_pub_)
+      if (sbg_ekf_euler_pub_)
       {
         sbg_ekf_euler_message_ = message_wrapper_.createSbgEkfEulerMessage(ref_sbg_log.ekfEulerData);
-        sbg_ekf_ruler_pub_.publish(sbg_ekf_euler_message_);
+        sbg_ekf_euler_pub_.publish(sbg_ekf_euler_message_);
         processRosVelMessage();
         processRosOdoMessage();
       }
@@ -646,7 +704,9 @@ void MessagePublisher::publish(SbgEComClass sbg_msg_class, SbgEComMsgId sbg_msg_
     case SBG_ECOM_LOG_IMU_SHORT:
       if (sbg_imu_short_pub_)
       {
-        sbg_imu_short_pub_.publish(message_wrapper_.createSbgImuShortMessage(ref_sbg_log.imuShort));
+        sbg_imu_short_message_ = message_wrapper_.createSbgImuShortMessage(ref_sbg_log.imuShort);
+        sbg_imu_short_pub_.publish(sbg_imu_short_message_);
+        processImuMessage();
       }
       break;
 
