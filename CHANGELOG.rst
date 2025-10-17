@@ -2,8 +2,8 @@
 Changelog for package sbg_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.2.1 (2025-10-17)
+------------------
 * Add End of Life notice
 * Handle INS internal clock rollover
 * Fix timestamp computation for out-of-order messages
