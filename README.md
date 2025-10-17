@@ -1,3 +1,10 @@
+# ⚠️ End of Life Notice
+
+This package targets **ROS1**, which has reached **End of Life (EOL)** as of **May 2025**.  
+As a result, **this driver is no longer maintained or supported**.
+
+We recommend migrating to the [ROS2 version](https://github.com/SBG-Systems/sbg_ros2_driver) of this driver for continued updates, compatibility, and support.
+
 # sbg_driver
 ROS driver package for SBG Systems IMU, AHRS and INS.  
 This driver package uses the [sbgECom binary protocol](https://github.com/SBG-Systems/sbgECom) to read data and configure SBG Systems devices.  
